@@ -1,0 +1,18 @@
+<ion-header>
+	<ion-navbar>
+		<ion-title>Home</ion-title>
+	</ion-navbar>
+</ion-header>
+
+<ion-content>
+	<ion-list>
+		<button ion-item *ngFor="let scan of scannings" (click)="itemSelected(scan)">
+			<ion-avatar item-left>
+				<circle-text [value]="scan.name">{{ scan.name }}</circle-text>
+			</ion-avatar>
+			<h2>{{ scan.name }}</h2>
+			<p>Date: {{ scan.date }}</p>
+			<p>Number of elements: {{ scan.noElements }}</p>
+		</button>
+	</ion-list>
+</ion-content>
