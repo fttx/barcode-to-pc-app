@@ -5,6 +5,8 @@
 </ion-header>
 
 <ion-content>
+
+	 {{  count }}
 	<ion-list>
 		<button ion-item *ngFor="let scan of scannings" (click)="itemSelected(scan)">
 			<ion-avatar item-left>
@@ -12,7 +14,13 @@
 			</ion-avatar>
 			<h2>{{ scan.name }}</h2>
 			<p>Date: {{ scan.date }}</p>
-			<p>Number of elements: {{ scan.noElements }}</p>
+			<p>Number of elements: {{ scan.data.length }}</p>
 		</button>
 	</ion-list>
+
+	<ion-fab bottom right>
+		<button ion-fab (click)="add()">
+			 <ion-icon name="add"></ion-icon>
+		</button>
+	</ion-fab>
 </ion-content>

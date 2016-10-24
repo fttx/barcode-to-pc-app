@@ -1,5 +1,7 @@
+import { BarcodeModel } from './barcode.model'
+
 export interface ScanModel {
     name: string;
     date: Date;
-    noElements: number;
+    data: BarcodeModel[];
 }
