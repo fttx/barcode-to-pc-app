@@ -4,7 +4,8 @@ import { BarcodeScanner } from 'ionic-native';
 import { NavController } from 'ionic-angular';
 import { ScanModel } from '../../models/scan.model'
 import { ScanPage } from '../scan/scan'
-
+import { WebSocketProvider } from '../../providers/websocket'
+import { Config } from '../../providers/config'
 declare var cordova: any;
 
 @Component({
@@ -12,48 +13,60 @@ declare var cordova: any;
   templateUrl: 'home.html'
 })
 export class HomePage {
-  public scannings: ScanModel[];
+  public scannings: ScanModel[] = [{
+    name: 'Scan 1',
+    date: new Date(),
+    data: [{
+      text: '011011010110',
+      format: 'ean boh'
+    }]
+  }];
 
-  public count = 0;
   constructor(public navCtrl: NavController, platform: Platform) {
-    this.scannings = [{
-      name: 'Scan 1',
-      date: new Date(),
-      data: [{
-        text: '011011010110',
-        format: 'ean boh'
-      }]
-    }];
-
-   platform.ready().then(() => {
-      if (typeof cordova != typeof undefined) {
-        this.count++;
-        cordova.plugins.zeroconf.watch('_http._tcp.local.', function (result) {
+    if (typeof cordova != typeof undefined) {
+      platform.ready().then(() => {
+        cordova.plugins.zeroconf.watch('_http._tcp.local.', (result) => {
           var action = result.action;
           var service = result.service;
-          if (action == 'added') {
-            console.log('service added', service);
-          } else {
-            console.log('service removed', service);
+          if (action == 'added' && service.port == Config.SERVER_PORT && service.addresses) {
+            this.connect(service.addresses[0]);
           }
         });
-      }
-    });
+      });
+    } else {
+      this.connect('ws://localhost:' + Config.SERVER_PORT + '/');
+    }
   }
 
-  itemSelected(scan) {
+  onOpen() {
+
+  }
+
+  onError() {
+
+  }
+
+  onMessage(message) {
+    console.log(message.data);
+  }
+
+  onItemSelected(scan) {
     this.navCtrl.push(ScanPage);
   }
 
-  add() {
+  onAddClick() {
     BarcodeScanner.scan().then((barcodeData) => {
       this.scannings.push({
         name: 'Scan x',
         date: new Date(),
         data: barcodeData
       });
-    }, (err) => {
-      // An error occurred
-    });
+    }, (err) => { });
+  }
+
+  private connect(address) {
+    new WebSocketProvider(address).onMessage().subscribe(this.onMessage);
+    new WebSocketProvider(address).onError().subscribe(this.onError);
+    new WebSocketProvider(address).onOpen().subscribe(this.onOpen);
   }
 }

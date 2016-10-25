@@ -5,10 +5,8 @@
 </ion-header>
 
 <ion-content>
-
-	 {{  count }}
 	<ion-list>
-		<button ion-item *ngFor="let scan of scannings" (click)="itemSelected(scan)">
+		<button ion-item *ngFor="let scan of scannings" (click)="onItemSelected(scan)">
 			<ion-avatar item-left>
 				<circle-text [value]="scan.name">{{ scan.name }}</circle-text>
 			</ion-avatar>
@@ -19,7 +17,7 @@
 	</ion-list>
 
 	<ion-fab bottom right>
-		<button ion-fab (click)="add()">
+		<button ion-fab (click)="onAddClick()">
 			 <ion-icon name="add"></ion-icon>
 		</button>
 	</ion-fab>
