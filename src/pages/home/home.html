@@ -1,18 +1,29 @@
 <ion-header>
-	<ion-navbar>
+	<ion-navbar color="primary">
 		<ion-title>Home</ion-title>
+
+		<ion-buttons end>
+			<button ion-button icon-only>
+        	<ion-icon 
+				[name]="connected ? 'ios-wifi' : 'ios-wifi-outline'"
+				style="color: white"></ion-icon>
+      		</button>
+		</ion-buttons>
+
 	</ion-navbar>
 </ion-header>
 
 <ion-content>
+
+	test:  {{ connected }}
 	<ion-list>
-		<button ion-item *ngFor="let scan of scannings" (click)="onItemSelected(scan)">
+		<button ion-item *ngFor="let scanSession of scanSessions" (click)="onItemSelected(scanSession)">
 			<ion-avatar item-left>
-				<circle-text [value]="scan.name">{{ scan.name }}</circle-text>
+				<circle-text [value]="scanSession.name">{{ scanSession.name }}</circle-text>
 			</ion-avatar>
-			<h2>{{ scan.name }}</h2>
-			<p>Date: {{ scan.date }}</p>
-			<p>Number of elements: {{ scan.data.length }}</p>
+			<h2>{{ scanSession.name }}</h2>
+			<p>Date: {{ scanSession.date }}</p>
+			<p>Number of elements: {{ scanSession.scannings.length }}</p>
 		</button>
 	</ion-list>
 
