@@ -1,0 +1,39 @@
+<!--
+  Generated template for the SelectServer page.
+
+  See http://ionicframework.com/docs/v2/components/#navigation for more info on
+  Ionic pages and navigation.
+-->
+<ion-header>
+
+	<ion-navbar color="primary">
+		<ion-title>Select server</ion-title>
+
+		<ion-buttons end>
+			<button ion-button icon-only>
+				<ion-spinner color="text" [hidden]="foundServers.length == 0"></ion-spinner>
+			</button>
+			
+			<button ion-button icon-only (click)="addManually()">
+        		<ion-icon name="add"></ion-icon>
+      		</button>
+
+		</ion-buttons>
+	</ion-navbar>
+
+</ion-header>
+
+
+<ion-content>
+	<ion-list radio-group [(ngModel)]="selectedServer" (ionChange)="onServerSelected($event)">
+		<ion-item *ngFor="let server of foundServers; let i = index">
+			<ion-label>
+				<h2>{{ server.name }}</h2>
+				<p>{{ server.address }}</p>
+			</ion-label>
+			<ion-radio [value]="server"></ion-radio>
+		</ion-item>
+	</ion-list>
+
+	<ion-spinner class="main-spinner" color="primary" [hidden]="foundServers.length != 0"></ion-spinner>
+</ion-content>

@@ -2,20 +2,22 @@ import { Component } from '@angular/core';
 import { Platform } from 'ionic-angular';
 import { BarcodeScanner } from 'ionic-native';
 import { NavController } from 'ionic-angular';
+import { AlertController } from 'ionic-angular';
+import { Alert } from 'ionic-angular';
 import { ScanSessionModel } from '../../models/scan-session.model'
 import { ScanSessionPage } from '../scan-session/scan-session'
-import { WebSocketProvider } from '../../providers/websocket'
+import { SelectServerPage } from '../select-server/select-server'
+import { ServerProvider } from '../../providers/server'
 import { Config } from '../../providers/config'
+import { SecureStorage } from 'ionic-native'
 
 declare var cordova: any;
 
 @Component({
   selector: 'page-scannings',
-  templateUrl: 'scannings.html'
+  templateUrl: 'scan-sessions.html'
 })
-export class ScanningsPage {
-  private webSocketProvider: WebSocketProvider;
-
+export class ScanSessionsPage {
   public connected = false;
   public scanSessions: ScanSessionModel[] = [{
     name: 'Scan session 1',
@@ -35,20 +37,22 @@ export class ScanningsPage {
     }]
   }];
 
-  constructor(public navCtrl: NavController, platform: Platform) {
-    if (typeof cordova != typeof undefined) {
-      platform.ready().then(() => {
-        cordova.plugins.zeroconf.watch('_http._tcp.local.', (result) => {
-          var action = result.action;
-          var service = result.service;
-          if (action == 'added' && service.port == Config.SERVER_PORT && service.addresses) {
-            this.connect('ws://' + service.addresses[0] + ':' + Config.SERVER_PORT + '/');
-          }
-        });
-      });
-    } else {
-      this.connect('ws://localhost:' + Config.SERVER_PORT + '/');
-    }
+  constructor(
+    public navCtrl: NavController,
+    private alertCtrl: AlertController,
+    private serverProvider: ServerProvider,
+    platform: Platform
+  ) {
+    platform.ready().then(() => {
+      serverProvider.getDefaultServer().then(
+        server => {this.serverProvider.connect(server); console.log("default server found: ", server)},
+        err => this.navCtrl.push(SelectServerPage)
+      )
+    });
+  }
+
+  onSelectServerClick() {
+    this.navCtrl.push(SelectServerPage);
   }
 
   onItemSelected(scanSession) {
@@ -60,7 +64,7 @@ export class ScanningsPage {
     BarcodeScanner.scan({
       "showFlipCameraButton": true, // iOS and Android
       "prompt": "Place a barcode inside the scan area", // supported on Android only
-      //"orientation": "landscape" // Android only (portrait|landscape), default unset so it rotates with the device
+      "orientation": "landscape" // Android only (portrait|landscape), default unset so it rotates with the device
     }).then((barcodeData) => {
       if (barcodeData && barcodeData.text) {
         let newScanSession = {
@@ -70,7 +74,7 @@ export class ScanningsPage {
         };
         this.scanSessions.push(newScanSession);
         this.navCtrl.push(ScanSessionPage, { scanSession: newScanSession, askAddMore: true });
-        this.webSocketProvider.send(barcodeData);
+        this.serverProvider.send(barcodeData);
       }
     }, (err) => {
       if (Config.DEBUG) {
@@ -81,22 +85,24 @@ export class ScanningsPage {
           scannings: [newScan]
         };
         this.scanSessions.push(newScanSession);
-        this.webSocketProvider.send(newScan);
+        this.serverProvider.send(newScan);
       } else {
         // TODO: alternativo
       }
     });
   }
+  /*
+    connect() {
+      this.webSocketProvider = ServerProvider.connect();
+      this.webSocketProvider.observable.subscribe(
+        (message) => { // onmessage + onopen
+          this.connected = true;
+          console.log('on message', message);
+        }, (error) => { // on error
+          this.connected = false;
+          console.log('on error', error);
+          this.navCtrl.push(SelectServerPage);
+        });
+    }*/
 
-  private connect(address) {
-    this.webSocketProvider = new WebSocketProvider(address);
-    this.webSocketProvider.observable.subscribe(
-      (message) => { // onmessage + onopen
-        this.connected = true;
-        console.log('on message', message);
-      }, (error) => { // on error
-        this.connected = false;
-        console.log('on error', error);
-      });
-  }
 }

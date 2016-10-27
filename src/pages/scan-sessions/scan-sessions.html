@@ -3,7 +3,7 @@
 		<ion-title>Scannings</ion-title>
 
 		<ion-buttons end>
-			<button ion-button icon-only>
+			<button ion-button icon-only (click)="onSelectServerClick()">
         	<ion-icon 
 				[name]="connected ? 'ios-wifi' : 'ios-wifi-outline'"></ion-icon>
       		</button>

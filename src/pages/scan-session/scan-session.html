@@ -7,15 +7,13 @@
 <ion-header>
 
 	<ion-navbar color="primary">
-		<ion-title>scan</ion-title>
+		<ion-title>{{ scanSession.name }}</ion-title>
 
-		<!--ion-buttons end>
-			<button ion-button icon-only (click)="enableReoderd = !enableReoderd">
-        	<ion-icon 
-			      name="reorder"
-				    [style.color]="text"></ion-icon>
-      		</button>
-		</ion-buttons-->
+		<ion-buttons end>
+			<button ion-button icon-only>
+				<ion-icon name="share"></ion-icon>
+			</button>
+		</ion-buttons>
 	</ion-navbar>
 
 </ion-header>
@@ -23,7 +21,7 @@
 <ion-content>
 	<ion-list [reorder]="true" (ionItemReorder)="reorderItems($event)" side="right">
 		<!-- ion-item-sliding *ngFor="let scan of scanSession.scannings" -->
-		<button ion-item *ngFor="let scan of scanSession.scannings" (click)="onItemClick()">
+		<button ion-item *ngFor="let scan of scanSession.scannings" (click)="onItemClick()" (press)="onItemClick()">
 			{{ scan.text }}
 		</button>
 		<!-- ion-item-options side="right">

@@ -3,19 +3,23 @@ import { IonicApp, IonicModule } from 'ionic-angular';
 import { MyApp } from './app.component';
 import { AboutPage } from '../pages/about/about';
 import { ContactPage } from '../pages/contact/contact';
-import { ScanningsPage } from '../pages/scannings/scannings';
+import { ScanSessionsPage } from '../pages/scan-sessions/scan-sessions';
 import { TabsPage } from '../pages/tabs/tabs';
 import { ScanSessionPage } from '../pages/scan-session/scan-session';
+import { SelectServerPage } from '../pages/select-server/select-server';
 import { CircleTextComponent } from '../components/circle-text';
+import { ServerProvider } from '../providers/server'
+import { Storage } from '@ionic/storage';
 
 @NgModule({
   declarations: [
     MyApp,
     AboutPage,
     ContactPage,
-    ScanningsPage,
+    ScanSessionsPage,
     TabsPage,
     ScanSessionPage,
+    SelectServerPage,
     CircleTextComponent
   ],
   imports: [
@@ -26,10 +30,11 @@ import { CircleTextComponent } from '../components/circle-text';
     MyApp,
     AboutPage,
     ContactPage,
-    ScanningsPage,
+    ScanSessionsPage,
+    SelectServerPage,
     TabsPage,
     ScanSessionPage,    
   ],
-  providers: []
+  providers: [ServerProvider, Storage]
 })
 export class AppModule { }
