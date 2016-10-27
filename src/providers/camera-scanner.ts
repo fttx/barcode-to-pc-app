@@ -1,6 +1,9 @@
 import { Injectable } from '@angular/core';
-import { Http } from '@angular/http';
-import 'rxjs/add/operator/map';
+import { BarcodeScanner } from 'ionic-native';
+import { ScanSessionModel } from '../models/scan-session.model'
+import { ScanModel } from '../models/scan.model'
+import { ServerProvider } from '../providers/server'
+import { ScanSessionPage } from '../scan-session/scan-session'
 
 /*
   Generated class for the CameraScanner provider.
@@ -11,8 +14,21 @@ import 'rxjs/add/operator/map';
 @Injectable()
 export class CameraScannerProvider {
 
-  constructor(public http: Http) {
-    console.log('Hello CameraScanner Provider');
-  }
+  constructor() { }
 
+  scan(): Promise<ScanModel> {
+    return new Promise((resolve, reject) => {
+      BarcodeScanner.scan({
+        "showFlipCameraButton": true, // iOS and Android
+        "prompt": "Place a barcode inside the scan area", // supported on Android only
+        "orientation": "landscape" // Android only (portrait|landscape), default unset so it rotates with the device
+      }).then((scan) => {
+        if (scan && scan.text) {
+          resolve(scan);
+        }
+      }, (err) => {
+        reject(err)
+      });
+    });
+  } // scan
 }

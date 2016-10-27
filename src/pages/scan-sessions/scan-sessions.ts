@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
 import { Platform } from 'ionic-angular';
-import { BarcodeScanner } from 'ionic-native';
 import { NavController } from 'ionic-angular';
 import { AlertController } from 'ionic-angular';
 import { Alert } from 'ionic-angular';
@@ -18,6 +17,7 @@ declare var cordova: any;
   templateUrl: 'scan-sessions.html'
 })
 export class ScanSessionsPage {
+
   public connected = false;
   public scanSessions: ScanSessionModel[] = [{
     name: 'Scan session 1',
@@ -45,7 +45,7 @@ export class ScanSessionsPage {
   ) {
     platform.ready().then(() => {
       serverProvider.getDefaultServer().then(
-        server => {this.serverProvider.connect(server); console.log("default server found: ", server)},
+        server => { this.serverProvider.connect(server); console.log("default server found: ", server) },
         err => this.navCtrl.push(SelectServerPage)
       )
     });
@@ -56,40 +56,16 @@ export class ScanSessionsPage {
   }
 
   onItemSelected(scanSession) {
-    this.navCtrl.push(ScanSessionPage, { scanSession: scanSession });
+    this.navCtrl.push(ScanSessionPage, { scanSession: scanSession, startScanning: false });
   }
 
   onAddClick() {
-    // spostare tutto dentro un provider e cambiare pagina a ScanSession prima di fare partire la fotocamera
-    BarcodeScanner.scan({
-      "showFlipCameraButton": true, // iOS and Android
-      "prompt": "Place a barcode inside the scan area", // supported on Android only
-      "orientation": "landscape" // Android only (portrait|landscape), default unset so it rotates with the device
-    }).then((barcodeData) => {
-      if (barcodeData && barcodeData.text) {
-        let newScanSession = {
-          name: 'Scan x',
-          date: new Date(),
-          scannings: [barcodeData]
-        };
-        this.scanSessions.push(newScanSession);
-        this.navCtrl.push(ScanSessionPage, { scanSession: newScanSession, askAddMore: true });
-        this.serverProvider.send(barcodeData);
-      }
-    }, (err) => {
-      if (Config.DEBUG) {
-        let newScan = { text: 'd6a54d85aw4d5as4d', format: 'ean' };
-        let newScanSession = {
-          name: 'Scan session n. ' + (+this.scanSessions.length + 1),
-          date: new Date(),
-          scannings: [newScan]
-        };
-        this.scanSessions.push(newScanSession);
-        this.serverProvider.send(newScan);
-      } else {
-        // TODO: alternativo
-      }
-    });
+    let newScanSession = {
+      name: 'Scan session ' + (this.scanSessions.length + 1),
+      date: new Date(),
+      scannings: []
+    };
+    this.navCtrl.push(ScanSessionPage,  { scanSession: newScanSession, startScanning: true });
   }
   /*
     connect() {

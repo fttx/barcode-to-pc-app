@@ -4,6 +4,10 @@ import { ScanSessionModel } from '../../models/scan-session.model'
 import { ActionSheetController } from 'ionic-angular'
 import { AlertController } from 'ionic-angular'
 import { BarcodeScanner } from 'ionic-native';
+import { CameraScannerProvider } from '../../providers/camera-scanner'
+import { ServerProvider } from '../../providers/server'
+import { ScanModel } from '../../models/scan.model'
+import { NavController } from 'ionic-angular';
 
 /*
   Generated class for the Scan page.
@@ -17,52 +21,58 @@ import { BarcodeScanner } from 'ionic-native';
 })
 export class ScanSessionPage {
   public scanSession: ScanSessionModel;
-  public askAddMore = false;
-  //public enableReoderd = false;
+  private CameraScannerProvider: CameraScannerProvider;
+  private startScanning = false;
 
-  constructor(private navParams: NavParams, public actionSheetCtrl: ActionSheetController, private alertCtrl: AlertController) {
+  constructor(
+    private navParams: NavParams,
+    public actionSheetCtrl: ActionSheetController,
+    private alertCtrl: AlertController,
+    private serverProvider: ServerProvider,
+    public navCtrl: NavController,
+  ) {
     this.scanSession = navParams.get('scanSession');
-    this.askAddMore = navParams.get('askAddMore');
+    this.startScanning = navParams.get('startScanning');
+    this.CameraScannerProvider = new CameraScannerProvider();
   }
 
   ionViewDidLoad() {
-    if (this.askAddMore) {
-      this.showAddMoreDialog();
+    if (this.startScanning) { // se ho premuto + su scan-sessions allora posso già iniziare la scansione
+      this.scan();
     }
+  }
+
+  scan() {
+    this.CameraScannerProvider.scan().then(
+      (scan: ScanModel) => {
+        this.scanSession.scannings.push(scan);
+        this.serverProvider.send(scan);
+        this.showAddMoreDialog();
+      }, err => {
+        if (this.scanSession.scannings.length == 0) {
+          this.navCtrl.pop();
+        }
+      });
   }
 
   showAddMoreDialog() {
     let alert = this.alertCtrl.create({
       title: 'Continue scanning?',
       message: 'Do you want to add another item to this scan session?',
-      buttons: [
-        {
-          text: 'Stop',
-          role: 'cancel',
-          handler: () => {
-            console.log('Cancel clicked');
-          }
-        },
-        {
-          text: 'Continue',
-          handler: () => {
-            // Infilare tutto in un provider in modo che si utilizza lo stesso codice sia qui che su scannings.ts
-            BarcodeScanner.scan({
-              "showFlipCameraButton": true, // iOS and Android
-              "prompt": "Place a barcode inside the scan area", // supported on Android only
-              //"orientation": "landscape" // Android only (portrait|landscape), default unset so it rotates with the device
-            }).then((barcodeData) => {
-              if (barcodeData && barcodeData.text) {
-                this.scanSession.scannings.push(barcodeData);
-                this.showAddMoreDialog();
-              }
-            }, (err) => { });
-          }
+      buttons: [{
+        text: 'Stop',
+        role: 'cancel',
+        handler: () => {
+          console.log('Cancel clicked');
         }
-      ]
+      }, {
+        text: 'Continue',
+        handler: () => {
+          this.scan();
+        }
+      }]
     });
     alert.present();
-
   }
 
   onItemClick() {
@@ -96,7 +106,6 @@ export class ScanSessionPage {
     });
     actionSheet.present();
   } // onItemClick
-
 
   remove(scan) {
 
