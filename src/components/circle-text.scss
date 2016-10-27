@@ -5,7 +5,8 @@
     width: 40px;
     overflow: hidden;
     font-size: 23px;
-    line-height: 38px;
+    vertical-align: middle;
+    display: table-cell;
     text-transform: uppercase;
     text-align: center;
 }

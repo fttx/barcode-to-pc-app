@@ -1,0 +1,45 @@
+<!--
+  Generated template for the Scan page.
+
+  See http://ionicframework.com/docs/v2/components/#navigation for more info on
+  Ionic pages and navigation.
+-->
+<ion-header>
+
+	<ion-navbar color="primary">
+		<ion-title>scan</ion-title>
+
+		<!--ion-buttons end>
+			<button ion-button icon-only (click)="enableReoderd = !enableReoderd">
+        	<ion-icon 
+			      name="reorder"
+				    [style.color]="text"></ion-icon>
+      		</button>
+		</ion-buttons-->
+	</ion-navbar>
+
+</ion-header>
+
+<ion-content>
+	<ion-list [reorder]="true" (ionItemReorder)="reorderItems($event)" side="right">
+		<!-- ion-item-sliding *ngFor="let scan of scanSession.scannings" -->
+		<button ion-item *ngFor="let scan of scanSession.scannings" (click)="onItemClick()">
+			{{ scan.text }}
+		</button>
+		<!-- ion-item-options side="right">
+				<button ion-button color="danger" (click)="remove(scan)">
+					<ion-icon name="trash"></ion-icon>
+					Remove
+				</button>
+				<button ion-button color="dark" (click)="remove(scan)">
+					<ion-icon name="share"></ion-icon>
+					Share
+				</button>
+				<button ion-button color="light" (click)="remove(scan)">
+					<ion-icon name="refresh" color="yellow"></ion-icon>
+					Retake
+				</button>
+			</ion-item-options -->
+		<!--/ion-item-sliding -->
+	</ion-list>
+</ion-content>

@@ -3,9 +3,9 @@ import { IonicApp, IonicModule } from 'ionic-angular';
 import { MyApp } from './app.component';
 import { AboutPage } from '../pages/about/about';
 import { ContactPage } from '../pages/contact/contact';
-import { HomePage } from '../pages/home/home';
+import { ScanningsPage } from '../pages/scannings/scannings';
 import { TabsPage } from '../pages/tabs/tabs';
-import { ScanPage } from '../pages/scan/scan';
+import { ScanSessionPage } from '../pages/scan-session/scan-session';
 import { CircleTextComponent } from '../components/circle-text';
 
 @NgModule({
@@ -13,9 +13,9 @@ import { CircleTextComponent } from '../components/circle-text';
     MyApp,
     AboutPage,
     ContactPage,
-    HomePage,
+    ScanningsPage,
     TabsPage,
-    ScanPage,
+    ScanSessionPage,
     CircleTextComponent
   ],
   imports: [
@@ -26,9 +26,9 @@ import { CircleTextComponent } from '../components/circle-text';
     MyApp,
     AboutPage,
     ContactPage,
-    HomePage,
+    ScanningsPage,
     TabsPage,
-    ScanPage,    
+    ScanSessionPage,    
   ],
   providers: []
 })
