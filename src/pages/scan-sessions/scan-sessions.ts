@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { Platform } from 'ionic-angular';
 import { NavController } from 'ionic-angular';
+import { ToastController } from 'ionic-angular';
 import { AlertController } from 'ionic-angular';
 import { Alert } from 'ionic-angular';
 import { ScanSessionModel } from '../../models/scan-session.model'
@@ -41,13 +42,27 @@ export class ScanSessionsPage {
     public navCtrl: NavController,
     private alertCtrl: AlertController,
     private serverProvider: ServerProvider,
+    private toastCtrl: ToastController,
     platform: Platform
   ) {
     platform.ready().then(() => {
       serverProvider.getDefaultServer().then(
-        server => { this.serverProvider.connect(server); console.log("default server found: ", server) },
-        err => this.navCtrl.push(SelectServerPage)
-      )
+        server => {
+          console.log("default server found: ", server)
+          let webSocketProvider = this.serverProvider.connect(server);
+          webSocketProvider.observable.subscribe(
+            message => {
+              this.connected = true;
+              if (!message) { this.toastCtrl.create({ message: 'Connection extablished', duration: 3000 }).present(); }
+            },
+            err => {
+              this.connected = false;
+              this.toastCtrl.create({ message: 'Connection failed', duration: 3000 }).present();
+            });
+        },
+        err => {
+          this.navCtrl.push(SelectServerPage)
+        })
     });
   }
 
@@ -65,7 +80,7 @@ export class ScanSessionsPage {
       date: new Date(),
       scannings: []
     };
-    this.navCtrl.push(ScanSessionPage,  { scanSession: newScanSession, startScanning: true });
+    this.navCtrl.push(ScanSessionPage, { scanSession: newScanSession, startScanning: true });
   }
   /*
     connect() {

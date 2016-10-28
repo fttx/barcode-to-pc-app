@@ -5,7 +5,8 @@
 		<ion-buttons end>
 			<button ion-button icon-only (click)="onSelectServerClick()">
         	<ion-icon 
-				[name]="connected ? 'ios-wifi' : 'ios-wifi-outline'"></ion-icon>
+				name="ios-wifi"
+				[style.color]="connected ? 'white': 'rgba(255,255,255,.4)'"></ion-icon>
       		</button>
 		</ion-buttons>
 
