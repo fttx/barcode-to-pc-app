@@ -1,0 +1,57 @@
+<!--
+  Generated template for the Welcome page.
+
+  See http://ionicframework.com/docs/v2/components/#navigation for more info on
+  Ionic pages and navigation.
+-->
+<ion-header>
+
+	<ion-navbar color="primary">
+		<ion-title>Welcome</ion-title>
+	</ion-navbar>
+
+</ion-header>
+
+
+<ion-content>
+	<ion-slides #welcome (ionDidChange)="onSlideChanged()" pager>
+		<ion-slide *ngFor="let slide of slides">
+			<ion-toolbar>
+				<ion-buttons end>
+					<button ion-button>Skip</button>
+				</ion-buttons>
+			</ion-toolbar>
+			<img [src]="slide.image" class="slide-image" />
+			<h2 class="slide-title" [innerHTML]="slide.title"></h2>
+			<p [innerHTML]="slide.description"></p>
+		</ion-slide>
+
+		<ion-slide>
+			<div [hidden]="!connecting">
+				<ion-spinner color="primary" class="slide-image spinner"></ion-spinner>
+				<h2 class="slide-title">Connecting to PC</h2>
+				<p>Make you sure that <b>Barcode to PC server</b> is running on your computer</p>
+			</div>
+			<div [hidden]="connecting">
+				<ion-icon name="checkmark-circle-outline" class="done"></ion-icon>
+				<h2 class="slide-title">Connection extablished</h2>
+				<button ion-button large clear icon-right (click)="startScanningClicked()">
+          Start scanning
+          <ion-icon name="arrow-forward"></ion-icon>
+        </button>
+			</div>
+		</ion-slide>
+
+	</ion-slides>
+</ion-content>
+
+<ion-footer no-shadow>
+	<ion-toolbar no-border>
+		<ion-buttons right>
+			<button ion-button [hidden]="!showNext" (click)="onNextClicked()">
+        Next
+        <ion-icon name="arrow-forward"></ion-icon>
+      </button>
+		</ion-buttons>
+	</ion-toolbar>
+</ion-footer>

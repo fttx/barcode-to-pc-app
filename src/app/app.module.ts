@@ -5,10 +5,12 @@ import { AboutPage } from '../pages/about/about';
 import { ContactPage } from '../pages/contact/contact';
 import { ScanSessionsPage } from '../pages/scan-sessions/scan-sessions';
 import { TabsPage } from '../pages/tabs/tabs';
+import { WelcomePage } from '../pages/welcome/welcome';
 import { ScanSessionPage } from '../pages/scan-session/scan-session';
 import { SelectServerPage } from '../pages/select-server/select-server';
 import { CircleTextComponent } from '../components/circle-text';
 import { ServerProvider } from '../providers/server'
+import { Settings } from '../providers/settings'
 import { Storage } from '@ionic/storage';
 
 @NgModule({
@@ -18,6 +20,7 @@ import { Storage } from '@ionic/storage';
     ContactPage,
     ScanSessionsPage,
     TabsPage,
+    WelcomePage,
     ScanSessionPage,
     SelectServerPage,
     CircleTextComponent
@@ -33,8 +36,9 @@ import { Storage } from '@ionic/storage';
     ScanSessionsPage,
     SelectServerPage,
     TabsPage,
-    ScanSessionPage,    
+    WelcomePage,
+    ScanSessionPage,
   ],
-  providers: [ServerProvider, Storage]
+  providers: [ServerProvider, Storage, Settings]
 })
 export class AppModule { }

@@ -3,8 +3,8 @@ import { Observable } from 'rxjs'
 import 'rxjs/add/operator/map';
 import { ServerModel } from '../models/server.model'
 import { WebSocketProvider } from '../providers/websocket'
+import { Settings } from '../providers/settings'
 import { Config } from './config'
-import { Storage } from '@ionic/storage';
 declare var cordova: any;
 
 /*
@@ -15,10 +15,9 @@ declare var cordova: any;
 */
 @Injectable()
 export class ServerProvider {
-  private static SECURE_STORAGE_DEFAULT_SERVER = "default_server";
   private webSocketProvider: WebSocketProvider;
 
-  constructor(public storage: Storage) { }
+  constructor(private settings: Settings) { }
 
   connect(server): WebSocketProvider {
     if (this.webSocketProvider) {
@@ -30,19 +29,11 @@ export class ServerProvider {
   }
 
   saveAsDefault(server: ServerModel) {
-    this.storage.set(ServerProvider.SECURE_STORAGE_DEFAULT_SERVER, JSON.stringify(server));
+    this.settings.setDefaultServer(server);
   }
 
   getDefaultServer(): Promise<ServerModel> {
-    return new Promise((resolve, reject) => {
-      this.storage.get(ServerProvider.SECURE_STORAGE_DEFAULT_SERVER).then((data) => {
-        if (data != null) {
-          resolve(JSON.parse(data))          
-        } else {
-          reject();
-        }
-      });
-    });
+    return this.settings.getDefaultServer();
   }
 
   send(object) {

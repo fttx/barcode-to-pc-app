@@ -9,7 +9,6 @@ import { ScanSessionPage } from '../scan-session/scan-session'
 import { SelectServerPage } from '../select-server/select-server'
 import { ServerProvider } from '../../providers/server'
 import { Config } from '../../providers/config'
-import { SecureStorage } from 'ionic-native'
 
 declare var cordova: any;
 

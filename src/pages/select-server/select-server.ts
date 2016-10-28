@@ -24,10 +24,29 @@ export class SelectServerPage {
     public viewCtrl: ViewController,
     private alertCtrl: AlertController,
     private serverProvider: ServerProvider
-   /*, private zone: NgZone*/) {
-    viewCtrl.willLeave.subscribe(() => {
+   /*, private zone: NgZone*/) { }
+
+
+  ionViewDidLoad() {
+    this.viewCtrl.willLeave.subscribe(() => {
       this.serverProvider.unwatch();
     })
+
+    this.scanForServers();
+
+    this.serverProvider.getDefaultServer().then(
+      (defaultServer: ServerModel) => {
+        let server = this.foundServers.find(x => x.address === defaultServer.address);
+        if (server) { // se è già dentro foundServers
+          this.selectedServer = server; // lo seleziono
+        } else { // se non è dentro foundServers
+          this.foundServers.push(defaultServer); // lo aggiungo
+          this.selectedServer = defaultServer;
+        }
+        console.log(defaultServer)
+      },
+      err => { }
+    );
   }
 
   onServerSelected(server) {
@@ -53,24 +72,6 @@ export class SelectServerPage {
       }]
     });
     alert.present();
-  }
-
-  ionViewDidLoad() {
-    this.scanForServers();
-
-    this.serverProvider.getDefaultServer().then(
-      (defaultServer: ServerModel) => {
-        let server = this.foundServers.find(x => x.address === defaultServer.address);
-        if (server) { // se è già dentro foundServers
-          this.selectedServer = server; // lo seleziono
-        } else { // se non è dentro foundServers
-          this.foundServers.push(defaultServer); // lo aggiungo
-          this.selectedServer = defaultServer;
-        }
-        console.log(defaultServer)
-      },
-      err => { }
-    );
   }
 
   scanForServers() {
