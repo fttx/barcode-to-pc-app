@@ -20,24 +20,14 @@
 
 <ion-content>
 	<ion-list [reorder]="true" (ionItemReorder)="reorderItems($event)" side="right">
-		<!-- ion-item-sliding *ngFor="let scan of scanSession.scannings" -->
-		<button ion-item *ngFor="let scan of scanSession.scannings" (click)="onItemClick()" (press)="onItemClick()">
+		<button ion-item *ngFor="let scan of scanSession.scannings; let i = index" (click)="onItemClick(scan, i)" (press)="onItemClick()">
 			{{ scan.text }}
 		</button>
-		<!-- ion-item-options side="right">
-				<button ion-button color="danger" (click)="remove(scan)">
-					<ion-icon name="trash"></ion-icon>
-					Remove
-				</button>
-				<button ion-button color="dark" (click)="remove(scan)">
-					<ion-icon name="share"></ion-icon>
-					Share
-				</button>
-				<button ion-button color="light" (click)="remove(scan)">
-					<ion-icon name="refresh" color="yellow"></ion-icon>
-					Retake
-				</button>
-			</ion-item-options -->
-		<!--/ion-item-sliding -->
 	</ion-list>
+
+	<ion-fab bottom right>
+		<button ion-fab (click)="onAddClick()">
+			 <ion-icon name="add"></ion-icon>
+		</button>
+	</ion-fab>
 </ion-content>

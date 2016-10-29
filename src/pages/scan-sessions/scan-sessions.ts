@@ -23,16 +23,16 @@ export class ScanSessionsPage {
     name: 'Scan session 1',
     date: new Date(),
     scannings: [{
-      text: '011011010110',
+      text: 'AAAAAAAAAAAAA',
       format: 'ean'
     }, {
-      text: 'Das4da45sd54a54SAD',
+      text: 'BBBBBBBBBBBBBB',
       format: 'iso'
     }, {
-      text: '101541654541',
+      text: 'CCCCCCCCCCCCCCC',
       format: 'ean_v2'
     }, {
-      text: 'AAABBBCCDD',
+      text: 'DDDDDDDDDDDDDDD',
       format: 'ean r'
     }]
   }];

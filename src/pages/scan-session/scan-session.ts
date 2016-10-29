@@ -75,14 +75,17 @@ export class ScanSessionPage {
     alert.present();
   }
 
-  onItemClick() {
+  onItemClick(scan, scanIndex) {
     let actionSheet = this.actionSheetCtrl.create({
       buttons: [{
         text: 'Delete',
         icon: 'trash',
         role: 'destructive',
         handler: () => {
-          console.log('Destructive clicked');
+          this.scanSession.scannings.splice(scanIndex, 1);
+          if (this.scanSession.scannings.length == 0) {
+            // TODO go back and delete scan session
+          }
         }
       }, {
         text: 'Share',
@@ -94,14 +97,15 @@ export class ScanSessionPage {
         text: 'Retake',
         icon: 'refresh',
         handler: () => {
-          console.log('Retake clicked');
+          this.CameraScannerProvider.scan().then(
+            (scan: ScanModel) => {
+              this.scanSession.scannings.splice(scanIndex, 1, scan);
+              this.serverProvider.send(scan);
+            });
         }
       }, {
         text: 'Cancel',
-        role: 'cancel',
-        handler: () => {
-          console.log('Cancel clicked');
-        }
+        role: 'cancel'
       }]
     });
     actionSheet.present();
@@ -115,5 +119,9 @@ export class ScanSessionPage {
     let element = this.scanSession.scannings[indexes.from];
     this.scanSession.scannings.splice(indexes.from, 1);
     this.scanSession.scannings.splice(indexes.to, 0, element);
+  }
+
+   onAddClick() {
+    this.scan();
   }
 }
