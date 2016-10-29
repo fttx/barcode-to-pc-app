@@ -8,6 +8,12 @@
 
 	<ion-navbar color="primary">
 		<ion-title>Welcome</ion-title>
+
+		<ion-buttons end>
+			<button ion-button (click)="onSkipClicked()">
+				Skip
+      		</button>
+		</ion-buttons>
 	</ion-navbar>
 
 </ion-header>
@@ -16,11 +22,6 @@
 <ion-content>
 	<ion-slides #welcome (ionDidChange)="onSlideChanged()" pager>
 		<ion-slide *ngFor="let slide of slides">
-			<ion-toolbar>
-				<ion-buttons end>
-					<button ion-button>Skip</button>
-				</ion-buttons>
-			</ion-toolbar>
 			<img [src]="slide.image" class="slide-image" />
 			<h2 class="slide-title" [innerHTML]="slide.title"></h2>
 			<p [innerHTML]="slide.description"></p>

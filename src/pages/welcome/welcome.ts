@@ -39,7 +39,7 @@ export class WelcomePage {
     private serverProvider: ServerProvider,
     public viewCtrl: ViewController,
     private settings: Settings,
-    private ngZone: NgZone
+    private ngZone: NgZone,
   ) { }
 
   ionViewDidLoad() {
@@ -61,6 +61,10 @@ export class WelcomePage {
 
   }
 
+  onSkipClicked() {
+    this.navCtrl.setRoot(TabsPage);
+  }
+
   onNextClicked() {
     this.slider.slideNext();
   }
@@ -76,7 +80,5 @@ export class WelcomePage {
       this.showNext = false;
     }
   }
-
-
 
 }
