@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { NavController } from 'ionic-angular';
 import { Slides, ViewController } from 'ionic-angular';
-import { ViewChild } from '@angular/core';
+import { ViewChild, NgZone } from '@angular/core';
 import { TabsPage } from '../tabs/tabs';
 import { ServerProvider } from '../../providers/server'
 import { Settings } from '../../providers/settings'
@@ -39,6 +39,7 @@ export class WelcomePage {
     private serverProvider: ServerProvider,
     public viewCtrl: ViewController,
     private settings: Settings,
+    private ngZone: NgZone,
   ) { }
 
   ionViewDidLoad() {
@@ -51,8 +52,10 @@ export class WelcomePage {
         this.serverProvider.unwatch();
         this.settings.setDefaultServer(server);
         this.slider.slideTo(this.slider.length() - 1);
+        this.ngZone.run(() => {
           this.connecting = false;
           this.showNext = false;
+        });
       });
     }, 3000)
 
