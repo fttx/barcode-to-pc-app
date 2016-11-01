@@ -37,7 +37,11 @@ export class ServerProvider {
   }
 
   send(object) {
-    return this.webSocketProvider.send(object);
+    if (this.webSocketProvider) {
+      this.webSocketProvider.send(object);
+    } else {
+      console.log("offline mode, cannot send!")
+    }
   }
 
   watchForServers() {

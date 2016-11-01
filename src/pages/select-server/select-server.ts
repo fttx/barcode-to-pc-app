@@ -43,7 +43,6 @@ export class SelectServerPage {
           this.foundServers.push(defaultServer); // lo aggiungo
           this.selectedServer = defaultServer;
         }
-        console.log(defaultServer)
       },
       err => { }
     );
@@ -51,6 +50,8 @@ export class SelectServerPage {
 
   onServerSelected(server) {
     this.serverProvider.saveAsDefault(server);
+    this.serverProvider.connect(server);
+    this.navCtrl.pop();
   }
 
   addManually() {
@@ -79,6 +80,7 @@ export class SelectServerPage {
     this.serverProvider.watchForServers().subscribe((server: ServerModel) => {
       let alreadyPresent = this.foundServers.filter(x => x.address == server.address).length;
       if (!alreadyPresent) {
+        console.log("server found, pushing it to list: ", server);
         this.foundServers.push(server)
       }
     });
