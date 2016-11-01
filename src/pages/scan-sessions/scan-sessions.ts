@@ -15,6 +15,7 @@ declare var cordova: any;
   templateUrl: 'scan-sessions.html'
 })
 export class ScanSessionsPage {
+  private selectServerShown = false;
 
   public connected = false;
   public scanSessions: ScanSessionModel[] = [{
@@ -46,15 +47,10 @@ export class ScanSessionsPage {
   }
 
   ionViewDidEnter() {
-    console.log("ionViewDidEnter");
-
     if (this.connected == false) {
       this.platform.ready().then(() => {
         this.serverProvider.getDefaultServer().then(
           server => {
-            console.log("default server found: ", server)
-            console.log("connecting...")
-
             this.serverProvider.connect(server).subscribe(
               message => {
                 this.connected = true;
@@ -66,7 +62,10 @@ export class ScanSessionsPage {
               });
           },
           err => {
-            this.navCtrl.push(SelectServerPage)
+            if (!this.selectServerShown) {
+              this.selectServerShown = true;
+              this.navCtrl.push(SelectServerPage)
+            }
           })
       });
     }
@@ -88,18 +87,4 @@ export class ScanSessionsPage {
     };
     this.navCtrl.push(ScanSessionPage, { scanSession: newScanSession, startScanning: true });
   }
-  /*
-    connect() {
-      this.webSocketProvider = ServerProvider.connect();
-      this.webSocketProvider.observable.subscribe(
-        (message) => { // onmessage + onopen
-          this.connected = true;
-          console.log('on message', message);
-        }, (error) => { // on error
-          this.connected = false;
-          console.log('on error', error);
-          this.navCtrl.push(SelectServerPage);
-        });
-    }*/
-
 }
