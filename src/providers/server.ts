@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs'
 import 'rxjs/add/operator/map';
 import { ServerModel } from '../models/server.model'
-import { WebSocketProvider } from '../providers/websocket'
 import { Settings } from '../providers/settings'
 import { Config } from './config'
 declare var cordova: any;
@@ -15,17 +14,20 @@ declare var cordova: any;
 */
 @Injectable()
 export class ServerProvider {
-  private webSocketProvider: WebSocketProvider;
+  private webSocket: WebSocket;
+  public observable: Observable<Event>;
 
   constructor(private settings: Settings) { }
 
-  connect(server): WebSocketProvider {
-    if (this.webSocketProvider) {
-      return this.webSocketProvider;
-    }
+  connect(server) {
     let address = 'ws://' + server.address + ':' + Config.SERVER_PORT + '/';
-    this.webSocketProvider = new WebSocketProvider(address);
-    return this.webSocketProvider;
+    this.observable = Observable.create(observer => {
+      this.webSocket = new WebSocket(address);
+
+      this.webSocket.onmessage = (message) => observer.next(message);
+      this.webSocket.onopen = () => { observer.next() };
+      this.webSocket.onerror = (msg) => Observable.throw(new Error(JSON.stringify(msg)))
+    });
   }
 
   saveAsDefault(server: ServerModel) {
@@ -37,14 +39,14 @@ export class ServerProvider {
   }
 
   send(object) {
-    if (this.webSocketProvider) {
-      this.webSocketProvider.send(object);
+    if (this.webSocket) {
+      this.webSocket.send(JSON.stringify(object));
     } else {
       console.log("offline mode, cannot send!")
     }
   }
 
-  watchForServers() {
+  watchForServers() { // TODO: restituire promise invece di observable perchè richiede NgZone ora come ora
     return Observable.create(observer => {
       if (typeof cordova == typeof undefined) { // for browser support
         observer.next({ address: 'localhost', name: 'localhost' });

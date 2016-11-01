@@ -40,14 +40,21 @@ export class ScanSessionsPage {
     private alertCtrl: AlertController,
     private serverProvider: ServerProvider,
     private toastCtrl: ToastController,
-    platform: Platform
+    private platform: Platform
   ) {
-    platform.ready().then(() => {
-      serverProvider.getDefaultServer().then(
+
+  }
+
+  ionViewDidEnter() {
+    console.log("ionViewDidEnter");
+
+    this.platform.ready().then(() => {
+      this.serverProvider.getDefaultServer().then(
         server => {
           console.log("default server found: ", server)
-          let webSocketProvider = this.serverProvider.connect(server);
-          webSocketProvider.observable.subscribe(
+          console.log("connecting...")
+          
+          this.serverProvider.observable.subscribe(
             message => {
               this.connected = true;
               if (!message) { this.toastCtrl.create({ message: 'Connection extablished', duration: 3000 }).present(); }
@@ -56,6 +63,7 @@ export class ScanSessionsPage {
               this.connected = false;
               this.toastCtrl.create({ message: 'Connection failed', duration: 3000 }).present();
             });
+          this.serverProvider.connect(server);
         },
         err => {
           this.navCtrl.push(SelectServerPage)
