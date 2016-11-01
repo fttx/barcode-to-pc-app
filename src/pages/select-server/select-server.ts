@@ -26,6 +26,14 @@ export class SelectServerPage {
     private serverProvider: ServerProvider,
   ) { }
 
+  public isVisible = false;
+  ionViewDidEnter() {
+    this.isVisible = true;
+  }
+
+  ionViewDidLeave() {
+    this.isVisible = false;
+  }
 
   ionViewDidLoad() {
     this.viewCtrl.willLeave.subscribe(() => {
@@ -86,7 +94,7 @@ export class SelectServerPage {
     });
 
     setTimeout(() => {
-      if (this.foundServers.length == 0) {
+      if (this.foundServers.length == 0 && this.isVisible) {
         let alert = this.alertCtrl.create({
           title: "Unable to connect",
           message: 'Is the server runnig on your computer?',
@@ -105,5 +113,4 @@ export class SelectServerPage {
       }
     }, 10 * 1000)
   } // scan
-
 }
