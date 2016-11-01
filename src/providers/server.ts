@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, NgZone } from '@angular/core';
 import { Observable } from 'rxjs'
 import 'rxjs/add/operator/map';
 import { ServerModel } from '../models/server.model'
@@ -15,14 +15,17 @@ declare var cordova: any;
 @Injectable()
 export class ServerProvider {
   private webSocket: WebSocket;
-  public observable: Observable<Event>;
 
-  constructor(private settings: Settings) { }
+  constructor(
+    private settings: Settings,
+    private NgZone: NgZone,
+  ) { }
 
   connect(server) {
     let address = 'ws://' + server.address + ':' + Config.SERVER_PORT + '/';
-    this.observable = Observable.create(observer => {
+    return Observable.create(observer => {
       this.webSocket = new WebSocket(address);
+      console.log("connect: websocket created: ", this.webSocket)
 
       this.webSocket.onmessage = (message) => observer.next(message);
       this.webSocket.onopen = () => { observer.next() };
@@ -39,6 +42,7 @@ export class ServerProvider {
   }
 
   send(object) {
+    console.log("send: websocket is: ", this.webSocket);
     if (this.webSocket) {
       this.webSocket.send(JSON.stringify(object));
     } else {
@@ -46,20 +50,21 @@ export class ServerProvider {
     }
   }
 
-  watchForServers() { // TODO: restituire promise invece di observable perchè richiede NgZone ora come ora
+  watchForServers() {
     return Observable.create(observer => {
       if (typeof cordova == typeof undefined) { // for browser support
         observer.next({ address: 'localhost', name: 'localhost' });
         return;
       }
-
       cordova.plugins.zeroconf.watch('_http._tcp.local.', (result) => {
         var action = result.action;
         var service = result.service;
         if (action == 'added' && service.port == Config.SERVER_PORT && service.addresses && service.addresses.length) {
-          observer.next({
-            address: service.addresses[0],
-            name: service.server
+          this.NgZone.run(() => {
+            observer.next({
+              address: service.addresses[0],
+              name: service.server
+            });
           });
         }
       });

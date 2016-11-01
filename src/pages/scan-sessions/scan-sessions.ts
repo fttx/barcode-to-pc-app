@@ -48,27 +48,28 @@ export class ScanSessionsPage {
   ionViewDidEnter() {
     console.log("ionViewDidEnter");
 
-    this.platform.ready().then(() => {
-      this.serverProvider.getDefaultServer().then(
-        server => {
-          console.log("default server found: ", server)
-          console.log("connecting...")
-          
-          this.serverProvider.observable.subscribe(
-            message => {
-              this.connected = true;
-              if (!message) { this.toastCtrl.create({ message: 'Connection extablished', duration: 3000 }).present(); }
-            },
-            err => {
-              this.connected = false;
-              this.toastCtrl.create({ message: 'Connection failed', duration: 3000 }).present();
-            });
-          this.serverProvider.connect(server);
-        },
-        err => {
-          this.navCtrl.push(SelectServerPage)
-        })
-    });
+    if (this.connected == false) {
+      this.platform.ready().then(() => {
+        this.serverProvider.getDefaultServer().then(
+          server => {
+            console.log("default server found: ", server)
+            console.log("connecting...")
+
+            this.serverProvider.connect(server).subscribe(
+              message => {
+                this.connected = true;
+                if (!message) { this.toastCtrl.create({ message: 'Connection extablished', duration: 3000 }).present(); }
+              },
+              err => {
+                this.connected = false;
+                this.toastCtrl.create({ message: 'Connection failed', duration: 3000 }).present();
+              });
+          },
+          err => {
+            this.navCtrl.push(SelectServerPage)
+          })
+      });
+    }
   }
 
   onSelectServerClick() {

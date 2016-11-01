@@ -1,4 +1,4 @@
-import { Component, NgZone } from '@angular/core';
+import { Component } from '@angular/core';
 import { NavController, ViewController, AlertController } from 'ionic-angular';
 import { ServerProvider } from '../../providers/server'
 import { ServerModel } from '../../models/server.model'
@@ -24,7 +24,6 @@ export class SelectServerPage {
     public viewCtrl: ViewController,
     private alertCtrl: AlertController,
     private serverProvider: ServerProvider,
-    private NgZone: NgZone,
   ) { }
 
 
@@ -82,9 +81,7 @@ export class SelectServerPage {
       let alreadyPresent = this.foundServers.filter(x => x.address == server.address).length;
       if (!alreadyPresent) {
         console.log("server found, pushing it to list: ", server);
-        this.NgZone.run(() => {
-          this.foundServers.push(server)
-        });
+        this.foundServers.push(server)
       }
     });
 
