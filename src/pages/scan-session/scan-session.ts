@@ -3,7 +3,6 @@ import { NavParams } from 'ionic-angular';
 import { ScanSessionModel } from '../../models/scan-session.model'
 import { ActionSheetController } from 'ionic-angular'
 import { AlertController } from 'ionic-angular'
-import { BarcodeScanner } from 'ionic-native';
 import { CameraScannerProvider } from '../../providers/camera-scanner'
 import { ServerProvider } from '../../providers/server'
 import { ScanModel } from '../../models/scan.model'

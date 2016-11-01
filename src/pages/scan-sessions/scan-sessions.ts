@@ -3,12 +3,10 @@ import { Platform } from 'ionic-angular';
 import { NavController } from 'ionic-angular';
 import { ToastController } from 'ionic-angular';
 import { AlertController } from 'ionic-angular';
-import { Alert } from 'ionic-angular';
 import { ScanSessionModel } from '../../models/scan-session.model'
 import { ScanSessionPage } from '../scan-session/scan-session'
 import { SelectServerPage } from '../select-server/select-server'
 import { ServerProvider } from '../../providers/server'
-import { Config } from '../../providers/config'
 
 declare var cordova: any;
 

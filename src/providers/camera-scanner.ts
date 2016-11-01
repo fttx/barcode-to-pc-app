@@ -1,9 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BarcodeScanner } from 'ionic-native';
-import { ScanSessionModel } from '../models/scan-session.model'
 import { ScanModel } from '../models/scan.model'
-import { ServerProvider } from '../providers/server'
-import { ScanSessionPage } from '../scan-session/scan-session'
 
 /*
   Generated class for the CameraScanner provider.
