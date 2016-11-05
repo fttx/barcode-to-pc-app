@@ -25,6 +25,12 @@
 		</button>
 	</ion-list>
 
+	<div class="empty" *ngIf="scanSessions.length == 0">
+		<img src="assets/welcome/a5fsa.jpg" alt="logo" class="desaturate-img" />	<br />
+		Scan sessions list is empty<br />
+		Click on the camera button to start scanning
+	</div>
+
 	<ion-fab bottom right>
 		<button ion-fab (click)="onAddClick()">
 			 <ion-icon name="camera"></ion-icon>
