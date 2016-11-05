@@ -19,8 +19,8 @@
 </ion-header>
 
 <ion-content>
-	<ion-list [reorder]="true" (ionItemReorder)="reorderItems($event)" side="right">
-		<button ion-item *ngFor="let scan of scanSession.scannings; let i = index" (click)="onItemClick(scan, i)" (press)="onItemClick()">
+	<ion-list>
+		<button ion-item *ngFor="let scan of scanSession.scannings; let i = index" (click)="onItemClick()" (press)="onItemClick(scan, i)">
 			{{ scan.text }}
 		</button>
 	</ion-list>

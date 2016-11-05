@@ -7,6 +7,7 @@ import { CameraScannerProvider } from '../../providers/camera-scanner'
 import { ServerProvider } from '../../providers/server'
 import { ScanModel } from '../../models/scan.model'
 import { NavController } from 'ionic-angular';
+import { ScanSessionsStorage } from '../../providers/scan-sessions-storage'
 
 /*
   Generated class for the Scan page.
@@ -29,6 +30,7 @@ export class ScanSessionPage {
     private alertCtrl: AlertController,
     private serverProvider: ServerProvider,
     public navCtrl: NavController,
+    private scanSessionsStorage: ScanSessionsStorage,
   ) {
     this.scanSession = navParams.get('scanSession');
     this.startScanning = navParams.get('startScanning');
@@ -41,11 +43,12 @@ export class ScanSessionPage {
     }
   }
 
-  scan() {
+  scan() { // Warning! Retake quirk: this function doesn't get called if you selec retake
     this.CameraScannerProvider.scan().then(
       (scan: ScanModel) => {
         this.scanSession.scannings.push(scan);
         this.serverProvider.send(scan);
+        this.save();
         this.showAddMoreDialog();
       }, err => {
         if (this.scanSession.scannings.length == 0) {
@@ -100,6 +103,7 @@ export class ScanSessionPage {
             (scan: ScanModel) => {
               this.scanSession.scannings.splice(scanIndex, 1, scan);
               this.serverProvider.send(scan);
+              this.save();
             });
         }
       }, {
@@ -114,13 +118,11 @@ export class ScanSessionPage {
 
   }
 
-  reorderItems(indexes) {
-    let element = this.scanSession.scannings[indexes.from];
-    this.scanSession.scannings.splice(indexes.from, 1);
-    this.scanSession.scannings.splice(indexes.to, 0, element);
+  onAddClick() {
+    this.scan();
   }
 
-   onAddClick() {
-    this.scan();
+  save() {
+    this.scanSessionsStorage.setScanSession(this.scanSession);
   }
 }

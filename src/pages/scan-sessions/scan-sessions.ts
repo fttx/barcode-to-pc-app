@@ -7,6 +7,7 @@ import { ScanSessionModel } from '../../models/scan-session.model'
 import { ScanSessionPage } from '../scan-session/scan-session'
 import { SelectServerPage } from '../select-server/select-server'
 import { ServerProvider } from '../../providers/server'
+import { ScanSessionsStorage } from '../../providers/scan-sessions-storage'
 
 declare var cordova: any;
 
@@ -18,35 +19,22 @@ export class ScanSessionsPage {
   private selectServerShown = false;
 
   public connected = false;
-  public scanSessions: ScanSessionModel[] = [{
-    name: 'Scan session 1',
-    date: new Date(),
-    scannings: [{
-      text: 'AAAAAAAAAAAAA',
-      format: 'ean'
-    }, {
-      text: 'BBBBBBBBBBBBBB',
-      format: 'iso'
-    }, {
-      text: 'CCCCCCCCCCCCCCC',
-      format: 'ean_v2'
-    }, {
-      text: 'DDDDDDDDDDDDDDD',
-      format: 'ean r'
-    }]
-  }];
+  public scanSessions: ScanSessionModel[] = [];
 
   constructor(
     public navCtrl: NavController,
     private alertCtrl: AlertController,
     private serverProvider: ServerProvider,
     private toastCtrl: ToastController,
-    private platform: Platform
-  ) {
-
-  }
+    private platform: Platform,
+    private scanSessionsStorage: ScanSessionsStorage,
+  ) { }
 
   ionViewDidEnter() {
+    this.scanSessionsStorage.getScanSessions().then(data => {
+      this.scanSessions = data
+    });
+
     if (this.connected == false) {
       this.platform.ready().then(() => {
         this.serverProvider.getDefaultServer().then(

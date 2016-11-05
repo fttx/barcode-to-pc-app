@@ -11,6 +11,7 @@ import { SelectServerPage } from '../pages/select-server/select-server';
 import { CircleTextComponent } from '../components/circle-text';
 import { ServerProvider } from '../providers/server'
 import { Settings } from '../providers/settings'
+import { ScanSessionsStorage } from '../providers/scan-sessions-storage'
 import { Storage } from '@ionic/storage';
 
 @NgModule({
@@ -39,6 +40,6 @@ import { Storage } from '@ionic/storage';
     WelcomePage,
     ScanSessionPage,
   ],
-  providers: [ServerProvider, Storage, Settings]
+  providers: [ServerProvider, Storage, Settings, ScanSessionsStorage]
 })
 export class AppModule { }
