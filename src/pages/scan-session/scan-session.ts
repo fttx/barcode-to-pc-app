@@ -47,7 +47,7 @@ export class ScanSessionPage {
     this.CameraScannerProvider.scan().then(
       (scan: ScanModel) => {
         this.scanSession.scannings.push(scan);
-        this.serverProvider.send(scan);
+        this.serverProvider.send(ServerProvider.ACTION_SCAN, scan);
         this.save();
         this.showAddMoreDialog();
       }, err => {
@@ -102,7 +102,7 @@ export class ScanSessionPage {
           this.CameraScannerProvider.scan().then(
             (scan: ScanModel) => {
               this.scanSession.scannings.splice(scanIndex, 1, scan);
-              this.serverProvider.send(scan);
+              this.serverProvider.send(ServerProvider.ACTION_SCAN, scan);
               this.save();
             });
         }
@@ -124,5 +124,9 @@ export class ScanSessionPage {
 
   save() {
     this.scanSessionsStorage.setScanSession(this.scanSession);
+  }
+
+  sync() {
+    this.serverProvider.send(ServerProvider.ACTION_SCANSESSION, this.scanSession)
   }
 }

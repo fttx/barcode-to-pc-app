@@ -14,6 +14,9 @@ declare var cordova: any;
 */
 @Injectable()
 export class ServerProvider {
+  public static ACTION_SCAN = 'scan';
+  public static ACTION_SCANSESSION = 'scanSession';
+  public static ACTION_SCANSESSIONS = 'scanSessions';
   private webSocket: WebSocket;
 
   constructor(
@@ -41,10 +44,10 @@ export class ServerProvider {
     return this.settings.getDefaultServer();
   }
 
-  send(object) {
+  send(action, data) {
     console.log("send: websocket is: ", this.webSocket);
     if (this.webSocket) {
-      this.webSocket.send(JSON.stringify(object));
+      this.webSocket.send(JSON.stringify({ 'action': action, 'data': data }));
     } else {
       console.log("offline mode, cannot send!")
     }
