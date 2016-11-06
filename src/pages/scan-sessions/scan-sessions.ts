@@ -31,6 +31,7 @@ export class ScanSessionsPage {
   ionViewDidEnter() {
     this.scanSessionsStorage.getScanSessions().then(data => {
       this.scanSessions = data
+      this.sync();
     });
 
     if (this.connected == false) {
@@ -70,5 +71,9 @@ export class ScanSessionsPage {
       scannings: []
     };
     this.navCtrl.push(ScanSessionPage, { scanSession: newScanSession, startScanning: true });
+  }
+
+  sync() {
+    this.serverProvider.send(ServerProvider.ACTION_SCANSESSIONS, this.scanSessions)
   }
 }
