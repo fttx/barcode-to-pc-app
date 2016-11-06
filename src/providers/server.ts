@@ -4,6 +4,8 @@ import 'rxjs/add/operator/map';
 import { ServerModel } from '../models/server.model'
 import { Settings } from '../providers/settings'
 import { Config } from './config'
+import { ToastController } from 'ionic-angular';
+
 declare var cordova: any;
 
 /*
@@ -22,6 +24,7 @@ export class ServerProvider {
   constructor(
     private settings: Settings,
     private NgZone: NgZone,
+    private toastCtrl: ToastController,
   ) { }
 
   connect(server) {
@@ -30,9 +33,25 @@ export class ServerProvider {
       this.webSocket = new WebSocket(address);
       console.log("connect: websocket created: ", this.webSocket)
 
-      this.webSocket.onmessage = (message) => observer.next(message);
-      this.webSocket.onopen = () => { observer.next() };
-      this.webSocket.onerror = (msg) => Observable.throw(new Error(JSON.stringify(msg)))
+      this.webSocket.onmessage = message => {
+        observer.next(message);
+      }
+
+      this.webSocket.onopen = () => {
+        observer.next()
+        this.toastCtrl.create({ message: 'Connection extablished', duration: 3000 }).present();
+      };
+
+      this.webSocket.onerror = msg => {
+        observer.error(JSON.stringify(msg));
+        this.toastCtrl.create({ message: 'Connection failed', duration: 3000 }).present();
+      }
+
+      this.webSocket.onclose = () => {
+        observer.error("connection lost");
+        this.toastCtrl.create({ message: 'Connection lost', duration: 3000 }).present();
+      }
+
     });
   }
 
@@ -47,7 +66,11 @@ export class ServerProvider {
   send(action, data) {
     console.log("send: websocket is: ", this.webSocket);
     if (this.webSocket) {
-      this.webSocket.send(JSON.stringify({ 'action': action, 'data': data }));
+      if (this.webSocket.readyState == WebSocket.OPEN) {
+        this.webSocket.send(JSON.stringify({ 'action': action, 'data': data }));
+      } else {
+        this.toastCtrl.create({ message: 'Connection problem', duration: 3000 }).present();
+      }
     } else {
       console.log("offline mode, cannot send!")
     }

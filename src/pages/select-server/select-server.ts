@@ -56,10 +56,9 @@ export class SelectServerPage {
     );
   }
 
-  onServerSelected(server) {
+  onSelectionChanged(server) {
     this.serverProvider.saveAsDefault(server);
     this.serverProvider.connect(server);
-    this.navCtrl.pop();
   }
 
   addManually() {

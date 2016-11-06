@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
 import { Platform } from 'ionic-angular';
 import { NavController } from 'ionic-angular';
-import { ToastController } from 'ionic-angular';
 import { AlertController } from 'ionic-angular';
 import { ScanSessionModel } from '../../models/scan-session.model'
 import { ScanSessionPage } from '../scan-session/scan-session'
@@ -25,7 +24,6 @@ export class ScanSessionsPage {
     public navCtrl: NavController,
     private alertCtrl: AlertController,
     private serverProvider: ServerProvider,
-    private toastCtrl: ToastController,
     private platform: Platform,
     private scanSessionsStorage: ScanSessionsStorage,
   ) { }
@@ -42,11 +40,9 @@ export class ScanSessionsPage {
             this.serverProvider.connect(server).subscribe(
               message => {
                 this.connected = true;
-                if (!message) { this.toastCtrl.create({ message: 'Connection extablished', duration: 3000 }).present(); }
               },
               err => {
                 this.connected = false;
-                this.toastCtrl.create({ message: 'Connection failed', duration: 3000 }).present();
               });
           },
           err => {

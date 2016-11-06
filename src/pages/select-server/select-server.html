@@ -25,7 +25,7 @@
 
 
 <ion-content>
-	<ion-list radio-group [(ngModel)]="selectedServer" (ionChange)="$event && onServerSelected($event)">
+	<ion-list radio-group [(ngModel)]="selectedServer" (ionChange)="$event && onSelectionChanged($event)">
 		<ion-item *ngFor="let server of foundServers">
 			<ion-label>
 				<h2>{{ server.name }}</h2>
