@@ -13,9 +13,7 @@ export class Settings {
   private static DEFAULT_SERVER = "default_server";
   private static FIRST_RUN = "first_run";
 
-  constructor(public storage: Storage) {
-    console.log('Hello Settings Provider');
-  }
+  constructor(public storage: Storage) { }
 
   setDefaultServer(server: ServerModel) {
     return this.storage.set(Settings.DEFAULT_SERVER, JSON.stringify(server));

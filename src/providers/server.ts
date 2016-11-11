@@ -31,7 +31,6 @@ export class ServerProvider {
     let address = 'ws://' + server.address + ':' + Config.SERVER_PORT + '/';
     return Observable.create(observer => {
       this.webSocket = new WebSocket(address);
-      console.log("connect: websocket created: ", this.webSocket)
 
       this.webSocket.onmessage = message => {
         observer.next(message);
@@ -64,7 +63,6 @@ export class ServerProvider {
   }
 
   send(action, data) {
-    console.log("send: websocket is: ", this.webSocket);
     if (this.webSocket) {
       if (this.webSocket.readyState == WebSocket.OPEN) {
         this.webSocket.send(JSON.stringify({ 'action': action, 'data': data }));
