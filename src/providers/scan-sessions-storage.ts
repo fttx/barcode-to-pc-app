@@ -17,7 +17,6 @@ export class ScanSessionsStorage {
   ) { }
 
   setScanSessions(scanSessions: ScanSessionModel[]) {
-    console.log("setScanSessions: ", scanSessions)
     return this.storage.set(ScanSessionsStorage.SCAN_SESSIONS, JSON.stringify(scanSessions));
   }
 
@@ -26,7 +25,16 @@ export class ScanSessionsStorage {
     return new Promise((resolve, reject) => {
       this.storage.get(ScanSessionsStorage.SCAN_SESSIONS).then((data) => {
         if (data != null) {
-          resolve(JSON.parse(data))
+          let json = JSON.parse(data);
+          let result = json.map(x => {
+            let scanSession: ScanSessionModel = {
+              name: x.name,
+              date: new Date(x.date),
+              scannings: x.scannings
+            }
+            return scanSession;
+          });
+          resolve(result)
         } else {
           resolve([])
         }
@@ -35,10 +43,11 @@ export class ScanSessionsStorage {
   }
 
   setScanSession(scanSession: ScanSessionModel) {
-    console.log("setScanSession: ", scanSession)
-    
     return this.getScanSessions().then(sessions => {
-      let existingSessionIndex = sessions.findIndex(x => x.date == scanSession.date);
+      let existingSessionIndex = sessions.findIndex((x: ScanSessionModel) => {
+        console.log("compare: ", x.date.getTime(), scanSession.date.getTime())
+        return x.date.valueOf() == scanSession.date.valueOf();
+      });
       if (existingSessionIndex == -1) {
         sessions.push(scanSession);
       } else {
