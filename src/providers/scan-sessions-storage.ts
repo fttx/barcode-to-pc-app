@@ -44,12 +44,9 @@ export class ScanSessionsStorage {
 
   setScanSession(scanSession: ScanSessionModel) {
     return this.getScanSessions().then(sessions => {
-      let existingSessionIndex = sessions.findIndex((x: ScanSessionModel) => {
-        console.log("compare: ", x.date.getTime(), scanSession.date.getTime())
-        return x.date.valueOf() == scanSession.date.valueOf();
-      });
+      let existingSessionIndex = sessions.findIndex((x) => x.date.valueOf() == scanSession.date.valueOf());
       if (existingSessionIndex == -1) {
-        sessions.push(scanSession);
+        sessions.unshift(scanSession); // insert at the beginning of the array
       } else {
         sessions[existingSessionIndex] = scanSession;
       }
