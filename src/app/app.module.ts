@@ -4,6 +4,7 @@ import { MyApp } from './app.component';
 import { AboutPage } from '../pages/about/about';
 import { ContactPage } from '../pages/contact/contact';
 import { ScanSessionsPage } from '../pages/scan-sessions/scan-sessions';
+import { EditScanSessionPage } from '../pages/scan-session/edit-scan-session/edit-scan-session';
 import { TabsPage } from '../pages/tabs/tabs';
 import { WelcomePage } from '../pages/welcome/welcome';
 import { ScanSessionPage } from '../pages/scan-session/scan-session';
@@ -20,6 +21,7 @@ import { Storage } from '@ionic/storage';
     AboutPage,
     ContactPage,
     ScanSessionsPage,
+    EditScanSessionPage,
     TabsPage,
     WelcomePage,
     ScanSessionPage,
@@ -36,6 +38,7 @@ import { Storage } from '@ionic/storage';
     ContactPage,
     ScanSessionsPage,
     SelectServerPage,
+    EditScanSessionPage,
     TabsPage,
     WelcomePage,
     ScanSessionPage,

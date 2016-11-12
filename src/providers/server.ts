@@ -17,8 +17,9 @@ declare var cordova: any;
 @Injectable()
 export class ServerProvider {
   public static ACTION_PUT_SCANSESSIONS = 'putScanSessions';
-  public static ACTION_PUT_SCAN= 'putScan';
+  public static ACTION_PUT_SCAN = 'putScan';
   private webSocket: WebSocket;
+  private everConnected = false;
 
   constructor(
     private settings: Settings,
@@ -36,20 +37,23 @@ export class ServerProvider {
       }
 
       this.webSocket.onopen = () => {
-        observer.next()
+        this.everConnected = true;
+        observer.next();
         this.toastCtrl.create({ message: 'Connection extablished', duration: 3000 }).present();
       };
 
       this.webSocket.onerror = msg => {
         observer.error(JSON.stringify(msg));
-        this.toastCtrl.create({ message: 'Connection failed', duration: 3000 }).present();
+        if (this.everConnected) {
+          this.toastCtrl.create({ message: 'Connection failed', duration: 3000 }).present();
+        }
       }
 
       this.webSocket.onclose = () => {
-        observer.error("connection lost");
-        this.toastCtrl.create({ message: 'Connection lost', duration: 3000 }).present();
+        observer.error("connection lost"); if (this.everConnected) {
+          this.toastCtrl.create({ message: 'Connection lost', duration: 3000 }).present();
+        }
       }
-
     });
   }
 

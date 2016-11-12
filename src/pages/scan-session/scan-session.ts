@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavParams } from 'ionic-angular';
+import { NavParams, ModalController } from 'ionic-angular';
 import { ScanSessionModel } from '../../models/scan-session.model'
 import { ActionSheetController } from 'ionic-angular'
 import { AlertController } from 'ionic-angular'
@@ -8,6 +8,7 @@ import { ServerProvider } from '../../providers/server'
 import { ScanModel } from '../../models/scan.model'
 import { NavController } from 'ionic-angular';
 import { ScanSessionsStorage } from '../../providers/scan-sessions-storage'
+import { EditScanSessionPage } from './edit-scan-session/edit-scan-session'
 
 /*
   Generated class for the Scan page.
@@ -31,6 +32,7 @@ export class ScanSessionPage {
     private serverProvider: ServerProvider,
     public navCtrl: NavController,
     private scanSessionsStorage: ScanSessionsStorage,
+    public modalCtrl: ModalController,
   ) {
     this.scanSession = navParams.get('scanSession');
     this.startScanning = navParams.get('startScanning');
@@ -65,7 +67,7 @@ export class ScanSessionPage {
         text: 'Stop',
         role: 'cancel',
         handler: () => {
-          console.log('Cancel clicked');
+          this.setName();
         }
       }, {
         text: 'Continue',
@@ -102,6 +104,7 @@ export class ScanSessionPage {
           this.CameraScannerProvider.scan().then(
             (scan: ScanModel) => {
               this.scanSession.scannings.splice(scanIndex, 1, scan);
+              // TODO: fare sync prima di inviare il nuovo codice
               this.save();
               this.send(scan, scanIndex);
             });
@@ -113,6 +116,37 @@ export class ScanSessionPage {
     });
     actionSheet.present();
   } // onItemClick
+
+  edit() {
+    let editModal = this.modalCtrl.create(EditScanSessionPage, this.scanSession);
+    editModal.onDidDismiss(scanSession => {
+      this.scanSession = scanSession
+      this.save();
+      // TODO: sync col server
+    });
+    editModal.present();
+  }
+
+  setName() {
+    this.alertCtrl.create({
+      title: 'Name',
+      message: 'Insert a name for this scan session',
+      inputs: [{
+        name: 'name',
+        placeholder: this.scanSession.name
+      }],
+      buttons: [{
+        text: 'Ok',
+        handler: data => {
+          if (this.scanSession.name != data.name) {
+            this.save();
+            // TODO: sync
+          }
+          this.scanSession.name = data.name;
+        }
+      }]
+    }).present();
+  }
 
   remove(scan) {
 
