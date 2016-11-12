@@ -30,8 +30,13 @@ export class ScanSessionsPage {
 
   ionViewDidEnter() {
     this.scanSessionsStorage.getScanSessions().then(data => {
-      this.scanSessions = data
-      this.sync();
+      this.scanSessions = data;
+
+    /*  let now = new Date();
+      if (this.lastModified.getTime() <= now.getTime() - 1000 * 20) {*/
+     /*   this.sync();
+      }
+      this.lastModified = now;*/
     });
 
     if (this.connected == false) {
@@ -41,6 +46,7 @@ export class ScanSessionsPage {
             this.serverProvider.connect(server).subscribe(
               message => {
                 this.connected = true;
+                this.sync();
               },
               err => {
                 this.connected = false;
@@ -74,6 +80,6 @@ export class ScanSessionsPage {
   }
 
   sync() {
-    this.serverProvider.send(ServerProvider.ACTION_SCANSESSIONS, this.scanSessions)
+    this.serverProvider.send(ServerProvider.ACTION_PUT_SCANSESSIONS, this.scanSessions) 
   }
 }

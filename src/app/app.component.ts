@@ -14,7 +14,7 @@ export class MyApp {
   public rootPage;
 
   constructor(platform: Platform, private settings: Settings) {
-    this.rootPage = WelcomePage;
+    this.rootPage = TabsPage;
 
     Promise.all([
 

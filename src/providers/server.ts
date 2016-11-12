@@ -16,9 +16,8 @@ declare var cordova: any;
 */
 @Injectable()
 export class ServerProvider {
-  public static ACTION_SCAN = 'scan';
-  public static ACTION_SCANSESSION = 'scanSession';
-  public static ACTION_SCANSESSIONS = 'scanSessions';
+  public static ACTION_PUT_SCANSESSIONS = 'putScanSessions';
+  public static ACTION_PUT_SCAN= 'putScan';
   private webSocket: WebSocket;
 
   constructor(

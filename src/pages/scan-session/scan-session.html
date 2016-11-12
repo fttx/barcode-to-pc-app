@@ -20,7 +20,7 @@
 
 <ion-content>
 	<ion-list>
-		<button ion-item *ngFor="let scan of scanSession.scannings; let i = index" (click)="onItemClick()" (press)="onItemClick(scan, i)">
+		<button ion-item *ngFor="let scan of scanSession.scannings; let i = index" (click)="onItemClick(scan, i)">
 			{{ scan.text }}
 		</button>
 	</ion-list>

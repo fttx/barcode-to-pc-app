@@ -46,9 +46,9 @@ export class ScanSessionPage {
   scan() { // Warning! Retake quirk: this function doesn't get called if you selec retake
     this.CameraScannerProvider.scan().then(
       (scan: ScanModel) => {
-        this.scanSession.scannings.push(scan);
-        this.serverProvider.send(ServerProvider.ACTION_SCAN, scan);
+        this.scanSession.scannings.unshift(scan);
         this.save();
+        this.send(scan);
         this.showAddMoreDialog();
       }, err => {
         if (this.scanSession.scannings.length == 0) {
@@ -102,8 +102,8 @@ export class ScanSessionPage {
           this.CameraScannerProvider.scan().then(
             (scan: ScanModel) => {
               this.scanSession.scannings.splice(scanIndex, 1, scan);
-              this.serverProvider.send(ServerProvider.ACTION_SCAN, scan);
               this.save();
+              this.send(scan, scanIndex);
             });
         }
       }, {
@@ -126,7 +126,12 @@ export class ScanSessionPage {
     this.scanSessionsStorage.setScanSession(this.scanSession);
   }
 
-  sync() {
-    this.serverProvider.send(ServerProvider.ACTION_SCANSESSION, this.scanSession)
+  send(scan: ScanModel, retakeIndex: number = -1) {
+    let dummyScanSession: ScanSessionModel = { // creo una scanSession fittizia che contiene soltanto la scanModel da inviare
+      name: this.scanSession.name,
+      date: this.scanSession.date,
+      scannings: [scan]
+    };
+    this.serverProvider.send(ServerProvider.ACTION_PUT_SCAN, dummyScanSession);
   }
 }
