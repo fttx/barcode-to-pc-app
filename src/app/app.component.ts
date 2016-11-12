@@ -14,14 +14,14 @@ export class MyApp {
   public rootPage;
 
   constructor(platform: Platform, private settings: Settings) {
-    this.rootPage = TabsPage;
 
     Promise.all([
-
       this.settings.getNoRunnings().then(
         value => {
           if (!value) {
             this.rootPage = WelcomePage;
+          } else {
+            this.rootPage = TabsPage;
           }
           let runnings = value || 0;
           this.settings.setNoRunnings(++runnings);
@@ -35,9 +35,7 @@ export class MyApp {
         StatusBar.overlaysWebView(true);
         StatusBar.backgroundColorByHexString('#B71C1C');
       })
-    ])
-
-      .then(
+    ]).then(
       () => {
         Splashscreen.hide();
       })

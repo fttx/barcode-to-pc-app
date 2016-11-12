@@ -138,11 +138,11 @@ export class ScanSessionPage {
       buttons: [{
         text: 'Ok',
         handler: data => {
-          if (this.scanSession.name != data.name) {
+          if (this.scanSession.name != data.name && data.name != "") {
+            this.scanSession.name = data.name;
             this.save();
             // TODO: sync
           }
-          this.scanSession.name = data.name;
         }
       }]
     }).present();
