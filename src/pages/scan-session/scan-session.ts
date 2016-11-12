@@ -23,7 +23,7 @@ import { EditScanSessionPage } from './edit-scan-session/edit-scan-session'
 export class ScanSessionPage {
   public scanSession: ScanSessionModel;
   private CameraScannerProvider: CameraScannerProvider;
-  private startScanning = false;
+  private isNewSession = false;
 
   constructor(
     private navParams: NavParams,
@@ -35,12 +35,12 @@ export class ScanSessionPage {
     public modalCtrl: ModalController,
   ) {
     this.scanSession = navParams.get('scanSession');
-    this.startScanning = navParams.get('startScanning');
+    this.isNewSession = navParams.get('isNewSession');
     this.CameraScannerProvider = new CameraScannerProvider();
   }
 
   ionViewDidLoad() {
-    if (this.startScanning) { // se ho premuto + su scan-sessions allora posso già iniziare la scansione
+    if (this.isNewSession) { // se ho premuto + su scan-sessions allora posso già iniziare la scansione
       this.scan();
     }
   }
@@ -67,7 +67,10 @@ export class ScanSessionPage {
         text: 'Stop',
         role: 'cancel',
         handler: () => {
-          this.setName();
+          if (this.isNewSession) {
+            this.setName();
+            this.isNewSession = false;
+          }
         }
       }, {
         text: 'Continue',

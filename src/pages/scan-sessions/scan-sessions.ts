@@ -32,11 +32,11 @@ export class ScanSessionsPage {
     this.scanSessionsStorage.getScanSessions().then(data => {
       this.scanSessions = data;
 
-    /*  let now = new Date();
-      if (this.lastModified.getTime() <= now.getTime() - 1000 * 20) {*/
-     /*   this.sync();
-      }
-      this.lastModified = now;*/
+      /*  let now = new Date();
+        if (this.lastModified.getTime() <= now.getTime() - 1000 * 20) {*/
+      /*   this.sync();
+       }
+       this.lastModified = now;*/
     });
 
     if (this.connected == false) {
@@ -67,7 +67,7 @@ export class ScanSessionsPage {
   }
 
   onItemSelected(scanSession) {
-    this.navCtrl.push(ScanSessionPage, { scanSession: scanSession, startScanning: false });
+    this.navCtrl.push(ScanSessionPage, { scanSession: scanSession, isNewSession: false });
   }
 
   onAddClick() {
@@ -76,10 +76,10 @@ export class ScanSessionsPage {
       date: new Date(),
       scannings: []
     };
-    this.navCtrl.push(ScanSessionPage, { scanSession: newScanSession, startScanning: true });
+    this.navCtrl.push(ScanSessionPage, { scanSession: newScanSession, isNewSession: true });
   }
 
   sync() {
-    this.serverProvider.send(ServerProvider.ACTION_PUT_SCANSESSIONS, this.scanSessions) 
+    this.serverProvider.send(ServerProvider.ACTION_PUT_SCANSESSIONS, this.scanSessions)
   }
 }
