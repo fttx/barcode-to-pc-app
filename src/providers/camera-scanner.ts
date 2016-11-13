@@ -19,8 +19,9 @@ export class CameraScannerProvider {
         "showFlipCameraButton": true, // iOS and Android
         "prompt": "Place a barcode inside the scan area", // supported on Android only
         "orientation": "landscape" // Android only (portrait|landscape), default unset so it rotates with the device
-      }).then((scan) => {
+      }).then((scan: ScanModel) => {
         if (scan && scan.text) {
+          scan.id = new Date().getTime() + "";
           resolve(scan);
         }
       }, (err) => {

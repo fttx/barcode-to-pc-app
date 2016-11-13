@@ -50,7 +50,7 @@ export class ScanSessionPage {
       (scan: ScanModel) => {
         this.scanSession.scannings.unshift(scan);
         this.save();
-        this.send(scan);
+        this.sendPutScan(scan);
         this.showAddMoreDialog();
       }, err => {
         if (this.scanSession.scannings.length == 0) {
@@ -90,6 +90,8 @@ export class ScanSessionPage {
         role: 'destructive',
         handler: () => {
           this.scanSession.scannings.splice(scanIndex, 1);
+          this.save();
+          this.sendDeleteScan(scan);
           if (this.scanSession.scannings.length == 0) {
             // TODO go back and delete scan session
           }
@@ -107,9 +109,9 @@ export class ScanSessionPage {
           this.CameraScannerProvider.scan().then(
             (scan: ScanModel) => {
               this.scanSession.scannings.splice(scanIndex, 1, scan);
-              // TODO: fare sync prima di inviare il nuovo codice
               this.save();
-              this.send(scan, scanIndex);
+              this.sendDeleteScan(scan);
+              this.sendPutScan(scan);
             });
         }
       }, {
@@ -163,7 +165,7 @@ export class ScanSessionPage {
     this.scanSessionsStorage.setScanSession(this.scanSession);
   }
 
-  send(scan: ScanModel, retakeIndex: number = -1) {
+  sendPutScan(scan: ScanModel, retakeIndex: number = -1) {
     let dummyScanSession: ScanSessionModel = { // creo una scanSession fittizia che contiene soltanto la scanModel da inviare
       id: this.scanSession.id,
       name: this.scanSession.name,
@@ -171,5 +173,15 @@ export class ScanSessionPage {
       scannings: [scan]
     };
     this.serverProvider.send(ServerProvider.ACTION_PUT_SCAN, dummyScanSession);
+  }
+
+  sendDeleteScan(scan: ScanModel) {
+    let dummyScanSession: ScanSessionModel = {
+      id: this.scanSession.id,
+      name: this.scanSession.name,
+      date: this.scanSession.date,
+      scannings: [scan]
+    };
+    this.serverProvider.send(ServerProvider.ACTION_DELETE_SCAN, dummyScanSession);
   }
 }
