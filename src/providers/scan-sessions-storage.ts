@@ -28,6 +28,7 @@ export class ScanSessionsStorage {
           let json = JSON.parse(data);
           let result = json.map(x => {
             let scanSession: ScanSessionModel = {
+              id: x.id,
               name: x.name,
               date: new Date(x.date),
               scannings: x.scannings
@@ -44,7 +45,7 @@ export class ScanSessionsStorage {
 
   setScanSession(scanSession: ScanSessionModel) {
     return this.getScanSessions().then(sessions => {
-      let existingSessionIndex = sessions.findIndex((x) => x.date.valueOf() == scanSession.date.valueOf());
+      let existingSessionIndex = sessions.findIndex((x) => x.id == scanSession.id);
       if (existingSessionIndex == -1) {
         sessions.unshift(scanSession); // insert at the beginning of the array
       } else {

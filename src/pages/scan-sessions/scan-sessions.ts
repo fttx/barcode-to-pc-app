@@ -71,9 +71,11 @@ export class ScanSessionsPage {
   }
 
   onAddClick() {
-    let newScanSession = {
+    let date: Date = new Date();
+    let newScanSession: ScanSessionModel = {
+      id: date.getTime().toString(),
       name: 'Scan session ' + (this.scanSessions.length + 1),
-      date: new Date(),
+      date: date,
       scannings: []
     };
     this.navCtrl.push(ScanSessionPage, { scanSession: newScanSession, isNewSession: true });

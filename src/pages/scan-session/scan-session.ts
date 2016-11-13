@@ -165,6 +165,7 @@ export class ScanSessionPage {
 
   send(scan: ScanModel, retakeIndex: number = -1) {
     let dummyScanSession: ScanSessionModel = { // creo una scanSession fittizia che contiene soltanto la scanModel da inviare
+      id: this.scanSession.id,
       name: this.scanSession.name,
       date: this.scanSession.date,
       scannings: [scan]
