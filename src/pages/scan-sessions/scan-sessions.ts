@@ -46,7 +46,7 @@ export class ScanSessionsPage {
             this.serverProvider.connect(server).subscribe(
               message => {
                 this.connected = true;
-                this.sync();
+                this.sendPutScanSessions();
               },
               err => {
                 this.connected = false;
@@ -70,6 +70,22 @@ export class ScanSessionsPage {
     this.navCtrl.push(ScanSessionPage, { scanSession: scanSession, isNewSession: false });
   }
 
+  delete(scanSession, index) {
+    this.alertCtrl.create({
+      title: 'Confirm delete',
+      message: 'Do you really want to delete ' + scanSession.name + '?',
+      buttons: [{
+        text: 'Cancel', role: 'cancel'
+      }, {
+        text: 'Delete', handler: () => {
+          this.scanSessions.splice(index, 1);
+          this.save();
+          this.sendDeleteScanSessions(scanSession);
+        }
+      }]
+    }).present();
+  }
+
   onAddClick() {
     let date: Date = new Date();
     let newScanSession: ScanSessionModel = {
@@ -81,7 +97,15 @@ export class ScanSessionsPage {
     this.navCtrl.push(ScanSessionPage, { scanSession: newScanSession, isNewSession: true });
   }
 
-  sync() {
+  sendPutScanSessions() {
     this.serverProvider.send(ServerProvider.ACTION_PUT_SCANSESSIONS, this.scanSessions)
+  }
+
+  sendDeleteScanSessions(scanSession: ScanSessionModel) {
+    this.serverProvider.send(ServerProvider.ACTION_DELETE_SCANSESSION, scanSession)    
+  }
+
+  save() {
+    this.scanSessionsStorage.setScanSessions(this.scanSessions);
   }
 }

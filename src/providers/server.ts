@@ -19,6 +19,7 @@ export class ServerProvider {
   public static ACTION_PUT_SCANSESSIONS = 'putScanSessions';
   public static ACTION_PUT_SCAN = 'putScan';
   public static ACTION_DELETE_SCAN = 'deleteScan';
+  public static ACTION_DELETE_SCANSESSION = 'deleteScanSession';
   
   private webSocket: WebSocket;
   private everConnected = false;

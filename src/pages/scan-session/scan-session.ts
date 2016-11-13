@@ -153,10 +153,6 @@ export class ScanSessionPage {
     }).present();
   }
 
-  remove(scan) {
-
-  }
-
   onAddClick() {
     this.scan();
   }

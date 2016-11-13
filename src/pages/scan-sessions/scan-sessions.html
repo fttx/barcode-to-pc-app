@@ -15,7 +15,7 @@
 
 <ion-content>
 	<ion-list>
-		<button ion-item *ngFor="let scanSession of scanSessions" (click)="onItemSelected(scanSession)">
+		<button ion-item *ngFor="let scanSession of scanSessions; let i = index;" (click)="onItemSelected(scanSession)" (press)="delete(scanSession, i)">
 			<ion-avatar item-left>
 				<circle-text [value]="scanSession.name">{{ scanSession.name }}</circle-text>
 			</ion-avatar>
@@ -26,9 +26,8 @@
 	</ion-list>
 
 	<div class="empty" *ngIf="scanSessions.length == 0">
-		<img src="assets/welcome/a5fsa.jpg" alt="logo" class="desaturate-img" />	<br />
-		Scan sessions list is empty<br />
-		Click on the camera button to start scanning
+		<img src="assets/welcome/a5fsa.jpg" alt="logo" class="desaturate-img" /> <br /> Scan sessions list is empty<br /> Click
+		on the camera button to start scanning
 	</div>
 
 	<ion-fab bottom right>
