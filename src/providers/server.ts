@@ -68,7 +68,7 @@ export class ServerProvider {
     return this.settings.getDefaultServer();
   }
 
-  send(action, data) {
+  send(action, data = {}) {
     if (this.webSocket) {
       if (this.webSocket.readyState == WebSocket.OPEN) {
         this.webSocket.send(JSON.stringify({ 'action': action, 'data': data }));

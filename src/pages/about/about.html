@@ -1,11 +1,44 @@
 <ion-header>
-  <ion-navbar>
+  <ion-navbar color="primary">
+
     <ion-title>
       About
     </ion-title>
+
+    <ion-buttons left>
+      <!-- ionic bug? why the back arrow doesn't appear by default? -->
+      <button ion-button icon-only (click)="dismiss()">
+        <ion-icon name="arrow-back"></ion-icon>
+      </button>
+    </ion-buttons>
   </ion-navbar>
 </ion-header>
 
-<ion-content padding>
+<ion-content>
+  <ion-list>
 
+    <ion-list-header>Version</ion-list-header>
+    <ion-item>
+      Barcode to PC app v1.0.0
+    </ion-item>
+
+    <ion-list-header>Website</ion-list-header>
+    <ion-item>
+      <a href="https://www.barcode2pc.io">www.barcode2pc.io</a>
+    </ion-item>
+
+
+    <ion-list-header>View app source-code</ion-list-header>
+    <ion-item>
+      <a href="https://github.com/fttx/barcode-to-pc-app/">github.com/fttx/barcode-to-pc-app/</a>     
+    </ion-item>
+
+    <ion-list-header>View server source-code</ion-list-header>
+    <ion-item>
+      <a href="https://github.com/fttx/barcode-to-pc-server/">github.com/fttx/barcode-to-pc-server/</a>     
+    </ion-item>
+
+
+
+  </ion-list>
 </ion-content>

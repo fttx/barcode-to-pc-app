@@ -12,4 +12,8 @@ export class AboutPage {
 
   }
 
+  dismiss() {
+    this.navCtrl.pop();
+  }
+
 }

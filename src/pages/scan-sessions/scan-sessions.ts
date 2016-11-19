@@ -1,9 +1,10 @@
 import { Component } from '@angular/core';
-import { Platform } from 'ionic-angular';
+import { Platform, PopoverController } from 'ionic-angular';
 import { NavController } from 'ionic-angular';
 import { AlertController } from 'ionic-angular';
 import { ScanSessionModel } from '../../models/scan-session.model'
 import { ScanSessionPage } from '../scan-session/scan-session'
+import { ScanSessionsPopover } from './popover'
 import { SelectServerPage } from '../select-server/select-server'
 import { ServerProvider } from '../../providers/server'
 import { ScanSessionsStorage } from '../../providers/scan-sessions-storage'
@@ -12,7 +13,7 @@ declare var cordova: any;
 
 @Component({
   selector: 'page-scannings',
-  templateUrl: 'scan-sessions.html'
+  templateUrl: 'scan-sessions.html',
 })
 export class ScanSessionsPage {
   private selectServerShown = false;
@@ -26,6 +27,7 @@ export class ScanSessionsPage {
     private serverProvider: ServerProvider,
     private platform: Platform,
     private scanSessionsStorage: ScanSessionsStorage,
+    public popoverCtrl: PopoverController,
   ) { }
 
   ionViewDidEnter() {
@@ -102,10 +104,17 @@ export class ScanSessionsPage {
   }
 
   sendDeleteScanSessions(scanSession: ScanSessionModel) {
-    this.serverProvider.send(ServerProvider.ACTION_DELETE_SCANSESSION, scanSession)    
+    this.serverProvider.send(ServerProvider.ACTION_DELETE_SCANSESSION, scanSession)
   }
 
   save() {
     this.scanSessionsStorage.setScanSessions(this.scanSessions);
+  }
+
+  presentPopover($event) {
+    let popover = this.popoverCtrl.create(ScanSessionsPopover);
+    popover.present({
+      ev: $event
+    });
   }
 }

@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { Platform } from 'ionic-angular';
 import { StatusBar, Splashscreen } from 'ionic-native';
 
-import { TabsPage } from '../pages/tabs/tabs';
+import { ScanSessionsPage } from '../pages/scan-sessions/scan-sessions';
 import { WelcomePage } from '../pages/welcome/welcome';
 import { Settings } from '../providers/settings';
 
@@ -21,7 +21,7 @@ export class MyApp {
           if (!value) {
             this.rootPage = WelcomePage;
           } else {
-            this.rootPage = TabsPage;
+            this.rootPage = ScanSessionsPage;
           }
           let runnings = value || 0;
           this.settings.setNoRunnings(++runnings);

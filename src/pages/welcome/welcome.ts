@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { NavController } from 'ionic-angular';
 import { Slides, ViewController } from 'ionic-angular';
 import { ViewChild, NgZone } from '@angular/core';
-import { TabsPage } from '../tabs/tabs';
+import { ScanSessionsPage } from '../scan-sessions/scan-sessions';
 import { ServerProvider } from '../../providers/server'
 import { Settings } from '../../providers/settings'
 import { ServerModel } from '../../models/server.model'
@@ -62,14 +62,14 @@ export class WelcomePage {
   }
 
   onSkipClicked() {
-    this.navCtrl.setRoot(TabsPage);
+    this.navCtrl.setRoot(ScanSessionsPage);
   }
 
   onNextClicked() {
     this.slider.slideNext();
   }
   startScanningClicked() {
-    this.navCtrl.setRoot(TabsPage);
+    this.navCtrl.setRoot(ScanSessionsPage);
   }
 
   onSlideChanged() {

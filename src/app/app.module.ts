@@ -2,10 +2,9 @@ import { NgModule } from '@angular/core';
 import { IonicApp, IonicModule } from 'ionic-angular';
 import { MyApp } from './app.component';
 import { AboutPage } from '../pages/about/about';
-import { ContactPage } from '../pages/contact/contact';
 import { ScanSessionsPage } from '../pages/scan-sessions/scan-sessions';
+import { ScanSessionsPopover } from '../pages/scan-sessions/popover';
 import { EditScanSessionPage } from '../pages/scan-session/edit-scan-session/edit-scan-session';
-import { TabsPage } from '../pages/tabs/tabs';
 import { WelcomePage } from '../pages/welcome/welcome';
 import { ScanSessionPage } from '../pages/scan-session/scan-session';
 import { SelectServerPage } from '../pages/select-server/select-server';
@@ -19,12 +18,11 @@ import { Storage } from '@ionic/storage';
   declarations: [
     MyApp,
     AboutPage,
-    ContactPage,
     ScanSessionsPage,
     EditScanSessionPage,
-    TabsPage,
     WelcomePage,
     ScanSessionPage,
+    ScanSessionsPopover,
     SelectServerPage,
     CircleTextComponent
   ],
@@ -35,11 +33,10 @@ import { Storage } from '@ionic/storage';
   entryComponents: [
     MyApp,
     AboutPage,
-    ContactPage,
     ScanSessionsPage,
+    ScanSessionsPopover,
     SelectServerPage,
     EditScanSessionPage,
-    TabsPage,
     WelcomePage,
     ScanSessionPage,
   ],
