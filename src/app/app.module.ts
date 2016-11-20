@@ -12,6 +12,7 @@ import { ServerProvider } from '../providers/server'
 import { Settings } from '../providers/settings'
 import { ScanSessionsStorage } from '../providers/scan-sessions-storage'
 import { Storage } from '@ionic/storage';
+import { MomentModule } from 'angular2-moment';
 
 @NgModule({
   declarations: [
@@ -25,7 +26,8 @@ import { Storage } from '@ionic/storage';
     CircleTextComponent
   ],
   imports: [
-    IonicModule.forRoot(MyApp)
+    IonicModule.forRoot(MyApp),
+    MomentModule
   ],
   bootstrap: [IonicApp],
   entryComponents: [

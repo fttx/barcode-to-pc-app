@@ -33,7 +33,7 @@
 					<circle-text [value]="scanSession.name">{{ scanSession.name }}</circle-text>
 				</ion-avatar>
 				<h2>{{ scanSession.name }}</h2>
-				<p>Created: {{ scanSession.date | date: 'y/MM/dd HH:mm' }}</p>
+				<p>Created: {{ scanSession.date | amDateFormat:"YYYY/MM/DD HH:mm" }}</p>
 				<p>Number of scannings: {{ scanSession.scannings.length }}</p>
 			</button>
 		</ion-item-sliding>
