@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { NavParams, ModalController } from 'ionic-angular';
+import { SocialSharing } from 'ionic-native';
 import { ScanSessionModel } from '../../models/scan-session.model'
 import { ActionSheetController } from 'ionic-angular'
 import { AlertController } from 'ionic-angular'
@@ -82,7 +83,7 @@ export class ScanSessionPage {
     alert.present();
   }
 
-  onItemClick(scan, scanIndex) {
+  onPress(scan, scanIndex) {
     let actionSheet = this.actionSheetCtrl.create({
       buttons: [{
         text: 'Delete',
@@ -100,7 +101,7 @@ export class ScanSessionPage {
         text: 'Share',
         icon: 'share',
         handler: () => {
-          console.log('Share clicked');
+          SocialSharing.share(scan.text, "", "", "")
         }
       }, {
         text: 'Retake',

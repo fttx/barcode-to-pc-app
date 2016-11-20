@@ -10,10 +10,6 @@
 		<ion-title>{{ scanSession.name }}</ion-title>
 
 		<ion-buttons end>
-			<button ion-button icon-only>
-				<ion-icon name="share"></ion-icon>
-			</button>
-
 			<button ion-button icon-only (click)="edit()">
 				<ion-icon name="create"></ion-icon>
 			</button>
@@ -24,7 +20,7 @@
 
 <ion-content>
 	<ion-list>
-		<button ion-item *ngFor="let scan of scanSession.scannings; let i = index" (press)="onItemClick(scan, i)">
+		<button ion-item *ngFor="let scan of scanSession.scannings; let i = index" (press)="onPress(scan, i)">
 			{{ scan.text }}
 		</button>
 	</ion-list>
