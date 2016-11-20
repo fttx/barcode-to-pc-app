@@ -4,8 +4,8 @@ import { NavController } from 'ionic-angular';
 import { AlertController } from 'ionic-angular';
 import { ScanSessionModel } from '../../models/scan-session.model'
 import { ScanSessionPage } from '../scan-session/scan-session'
-import { ScanSessionsPopover } from './popover'
 import { SelectServerPage } from '../select-server/select-server'
+import { AboutPage } from '../about/about'
 import { ServerProvider } from '../../providers/server'
 import { ScanSessionsStorage } from '../../providers/scan-sessions-storage'
 
@@ -111,10 +111,7 @@ export class ScanSessionsPage {
     this.scanSessionsStorage.setScanSessions(this.scanSessions);
   }
 
-  presentPopover($event) {
-    let popover = this.popoverCtrl.create(ScanSessionsPopover);
-    popover.present({
-      ev: $event
-    });
+  about() {
+    this.navCtrl.push(AboutPage);
   }
 }

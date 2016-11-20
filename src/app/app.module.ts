@@ -3,7 +3,6 @@ import { IonicApp, IonicModule } from 'ionic-angular';
 import { MyApp } from './app.component';
 import { AboutPage } from '../pages/about/about';
 import { ScanSessionsPage } from '../pages/scan-sessions/scan-sessions';
-import { ScanSessionsPopover } from '../pages/scan-sessions/popover';
 import { EditScanSessionPage } from '../pages/scan-session/edit-scan-session/edit-scan-session';
 import { WelcomePage } from '../pages/welcome/welcome';
 import { ScanSessionPage } from '../pages/scan-session/scan-session';
@@ -22,7 +21,6 @@ import { Storage } from '@ionic/storage';
     EditScanSessionPage,
     WelcomePage,
     ScanSessionPage,
-    ScanSessionsPopover,
     SelectServerPage,
     CircleTextComponent
   ],
@@ -34,7 +32,6 @@ import { Storage } from '@ionic/storage';
     MyApp,
     AboutPage,
     ScanSessionsPage,
-    ScanSessionsPopover,
     SelectServerPage,
     EditScanSessionPage,
     WelcomePage,
