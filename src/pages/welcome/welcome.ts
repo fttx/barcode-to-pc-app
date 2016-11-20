@@ -30,7 +30,7 @@ export class WelcomePage {
   }, {
     title: "Download server",
     description: "Download Barcode to PC server from <span class='link'>barcode2pc.io</span> and install it to your computer",
-    image: "assets/welcome/asd54a.png",
+    image: "assets/welcome/downloadserver.gif",
     showNext: true,
   }];
 
