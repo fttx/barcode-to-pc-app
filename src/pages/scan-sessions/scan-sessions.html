@@ -25,7 +25,9 @@
 					Delete
 				</button>
 			</ion-item-options>
-
+			
+			<!-- ionic bug: press on ios also triggers click -->
+			<!-- work around: use sliding items on ios only -->
 			<button ion-item (click)="onItemSelected(scanSession)" (press)="!platform.is('ios') && delete(scanSession, i)">
 				<ion-avatar item-left>
 					<circle-text [value]="scanSession.name">{{ scanSession.name }}</circle-text>
