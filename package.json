@@ -1,7 +1,7 @@
 {
   "name": "barcode-to-pc-app",
   "author": "Filippo Tortomasi",
-  "homepage": "https://barcode2pc.io/",
+  "homepage": "https://barcodetopc.com/",
   "private": true,
   "scripts": {
     "ionic:build": "ionic-app-scripts build",
