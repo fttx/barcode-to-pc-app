@@ -6,7 +6,6 @@ import { ScanSessionsPage } from '../scan-sessions/scan-sessions';
 import { ServerProvider } from '../../providers/server'
 import { Settings } from '../../providers/settings'
 import { ServerModel } from '../../models/server.model'
-import { GoogleAnalytics } from 'ionic-native';
 
 /*
   Generated class for the Welcome page.
@@ -43,10 +42,6 @@ export class WelcomePage {
     private ngZone: NgZone,
   ) { }
 
-  // ionViewDidEnter() {
-  //   GoogleAnalytics.trackView(this.navCtrl.getActive().name);
-  // }
-
   ionViewDidLoad() {
     this.viewCtrl.willLeave.subscribe(() => {
       this.serverProvider.unwatch();
@@ -67,16 +62,13 @@ export class WelcomePage {
   }
 
   onSkipClicked() {
-    GoogleAnalytics.trackEvent('connectivity', 'server_discovery', 'welcome', 0);    
     this.navCtrl.setRoot(ScanSessionsPage);
   }
 
   onNextClicked() {
     this.slider.slideNext();
   }
-
   startScanningClicked() {
-    GoogleAnalytics.trackEvent('connectivity', 'server_discovery', 'welcome', 1);
     this.navCtrl.setRoot(ScanSessionsPage);
   }
 
