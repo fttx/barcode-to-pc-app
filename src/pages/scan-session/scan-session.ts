@@ -1,11 +1,12 @@
 import { Component } from '@angular/core';
 import { NavParams, ModalController } from 'ionic-angular';
-import { SocialSharing, GoogleAnalytics } from 'ionic-native';
+import { SocialSharing } from 'ionic-native';
 import { ScanSessionModel } from '../../models/scan-session.model'
 import { ActionSheetController } from 'ionic-angular'
 import { AlertController } from 'ionic-angular'
 import { CameraScannerProvider } from '../../providers/camera-scanner'
 import { ServerProvider } from '../../providers/server'
+import { GoogleAnalyticsService } from '../../providers/google-analytics'
 import { ScanModel } from '../../models/scan.model'
 import { NavController } from 'ionic-angular';
 import { ScanSessionsStorage } from '../../providers/scan-sessions-storage'
@@ -34,6 +35,7 @@ export class ScanSessionPage {
     public navCtrl: NavController,
     private scanSessionsStorage: ScanSessionsStorage,
     public modalCtrl: ModalController,
+    private googleAnalytics: GoogleAnalyticsService,
   ) {
     this.scanSession = navParams.get('scanSession');
     this.isNewSession = navParams.get('isNewSession');
@@ -49,7 +51,7 @@ export class ScanSessionPage {
   scan() { // Warning! Retake quirk: this function doesn't get called if you selec retake
     this.CameraScannerProvider.scan().then(
       (scan: ScanModel) => {
-        GoogleAnalytics.trackEvent('scannings', 'scan');  
+        this.googleAnalytics.trackEvent('scannings', 'scan');
         this.scanSession.scannings.unshift(scan);
         this.save();
         this.sendPutScan(scan);
@@ -91,7 +93,7 @@ export class ScanSessionPage {
         icon: 'trash',
         role: 'destructive',
         handler: () => {
-          GoogleAnalytics.trackEvent('scannings', 'delete');            
+          this.googleAnalytics.trackEvent('scannings', 'delete');
           this.scanSession.scannings.splice(scanIndex, 1);
           this.save();
           this.sendDeleteScan(scan);
@@ -103,14 +105,14 @@ export class ScanSessionPage {
         text: 'Share',
         icon: 'share',
         handler: () => {
-          GoogleAnalytics.trackEvent('scannings', 'share');
+          this.googleAnalytics.trackEvent('scannings', 'share');
           SocialSharing.share(scan.text, "", "", "")
         }
       }, {
         text: 'Retake',
         icon: 'refresh',
         handler: () => {
-          GoogleAnalytics.trackEvent('scannings', 'retake');     
+          this.googleAnalytics.trackEvent('scannings', 'retake');
           this.CameraScannerProvider.scan().then(
             (scan: ScanModel) => {
               this.scanSession.scannings.splice(scanIndex, 1, scan);
