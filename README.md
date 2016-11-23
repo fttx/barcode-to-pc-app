@@ -1,5 +1,8 @@
 # Barcode to pc app
 
+## Download
+Android: https://play.google.com/store/apps/details?id=com.barcodetopc
+
 ## Setup
 ```
 git clone https://github.com/fttx/barcode-to-pc-app/
