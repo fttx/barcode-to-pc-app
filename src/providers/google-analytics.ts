@@ -4,8 +4,6 @@ import { Platform } from 'ionic-angular';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
 
-declare var window: any;
-
 /**
  * Thanks to: https://github.com/peterpeterparker
  * See also: https://github.com/danwilson/google-analytics-plugin/issues/291
