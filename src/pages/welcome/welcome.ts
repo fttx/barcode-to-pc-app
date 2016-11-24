@@ -5,8 +5,8 @@ import { ViewChild, NgZone } from '@angular/core';
 import { ScanSessionsPage } from '../scan-sessions/scan-sessions';
 import { ServerProvider } from '../../providers/server'
 import { Settings } from '../../providers/settings'
+import { GoogleAnalyticsService } from '../../providers/google-analytics'
 import { ServerModel } from '../../models/server.model'
-import { GoogleAnalytics } from 'ionic-native';
 
 /*
   Generated class for the Welcome page.
@@ -41,10 +41,11 @@ export class WelcomePage {
     public viewCtrl: ViewController,
     private settings: Settings,
     private ngZone: NgZone,
+    private googleAnalytics: GoogleAnalyticsService,
   ) { }
 
   ionViewDidEnter() {
-     GoogleAnalytics.trackView(this.navCtrl.getActive().name);
+    this.googleAnalytics.trackView("WelcomePage");
   }
 
   ionViewDidLoad() {
@@ -67,7 +68,7 @@ export class WelcomePage {
   }
 
   onSkipClicked() {
-    GoogleAnalytics.trackEvent('connectivity', 'server_discovery', 'welcome', 0);    
+    this.googleAnalytics.trackEvent('connectivity', 'server_discovery', 'welcome', 0);
     this.navCtrl.setRoot(ScanSessionsPage);
   }
 
@@ -76,7 +77,7 @@ export class WelcomePage {
   }
 
   startScanningClicked() {
-    GoogleAnalytics.trackEvent('connectivity', 'server_discovery', 'welcome', 1);
+    this.googleAnalytics.trackEvent('connectivity', 'server_discovery', 'welcome', 1);
     this.navCtrl.setRoot(ScanSessionsPage);
   }
 

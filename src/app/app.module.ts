@@ -10,6 +10,7 @@ import { SelectServerPage } from '../pages/select-server/select-server';
 import { CircleTextComponent } from '../components/circle-text';
 import { ServerProvider } from '../providers/server'
 import { Settings } from '../providers/settings'
+import { GoogleAnalyticsService } from '../providers/google-analytics'
 import { ScanSessionsStorage } from '../providers/scan-sessions-storage'
 import { Storage } from '@ionic/storage';
 import { MomentModule } from 'angular2-moment';
@@ -39,6 +40,6 @@ import { MomentModule } from 'angular2-moment';
     WelcomePage,
     ScanSessionPage,
   ],
-  providers: [ServerProvider, Storage, Settings, ScanSessionsStorage]
+  providers: [ServerProvider, Storage, Settings, ScanSessionsStorage, GoogleAnalyticsService]
 })
 export class AppModule { }

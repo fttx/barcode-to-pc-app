@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { NavController, ViewController, AlertController } from 'ionic-angular';
 import { ServerProvider } from '../../providers/server'
 import { ServerModel } from '../../models/server.model'
-
+import { GoogleAnalyticsService } from '../../providers/google-analytics'
 
 /*
   Generated class for the SelectServer page.
@@ -24,10 +24,12 @@ export class SelectServerPage {
     public viewCtrl: ViewController,
     private alertCtrl: AlertController,
     private serverProvider: ServerProvider,
+    private googleAnalytics: GoogleAnalyticsService,
   ) { }
 
   public isVisible = false;
   ionViewDidEnter() {
+    this.googleAnalytics.trackView("SelectServerPage");
     this.isVisible = true;
   }
 

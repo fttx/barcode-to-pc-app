@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { GoogleAnalyticsService } from '../../providers/google-analytics'
 
 @Component({
   selector: 'page-about',
@@ -6,8 +7,12 @@ import { Component } from '@angular/core';
 })
 export class AboutPage {
 
-  constructor() {
+  constructor(
+    private googleAnalytics: GoogleAnalyticsService,
+  ) {  }
 
+  ionViewDidEnter() {
+    this.googleAnalytics.trackView("AboutPage");
   }
 
 }

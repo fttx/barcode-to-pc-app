@@ -1,11 +1,11 @@
 import { Component } from '@angular/core';
 import { Platform, PopoverController, NavController, AlertController } from 'ionic-angular';
-import { GoogleAnalytics } from 'ionic-native';
 import { ScanSessionModel } from '../../models/scan-session.model'
 import { ScanSessionPage } from '../scan-session/scan-session'
 import { SelectServerPage } from '../select-server/select-server'
 import { AboutPage } from '../about/about'
 import { ServerProvider } from '../../providers/server'
+import { GoogleAnalyticsService } from '../../providers/google-analytics'
 import { ScanSessionsStorage } from '../../providers/scan-sessions-storage'
 
 declare var cordova: any;
@@ -27,15 +27,11 @@ export class ScanSessionsPage {
     private platform: Platform,
     private scanSessionsStorage: ScanSessionsStorage,
     public popoverCtrl: PopoverController,
-  ) {
-    this.navCtrl.viewDidEnter.subscribe(page => {     
-      platform.ready().then(() => {
-        GoogleAnalytics.trackView(page.name); // tracks all pages except WelcomePage (see app.component.ts)
-      });
-    })
-  }
+    private googleAnalytics: GoogleAnalyticsService,
+  ) { }
 
   ionViewDidEnter() {
+    this.googleAnalytics.trackView("ScanSessionsPage");
     this.scanSessionsStorage.getScanSessions().then(data => {
       this.scanSessions = data;
 
