@@ -58,7 +58,7 @@ export class GoogleAnalyticsService {
     }
 
     trackEvent(category: string, action: string, label: string = null, value: number = null, newSession: boolean = null) {
-        if (typeof window.analytics === 'undefined') {
+        if (!this.platformReady) {
             this.eventNotSent.push({ category: category, action: action, label: label, newSession: newSession });
         } else {
             this.initGoogleAnalytics().then(() => {
