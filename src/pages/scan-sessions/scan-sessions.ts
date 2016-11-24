@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
-import { Platform, PopoverController } from 'ionic-angular';
-import { NavController } from 'ionic-angular';
-import { AlertController } from 'ionic-angular';
+import { Platform, PopoverController, NavController, AlertController } from 'ionic-angular';
+import { GoogleAnalytics } from 'ionic-native';
 import { ScanSessionModel } from '../../models/scan-session.model'
 import { ScanSessionPage } from '../scan-session/scan-session'
 import { SelectServerPage } from '../select-server/select-server'
@@ -28,7 +27,13 @@ export class ScanSessionsPage {
     private platform: Platform,
     private scanSessionsStorage: ScanSessionsStorage,
     public popoverCtrl: PopoverController,
-  ) { }
+  ) {
+    this.navCtrl.viewDidEnter.subscribe(page => {     
+      platform.ready().then(() => {
+        GoogleAnalytics.trackView(page.name); // tracks all pages except WelcomePage (see app.component.ts)
+      });
+    })
+  }
 
   ionViewDidEnter() {
     this.scanSessionsStorage.getScanSessions().then(data => {
