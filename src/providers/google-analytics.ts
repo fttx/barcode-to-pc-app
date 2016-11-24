@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { GoogleAnalytics } from 'ionic-native';
+import { Platform } from 'ionic-angular';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
 
@@ -16,9 +17,14 @@ export class GoogleAnalyticsService {
     viewNotSent: any[] = new Array();
     eventNotSent: any[] = new Array();
     trackerInitialized: boolean = false;
+    platformReady: boolean = false;
+
+    constructor(platform: Platform) {
+        platform.ready().then(() => this.platformReady = true);
+    }
 
     trackView(viewName: string) {
-        if (typeof window.analytics === 'undefined') {
+        if (!this.platformReady) {
             this.viewNotSent.push({ viewName: viewName });
         } else {
             this.initGoogleAnalytics().then(() => {
@@ -52,7 +58,6 @@ export class GoogleAnalyticsService {
             }
         });
     }
-
 
     trackEvent(category: string, action: string, label: string = null, value: number = null, newSession: boolean = null) {
         if (typeof window.analytics === 'undefined') {
