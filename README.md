@@ -2,6 +2,7 @@
 
 ## Download
 Android: https://play.google.com/store/apps/details?id=com.barcodetopc
+
 iOS: https://itunes.apple.com/app/scienzi/id1180168368
 
 ## Setup
