@@ -91,44 +91,65 @@ export class ScanSessionPage {
   }
 
   onPress(scan, scanIndex) {
+    let buttons = [];
+
+    buttons.push({
+      text: 'Delete',
+      icon: 'trash',
+      role: 'destructive',
+      handler: () => {
+        this.googleAnalytics.trackEvent('scannings', 'delete');
+        this.scanSession.scannings.splice(scanIndex, 1);
+        this.save();
+        this.sendDeleteScan(scan);
+        if (this.scanSession.scannings.length == 0) {
+          // TODO go back and delete scan session
+        }
+      }
+    });
+
+    buttons.push({
+      text: 'Share',
+      icon: 'share',
+      handler: () => {
+        this.googleAnalytics.trackEvent('scannings', 'share');
+        SocialSharing.share(scan.text, "", "", "")
+      }
+    });
+
+    if (scan.text.indexOf('http') == 0) {
+      buttons.push({
+        text: 'Open in browser',
+        icon: 'open',
+        handler: () => {
+          this.googleAnalytics.trackEvent('scannings', 'open_browser');
+          window.open(scan.text, '_blank');
+        }
+      });
+    }
+
+    buttons.push({
+      text: 'Retake',
+      icon: 'refresh',
+      handler: () => {
+        this.googleAnalytics.trackEvent('scannings', 'retake');
+        this.CameraScannerProvider.scan().then(
+          (scan: ScanModel) => {
+            this.scanSession.scannings.splice(scanIndex, 1, scan);
+            this.save();
+            this.sendDeleteScan(scan);
+            this.sendPutScan(scan);
+          });
+      }
+    });
+
+    buttons.push({
+      text: 'Cancel',
+      role: 'cancel'
+    });
+
     let actionSheet = this.actionSheetCtrl.create({
-      buttons: [{
-        text: 'Delete',
-        icon: 'trash',
-        role: 'destructive',
-        handler: () => {
-          this.googleAnalytics.trackEvent('scannings', 'delete');
-          this.scanSession.scannings.splice(scanIndex, 1);
-          this.save();
-          this.sendDeleteScan(scan);
-          if (this.scanSession.scannings.length == 0) {
-            // TODO go back and delete scan session
-          }
-        }
-      }, {
-        text: 'Share',
-        icon: 'share',
-        handler: () => {
-          this.googleAnalytics.trackEvent('scannings', 'share');
-          SocialSharing.share(scan.text, "", "", "")
-        }
-      }, {
-        text: 'Retake',
-        icon: 'refresh',
-        handler: () => {
-          this.googleAnalytics.trackEvent('scannings', 'retake');
-          this.CameraScannerProvider.scan().then(
-            (scan: ScanModel) => {
-              this.scanSession.scannings.splice(scanIndex, 1, scan);
-              this.save();
-              this.sendDeleteScan(scan);
-              this.sendPutScan(scan);
-            });
-        }
-      }, {
-        text: 'Cancel',
-        role: 'cancel'
-      }]
+      buttons: buttons
     });
     actionSheet.present();
   } // onItemClick
