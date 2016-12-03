@@ -20,3 +20,9 @@ ionic resources
 ionic run ios --device
 ionic run android
 ```
+
+## Release
+```
+ionic build ios --release
+ionic build android --release
+```
