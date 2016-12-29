@@ -20,7 +20,8 @@ export class ServerProvider {
   public static ACTION_PUT_SCAN = 'putScan';
   public static ACTION_DELETE_SCAN = 'deleteScan';
   public static ACTION_DELETE_SCANSESSION = 'deleteScanSession';
-  
+  public static ACTION_GET_VERSION = 'getVersion';
+
   private webSocket: WebSocket;
   private everConnected = false;
 
@@ -36,7 +37,11 @@ export class ServerProvider {
       this.webSocket = new WebSocket(address);
 
       this.webSocket.onmessage = message => {
-        observer.next(message);
+        let data = null;
+        if (message.data) {
+          data = JSON.parse(message.data);
+        }
+        observer.next(data);
       }
 
       this.webSocket.onopen = () => {

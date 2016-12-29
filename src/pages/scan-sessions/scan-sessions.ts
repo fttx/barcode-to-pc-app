@@ -47,13 +47,15 @@ export class ScanSessionsPage {
         this.serverProvider.getDefaultServer().then(
           server => {
             this.serverProvider.connect(server).subscribe(
-              message => {
-                this.connected = true;
-                this.sendPutScanSessions();
+              data => {
+                if (data && data.action) {
+                  this.onMessage(data);
+                } else {
+                  this.onConnect();
+                }
               },
-              err => {
-                this.connected = false;
-              });
+              err => this.onDisconnect()
+            );
           },
           err => {
             if (!this.selectServerShown) {
@@ -63,6 +65,28 @@ export class ScanSessionsPage {
           })
       });
     }
+  }
+
+  onConnect() {
+    this.connected = true;
+    this.sendPutScanSessions();
+    this.serverProvider.send(ServerProvider.ACTION_GET_VERSION);
+  }
+
+  onDisconnect() {
+    this.connected = false;
+  }
+
+  onMessage(message: any) {
+    if (message.action == 'getVersion') {
+      if (message.data.version != '1.0.0') { // TODO: Config service
+        this.onVersionMismatch();
+      }
+    }
+  }
+
+  onVersionMismatch() {
+    console.log('version mismatch')
   }
 
   onSelectServerClick() {
