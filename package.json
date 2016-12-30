@@ -4,6 +4,8 @@
   "homepage": "https://barcodetopc.com/",
   "private": true,
   "scripts": {
+    "clean": "ionic-app-scripts clean",
+    "build": "ionic-app-scripts build",
     "ionic:build": "ionic-app-scripts build",
     "ionic:serve": "ionic-app-scripts serve"
   },
@@ -23,10 +25,11 @@
     "ionic-native": "2.2.3",
     "ionicons": "3.0.0",
     "rxjs": "5.0.0-beta.12",
+    "typescript": "^2.1.4",
     "zone.js": "0.6.26"
   },
   "devDependencies": {
-    "@ionic/app-scripts": "0.0.45",
+    "@ionic/app-scripts": "0.0.48",
     "typescript": "^2.0.3"
   },
   "cordovaPlugins": [
