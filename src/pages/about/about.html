@@ -11,29 +11,35 @@
 <ion-content>
   <ion-list>
 
-    
+
     <ion-item>
-      <ion-label>Version</ion-label>
-      <div item-content>Barcode to PC app v1.0.0</div>
+      <ion-label>App version</ion-label>
+      <div item-content>v{{ appVersion }}</div>
     </ion-item>
 
-    
+
+    <ion-item>
+      <ion-label>Required server version</ion-label>
+      <div item-content>v{{ requiredServerVersion }}</div>
+    </ion-item>
+
+
     <ion-item>
       <ion-label>Website</ion-label>
       <a item-content [href]="websiteUrl">{{ websiteName }}</a>
     </ion-item>
 
 
-    
+
     <ion-item>
       <ion-label>View app source-code</ion-label>
-      <a item-content href="https://github.com/fttx/barcode-to-pc-app/">github.com</a>     
+      <a item-content href="https://github.com/fttx/barcode-to-pc-app/">github.com</a>
     </ion-item>
 
-    
+
     <ion-item>
       <ion-label>View server source-code</ion-label>
-      <a item-content href="https://github.com/fttx/barcode-to-pc-server/">github.com</a>     
+      <a item-content href="https://github.com/fttx/barcode-to-pc-server/">github.com</a>
     </ion-item>
 
 
