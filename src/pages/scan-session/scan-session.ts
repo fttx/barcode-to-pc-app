@@ -1,3 +1,4 @@
+import { Settings } from './../../providers/settings';
 import { Component } from '@angular/core';
 import { NavParams, ModalController } from 'ionic-angular';
 import { SocialSharing } from 'ionic-native';
@@ -36,6 +37,7 @@ export class ScanSessionPage {
     private scanSessionsStorage: ScanSessionsStorage,
     public modalCtrl: ModalController,
     private googleAnalytics: GoogleAnalyticsService,
+    private settings: Settings,
   ) {
     this.scanSession = navParams.get('scanSession');
     this.isNewSession = navParams.get('isNewSession');
@@ -68,6 +70,8 @@ export class ScanSessionPage {
   }
 
   showAddMoreDialog() {
+    let interval = null;
+
     let alert = this.alertCtrl.create({
       title: 'Continue scanning?',
       message: 'Do you want to add another item to this scan session?',
@@ -75,6 +79,8 @@ export class ScanSessionPage {
         text: 'Stop',
         role: 'cancel',
         handler: () => {
+          if (interval) clearInterval(interval);
+
           if (this.isNewSession) {
             this.setName();
             this.isNewSession = false;
@@ -83,11 +89,30 @@ export class ScanSessionPage {
       }, {
         text: 'Continue',
         handler: () => {
+          if (interval) clearInterval(interval);
           this.scan();
         }
       }]
     });
     alert.present();
+
+    this.settings.getContinueModeTimeout().then(timeoutSeconds => {
+      if (timeoutSeconds == null) {
+        timeoutSeconds = 8;
+      }
+
+      if (timeoutSeconds) {
+        interval = setInterval(() => {
+          alert.setSubTitle('Timeout: ' + timeoutSeconds);
+          timeoutSeconds--;
+          if (timeoutSeconds == 0) {
+            if (interval) clearInterval(interval);
+            alert.dismiss();
+            this.scan();
+          }
+        }, 1000);
+      }
+    });
   }
 
   onPress(scan, scanIndex) {

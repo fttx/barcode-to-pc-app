@@ -12,6 +12,7 @@ import { ServerModel } from '../models/server.model'
 export class Settings {
   private static DEFAULT_SERVER = "default_server";
   private static FIRST_RUN = "first_run";
+  private static CONTINUE_MODE_TIMEOUT = "continuemode_timeout";
 
   constructor(public storage: Storage) { }
 
@@ -37,5 +38,13 @@ export class Settings {
 
   getNoRunnings() {
     return this.storage.get(Settings.FIRST_RUN);
+  }
+
+  setContinueModeTimeout(seconds: number) {
+    return this.storage.set(Settings.CONTINUE_MODE_TIMEOUT, seconds);
+  }
+
+  getContinueModeTimeout() {
+    return this.storage.get(Settings.CONTINUE_MODE_TIMEOUT);
   }
 }
