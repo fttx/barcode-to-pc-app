@@ -4,6 +4,7 @@ import { Slides, ViewController } from 'ionic-angular';
 import { ViewChild, NgZone } from '@angular/core';
 import { ScanSessionsPage } from '../scan-sessions/scan-sessions';
 import { ServerProvider } from '../../providers/server'
+import { Config } from '../../providers/config'
 import { Settings } from '../../providers/settings'
 import { GoogleAnalyticsService } from '../../providers/google-analytics'
 import { ServerModel } from '../../models/server.model'
@@ -30,7 +31,7 @@ export class WelcomePage {
     showNext: true,
   }, {
     title: "Download server",
-    description: "Download Barcode to PC server from <span class='link'>barcodetopc.com</span> and install it to your computer",
+    description: "Download Barcode to PC server from <span class='link'>" + Config.WEBSITE_NAME + "</span> and install it to your computer",
     image: "assets/welcome/downloadserver.gif",
     showNext: true,
   }];

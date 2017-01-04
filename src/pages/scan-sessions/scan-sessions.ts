@@ -1,3 +1,4 @@
+import { Config } from '../../providers/config';
 import { Component } from '@angular/core';
 import { Platform, PopoverController, NavController, AlertController } from 'ionic-angular';
 import { ScanSessionModel } from '../../models/scan-session.model'
@@ -77,16 +78,26 @@ export class ScanSessionsPage {
     this.connected = false;
   }
 
+
   onMessage(message: any) {
     if (message.action == 'getVersion') {
-      if (message.data.version != '1.0.0') { // TODO: Config service
+      if (message.data.version != Config.REQUIRED_SERVER_VERSION) {
         this.onVersionMismatch();
       }
     }
   }
 
   onVersionMismatch() {
-    console.log('version mismatch')
+    this.alertCtrl.create({
+      title: 'Server/app version mismatch',
+      message: 'Please update both app and server, otherwise they may not work properly.<br><br>Server can be downloaded at <a href="' + Config.WEBSITE_URL + '">' + Config.WEBSITE_NAME + '</a>',
+      buttons: [
+        {
+          text: 'Ok',
+          role: 'cancel'
+        }
+      ]
+    }).present();
   }
 
   onSelectServerClick() {
