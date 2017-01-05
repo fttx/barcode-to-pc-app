@@ -1,0 +1,34 @@
+<ion-menu [content]="mainMenu">
+    <ion-content>
+        <ion-list>
+            <ion-list-header>
+                Main
+            </ion-list-header>
+            <button ion-item (click)="scanSessions()">
+                <ion-icon name="list" item-left></ion-icon>
+                Scan sessions
+            </button>
+            <ion-list-header>
+                Settings
+            </ion-list-header>
+            <button ion-item (click)="selectServer()">
+                <ion-icon name="ios-wifi" item-left></ion-icon>
+                Select server
+            </button>
+            <button ion-item>
+                <ion-icon name="timer" item-left></ion-icon>
+                Set Continue mode timeout
+            </button>
+
+            <ion-list-header>
+                Other
+            </ion-list-header>
+            <button ion-item (click)="about()">
+                <ion-icon name="information-circle" item-left></ion-icon>
+                About
+            </button>
+        </ion-list>
+    </ion-content>
+</ion-menu>
+
+<ion-nav #mainMenu [root]="rootPage"></ion-nav>

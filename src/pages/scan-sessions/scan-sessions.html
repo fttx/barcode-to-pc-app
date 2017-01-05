@@ -1,5 +1,9 @@
 <ion-header>
 	<ion-navbar color="primary">
+		<button ion-button menuToggle>
+			<ion-icon name="menu"></ion-icon>
+		</button>
+
 		<ion-title>Scan sessions</ion-title>
 
 		<ion-buttons end>
@@ -7,10 +11,6 @@
 				<ion-icon 
 					name="ios-wifi"
 					[style.color]="connected ? 'white': 'rgba(255,255,255,.4)'"></ion-icon>
-      		</button>
-
-			<button ion-button icon-only (click)="about()">
-        		<ion-icon name="information-circle"></ion-icon>
       		</button>
 		</ion-buttons>
 	</ion-navbar>
@@ -25,7 +25,7 @@
 					Delete
 				</button>
 			</ion-item-options>
-			
+
 			<!-- ionic bug: press on ios also triggers click -->
 			<!-- work around: use sliding items on ios only -->
 			<button ion-item (click)="onItemSelected(scanSession)" (press)="!platform.is('ios') && delete(scanSession, i)">

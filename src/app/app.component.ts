@@ -1,20 +1,25 @@
-import { Component } from '@angular/core';
-import { Platform } from 'ionic-angular';
+import { Component, ViewChild } from '@angular/core';
+import { Platform, MenuController, Nav } from 'ionic-angular';
 import { StatusBar, Splashscreen } from 'ionic-native';
 
 import { ScanSessionsPage } from '../pages/scan-sessions/scan-sessions';
 import { WelcomePage } from '../pages/welcome/welcome';
+import { SelectServerPage } from './../pages/select-server/select-server';
+import { AboutPage } from '../pages/about/about';
 import { Settings } from '../providers/settings';
 
 @Component({
-  template: `<ion-nav [root]="rootPage"></ion-nav>`,
+  templateUrl: 'app.html',
 })
 export class MyApp {
+  @ViewChild(Nav) nav: Nav;
+
   public rootPage;
 
   constructor(
     platform: Platform,
     private settings: Settings,
+    public menuCtrl: MenuController,
   ) {
     Promise.all([
       this.settings.getNoRunnings().then(
@@ -39,5 +44,30 @@ export class MyApp {
       () => {
         Splashscreen.hide();
       })
+  }
+
+  scanSessions() {
+    this.setPage(ScanSessionsPage, true);
+  }
+
+  selectServer() {
+    this.setPage(SelectServerPage);
+  }
+
+  about() {
+    this.setPage(AboutPage);
+  }
+
+  setPage(page, isRoot = false) {
+    if (this.nav.getActive().name != page.name) {
+      this.menuCtrl.close();
+      if (isRoot) {
+        this.nav.setRoot(page);
+      } else {
+        this.nav.push(page);
+      }
+    } else {
+      this.menuCtrl.close();
+    }
   }
 }
