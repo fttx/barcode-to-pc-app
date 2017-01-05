@@ -14,7 +14,8 @@ export class Config {
   public static WEBSITE_URL = 'https://barcodetopc.com/';
   public static WEBSITE_NAME = 'barcodetopc.com';
   public static DEFAULT_CONTINUE_MODE_TIMEOUT = 8;
-  
+  public static NO_RUNNINGS_BEFORE_SHOW_RATING = 5;
+
   constructor() {
   }
 

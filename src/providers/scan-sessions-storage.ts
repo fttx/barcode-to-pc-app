@@ -54,15 +54,4 @@ export class ScanSessionsStorage {
       this.setScanSessions(sessions);
     })
   }
-
-
-  /*
-
-  setNoRunnings(noRunnings: number) {
-    return this.storage.set(ScanSessionStorage.FIRST_RUN, noRunnings);
-  }
-
-  getNoRunnings() {
-    return this.storage.get(ScanSessionStorage.FIRST_RUN);
-  }*/
 }

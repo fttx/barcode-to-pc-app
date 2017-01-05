@@ -1,13 +1,15 @@
+import { Device } from 'ionic-native';
+import { Settings } from './../../providers/settings';
 import { Config } from '../../providers/config';
 import { Component } from '@angular/core';
 import { Platform, PopoverController, NavController, AlertController } from 'ionic-angular';
 import { ScanSessionModel } from '../../models/scan-session.model'
 import { ScanSessionPage } from '../scan-session/scan-session'
 import { SelectServerPage } from '../select-server/select-server'
-import { AboutPage } from '../about/about'
 import { ServerProvider } from '../../providers/server'
 import { GoogleAnalyticsService } from '../../providers/google-analytics'
 import { ScanSessionsStorage } from '../../providers/scan-sessions-storage'
+import * as Promise from 'bluebird'
 
 declare var cordova: any;
 
@@ -29,6 +31,7 @@ export class ScanSessionsPage {
     private scanSessionsStorage: ScanSessionsStorage,
     public popoverCtrl: PopoverController,
     private googleAnalytics: GoogleAnalyticsService,
+    private settings: Settings,
   ) { }
 
   ionViewDidEnter() {
@@ -66,6 +69,38 @@ export class ScanSessionsPage {
     this.connected = true;
     this.sendPutScanSessions();
     this.serverProvider.send(ServerProvider.ACTION_GET_VERSION);
+
+    Promise.join(this.settings.getNoRunnings(), this.settings.getRated(), (runnings, rated) => {
+      console.log('running', runnings, 'rated', rated)
+      if (runnings >= Config.NO_RUNNINGS_BEFORE_SHOW_RATING && !rated) {
+        let os = Device.device.platform;
+        let isAndroid = os.toLowerCase().indexOf('android') != -1;
+        let store = isAndroid ? 'PlayStore' : 'Appstore';
+        this.alertCtrl.create({
+          title: 'Rate Barcode to PC',
+          message: 'Are you enjoying Barcode to PC?<br><br>Please, rate it on the ' + store + ', it would be appreciated!',
+          buttons: [{
+            text: 'Remind me later',
+            role: 'cancel'
+          }, {
+            text: 'No',
+            handler: () => {
+              this.settings.setRated(true);
+            }
+          }, {
+            text: 'Rate',
+            handler: () => {
+              this.settings.setRated(true);
+              if (isAndroid) {
+                cordova.plugins.market.open('com.barcodetopc'); // TODO: fix: https://github.com/driftyco/ionic-native/issues/936
+              } else {
+                cordova.plugins.market.open('BarcodetoPC:Wi-Fiscanner');
+              }
+            }
+          }]
+        }).present();
+      }
+    });
   }
 
   onDisconnect() {

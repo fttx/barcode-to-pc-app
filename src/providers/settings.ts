@@ -11,8 +11,9 @@ import { ServerModel } from '../models/server.model'
 @Injectable()
 export class Settings {
   private static DEFAULT_SERVER = "default_server";
-  private static FIRST_RUN = "first_run";
+  private static NO_RUNNINGS = "first_run";
   private static CONTINUE_MODE_TIMEOUT = "continuemode_timeout";
+  private static RATED = "rated";
 
   constructor(public storage: Storage) { }
 
@@ -33,11 +34,11 @@ export class Settings {
   }
 
   setNoRunnings(noRunnings: number) {
-    return this.storage.set(Settings.FIRST_RUN, noRunnings);
+    return this.storage.set(Settings.NO_RUNNINGS, noRunnings);
   }
 
   getNoRunnings() {
-    return this.storage.get(Settings.FIRST_RUN);
+    return this.storage.get(Settings.NO_RUNNINGS);
   }
 
   setContinueModeTimeout(seconds: number) {
@@ -46,5 +47,14 @@ export class Settings {
 
   getContinueModeTimeout() {
     return this.storage.get(Settings.CONTINUE_MODE_TIMEOUT);
+  }
+
+
+  setRated(rated: boolean) {
+    return this.storage.set(Settings.RATED, rated);
+  }
+
+  getRated() {
+    return this.storage.get(Settings.RATED);
   }
 }
