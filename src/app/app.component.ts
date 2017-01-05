@@ -1,5 +1,6 @@
+import { ContinueModeSettingsPage } from './continue-mode-settings/continue-mode-settings';
 import { Component, ViewChild } from '@angular/core';
-import { Platform, MenuController, Nav } from 'ionic-angular';
+import { Platform, MenuController, Nav, AlertController, ModalController } from 'ionic-angular';
 import { StatusBar, Splashscreen } from 'ionic-native';
 
 import { ScanSessionsPage } from '../pages/scan-sessions/scan-sessions';
@@ -20,6 +21,8 @@ export class MyApp {
     platform: Platform,
     private settings: Settings,
     public menuCtrl: MenuController,
+    private alertCtrl: AlertController,
+    public modalCtrl: ModalController,
   ) {
     Promise.all([
       this.settings.getNoRunnings().then(
@@ -52,6 +55,11 @@ export class MyApp {
 
   selectServer() {
     this.setPage(SelectServerPage);
+  }
+
+  continueModeSettings() {
+    this.menuCtrl.close();
+    this.modalCtrl.create(ContinueModeSettingsPage).present();
   }
 
   about() {

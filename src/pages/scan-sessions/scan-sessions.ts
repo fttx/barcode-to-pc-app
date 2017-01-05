@@ -35,12 +35,6 @@ export class ScanSessionsPage {
     this.googleAnalytics.trackView("ScanSessionsPage");
     this.scanSessionsStorage.getScanSessions().then(data => {
       this.scanSessions = data;
-
-      /*  let now = new Date();
-        if (this.lastModified.getTime() <= now.getTime() - 1000 * 20) {*/
-      /*   this.sync();
-       }
-       this.lastModified = now;*/
     });
 
     if (this.connected == false) {
@@ -145,9 +139,5 @@ export class ScanSessionsPage {
 
   save() {
     this.scanSessionsStorage.setScanSessions(this.scanSessions);
-  }
-
-  about() {
-    this.navCtrl.push(AboutPage);
   }
 }

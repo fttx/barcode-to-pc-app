@@ -1,3 +1,4 @@
+import { Config } from './../../providers/config';
 import { Settings } from './../../providers/settings';
 import { Component } from '@angular/core';
 import { NavParams, ModalController } from 'ionic-angular';
@@ -98,18 +99,18 @@ export class ScanSessionPage {
 
     this.settings.getContinueModeTimeout().then(timeoutSeconds => {
       if (timeoutSeconds == null) {
-        timeoutSeconds = 8;
+        timeoutSeconds = Config.DEFAULT_CONTINUE_MODE_TIMEOUT;
       }
 
-      if (timeoutSeconds) {
+      if (timeoutSeconds != -1) {
         interval = setInterval(() => {
           alert.setSubTitle('Timeout: ' + timeoutSeconds);
-          timeoutSeconds--;
           if (timeoutSeconds == 0) {
             if (interval) clearInterval(interval);
             alert.dismiss();
             this.scan();
           }
+          timeoutSeconds--;
         }, 1000);
       }
     });
