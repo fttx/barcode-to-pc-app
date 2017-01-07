@@ -1,4 +1,4 @@
-import { Device } from 'ionic-native';
+import { Device, Market } from 'ionic-native';
 import { Settings } from './../../providers/settings';
 import { Config } from '../../providers/config';
 import { Component } from '@angular/core';
@@ -92,9 +92,9 @@ export class ScanSessionsPage {
             handler: () => {
               this.settings.setRated(true);
               if (isAndroid) {
-                cordova.plugins.market.open('com.barcodetopc'); // TODO: fix: https://github.com/driftyco/ionic-native/issues/936
+                Market.open('com.barcodetopc'); // TODO: fix: https://github.com/driftyco/ionic-native/issues/936
               } else {
-                cordova.plugins.market.open('BarcodetoPC:Wi-Fiscanner');
+                Market.open('BarcodetoPC:Wi-Fiscanner');
               }
             }
           }]
