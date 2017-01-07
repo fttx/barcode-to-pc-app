@@ -73,7 +73,7 @@ export class ScanSessionsPage {
     Promise.join(this.settings.getNoRunnings(), this.settings.getRated(), (runnings, rated) => {
       console.log('running', runnings, 'rated', rated)
       if (runnings >= Config.NO_RUNNINGS_BEFORE_SHOW_RATING && !rated) {
-        let os = Device.device.platform;
+        let os = Device.platform;
         let isAndroid = os.toLowerCase().indexOf('android') != -1;
         let store = isAndroid ? 'PlayStore' : 'Appstore';
         this.alertCtrl.create({
