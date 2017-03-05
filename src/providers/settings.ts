@@ -14,6 +14,7 @@ export class Settings {
   private static NO_RUNNINGS = "first_run";
   private static CONTINUE_MODE_TIMEOUT = "continuemode_timeout";
   private static RATED = "rated";
+  private static MANUALLY_ADDED = "manually_added";
 
   constructor(public storage: Storage) { }
 
@@ -25,7 +26,9 @@ export class Settings {
     return new Promise((resolve, reject) => {
       this.storage.get(Settings.DEFAULT_SERVER).then((data) => {
         if (data != null) {
-          resolve(JSON.parse(data))
+          data = JSON.parse(data);
+          let server = new ServerModel(data.address, data.name);
+          resolve(server);
         } else {
           reject();
         }
@@ -56,5 +59,46 @@ export class Settings {
 
   getRated() {
     return this.storage.get(Settings.RATED);
+  }
+
+  setSavedServers(servers: ServerModel[]) {
+    return this.storage.set(Settings.MANUALLY_ADDED, JSON.stringify(servers));
+  }
+
+  getSavedServers(): Promise<ServerModel[]> {
+    return new Promise((resolve, reject) => {
+      return this.storage.get(Settings.MANUALLY_ADDED).then(data => {
+        console.log("DATA", data);
+        if (data) {
+          let servers = JSON.parse(data).map(x => new ServerModel(x.address, x.name));
+          resolve(servers)
+        } else {
+          reject();
+        }
+      });
+    });
+  }
+
+  saveServer(server: ServerModel) {
+    this.getSavedServers().then((savedServers: ServerModel[]) => {
+      savedServers.push(server);
+      this.setSavedServers(savedServers);
+    },
+      err => {
+        this.setSavedServers([server]);
+      }
+    );
+  }
+
+  deleteServer(server: ServerModel) {
+    this.getSavedServers().then((savedServers: ServerModel[]) => {
+      let deleteServer = savedServers.find(x => x.equals(server));
+      if (deleteServer) {
+        savedServers.splice(savedServers.indexOf(deleteServer), 1);
+        this.setSavedServers(savedServers);
+      }
+    },
+      err => { }
+    );
   }
 }

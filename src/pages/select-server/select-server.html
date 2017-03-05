@@ -10,10 +10,10 @@
 		<ion-title>Select server</ion-title>
 
 		<ion-buttons end>
-			<button ion-button icon-only>
-				<ion-spinner color="text" [hidden]="foundServers.length == 0"></ion-spinner>
+			<button ion-button icon-only [hidden]="servers.length == 0">
+				<ion-spinner color="text"></ion-spinner>
 			</button>
-			
+
 			<button ion-button icon-only (click)="addManually()">
         		<ion-icon name="add"></ion-icon>
       		</button>
@@ -25,15 +25,31 @@
 
 
 <ion-content>
-	<ion-list radio-group [(ngModel)]="selectedServer" (ionChange)="$event && onSelectionChanged($event)">
-		<ion-item *ngFor="let server of foundServers">
-			<ion-label>
-				<h2>{{ server.name }}</h2>
-				<p>{{ server.address }}</p>
-			</ion-label>
-			<ion-radio [value]="server"></ion-radio>
+	<!--[(ngModel)]="selectedServer"-->
+	<ion-list>
+		<ion-item *ngIf="!servers">
+			Empty
 		</ion-item>
-	</ion-list>
+		<ion-item-sliding *ngFor="let server of servers">
+			<ion-item>
+				<ion-avatar class="status-icon" item-left>
+					<ion-icon [name]="server.online ? 'ios-wifi' : 'ios-wifi-outline'" [style.color]="server.online ? 'red': 'rgba(0,0,0,.4)'"></ion-icon>
+				</ion-avatar>
+				<ion-label>
+					<h2>{{ server.name }}</h2>
+					<p>{{ server.address }}</p>
+				</ion-label>
+				<ion-radio [value]="server" [checked]="isSelected(server)" (click)="onServerClicked(server)"></ion-radio>
+			</ion-item>
 
-	<ion-spinner class="main-spinner" color="primary" [hidden]="foundServers.length != 0"></ion-spinner>
+			<ion-item-options side="right">
+				<button ion-button color="primary" (click)="deleteServer(server)">
+					<ion-icon name="trash"></ion-icon>
+					Delete
+				</button>
+			</ion-item-options>
+
+		</ion-item-sliding>
+	</ion-list>
+	<ion-spinner class="main-spinner" color="primary" [hidden]="servers.length != 0"></ion-spinner>
 </ion-content>

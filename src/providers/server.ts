@@ -48,6 +48,7 @@ export class ServerProvider {
         this.everConnected = true;
         observer.next();
         this.toastCtrl.create({ message: 'Connection extablished', duration: 3000 }).present();
+        this.settings.saveServer(server);
       };
 
       this.webSocket.onerror = msg => {
@@ -91,15 +92,14 @@ export class ServerProvider {
         observer.next({ address: 'localhost', name: 'localhost' });
         return;
       }
-      cordova.plugins.zeroconf.watch('_http._tcp.local.', (result) => {
+      cordova.plugins.zeroconf.close();
+      cordova.plugins.zeroconf.watch('_http._tcp.local.', result => {
         var action = result.action;
         var service = result.service;
-        if (action == 'added' && service.port == Config.SERVER_PORT && service.addresses && service.addresses.length) {
+        console.log("ACTION:", action, service);
+        if (service.port == Config.SERVER_PORT && service.addresses && service.addresses.length) {
           this.NgZone.run(() => {
-            observer.next({
-              address: service.addresses[0],
-              name: service.server
-            });
+            observer.next({ server: new ServerModel(service.addresses[0], service.server), action: action });
           });
         }
       });

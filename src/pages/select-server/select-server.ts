@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Settings } from '../../providers/settings';
+import { Component, NgZone } from '@angular/core';
 import { NavController, ViewController, AlertController } from 'ionic-angular';
 import { ServerProvider } from '../../providers/server'
 import { ServerModel } from '../../models/server.model'
@@ -12,22 +13,26 @@ import { GoogleAnalyticsService } from '../../providers/google-analytics'
 */
 @Component({
   selector: 'page-select-server',
-  templateUrl: 'select-server.html'
+  templateUrl: 'select-server.html',
+
 })
+
 export class SelectServerPage {
-  public servers: ServerModel;
   public selectedServer: ServerModel;
-  public foundServers: ServerModel[] = [];
+  public servers: ServerModel[] = [];
 
   constructor(
     public navCtrl: NavController,
     public viewCtrl: ViewController,
     private alertCtrl: AlertController,
     private serverProvider: ServerProvider,
+    private settings: Settings,
     private googleAnalytics: GoogleAnalyticsService,
+    private zone: NgZone
   ) { }
 
   public isVisible = false;
+
   ionViewDidEnter() {
     this.googleAnalytics.trackView("SelectServerPage");
     this.isVisible = true;
@@ -44,24 +49,25 @@ export class SelectServerPage {
 
     this.scanForServers();
 
-    this.serverProvider.getDefaultServer().then(
-      (defaultServer: ServerModel) => {
-        let server = this.foundServers.find(x => x.address === defaultServer.address);
-        if (server) { // se è già dentro foundServers
-          this.selectedServer = server; // lo seleziono
-        } else { // se non è dentro foundServers
-          this.foundServers.push(defaultServer); // lo aggiungo
-          this.selectedServer = defaultServer;
-        }
-      },
+    this.settings.getSavedServers().then((servers: ServerModel[]) => {
+      this.addServers(servers, false, true);
+    },
+      err => { }
+    );
+
+    this.serverProvider.getDefaultServer().then((defaultServer: ServerModel) => {
+      this.selectedServer = defaultServer;
+      console.log("DEFAULT = ", this.selectedServer)
+    },
       err => { }
     );
   }
 
-  onSelectionChanged(server) {
+  onServerClicked(server) {
     this.serverProvider.saveAsDefault(server);
     this.serverProvider.connect(server);
     // this.navCtrl.pop();
+    this.selectedServer = server;
   }
 
   addManually() {
@@ -79,7 +85,13 @@ export class SelectServerPage {
         role: 'cancel'
       }, {
         text: 'Add',
-        handler: data => { }
+        handler: input => {
+          let server = new ServerModel(input.address, input.name);
+          this.addServer(server, false, true);
+          this.serverProvider.saveAsDefault(server);
+          this.selectedServer = server;
+          this.settings.saveServer(server);
+        }
       }]
     });
     alert.present();
@@ -87,32 +99,92 @@ export class SelectServerPage {
 
   scanForServers() {
     this.serverProvider.unwatch();
-    this.serverProvider.watchForServers().subscribe((server: ServerModel) => {
-      let alreadyPresent = this.foundServers.filter(x => x.address == server.address).length;
-      if (!alreadyPresent) {
-        console.log("server found, pushing it to list: ", server);
-        this.foundServers.push(server)
+    this.serverProvider.watchForServers().subscribe(data => {
+      let server = data.server;
+      if (data.action == 'added') {
+        console.log("server discovered:  ", server);
+        this.addServer(server, true, false);
+      } else {
+        console.log("server removed:  ", server);
+        let previuslyDiscovered = this.servers.find(x => x.equals(server));
+        if (previuslyDiscovered) {
+          previuslyDiscovered.online = false;
+        }
       }
     });
 
     setTimeout(() => {
-      if (this.foundServers.length == 0 && this.isVisible) {
+      let onlineServers = this.servers.find(x => x.online);
+      if (!onlineServers && this.isVisible) {
         let alert = this.alertCtrl.create({
-          title: "Unable to connect",
-          message: 'Is the server runnig on your computer?',
+          title: "Cannot find the server",
+          message: "Make you sure that the server is running on your computer.<br><br>\
+                    If you're still unable to connect do the following:<br>\
+                    <ul>\
+                      <li>Add the server to Windows Firewall exceptions\
+                      <li>Try to temporarily disable your antivirus\
+                    </ul>",
           buttons: [{
             text: 'Offline mode',
             role: 'cancel',
+            handler: () => { }
+          }, {
+            text: 'Help',
             handler: () => {
-              this.navCtrl.pop();
+
             }
           }, {
-            text: 'Try again',
-            handler: () => this.scanForServers()
+            text: 'Scan again',
+            handler: () => {
+              this.servers.forEach(x => x.online = false);
+              this.scanForServers();
+            }
           }]
         });
         alert.present();
       }
-    }, 10 * 1000)
-  } // scan
+    }, 15 * 1000)
+  } // scanForServers
+
+
+  isSelected(server: ServerModel) {
+    if (this.selectedServer) {
+      return this.selectedServer.equals(server);
+    }
+    return false;
+  }
+
+  addServers(servers: ServerModel[], online: boolean, forceNameUpdate: boolean) {
+    servers.forEach(server => {
+      this.addServer(server, online, forceNameUpdate);
+    });
+  }
+
+  addServer(addServer: ServerModel, online: boolean, forceNameUpdate: boolean) {
+    let server = this.servers.find(x => x.equals(addServer))
+
+    if (server) {
+      if (!server.online) {
+        server.online = online;
+      }
+      if (forceNameUpdate) {
+        server.name = addServer.name;
+      }
+    } else {
+      this.servers.push(addServer);
+    }
+  }
+
+  deleteServer(server) {
+    console.log("DELETE SERVER")
+    this.settings.deleteServer(server);
+    this.servers.splice(this.servers.indexOf(server), 1);
+
+    if (this.selectedServer && this.selectedServer.equals(server)) {
+      if (this.servers.length) {
+        this.selectedServer = this.servers[0];
+        this.settings.setDefaultServer(this.selectedServer);
+      }
+    }
+  }
 }
