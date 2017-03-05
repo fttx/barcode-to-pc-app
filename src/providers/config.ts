@@ -10,7 +10,7 @@ import { Injectable } from '@angular/core';
 export class Config {
   public static DEBUG = true;
   public static SERVER_PORT = 57891;
-  public static REQUIRED_SERVER_VERSION = '1.0.0';
+  public static REQUIRED_SERVER_VERSION = '1.1.0';
   public static WEBSITE_URL = 'https://barcodetopc.com/';
   public static WEBSITE_NAME = 'barcodetopc.com';
   public static DEFAULT_CONTINUE_MODE_TIMEOUT = 8;
