@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { IonicApp, IonicModule } from 'ionic-angular';
 import { MyApp } from './app.component';
-import { ContinueModeSettingsPage } from './continue-mode-settings/continue-mode-settings';
+import { ContinueModeSettingsPage } from '../pages/continue-mode-settings/continue-mode-settings';
 import { AboutPage } from '../pages/about/about';
 import { ScanSessionsPage } from '../pages/scan-sessions/scan-sessions';
 import { EditScanSessionPage } from '../pages/scan-session/edit-scan-session/edit-scan-session';

@@ -1,4 +1,3 @@
-import { ContinueModeSettingsPage } from './continue-mode-settings/continue-mode-settings';
 import { Component, ViewChild } from '@angular/core';
 import { Platform, MenuController, Nav, AlertController, ModalController } from 'ionic-angular';
 import { StatusBar, Splashscreen } from 'ionic-native';
@@ -8,6 +7,7 @@ import { WelcomePage } from '../pages/welcome/welcome';
 import { SelectServerPage } from './../pages/select-server/select-server';
 import { AboutPage } from '../pages/about/about';
 import { Settings } from '../providers/settings';
+import { ContinueModeSettingsPage } from '../pages/continue-mode-settings/continue-mode-settings';
 
 @Component({
   templateUrl: 'app.html',
