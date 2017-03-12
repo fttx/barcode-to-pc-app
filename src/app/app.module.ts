@@ -5,6 +5,7 @@ import { ContinueModeSettingsPage } from '../pages/continue-mode-settings/contin
 import { AboutPage } from '../pages/about/about';
 import { ScanSessionsPage } from '../pages/scan-sessions/scan-sessions';
 import { EditScanSessionPage } from '../pages/scan-session/edit-scan-session/edit-scan-session';
+import { SelectScanningModePage } from '../pages/scan-session/select-scanning-mode/select-scanning-mode';
 import { WelcomePage } from '../pages/welcome/welcome';
 import { ScanSessionPage } from '../pages/scan-session/scan-session';
 import { SelectServerPage } from '../pages/select-server/select-server';
@@ -22,6 +23,7 @@ import { MomentModule } from 'angular2-moment';
     AboutPage,
     ScanSessionsPage,
     EditScanSessionPage,
+    SelectScanningModePage,
     WelcomePage,
     ScanSessionPage,
     SelectServerPage,
@@ -39,6 +41,7 @@ import { MomentModule } from 'angular2-moment';
     ScanSessionsPage,
     SelectServerPage,
     EditScanSessionPage,
+    SelectScanningModePage,
     ContinueModeSettingsPage,
     WelcomePage,
     ScanSessionPage,

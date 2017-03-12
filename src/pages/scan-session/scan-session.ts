@@ -13,6 +13,7 @@ import { ScanModel } from '../../models/scan.model'
 import { NavController } from 'ionic-angular';
 import { ScanSessionsStorage } from '../../providers/scan-sessions-storage'
 import { EditScanSessionPage } from './edit-scan-session/edit-scan-session'
+import { SelectScanningModePage } from "./select-scanning-mode/select-scanning-mode";
 
 /*
   Generated class for the Scan page.
@@ -55,13 +56,44 @@ export class ScanSessionPage {
     }
   }
 
-  scan() { // Warning! Retake quirk: this function doesn't get called if you selec retake
+  scan() { // Called when the user want to scan (except for retake scan)
+
+    let selectScanningModeModal = this.modalCtrl.create(SelectScanningModePage);
+    selectScanningModeModal.onDidDismiss(mode => {
+
+      // if the user doesn't choose the mode (clicks cancel) and didn't enter the scan-session page yet
+      if (!mode && this.isNewSession) {
+        this.navCtrl.pop();
+        return;
+      }
+
+      if (mode == SelectScanningModePage.SCAN_MODE_SINGLE) {
+        this.CameraScannerProvider.scan().then(
+          (scan: ScanModel) => {
+            this.saveScan(scan);
+          }, err => {
+            if (this.scanSession.scannings.length == 0) {
+              this.navCtrl.pop();
+            }
+          });
+      } else if (mode == SelectScanningModePage.SCAN_MODE_CONTINUE) {
+        this.continueScan();
+      }
+    });
+    selectScanningModeModal.present();
+  }
+
+  saveScan(scan) {
+    this.googleAnalytics.trackEvent('scannings', 'scan');
+    this.scanSession.scannings.unshift(scan);
+    this.save();
+    this.sendPutScan(scan);
+  }
+
+  continueScan() {
     this.CameraScannerProvider.scan().then(
       (scan: ScanModel) => {
-        this.googleAnalytics.trackEvent('scannings', 'scan');
-        this.scanSession.scannings.unshift(scan);
-        this.save();
-        this.sendPutScan(scan);
+        this.saveScan(scan);
         this.showAddMoreDialog();
       }, err => {
         if (this.scanSession.scannings.length == 0) {
@@ -91,7 +123,7 @@ export class ScanSessionPage {
         text: 'Continue',
         handler: () => {
           if (interval) clearInterval(interval);
-          this.scan();
+          this.continueScan();
         }
       }]
     });
@@ -108,7 +140,7 @@ export class ScanSessionPage {
           if (timeoutSeconds == 0) {
             if (interval) clearInterval(interval);
             alert.dismiss();
-            this.scan();
+            this.continueScan();
           }
           timeoutSeconds--;
         }, 1000);
