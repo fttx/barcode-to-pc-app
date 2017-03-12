@@ -1,7 +1,7 @@
 import { NgModule, ErrorHandler } from '@angular/core';
 import { IonicApp, IonicModule, IonicErrorHandler } from 'ionic-angular';
 import { MyApp } from './app.component';
-import { ContinueModeSettingsPage } from '../pages/continue-mode-settings/continue-mode-settings';
+import { SettingsPage } from '../pages/settings/settings';
 import { AboutPage } from '../pages/about/about';
 import { ScanSessionsPage } from '../pages/scan-sessions/scan-sessions';
 import { EditScanSessionPage } from '../pages/scan-session/edit-scan-session/edit-scan-session';
@@ -28,7 +28,7 @@ import { MomentModule } from 'angular2-moment';
     ScanSessionPage,
     SelectServerPage,
     CircleTextComponent,
-    ContinueModeSettingsPage,
+    SettingsPage,
   ],
   imports: [
     IonicStorageModule.forRoot(),
@@ -43,7 +43,7 @@ import { MomentModule } from 'angular2-moment';
     SelectServerPage,
     EditScanSessionPage,
     SelectScanningModePage,
-    ContinueModeSettingsPage,
+    SettingsPage,
     WelcomePage,
     ScanSessionPage,
   ],

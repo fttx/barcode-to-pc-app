@@ -120,7 +120,7 @@ export class SelectServerPage {
           title: "Cannot find the server",
           message: "Make you sure that the server is running on your computer.<br><br>\
                     If you're still unable to connect do the following:<br>\
-                    <ul>\
+                    <ul text-center>\
                       <li>Add the server to Windows Firewall exceptions\
                       <li>Try to temporarily disable your antivirus\
                     </ul>",

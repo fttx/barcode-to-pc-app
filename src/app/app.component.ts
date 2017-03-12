@@ -7,7 +7,7 @@ import { WelcomePage } from '../pages/welcome/welcome';
 import { SelectServerPage } from './../pages/select-server/select-server';
 import { AboutPage } from '../pages/about/about';
 import { Settings } from '../providers/settings';
-import { ContinueModeSettingsPage } from '../pages/continue-mode-settings/continue-mode-settings';
+import { SettingsPage } from '../pages/settings/settings';
 
 @Component({
   templateUrl: 'app.html',
@@ -57,9 +57,9 @@ export class MyApp {
     this.setPage(SelectServerPage);
   }
 
-  continueModeSettings() {
+  settingsPage() {
     this.menuCtrl.close();
-    this.modalCtrl.create(ContinueModeSettingsPage).present();
+    this.modalCtrl.create(SettingsPage).present();
   }
 
   about() {

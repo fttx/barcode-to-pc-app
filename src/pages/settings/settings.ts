@@ -4,17 +4,16 @@ import { Component } from '@angular/core';
 import { NavController, ViewController } from 'ionic-angular';
 
 /*
-  Generated class for the EditScanSession page.
+  Generated class for the Settings page.
 
   See http://ionicframework.com/docs/v2/components/#navigation for more info on
   Ionic pages and navigation.
 */
 @Component({
-  selector: 'page-continue-mode-settings',
-  templateUrl: 'continue-mode-settings.html'
+  selector: 'page-settings',
+  templateUrl: 'settings.html'
 })
-export class ContinueModeSettingsPage {
-  public enabled = true;
+export class SettingsPage {
   public seconds = Config.DEFAULT_CONTINUE_MODE_TIMEOUT;
 
   constructor(
@@ -27,14 +26,10 @@ export class ContinueModeSettingsPage {
   ionViewDidLoad() {
     this.settings.getContinueModeTimeout().then(seconds => {
       this.seconds = seconds;
-      this.enabled = seconds != -1;
     })
   }
 
   dismiss() {
-    if (!this.enabled) {
-      this.seconds = -1;
-    }
     this.settings.setContinueModeTimeout(this.seconds);
     this.viewCtrl.dismiss();
   }
