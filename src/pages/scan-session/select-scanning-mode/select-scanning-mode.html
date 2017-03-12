@@ -19,8 +19,13 @@
 
 
 <ion-content>
+  <div padding-vertical ion-item color="text" full class="half-button continue" (click)="dismiss('continue')">
+    <img src="assets/select-scanning-mode/continue.png">
+    <p>Continue mode</p>
+  </div>
 
-  <button ion-button full (click)="dismiss('continue')">Continue scanning</button>
-  <button ion-button full (click)="dismiss('single')">One at time</button>
-
+  <div padding-vertical ion-item color="text" full class="half-button single" (click)="dismiss('single')">
+    <img src="assets/select-scanning-mode/single.png">
+    <p>Single scan</p>
+  </div>
 </ion-content>

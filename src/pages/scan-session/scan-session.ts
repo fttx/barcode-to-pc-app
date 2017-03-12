@@ -132,19 +132,19 @@ export class ScanSessionPage {
     this.settings.getContinueModeTimeout().then(timeoutSeconds => {
       if (timeoutSeconds == null) {
         timeoutSeconds = Config.DEFAULT_CONTINUE_MODE_TIMEOUT;
+      } else {
+        this.googleAnalytics.trackEvent('scannings', 'custom_timeout', null, timeoutSeconds);
       }
 
-      if (timeoutSeconds != -1) {
-        interval = setInterval(() => {
-          alert.setSubTitle('Timeout: ' + timeoutSeconds);
-          if (timeoutSeconds == 0) {
-            if (interval) clearInterval(interval);
-            alert.dismiss();
-            this.continueScan();
-          }
-          timeoutSeconds--;
-        }, 1000);
-      }
+      interval = setInterval(() => {
+        alert.setSubTitle('Timeout: ' + timeoutSeconds);
+        if (timeoutSeconds == 0) {
+          if (interval) clearInterval(interval);
+          alert.dismiss();
+          this.continueScan();
+        }
+        timeoutSeconds--;
+      }, 1000);
     });
   }
 
