@@ -1,5 +1,5 @@
-import { NgModule } from '@angular/core';
-import { IonicApp, IonicModule } from 'ionic-angular';
+import { NgModule, ErrorHandler } from '@angular/core';
+import { IonicApp, IonicModule, IonicErrorHandler } from 'ionic-angular';
 import { MyApp } from './app.component';
 import { ContinueModeSettingsPage } from '../pages/continue-mode-settings/continue-mode-settings';
 import { AboutPage } from '../pages/about/about';
@@ -14,7 +14,7 @@ import { ServerProvider } from '../providers/server'
 import { Settings } from '../providers/settings'
 import { GoogleAnalyticsService } from '../providers/google-analytics'
 import { ScanSessionsStorage } from '../providers/scan-sessions-storage'
-import { Storage } from '@ionic/storage';
+import { IonicStorageModule } from '@ionic/storage';
 import { MomentModule } from 'angular2-moment';
 
 @NgModule({
@@ -31,6 +31,7 @@ import { MomentModule } from 'angular2-moment';
     ContinueModeSettingsPage,
   ],
   imports: [
+    IonicStorageModule.forRoot(),
     IonicModule.forRoot(MyApp),
     MomentModule,
   ],
@@ -46,6 +47,6 @@ import { MomentModule } from 'angular2-moment';
     WelcomePage,
     ScanSessionPage,
   ],
-  providers: [ServerProvider, Storage, Settings, ScanSessionsStorage, GoogleAnalyticsService]
+  providers: [ServerProvider, Storage, Settings, ScanSessionsStorage, GoogleAnalyticsService, { provide: ErrorHandler, useClass: IonicErrorHandler }]
 })
 export class AppModule { }
