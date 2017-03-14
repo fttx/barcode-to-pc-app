@@ -20,7 +20,7 @@
 
 
 <ion-content>
-	<ion-slides #welcome (ionDidChange)="onSlideChanged()" pager>
+	<ion-slides #welcome (ionSlideDidChange)="onSlideChanged()" pager>
 		<ion-slide *ngFor="let slide of slides">
 			<img [src]="slide.image" class="slide-image" />
 			<h2 class="slide-title" [innerHTML]="slide.title"></h2>
@@ -37,9 +37,9 @@
 				<ion-icon name="checkmark-circle-outline" class="done"></ion-icon>
 				<h2 class="slide-title">Server found</h2>
 				<button ion-button large clear icon-right (click)="startScanningClicked()">
-          Start scanning
-          <ion-icon name="arrow-forward"></ion-icon>
-        </button>
+					Start scanning
+					<ion-icon name="arrow-forward"></ion-icon>
+				</button>
 			</div>
 		</ion-slide>
 
@@ -50,9 +50,9 @@
 	<ion-toolbar no-border>
 		<ion-buttons right>
 			<button ion-button [hidden]="!showNext" (click)="onNextClicked()">
-        Next
-        <ion-icon name="arrow-forward"></ion-icon>
-      </button>
+				Next
+				<ion-icon name="arrow-forward"></ion-icon>
+			</button>
 		</ion-buttons>
 	</ion-toolbar>
 </ion-footer>
