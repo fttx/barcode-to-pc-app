@@ -84,7 +84,6 @@ export class WelcomePage {
 
   onSlideChanged() {
     let currentIndex = this.slider.getActiveIndex();
-    console.log("current Index: ", currentIndex)
     if (this.slider.isEnd()) {
       this.showNext = false;
     } else {

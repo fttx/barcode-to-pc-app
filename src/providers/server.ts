@@ -51,16 +51,16 @@ export class ServerProvider {
         this.settings.saveServer(server);
       };
 
-      this.webSocket.onerror = msg => {
-        observer.error(JSON.stringify(msg));
+      this.webSocket.onerror = err => {
+        observer.error(JSON.stringify(err));
         if (this.everConnected) {
-          this.toastCtrl.create({ message: 'Connection failed', duration: 3000 }).present();
+          this.toastCtrl.create({ message: 'Connection problem', duration: 3000 }).present();
         }
       }
 
       this.webSocket.onclose = () => {
-        observer.error("connection lost"); if (this.everConnected) {
-          this.toastCtrl.create({ message: 'Connection lost', duration: 3000 }).present();
+        observer.error("connection closed"); if (this.everConnected) {
+          this.toastCtrl.create({ message: 'Connection closed', duration: 3000 }).present();
         }
       }
     });
