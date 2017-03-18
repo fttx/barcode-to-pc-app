@@ -42,17 +42,21 @@ export class ScanSessionsPage {
 
     if (this.connected == false) {
       this.settings.getDefaultServer().then(server => {
-        this.serverProvider.connect(server).subscribe(
-          data => {
-            if (data && data.action) {
-              this.onMessage(data);
-            } else {
-              this.onConnect();
-            }
-          },
-          err => this.onDisconnect()
-        );
-      }, err => {
+        this.serverProvider.connect(server).subscribe(obj => {
+          console.log("observer data:", obj)
+          let wsAction = obj.wsAction;
+
+          if (wsAction == 'message') {
+            this.onMessage(obj.message);
+          } else if (wsAction == 'open') {
+            this.onConnect();
+          } else if (wsAction == 'close') {
+            this.onDisconnect();
+          } else if (wsAction == 'error') {
+            this.onDisconnect();
+          }
+        });
+      }, err => { // no default server:
         if (!this.selectServerShown) {
           this.selectServerShown = true;
           this.navCtrl.push(SelectServerPage)
@@ -104,6 +108,7 @@ export class ScanSessionsPage {
 
 
   onMessage(message: any) {
+    console.log('onMessage()', message)
     if (message.action == 'getVersion') {
       if (message.data.version != Config.REQUIRED_SERVER_VERSION) {
         this.onVersionMismatch();

@@ -1,6 +1,5 @@
 import { Injectable, NgZone } from '@angular/core';
 import { Observable } from 'rxjs'
-import 'rxjs/add/operator/map';
 import { ServerModel } from '../models/server.model'
 import { Settings } from '../providers/settings'
 import { Config } from './config'
@@ -21,8 +20,12 @@ export class ServerProvider {
   public static ACTION_DELETE_SCAN = 'deleteScan';
   public static ACTION_DELETE_SCANSESSION = 'deleteScanSession';
   public static ACTION_GET_VERSION = 'getVersion';
+  public static RECONNECT_INTERVAL = 7000;
 
   private webSocket: WebSocket;
+  private observer;
+  private reconnectInterval;
+  private reconnecting = false;
   private everConnected = false;
 
   constructor(
@@ -31,39 +34,78 @@ export class ServerProvider {
     private toastCtrl: ToastController,
   ) { }
 
-  connect(server) {
-    let address = 'ws://' + server.address + ':' + Config.SERVER_PORT + '/';
-    return Observable.create(observer => {
-      this.webSocket = new WebSocket(address);
-
-      this.webSocket.onmessage = message => {
-        let data = null;
-        if (message.data) {
-          data = JSON.parse(message.data);
-        }
-        observer.next(data);
-      }
-
-      this.webSocket.onopen = () => {
-        this.everConnected = true;
-        observer.next();
-        this.toastCtrl.create({ message: 'Connection extablished', duration: 3000 }).present();
-        this.settings.saveServer(server);
-      };
-
-      this.webSocket.onerror = err => {
-        observer.error(JSON.stringify(err));
-        if (this.everConnected) {
-          this.toastCtrl.create({ message: 'Connection problem', duration: 3000 }).present();
-        }
-      }
-
-      this.webSocket.onclose = () => {
-        observer.error("connection closed"); if (this.everConnected) {
-          this.toastCtrl.create({ message: 'Connection closed', duration: 3000 }).present();
-        }
+  connect(server: ServerModel) {
+    console.log('connect()')
+    return Observable.create(observer => { // ONLY THE LAST SUBSCRIBER WILL RECEIVE UPDATES!!
+      this.observer = observer;
+      if (!this.webSocket || !this.webSocket.OPEN) {
+        this.wsConnect(server);
+      } else {
+        this.observer.next({ wsAction: 'open' });
       }
     });
+  }
+
+  private wsConnect(server: ServerModel) {
+    console.log('wsConnect()')
+
+    if (this.webSocket) {
+      this.webSocket.close();
+      this.webSocket.removeEventListener('onmessage');
+      this.webSocket.removeEventListener('onopen');
+      this.webSocket.removeEventListener('onerror');
+      this.webSocket.removeEventListener('onclose');
+    }
+
+    let wsUrl = 'ws://' + server.address + ':' + Config.SERVER_PORT + '/';
+    this.webSocket = new WebSocket(wsUrl);
+
+    this.webSocket.onmessage = message => {
+      let messageData = null;
+      if (message.data) {
+        messageData = JSON.parse(message.data);
+      }
+      this.observer.next({ wsAction: 'message', message: messageData });
+    }
+
+    this.webSocket.onopen = () => {
+      this.everConnected = true;
+      this.observer.next({ wsAction: 'open' });
+      this.settings.saveServer(server);
+
+      if (this.reconnectInterval) {
+        clearInterval(this.reconnectInterval);
+        this.reconnectInterval = null;
+        this.reconnecting = false;
+        console.log("reconnected successfully... interval cleared.")
+      }
+
+      this.toastCtrl.create({ message: 'Connection extablished', duration: 3000 }).present();
+    };
+
+    this.webSocket.onerror = err => {
+      this.observer.next({ wsAction: 'error', err: err });
+      if (!this.reconnecting) {
+        this.toastCtrl.create({ message: 'Connection problem', duration: 3000 }).present();
+      }
+      this.scheduleNewWsConnection(server);
+    }
+
+    this.webSocket.onclose = () => {
+      this.observer.next({ wsAction: 'close' });
+      if (this.everConnected && !this.reconnecting) {
+        this.toastCtrl.create({ message: 'Connection closed', duration: 3000 }).present();
+      }
+      this.scheduleNewWsConnection(server);
+    }
+  }
+
+  private scheduleNewWsConnection(server) {
+    this.reconnecting = true;
+    if (!this.reconnectInterval) {
+      this.reconnectInterval = setInterval(() => this.wsConnect(server), ServerProvider.RECONNECT_INTERVAL);
+      console.log("reconnection scheduled.")
+    }
   }
 
   send(action, data = {}) {
@@ -88,7 +130,7 @@ export class ServerProvider {
       cordova.plugins.zeroconf.watch('_http._tcp.local.', result => {
         var action = result.action;
         var service = result.service;
-        console.log("ACTION:", action, service);
+        // console.log("ACTION:", action, service);
         if (service.port == Config.SERVER_PORT && service.addresses && service.addresses.length) {
           this.NgZone.run(() => {
             observer.next({ server: new ServerModel(service.addresses[0], service.server), action: action });
@@ -104,4 +146,11 @@ export class ServerProvider {
       cordova.plugins.zeroconf.close();
     }
   }
+
+  // isConnectedWith(server: ServerModel) {
+  //   if (!this.webSocket.OPEN || this.webSocket.url.indexOf(server.address) == -1) {
+  //     return false;
+  //   }
+  //   return true;
+  // }
 }
