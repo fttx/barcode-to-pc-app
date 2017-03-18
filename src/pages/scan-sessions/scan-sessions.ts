@@ -41,27 +41,23 @@ export class ScanSessionsPage {
     });
 
     if (this.connected == false) {
-      this.platform.ready().then(() => {
-        this.serverProvider.getDefaultServer().then(
-          server => {
-            this.serverProvider.connect(server).subscribe(
-              data => {
-                if (data && data.action) {
-                  this.onMessage(data);
-                } else {
-                  this.onConnect();
-                }
-              },
-              err => this.onDisconnect()
-            );
-          },
-          err => {
-            if (!this.selectServerShown) {
-              this.selectServerShown = true;
-              this.navCtrl.push(SelectServerPage)
+      this.settings.getDefaultServer().then(server => {
+        this.serverProvider.connect(server).subscribe(
+          data => {
+            if (data && data.action) {
+              this.onMessage(data);
+            } else {
+              this.onConnect();
             }
-          })
-      });
+          },
+          err => this.onDisconnect()
+        );
+      }, err => {
+        if (!this.selectServerShown) {
+          this.selectServerShown = true;
+          this.navCtrl.push(SelectServerPage)
+        }
+      })
     }
   }
 
@@ -71,7 +67,6 @@ export class ScanSessionsPage {
     this.serverProvider.send(ServerProvider.ACTION_GET_VERSION);
 
     Promise.join(this.settings.getNoRunnings(), this.settings.getRated(), (runnings, rated) => {
-      console.log('running', runnings, 'rated', rated)
       if (runnings >= Config.NO_RUNNINGS_BEFORE_SHOW_RATING && !rated) {
         let os = Device.platform;
         let isAndroid = os.toLowerCase().indexOf('android') != -1;
@@ -92,7 +87,7 @@ export class ScanSessionsPage {
             handler: () => {
               this.settings.setRated(true);
               if (isAndroid) {
-                Market.open('com.barcodetopc'); // TODO: fix: https://github.com/driftyco/ionic-native/issues/936
+                Market.open('com.barcodetopc');
               } else {
                 Market.open('BarcodetoPC:Wi-Fiscanner');
               }

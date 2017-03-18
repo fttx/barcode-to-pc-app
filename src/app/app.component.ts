@@ -24,29 +24,23 @@ export class MyApp {
     private alertCtrl: AlertController,
     public modalCtrl: ModalController,
   ) {
-    Promise.all([
-      this.settings.getNoRunnings().then(
-        value => {
-          if (!value) {
-            this.rootPage = WelcomePage;
-          } else {
-            this.rootPage = ScanSessionsPage;
-          }
-          let runnings = value || 0;
-          this.settings.setNoRunnings(++runnings);
-        }
-      ),
 
-      platform.ready().then(() => {
-        // Okay, so the platform is ready and our plugins are available.
-        // Here you can do any higher level native things you might need.
-        StatusBar.overlaysWebView(true);
-        StatusBar.backgroundColorByHexString('#B71C1C');
-      })
-    ]).then(
-      () => {
-        Splashscreen.hide();
-      })
+    platform.ready().then(() => {
+      StatusBar.overlaysWebView(true);
+      StatusBar.backgroundColorByHexString('#B71C1C');
+
+      this.settings.getNoRunnings().then(runnings => {
+        if (!runnings) {
+          this.rootPage = WelcomePage;
+        } else {
+          this.rootPage = ScanSessionsPage;
+        }
+        let newRunnings = runnings || 0;
+        this.settings.setNoRunnings(++newRunnings);
+      });
+
+      Splashscreen.hide();
+    });
   }
 
   scanSessions() {

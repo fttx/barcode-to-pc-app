@@ -55,7 +55,9 @@ export class WelcomePage {
     })
 
     setTimeout(() => {
-      this.serverProvider.watchForServers().subscribe((server: ServerModel) => {
+      this.serverProvider.watchForServers().subscribe(data => {
+        let server = data.server;
+
         this.serverProvider.unwatch();
         this.settings.setDefaultServer(server);
         this.slider.slideTo(this.slider.length() - 1);

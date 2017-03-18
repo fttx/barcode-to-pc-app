@@ -66,14 +66,6 @@ export class ServerProvider {
     });
   }
 
-  saveAsDefault(server: ServerModel) {
-    this.settings.setDefaultServer(server);
-  }
-
-  getDefaultServer(): Promise<ServerModel> {
-    return this.settings.getDefaultServer();
-  }
-
   send(action, data = {}) {
     if (this.webSocket) {
       if (this.webSocket.readyState == WebSocket.OPEN) {
@@ -82,14 +74,14 @@ export class ServerProvider {
         this.toastCtrl.create({ message: 'Connection problem', duration: 3000 }).present();
       }
     } else {
-      console.log("offline mode, cannot send!")
+      // console.log("offline mode, cannot send!")
     }
   }
 
   watchForServers() {
     return Observable.create(observer => {
       if (typeof cordova == typeof undefined) { // for browser support
-        observer.next({ address: 'localhost', name: 'localhost' });
+        observer.next({ server: { address: 'localhost', name: 'localhost' }, action: 'added' });
         return;
       }
       this.unwatch();

@@ -55,16 +55,15 @@ export class SelectServerPage {
       err => { }
     );
 
-    this.serverProvider.getDefaultServer().then((defaultServer: ServerModel) => {
+    this.settings.getDefaultServer().then((defaultServer: ServerModel) => {
       this.selectedServer = defaultServer;
-      console.log("DEFAULT = ", this.selectedServer)
     },
       err => { }
     );
   }
 
   onServerClicked(server) {
-    this.serverProvider.saveAsDefault(server);
+    this.settings.setDefaultServer(server);
     this.serverProvider.connect(server);
     // this.navCtrl.pop();
     this.selectedServer = server;
@@ -88,7 +87,7 @@ export class SelectServerPage {
         handler: input => {
           let server = new ServerModel(input.address, input.name);
           this.addServer(server, false, true);
-          this.serverProvider.saveAsDefault(server);
+          this.settings.setDefaultServer(server);
           this.selectedServer = server;
           this.settings.saveServer(server);
         }
@@ -105,7 +104,7 @@ export class SelectServerPage {
         console.log("server discovered:  ", server);
         this.addServer(server, true, false);
       } else {
-        console.log("server removed:  ", server);
+        console.log("server undiscovered:  ", server);
         let previuslyDiscovered = this.servers.find(x => x.equals(server));
         if (previuslyDiscovered) {
           previuslyDiscovered.online = false;
@@ -176,7 +175,6 @@ export class SelectServerPage {
   }
 
   deleteServer(server) {
-    console.log("DELETE SERVER")
     this.settings.deleteServer(server);
     this.servers.splice(this.servers.indexOf(server), 1);
 
