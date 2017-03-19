@@ -142,7 +142,7 @@ export class SelectServerPage {
         });
         alert.present();
       }
-    }, 15 * 1000)
+    }, 20 * 1000)
   } // scanForServers
 
 
@@ -153,23 +153,30 @@ export class SelectServerPage {
     return false;
   }
 
-  addServers(servers: ServerModel[], online: boolean, forceNameUpdate: boolean) {
+  addServers(servers: ServerModel[], forceOnline: boolean, forceNameUpdate: boolean) {
     servers.forEach(server => {
-      this.addServer(server, online, forceNameUpdate);
+      this.addServer(server, forceOnline, forceNameUpdate);
     });
   }
 
-  addServer(addServer: ServerModel, online: boolean, forceNameUpdate: boolean) {
-    let server = this.servers.find(x => x.equals(addServer))
+  addServer(addServer: ServerModel, forceOnline: boolean, forceNameUpdate: boolean) {
+    let found = false;
+    this.servers.forEach(server => {
+      if (server.equals(addServer)) {
+        found = true;
+        if (forceOnline) {
+          server.online = true;
+        }
+        if (forceNameUpdate) {
+          server.name = addServer.name;
+        }
+      }
+    });
 
-    if (server) {
-      if (!server.online) {
-        server.online = online;
+    if (!found) {
+      if (forceOnline) {
+        addServer.online = true;
       }
-      if (forceNameUpdate) {
-        server.name = addServer.name;
-      }
-    } else {
       this.servers.push(addServer);
     }
   }
