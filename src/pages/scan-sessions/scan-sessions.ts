@@ -109,7 +109,7 @@ export class ScanSessionsPage {
 
   onMessage(message: any) {
     console.log('onMessage()', message)
-    if (message.action == 'getVersion') {
+    if (message.action == ServerProvider.ACTION_GET_VERSION) {
       if (message.data.version != Config.REQUIRED_SERVER_VERSION) {
         this.onVersionMismatch();
       }

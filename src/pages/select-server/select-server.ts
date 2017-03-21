@@ -85,6 +85,9 @@ export class SelectServerPage {
       }, {
         text: 'Add',
         handler: input => {
+          if (!input.address) {
+            return;
+          }
           let server = new ServerModel(input.address, input.name);
           this.addServer(server, false, true);
           this.settings.setDefaultServer(server);
