@@ -7,7 +7,6 @@ import { ServerProvider } from '../../providers/server'
 import { Config } from '../../providers/config'
 import { Settings } from '../../providers/settings'
 import { GoogleAnalyticsService } from '../../providers/google-analytics'
-import { ServerModel } from '../../models/server.model'
 
 /*
   Generated class for the Welcome page.
