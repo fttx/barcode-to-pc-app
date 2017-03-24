@@ -2,6 +2,7 @@ import { Settings } from '../../providers/settings';
 import { Component, NgZone } from '@angular/core';
 import { NavController, ViewController, AlertController } from 'ionic-angular';
 import { ServerProvider } from '../../providers/server'
+import { Config } from '../../providers/config'
 import { ServerModel } from '../../models/server.model'
 import { GoogleAnalyticsService } from '../../providers/google-analytics'
 
@@ -28,7 +29,7 @@ export class SelectServerPage {
     private serverProvider: ServerProvider,
     private settings: Settings,
     private googleAnalytics: GoogleAnalyticsService,
-    private zone: NgZone
+    private zone: NgZone,
   ) { }
 
   public isVisible = false;
@@ -123,7 +124,7 @@ export class SelectServerPage {
           message: "Make you sure that the server is running on your computer.<br><br>\
                     If you're still unable to connect do the following:<br>\
                     <ul text-center>\
-                      <li>Add the server to Windows Firewall exceptions\
+                      <li>Add Barcode to PC server to Windows Firewall exceptions\
                       <li>Try to temporarily disable your antivirus\
                     </ul>",
           buttons: [{
@@ -133,7 +134,7 @@ export class SelectServerPage {
           }, {
             text: 'Help',
             handler: () => {
-
+              window.open('mailto:' + Config.EMAIL_SUPPORT, '_system');
             }
           }, {
             text: 'Scan again',

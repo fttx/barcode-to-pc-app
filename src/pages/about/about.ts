@@ -24,4 +24,8 @@ export class AboutPage {
     AppVersion.getVersionNumber().then(version => this.appVersion = version);
   }
 
+  contactMe() {
+    window.open('mailto:' + Config.EMAIL_SUPPORT, '_system');
+  }
+
 }
