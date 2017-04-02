@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BarcodeScanner } from 'ionic-native';
+import { BarcodeScanner } from '@ionic-native/barcode-scanner';
 import { ScanModel } from '../models/scan.model'
 
 /*
@@ -11,11 +11,13 @@ import { ScanModel } from '../models/scan.model'
 @Injectable()
 export class CameraScannerProvider {
 
-  constructor() { }
+  constructor(
+    private barcodeScanner: BarcodeScanner,
+  ) { }
 
   scan(): Promise<ScanModel> {
     return new Promise((resolve, reject) => {
-      BarcodeScanner.scan({
+      this.barcodeScanner.scan({
         "showFlipCameraButton": true, // iOS and Android
         "prompt": "Place a barcode inside the scan area", // supported on Android only
         "orientation": "landscape" // Android only (portrait|landscape), default unset so it rotates with the device

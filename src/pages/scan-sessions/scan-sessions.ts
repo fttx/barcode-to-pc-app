@@ -1,4 +1,3 @@
-import { Device, Market } from 'ionic-native';
 import { Settings } from './../../providers/settings';
 import { Config } from '../../providers/config';
 import { Component } from '@angular/core';
@@ -9,6 +8,8 @@ import { SelectServerPage } from '../select-server/select-server'
 import { ServerProvider } from '../../providers/server'
 import { GoogleAnalyticsService } from '../../providers/google-analytics'
 import { ScanSessionsStorage } from '../../providers/scan-sessions-storage'
+import { Device } from '@ionic-native/device';
+import { Market } from '@ionic-native/market';
 import * as Promise from 'bluebird'
 
 declare var cordova: any;
@@ -32,6 +33,8 @@ export class ScanSessionsPage {
     public popoverCtrl: PopoverController,
     private googleAnalytics: GoogleAnalyticsService,
     private settings: Settings,
+    private market: Market,
+    private device: Device,
   ) { }
 
   ionViewDidEnter() {
@@ -72,7 +75,7 @@ export class ScanSessionsPage {
 
     Promise.join(this.settings.getNoRunnings(), this.settings.getRated(), (runnings, rated) => {
       if (runnings >= Config.NO_RUNNINGS_BEFORE_SHOW_RATING && !rated) {
-        let os = Device.platform;
+        let os = this.device.platform;
         let isAndroid = os.toLowerCase().indexOf('android') != -1;
         let store = isAndroid ? 'PlayStore' : 'Appstore';
         this.alertCtrl.create({
@@ -91,9 +94,9 @@ export class ScanSessionsPage {
             handler: () => {
               this.settings.setRated(true);
               if (isAndroid) {
-                Market.open('com.barcodetopc');
+                this.market.open('com.barcodetopc');
               } else {
-                Market.open('BarcodetoPC:Wi-Fiscanner');
+                this.market.open('BarcodetoPC:Wi-Fiscanner');
               }
             }
           }]

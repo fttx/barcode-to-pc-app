@@ -2,11 +2,11 @@ import { Config } from './../../providers/config';
 import { Settings } from './../../providers/settings';
 import { Component } from '@angular/core';
 import { NavParams, ModalController } from 'ionic-angular';
-import { SocialSharing } from 'ionic-native';
+import { SocialSharing } from '@ionic-native/social-sharing';
 import { ScanSessionModel } from '../../models/scan-session.model'
 import { ActionSheetController } from 'ionic-angular'
 import { AlertController } from 'ionic-angular'
-import { CameraScannerProvider } from '../../providers/camera-scanner'
+import { CameraScannerProvider } from '../../providers/camera-scanner';
 import { ServerProvider } from '../../providers/server'
 import { GoogleAnalyticsService } from '../../providers/google-analytics'
 import { ScanModel } from '../../models/scan.model'
@@ -27,7 +27,6 @@ import { SelectScanningModePage } from "./select-scanning-mode/select-scanning-m
 })
 export class ScanSessionPage {
   public scanSession: ScanSessionModel;
-  private CameraScannerProvider: CameraScannerProvider;
   private isNewSession = false;
 
   constructor(
@@ -40,10 +39,11 @@ export class ScanSessionPage {
     public modalCtrl: ModalController,
     private googleAnalytics: GoogleAnalyticsService,
     private settings: Settings,
+    private socialSharing: SocialSharing,
+    private cameraScannerProvider: CameraScannerProvider,
   ) {
     this.scanSession = navParams.get('scanSession');
     this.isNewSession = navParams.get('isNewSession');
-    this.CameraScannerProvider = new CameraScannerProvider();
   }
 
   ionViewDidEnter() {
@@ -68,7 +68,7 @@ export class ScanSessionPage {
       }
 
       if (mode == SelectScanningModePage.SCAN_MODE_SINGLE) {
-        this.CameraScannerProvider.scan().then(
+        this.cameraScannerProvider.scan().then(
           (scan: ScanModel) => {
             this.saveScan(scan);
           }, err => {
@@ -91,7 +91,7 @@ export class ScanSessionPage {
   }
 
   continueScan() {
-    this.CameraScannerProvider.scan().then(
+    this.cameraScannerProvider.scan().then(
       (scan: ScanModel) => {
         this.saveScan(scan);
         this.showAddMoreDialog();
@@ -171,7 +171,7 @@ export class ScanSessionPage {
       icon: 'share',
       handler: () => {
         this.googleAnalytics.trackEvent('scannings', 'share');
-        SocialSharing.share(scan.text, "", "", "")
+        this.socialSharing.share(scan.text, "", "", "")
       }
     });
 
@@ -191,7 +191,7 @@ export class ScanSessionPage {
       icon: 'refresh',
       handler: () => {
         this.googleAnalytics.trackEvent('scannings', 'retake');
-        this.CameraScannerProvider.scan().then(
+        this.cameraScannerProvider.scan().then(
           (scan: ScanModel) => {
             this.scanSession.scannings.splice(scanIndex, 1, scan);
             this.save();

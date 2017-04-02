@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { GoogleAnalytics } from 'ionic-native';
+import { GoogleAnalytics } from '@ionic-native/google-analytics';
 import { Platform } from 'ionic-angular';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/observable/forkJoin';
@@ -17,7 +17,10 @@ export class GoogleAnalyticsService {
     trackerInitialized: boolean = false;
     platformReady: boolean = false;
 
-    constructor(platform: Platform) {
+    constructor(
+        platform: Platform,
+        private ga: GoogleAnalytics,
+    ) {
         platform.ready().then(() => this.platformReady = true);
     }
 
@@ -27,7 +30,7 @@ export class GoogleAnalyticsService {
         } else {
             this.initGoogleAnalytics().then(() => {
                 this.trackViewNotSent().then(() => {
-                    GoogleAnalytics.trackView(viewName).then(() => {
+                    this.ga.trackView(viewName).then(() => {
                         // Do nothing
                     });
                 });
@@ -45,7 +48,7 @@ export class GoogleAnalyticsService {
                 let promises = new Array();
 
                 for (let i: number = 0; i < this.viewNotSent.length; i++) {
-                    promises.push(GoogleAnalytics.trackView(this.viewNotSent[i].viewName));
+                    promises.push(this.ga.trackView(this.viewNotSent[i].viewName));
                 }
 
                 Observable.forkJoin(promises).subscribe(
@@ -63,7 +66,7 @@ export class GoogleAnalyticsService {
         } else {
             this.initGoogleAnalytics().then(() => {
                 this.trackEventNotSent().then(() => {
-                    GoogleAnalytics.trackEvent(category, action, label, value, newSession).then(() => {
+                    this.ga.trackEvent(category, action, label, value, newSession).then(() => {
                         // Do nothing
                     });
                 });
@@ -81,7 +84,7 @@ export class GoogleAnalyticsService {
                 let promises = new Array();
 
                 for (let i: number = 0; i < this.eventNotSent.length; i++) {
-                    promises.push(GoogleAnalytics.trackEvent(
+                    promises.push(this.ga.trackEvent(
                         this.eventNotSent[i].category,
                         this.eventNotSent[i].action,
                         this.eventNotSent[i].label,
@@ -104,7 +107,7 @@ export class GoogleAnalyticsService {
                 resolve();
             } else {
                 // console.log("startTrackerWithId");
-                GoogleAnalytics.startTrackerWithId('UA-87867313-1').then(() => {
+                this.ga.startTrackerWithId('UA-87867313-1').then(() => {
                     // console.log("enableUncaughtExceptionReporting");
                     // GoogleAnalytics.enableUncaughtExceptionReporting(true)
                     //     .then((success) => {

@@ -1,6 +1,7 @@
 import { Component, ViewChild } from '@angular/core';
 import { Platform, MenuController, Nav, AlertController, ModalController } from 'ionic-angular';
-import { StatusBar, Splashscreen } from 'ionic-native';
+import { StatusBar } from '@ionic-native/status-bar';
+import { SplashScreen } from '@ionic-native/splash-screen';
 
 import { ScanSessionsPage } from '../pages/scan-sessions/scan-sessions';
 import { WelcomePage } from '../pages/welcome/welcome';
@@ -23,11 +24,13 @@ export class MyApp {
     public menuCtrl: MenuController,
     private alertCtrl: AlertController,
     public modalCtrl: ModalController,
+    private statusBar: StatusBar,
+    private splashScreen: SplashScreen,
   ) {
 
     platform.ready().then(() => {
-      StatusBar.overlaysWebView(true);
-      StatusBar.backgroundColorByHexString('#B71C1C');
+      statusBar.overlaysWebView(true);
+      statusBar.backgroundColorByHexString('#B71C1C');
 
       this.settings.getNoRunnings().then(runnings => {
         if (!runnings) {
@@ -39,7 +42,7 @@ export class MyApp {
         this.settings.setNoRunnings(++newRunnings);
       });
 
-      Splashscreen.hide();
+      splashScreen.hide();
     });
   }
 
