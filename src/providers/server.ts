@@ -127,7 +127,7 @@ export class ServerProvider {
         return;
       }
       this.unwatch();
-      cordova.plugins.zeroconf.watch('_http._tcp.local.', result => {
+      cordova.plugins.zeroconf.watch('_http._tcp.', 'local.', result => {
         var action = result.action;
         var service = result.service;
         // console.log("ACTION:", action, service);
@@ -142,7 +142,7 @@ export class ServerProvider {
 
   unwatch() {
     if (typeof cordova != typeof undefined) {
-      cordova.plugins.zeroconf.unwatch('_http._tcp.local.');
+      cordova.plugins.zeroconf.unwatch('_http._tcp.', 'local.');
       cordova.plugins.zeroconf.close();
     }
   }
