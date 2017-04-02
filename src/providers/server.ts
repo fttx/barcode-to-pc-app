@@ -120,7 +120,7 @@ export class ServerProvider {
     }
   }
 
-  watchForServers() {
+  watchForServers(): Observable<any> {
     return Observable.create(observer => {
       if (typeof cordova == typeof undefined) { // for browser support
         observer.next({ server: { address: 'localhost', name: 'localhost' }, action: 'added' });
@@ -131,9 +131,11 @@ export class ServerProvider {
         var action = result.action;
         var service = result.service;
         // console.log("ACTION:", action, service);
-        if (service.port == Config.SERVER_PORT && service.addresses && service.addresses.length) {
+        if (service.port == Config.SERVER_PORT && service.ipv4Addresses && service.ipv4Addresses.length) {
           this.NgZone.run(() => {
-            observer.next({ server: new ServerModel(service.addresses[0], service.server), action: action });
+            service.ipv4Addresses.forEach(ipv4 => {
+              observer.next({ server: new ServerModel(ipv4, service.hostname), action: action });
+            })
           });
         }
       });
@@ -142,7 +144,6 @@ export class ServerProvider {
 
   unwatch() {
     if (typeof cordova != typeof undefined) {
-      cordova.plugins.zeroconf.unwatch('_http._tcp.', 'local.');
       cordova.plugins.zeroconf.close();
     }
   }

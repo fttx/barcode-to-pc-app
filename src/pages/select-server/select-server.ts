@@ -146,7 +146,7 @@ export class SelectServerPage {
         });
         alert.present();
       }
-    }, 20 * 1000)
+    }, 60 * 1000)
   } // scanForServers
 
 

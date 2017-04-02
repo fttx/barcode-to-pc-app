@@ -56,14 +56,16 @@ export class WelcomePage {
     setTimeout(() => {
       this.serverProvider.watchForServers().subscribe(data => {
         let server = data.server;
+        if (this.connecting) {
+          this.serverProvider.unwatch();
+          this.settings.setDefaultServer(server);
+          this.slider.slideTo(this.slider.length() - 1);
+          this.ngZone.run(() => {
+            this.connecting = false;
+            this.showNext = false;
+          });
+        }
 
-        this.serverProvider.unwatch();
-        this.settings.setDefaultServer(server);
-        this.slider.slideTo(this.slider.length() - 1);
-        this.ngZone.run(() => {
-          this.connecting = false;
-          this.showNext = false;
-        });
       });
     }, 3000)
 
