@@ -31,5 +31,6 @@ ionic plugin add cordova-plugin-crosswalk-webview
 ionic build android --release
 
 # Android
+ionic plugin rm cordova-plugin-crosswalk-webview
 ionic build android --release -- --minSdkVersion=21
 ```
