@@ -24,5 +24,9 @@ ionic run android
 ## Release
 ```
 ionic build ios --release
+ionic build android --release -- --minSdkVersion=21
+
+# Pre-Lollipop
+ionic plugin add cordova-plugin-crosswalk-webview
 ionic build android --release
 ```
