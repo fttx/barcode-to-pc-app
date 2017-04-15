@@ -1,4 +1,4 @@
-# Barcode to pc app
+M# Barcode to pc app
 
 ## Download
 Android: https://play.google.com/store/apps/details?id=com.barcodetopc
@@ -23,10 +23,13 @@ ionic run android
 
 ## Release
 ```
+# iOS
 ionic build ios --release
-ionic build android --release -- --minSdkVersion=21
 
-# Pre-Lollipop
+# Android Pre-Lollipop (more info: https://github.com/crosswalk-project/cordova-plugin-crosswalk-webview#install)
 ionic plugin add cordova-plugin-crosswalk-webview
 ionic build android --release
+
+# Android
+ionic build android --release -- --minSdkVersion=21
 ```
