@@ -27,10 +27,14 @@ ionic run android
 ionic build ios --release
 
 # Android Pre-Lollipop (more info: https://github.com/crosswalk-project/cordova-plugin-crosswalk-webview#install)
+# Increase version code in config.xml
 ionic plugin add cordova-plugin-crosswalk-webview
 ionic build android --release
+# Sign and zip align: http://ionicframework.com/docs/v1/guide/publishing.html
 
 # Android
+# Increase version code in config.xml (again)
 ionic plugin rm cordova-plugin-crosswalk-webview
 ionic build android --release -- --minSdkVersion=21
+# Sign and zip align: http://ionicframework.com/docs/v1/guide/publishing.html
 ```
