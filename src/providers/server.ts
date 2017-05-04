@@ -34,13 +34,13 @@ export class ServerProvider {
     public platform: Platform
   ) { }
 
-  connect(server: ServerModel) {
+  connect(server: ServerModel): Observable<any> {
     console.log('connect()')
     return Observable.create(observer => { // ONLY THE LAST SUBSCRIBER WILL RECEIVE UPDATES!!
       this.observer = observer;
-      if (!this.webSocket || !this.webSocket.OPEN) {
+      if (!this.webSocket || this.webSocket.readyState != WebSocket.OPEN) {
         this.wsConnect(server);
-      } else {
+      } else if (this.webSocket.readyState == WebSocket.OPEN) {
         this.observer.next({ wsAction: 'open' });
       }
     });
@@ -147,7 +147,7 @@ export class ServerProvider {
   }
 
   // isConnectedWith(server: ServerModel) {
-  //   if (!this.webSocket.OPEN || this.webSocket.url.indexOf(server.address) == -1) {
+  //   if (this.webSocket.readyState != WebSocket.OPEN || this.webSocket.url.indexOf(server.address) == -1) {
   //     return false;
   //   }
   //   return true;

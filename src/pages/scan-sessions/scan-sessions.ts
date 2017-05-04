@@ -46,7 +46,6 @@ export class ScanSessionsPage {
     if (this.connected == false) {
       this.settings.getDefaultServer().then(server => {
         this.serverProvider.connect(server).subscribe(obj => {
-          console.log("observer data:", obj)
           let wsAction = obj.wsAction;
 
           if (wsAction == 'message') {

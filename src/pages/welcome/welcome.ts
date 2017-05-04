@@ -57,12 +57,18 @@ export class WelcomePage {
       this.serverProvider.watchForServers().subscribe(data => {
         let server = data.server;
         if (this.connecting) {
-          this.serverProvider.unwatch();
-          this.settings.setDefaultServer(server);
-          this.slider.slideTo(this.slider.length() - 1);
-          this.ngZone.run(() => {
-            this.connecting = false;
-            this.showNext = false;
+          this.serverProvider.connect(server).subscribe(obj => {
+            let wsAction = obj.wsAction;
+            if (wsAction == 'open') {
+              console.log('connection opened with the server: ', server);
+              this.serverProvider.unwatch();
+              this.settings.setDefaultServer(server);
+              this.slider.slideTo(this.slider.length() - 1);
+              this.ngZone.run(() => {
+                this.connecting = false;
+                this.showNext = false;
+              });
+            }
           });
         }
 
