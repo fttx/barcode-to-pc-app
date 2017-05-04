@@ -19,6 +19,7 @@ export class ServerProvider {
   public static ACTION_DELETE_SCANSESSION = 'deleteScanSession';
   public static ACTION_GET_VERSION = 'getVersion';
   public static RECONNECT_INTERVAL = 7000;
+  public static EVENT_CODE_DO_NOT_ATTEMP_RECCONECTION = 4000; // Another server has been selected, do not attemp to connect again
 
   private webSocket: WebSocket;
   private observer;
@@ -35,27 +36,34 @@ export class ServerProvider {
   ) { }
 
   connect(server: ServerModel): Observable<any> {
-    console.log('connect()')
     return Observable.create(observer => { // ONLY THE LAST SUBSCRIBER WILL RECEIVE UPDATES!!
       this.observer = observer;
       if (!this.webSocket || this.webSocket.readyState != WebSocket.OPEN) {
         this.wsConnect(server);
+        console.log('not connected, starting a new WS connection...');
       } else if (this.webSocket.readyState == WebSocket.OPEN) {
         this.observer.next({ wsAction: 'open' });
+        console.log('already connected to a server, no action taken');
       }
     });
+  }
+
+  disconnect(code = 1000) { // 1000 = CLOSE_NORMAL
+    if (this.webSocket) {
+      this.webSocket.close(code);
+      this.webSocket.removeEventListener('onmessage');
+      this.webSocket.removeEventListener('onopen');
+      this.webSocket.removeEventListener('onerror');
+      this.webSocket.removeEventListener('onclose');
+      this.webSocket = null;
+      console.log('disconnected')
+    }
   }
 
   private wsConnect(server: ServerModel) {
     console.log('wsConnect()')
 
-    if (this.webSocket) {
-      this.webSocket.close();
-      this.webSocket.removeEventListener('onmessage');
-      this.webSocket.removeEventListener('onopen');
-      this.webSocket.removeEventListener('onerror');
-      this.webSocket.removeEventListener('onclose');
-    }
+    this.disconnect();
 
     let wsUrl = 'ws://' + server.address + ':' + Config.SERVER_PORT + '/';
     this.webSocket = new WebSocket(wsUrl);
@@ -91,12 +99,14 @@ export class ServerProvider {
       this.scheduleNewWsConnection(server);
     }
 
-    this.webSocket.onclose = () => {
+    this.webSocket.onclose = (ev: CloseEvent) => {
       this.observer.next({ wsAction: 'close' });
       if (this.everConnected && !this.reconnecting) {
         this.toastCtrl.create({ message: 'Connection closed', duration: 3000 }).present();
       }
-      this.scheduleNewWsConnection(server);
+      if (ev.code != ServerProvider.EVENT_CODE_DO_NOT_ATTEMP_RECCONECTION) {
+        this.scheduleNewWsConnection(server);
+      }
     }
   }
 

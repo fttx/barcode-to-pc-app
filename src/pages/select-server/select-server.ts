@@ -1,3 +1,4 @@
+import { ServerProvider } from './../../providers/server';
 import { Settings } from '../../providers/settings';
 import { Component, NgZone } from '@angular/core';
 import { NavController, ViewController, AlertController } from 'ionic-angular';
@@ -63,9 +64,12 @@ export class SelectServerPage {
     );
   }
 
-  onServerClicked(server) {
-    this.settings.setDefaultServer(server);
-    this.serverProvider.connect(server);
+  onServerClicked(server: ServerModel) {
+    console.log('selected server: ' + server.address + ' disconnecting from the old one...');
+    this.serverProvider.disconnect(ServerProvider.EVENT_CODE_DO_NOT_ATTEMP_RECCONECTION);
+    this.serverProvider.connect(server).subscribe(result => {
+      this.settings.setDefaultServer(server);
+    });
     // this.navCtrl.pop();
     this.selectedServer = server;
   }
