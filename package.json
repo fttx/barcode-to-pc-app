@@ -28,6 +28,7 @@
     "@ionic-native/social-sharing": "^3.6.1",
     "@ionic-native/splash-screen": "3.4.2",
     "@ionic-native/status-bar": "3.4.2",
+    "@ionic-native/zeroconf": "^3.6.1",
     "@ionic/storage": "2.0.1",
     "angular2-moment": "^1.0.0",
     "bluebird": "^3.4.7",

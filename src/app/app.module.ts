@@ -1,3 +1,4 @@
+import { Zeroconf } from '@ionic-native/zeroconf';
 import { NgModule, ErrorHandler } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { HttpModule } from '@angular/http';
@@ -76,6 +77,7 @@ import { BarcodeScanner } from '@ionic-native/barcode-scanner';
     SocialSharing,
     AppVersion,
     BarcodeScanner,
+    Zeroconf,
     { provide: ErrorHandler, useClass: IonicErrorHandler },
   ]
 })

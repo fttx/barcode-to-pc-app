@@ -4,8 +4,7 @@ import { ServerModel } from '../models/server.model'
 import { Settings } from '../providers/settings'
 import { Config } from './config'
 import { ToastController } from 'ionic-angular';
-
-declare var cordova: any;
+import { Zeroconf } from '@ionic-native/zeroconf';
 
 /*
   Generated class for the Server provider.
@@ -32,6 +31,7 @@ export class ServerProvider {
     private settings: Settings,
     private NgZone: NgZone,
     private toastCtrl: ToastController,
+    private zeroconf: Zeroconf,
   ) { }
 
   connect(server: ServerModel) {
@@ -122,12 +122,12 @@ export class ServerProvider {
 
   watchForServers(): Observable<any> {
     return Observable.create(observer => {
-      if (typeof cordova == typeof undefined) { // for browser support
+      if (this.zeroconf) { // for browser support
         observer.next({ server: { address: 'localhost', name: 'localhost' }, action: 'added' });
         return;
       }
       this.unwatch();
-      cordova.plugins.zeroconf.watch('_http._tcp.', 'local.', result => {
+      this.zeroconf.watch('_http._tcp.', 'local.').subscribe(result => {
         var action = result.action;
         var service = result.service;
         // console.log("ACTION:", action, service);
@@ -143,9 +143,7 @@ export class ServerProvider {
   }
 
   unwatch() {
-    if (typeof cordova != typeof undefined) {
-      cordova.plugins.zeroconf.close();
-    }
+    this.zeroconf.close();
   }
 
   // isConnectedWith(server: ServerModel) {
