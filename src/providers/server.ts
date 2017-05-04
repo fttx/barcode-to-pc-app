@@ -3,9 +3,8 @@ import { Observable } from 'rxjs'
 import { ServerModel } from '../models/server.model'
 import { Settings } from '../providers/settings'
 import { Config } from './config'
-import { ToastController } from 'ionic-angular';
+import { ToastController, Platform } from 'ionic-angular';
 import { Zeroconf } from '@ionic-native/zeroconf';
-
 /*
   Generated class for the Server provider.
 
@@ -32,6 +31,7 @@ export class ServerProvider {
     private NgZone: NgZone,
     private toastCtrl: ToastController,
     private zeroconf: Zeroconf,
+    public platform: Platform
   ) { }
 
   connect(server: ServerModel) {
@@ -122,7 +122,7 @@ export class ServerProvider {
 
   watchForServers(): Observable<any> {
     return Observable.create(observer => {
-      if (this.zeroconf) { // for browser support
+      if (this.platform.is('core')) { // for browser support
         observer.next({ server: { address: 'localhost', name: 'localhost' }, action: 'added' });
         return;
       }
