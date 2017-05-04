@@ -146,7 +146,7 @@ export class SelectServerPage {
         });
         alert.present();
       }
-    }, 60 * 1000)
+    }, Config.SHOW_CANNOT_FIND_DIALOG_TIMEOUT)
   } // scanForServers
 
 
