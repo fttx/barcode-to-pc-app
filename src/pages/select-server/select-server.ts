@@ -1,4 +1,3 @@
-import { ServerProvider } from './../../providers/server';
 import { Settings } from '../../providers/settings';
 import { Component, NgZone } from '@angular/core';
 import { NavController, ViewController, AlertController } from 'ionic-angular';
