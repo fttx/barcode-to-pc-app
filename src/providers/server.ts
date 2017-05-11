@@ -88,7 +88,7 @@ export class ServerProvider {
         console.log("reconnected successfully... interval cleared.")
       }
 
-      this.toastCtrl.create({ message: 'Connection extablished', duration: 3000 }).present();
+      this.toastCtrl.create({ message: 'Connection established with ' + server.name, duration: 3000 }).present();
     };
 
     this.webSocket.onerror = err => {
@@ -144,7 +144,9 @@ export class ServerProvider {
         if (service.port == Config.SERVER_PORT && service.ipv4Addresses && service.ipv4Addresses.length) {
           this.NgZone.run(() => {
             service.ipv4Addresses.forEach(ipv4 => {
-              observer.next({ server: new ServerModel(ipv4, service.hostname), action: action });
+              if (ipv4) {
+                observer.next({ server: new ServerModel(ipv4, service.hostname), action: action });
+              }
             })
           });
         }

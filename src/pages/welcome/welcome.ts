@@ -1,3 +1,5 @@
+import { ServerModel } from './../../models/server.model';
+import { ScanModel } from './../../models/scan.model';
 import { Component } from '@angular/core';
 import { NavController } from 'ionic-angular';
 import { Slides, ViewController } from 'ionic-angular';
@@ -7,6 +9,7 @@ import { ServerProvider } from '../../providers/server'
 import { Config } from '../../providers/config'
 import { Settings } from '../../providers/settings'
 import { GoogleAnalyticsService } from '../../providers/google-analytics'
+import { BarcodeScanner } from '@ionic-native/barcode-scanner';
 
 /*
   Generated class for the Welcome page.
@@ -23,18 +26,6 @@ export class WelcomePage {
   public showNext = true;
   public connecting = true;
 
-  slides = [{
-    title: "Welcome to<br>Barcode to PC Wi-Fi remote!",
-    description: "Let's connect to the PC and turn your smartphone in a real barcode scanner.",
-    image: "assets/welcome/a5fsa.jpg",
-    showNext: true,
-  }, {
-    title: "Download server",
-    description: "Download Barcode to PC server from <span class='link'>" + Config.WEBSITE_NAME + "</span> and install it to your computer",
-    image: "assets/welcome/downloadserver.gif",
-    showNext: true,
-  }];
-
   constructor(
     public navCtrl: NavController,
     private serverProvider: ServerProvider,
@@ -42,6 +33,7 @@ export class WelcomePage {
     private settings: Settings,
     private ngZone: NgZone,
     private googleAnalytics: GoogleAnalyticsService,
+    private barcodeScanner: BarcodeScanner,
   ) { }
 
   ionViewDidEnter() {
@@ -53,28 +45,9 @@ export class WelcomePage {
       this.serverProvider.unwatch();
     })
 
-    setTimeout(() => {
-      this.serverProvider.watchForServers().subscribe(data => {
-        let server = data.server;
-        if (this.connecting) {
-          this.serverProvider.connect(server).subscribe(obj => {
-            let wsAction = obj.wsAction;
-            if (wsAction == 'open') {
-              console.log('connection opened with the server: ', server);
-              this.serverProvider.unwatch();
-              this.settings.setDefaultServer(server);
-              this.slider.slideTo(this.slider.length() - 1);
-              this.ngZone.run(() => {
-                this.connecting = false;
-                this.showNext = false;
-              });
-            }
-          });
-        }
-
-      });
-    }, 3000)
-
+    this.serverProvider.watchForServers().subscribe(data =>
+      this.attempConnection(data.server)
+    );
   }
 
   onSkipClicked() {
@@ -86,18 +59,48 @@ export class WelcomePage {
     this.slider.slideNext();
   }
 
+  onScanQRCodeClicked() {
+    this.barcodeScanner.scan({
+      "showFlipCameraButton": true, // iOS and Android
+    }).then((scan: ScanModel) => {
+      if (scan && scan.text) {
+        let hostname = scan.text.match(/h=.*&/)[0].split(/h=|&/).join('');
+        let addresses = scan.text.match(/a=.*&/)[0].split(/a=|&/).join('').split(',');
+        addresses.forEach(address => {
+          this.attempConnection(new ServerModel(address, hostname));
+        })
+      }
+    }, err => { });
+  }
+
   startScanningClicked() {
     this.googleAnalytics.trackEvent('connectivity', 'server_discovery', 'welcome', 1);
     this.navCtrl.setRoot(ScanSessionsPage);
   }
 
   onSlideChanged() {
-    let currentIndex = this.slider.getActiveIndex();
-    if (this.slider.isEnd()) {
-      this.showNext = false;
-    } else {
-      this.showNext = this.slides[currentIndex].showNext;
-    }
+    this.showNext = this.slider.isEnd();
   }
 
+  getWebSiteName() {
+    return Config.WEBSITE_NAME;
+  }
+
+  attempConnection(server: ServerModel) {
+    if (this.connecting) {
+      this.serverProvider.connect(server).subscribe(obj => {
+        let wsAction = obj.wsAction;
+        if (wsAction == 'open') {
+          console.log('connection opened with the server: ', server);
+          this.serverProvider.unwatch();
+          this.settings.setDefaultServer(server);
+          this.slider.slideTo(this.slider.length() - 1);
+          this.ngZone.run(() => {
+            this.connecting = false;
+            this.showNext = false;
+          });
+        }
+      });
+    }
+  }
 }

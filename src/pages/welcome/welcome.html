@@ -21,10 +21,36 @@
 
 <ion-content>
 	<ion-slides #welcome (ionSlideDidChange)="onSlideChanged()" pager>
-		<ion-slide *ngFor="let slide of slides">
-			<img [src]="slide.image" class="slide-image" />
-			<h2 class="slide-title" [innerHTML]="slide.title"></h2>
-			<p [innerHTML]="slide.description"></p>
+
+		<ion-slide>
+			<img src="assets/welcome/a5fsa.jpg" class="slide-image" />
+			<h2 class="slide-title">
+				Welcome to<br> Barcode to PC Wi-Fi remote!
+			</h2>
+			<p>
+				Let's connect to the PC and turn your smartphone in a real barcode scanner.
+			</p>
+		</ion-slide>
+
+		<ion-slide>
+			<img src="assets/welcome/downloadserver.gif" class="slide-image" />
+			<div class="connection-steps">
+				<h3 class="slide-title">
+					1) Download server
+				</h3>
+				<p>
+					Download Barcode to PC server from
+					<span class='link'>{{ getWebSiteName() }}</span> and install it to your computer
+				</p>
+
+				<h3 class="slide-title">
+					2) Connect to the server
+				</h3>
+				<p>
+					After you launching the server, the connection should establish automatically. If nothing happens scan the QR Code shown in the server welcome page.
+				</p>
+			</div>
+			<button ion-button (click)="onScanQRCodeClicked()">Scan QR Code</button>
 		</ion-slide>
 
 		<ion-slide>
@@ -35,7 +61,7 @@
 			</div>
 			<div [hidden]="connecting">
 				<ion-icon name="checkmark-circle-outline" class="done"></ion-icon>
-				<h2 class="slide-title">Server found</h2>
+				<h2 class="slide-title">Connection established</h2>
 				<button ion-button large clear icon-right (click)="startScanningClicked()">
 					Start scanning
 					<ion-icon name="arrow-forward"></ion-icon>
