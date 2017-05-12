@@ -1,6 +1,6 @@
+import { ServerModel } from './../models/server.model';
 import { Injectable, NgZone } from '@angular/core';
 import { Observable } from 'rxjs'
-import { ServerModel } from '../models/server.model'
 import { Settings } from '../providers/settings'
 import { Config } from './config'
 import { ToastController, Platform } from 'ionic-angular';
@@ -26,6 +26,7 @@ export class ServerProvider {
   private reconnectInterval;
   private reconnecting = false;
   private everConnected = false;
+  private serverQueue: ServerModel[] = [];
 
   constructor(
     private settings: Settings,
@@ -39,34 +40,53 @@ export class ServerProvider {
     return Observable.create(observer => { // ONLY THE LAST SUBSCRIBER WILL RECEIVE UPDATES!!
       this.observer = observer;
       if (!this.webSocket || this.webSocket.readyState != WebSocket.OPEN) {
+        console.log('not connected, creating a new WS connection...');
         this.wsConnect(server);
-        console.log('not connected, starting a new WS connection...');
       } else if (this.webSocket.readyState == WebSocket.OPEN) {
-        this.observer.next({ wsAction: 'open' });
         console.log('already connected to a server, no action taken');
+        this.observer.next({ wsAction: 'open' });
       }
+
+      console.log('queue: ', this.serverQueue);
     });
   }
 
-  disconnect(code = 1000) { // 1000 = CLOSE_NORMAL
+  disconnect(reconnect = false) {
     if (this.webSocket) {
-      this.webSocket.close(code);
+      let code = reconnect ? 1000 : ServerProvider.EVENT_CODE_DO_NOT_ATTEMP_RECCONECTION;
+      this.webSocket.close(code);// 1000 = CLOSE_NORMAL
       this.webSocket.removeEventListener('onmessage');
       this.webSocket.removeEventListener('onopen');
       this.webSocket.removeEventListener('onerror');
       this.webSocket.removeEventListener('onclose');
       this.webSocket = null;
-      console.log('disconnected')
+      console.log('disconnected(reconnect=' + reconnect + ')');
     }
   }
 
   private wsConnect(server: ServerModel) {
-    console.log('wsConnect()')
+    console.log('wsConnect(' + server.address + ')', new Date())
+
+    if (this.webSocket && (this.webSocket.readyState == WebSocket.CLOSING || this.webSocket.readyState == WebSocket.CONNECTING)) {
+      // If the connection is in one of these two transitioning states the new connection should be queued
+      if (!this.serverQueue.find(x => x.equals(server))) {
+        this.serverQueue.push(server);
+      }
+      console.log('WS: the connection is in a transitioning state, the new connection has been queued');
+      return;
+    }
+
+    if (this.webSocket && this.webSocket.readyState == WebSocket.OPEN) {
+      this.serverQueue = []; // if the connection is open the queue is useless and should be emptied
+      console.log('WS: the connection is already open, please disconnect before calling wsConnect()')
+      return;
+    }
 
     this.disconnect();
 
     let wsUrl = 'ws://' + server.address + ':' + Config.SERVER_PORT + '/';
     this.webSocket = new WebSocket(wsUrl);
+    console.log('WS: A new WebSocket has been created')
 
     this.webSocket.onmessage = message => {
       let messageData = null;
@@ -77,43 +97,62 @@ export class ServerProvider {
     }
 
     this.webSocket.onopen = () => {
+      console.log('onopen')
       this.everConnected = true;
-      this.observer.next({ wsAction: 'open' });
-      this.settings.saveServer(server);
+      this.serverQueue = [];
 
       if (this.reconnectInterval) {
         clearInterval(this.reconnectInterval);
         this.reconnectInterval = null;
         this.reconnecting = false;
-        console.log("reconnected successfully... interval cleared.")
+        console.log("WS: reconnected successfully... interval cleared.")
       }
+
+      this.settings.saveServer(server);
+      this.observer.next({ wsAction: 'open', server: server });
 
       this.toastCtrl.create({ message: 'Connection established with ' + server.name, duration: 3000 }).present();
     };
 
     this.webSocket.onerror = err => {
-      this.observer.next({ wsAction: 'error', err: err });
+      console.log('onerror')
+
       if (!this.reconnecting) {
         this.toastCtrl.create({ message: 'Connection problem', duration: 3000 }).present();
       }
+
+      this.observer.next({ wsAction: 'error', err: err });
+
       this.scheduleNewWsConnection(server);
     }
 
     this.webSocket.onclose = (ev: CloseEvent) => {
-      this.observer.next({ wsAction: 'close' });
+      console.log('onclose')
+
       if (this.everConnected && !this.reconnecting) {
         this.toastCtrl.create({ message: 'Connection closed', duration: 3000 }).present();
       }
       if (ev.code != ServerProvider.EVENT_CODE_DO_NOT_ATTEMP_RECCONECTION) {
         this.scheduleNewWsConnection(server);
       }
+
+      this.observer.next({ wsAction: 'close' });
     }
   }
 
   private scheduleNewWsConnection(server) {
     this.reconnecting = true;
     if (!this.reconnectInterval) {
-      this.reconnectInterval = setInterval(() => this.wsConnect(server), ServerProvider.RECONNECT_INTERVAL);
+      if (this.serverQueue.length) {
+        console.log('server queue is not empty, attemping a new reconnection whithout waiting')
+        server = this.serverQueue.shift(); // Removes the first element from an array and returns it
+        this.wsConnect(server);
+      } else {
+        this.reconnectInterval = setInterval(() => {
+          this.wsConnect(server);
+        }, ServerProvider.RECONNECT_INTERVAL);
+      }
+
       console.log("reconnection scheduled.")
     }
   }

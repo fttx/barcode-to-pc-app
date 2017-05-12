@@ -47,7 +47,8 @@
 					2) Connect to the server
 				</h3>
 				<p>
-					After you launching the server, the connection should establish automatically. If nothing happens scan the QR Code shown in the server welcome page.
+					After you launching the server, the connection should establish automatically. If nothing happens scan the QR Code shown
+					in the server welcome page.
 				</p>
 			</div>
 			<button ion-button (click)="onScanQRCodeClicked()">Scan QR Code</button>
@@ -58,6 +59,7 @@
 				<ion-spinner color="primary" class="slide-image spinner"></ion-spinner>
 				<h2 class="slide-title">Connecting to PC</h2>
 				<p>Make you sure that <b>Barcode to PC server</b> is running on your computer</p>
+				<p [hidden]="!lastServerAttempted">Connecting to {{ lastServerAttempted?.name }}...</p>
 			</div>
 			<div [hidden]="connecting">
 				<ion-icon name="checkmark-circle-outline" class="done"></ion-icon>

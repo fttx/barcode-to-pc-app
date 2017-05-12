@@ -65,7 +65,7 @@ export class SelectServerPage {
 
   onServerClicked(server: ServerModel) {
     console.log('selected server: ' + server.address + ' disconnecting from the old one...');
-    this.serverProvider.disconnect(ServerProvider.EVENT_CODE_DO_NOT_ATTEMP_RECCONECTION);
+    this.serverProvider.disconnect();
     this.serverProvider.connect(server).subscribe(result => {
       this.settings.setDefaultServer(server);
     });

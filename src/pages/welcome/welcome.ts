@@ -1,8 +1,7 @@
 import { ServerModel } from './../../models/server.model';
 import { ScanModel } from './../../models/scan.model';
 import { Component } from '@angular/core';
-import { NavController } from 'ionic-angular';
-import { Slides, ViewController } from 'ionic-angular';
+import { NavController, Slides, ViewController } from 'ionic-angular';
 import { ViewChild, NgZone } from '@angular/core';
 import { ScanSessionsPage } from '../scan-sessions/scan-sessions';
 import { ServerProvider } from '../../providers/server'
@@ -25,6 +24,8 @@ export class WelcomePage {
   @ViewChild('welcome') slider: Slides;
   public showNext = true;
   public connecting = true;
+
+  public lastServerAttempted: ServerModel;
 
   constructor(
     public navCtrl: NavController,
@@ -64,8 +65,8 @@ export class WelcomePage {
       "showFlipCameraButton": true, // iOS and Android
     }).then((scan: ScanModel) => {
       if (scan && scan.text) {
-        let hostname = scan.text.match(/h=.*&/)[0].split(/h=|&/).join('');
-        let addresses = scan.text.match(/a=.*&/)[0].split(/a=|&/).join('').split('-');
+        let hostname = this.getParameterByName(scan.text, 'h');
+        let addresses = this.getParameterByName(scan.text, 'a').split('-');
         addresses.forEach(address => {
           this.attempConnection(new ServerModel(address, hostname));
         })
@@ -88,8 +89,11 @@ export class WelcomePage {
 
   attempConnection(server: ServerModel) {
     if (this.connecting) {
+      this.slider.slideNext();
+      this.lastServerAttempted = server;
       this.serverProvider.connect(server).subscribe(obj => {
         let wsAction = obj.wsAction;
+        let server = obj.server; // since serverProvider is shared among the app the server object may be different
         if (wsAction == 'open') {
           console.log('connection opened with the server: ', server);
           this.serverProvider.unwatch();
@@ -103,4 +107,14 @@ export class WelcomePage {
       });
     }
   }
+
+  getParameterByName(url, name) {
+    name = name.replace(/[\[\]]/g, "\\$&");
+    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+      results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, " "));
+  }
+
 }
