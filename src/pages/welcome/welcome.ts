@@ -65,7 +65,7 @@ export class WelcomePage {
     }).then((scan: ScanModel) => {
       if (scan && scan.text) {
         let hostname = scan.text.match(/h=.*&/)[0].split(/h=|&/).join('');
-        let addresses = scan.text.match(/a=.*&/)[0].split(/a=|&/).join('').split(',');
+        let addresses = scan.text.match(/a=.*&/)[0].split(/a=|&/).join('').split('-');
         addresses.forEach(address => {
           this.attempConnection(new ServerModel(address, hostname));
         })
@@ -79,7 +79,7 @@ export class WelcomePage {
   }
 
   onSlideChanged() {
-    this.showNext = this.slider.isEnd();
+    this.showNext = !this.slider.isEnd();
   }
 
   getWebSiteName() {
