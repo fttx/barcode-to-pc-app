@@ -1,4 +1,4 @@
-M# Barcode to pc app
+# Barcode to pc app
 
 ## Download
 Android: https://play.google.com/store/apps/details?id=com.barcodetopc
