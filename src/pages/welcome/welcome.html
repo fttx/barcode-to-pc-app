@@ -35,20 +35,19 @@
 		<ion-slide>
 			<img src="assets/welcome/downloadserver.gif" class="slide-image" />
 			<div class="connection-steps">
-				<h3 class="slide-title">
+				<h4 class="slide-title">
 					1) Download server
-				</h3>
+				</h4>
 				<p>
-					Download Barcode to PC server from
-					<span class='link'>{{ getWebSiteName() }}</span> and install it to your computer
+					Download and install Barcode to PC server from
+					<span class='link'>{{ getWebSiteName() }}</span>
 				</p>
 
-				<h3 class="slide-title">
+				<h4 class="slide-title">
 					2) Connect to the server
-				</h3>
+				</h4>
 				<p>
-					After you launching the server, the connection should establish automatically. If nothing happens scan the QR Code shown
-					in the server welcome page.
+					If it doesn't connect automatically scan the QR Code shown in the server welcome page.
 				</p>
 			</div>
 			<button ion-button icon-left (click)="onScanQRCodeClicked()">
