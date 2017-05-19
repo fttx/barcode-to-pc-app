@@ -65,10 +65,9 @@ export class WelcomePage {
       "showFlipCameraButton": true, // iOS and Android
     }).then((scan: ScanModel) => {
       if (scan && scan.text) {
-        let hostname = this.getParameterByName(scan.text, 'h');
-        let addresses = this.getParameterByName(scan.text, 'a').split('-');
-        addresses.forEach(address => {
-          this.attempConnection(new ServerModel(address, hostname));
+        let servers = ServerModel.serversFromJSON(scan.text);
+        servers.forEach(server => {
+          this.attempConnection(server);
         })
       }
     }, err => { });
@@ -107,14 +106,4 @@ export class WelcomePage {
       });
     }
   }
-
-  getParameterByName(url, name) {
-    name = name.replace(/[\[\]]/g, "\\$&");
-    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
-      results = regex.exec(url);
-    if (!results) return null;
-    if (!results[2]) return '';
-    return decodeURIComponent(results[2].replace(/\+/g, " "));
-  }
-
 }

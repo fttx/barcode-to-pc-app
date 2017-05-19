@@ -1,10 +1,12 @@
+import { ServerModel } from './../../models/server.model';
 import { Settings } from '../../providers/settings';
 import { Component, NgZone } from '@angular/core';
 import { NavController, ViewController, AlertController } from 'ionic-angular';
 import { ServerProvider } from '../../providers/server'
 import { Config } from '../../providers/config'
-import { ServerModel } from '../../models/server.model'
 import { GoogleAnalyticsService } from '../../providers/google-analytics'
+import { BarcodeScanner } from '@ionic-native/barcode-scanner';
+import { ScanModel } from "../../models/scan.model";
 
 /*
   Generated class for the SelectServer page.
@@ -30,6 +32,7 @@ export class SelectServerPage {
     private settings: Settings,
     private googleAnalytics: GoogleAnalyticsService,
     private zone: NgZone,
+    private barcodeScanner: BarcodeScanner,
   ) { }
 
   public isVisible = false;
@@ -73,7 +76,18 @@ export class SelectServerPage {
     this.selectedServer = server;
   }
 
-  addManually() {
+  onScanQRCodeClicked() {
+    this.barcodeScanner.scan({
+      "showFlipCameraButton": true,
+    }).then((scan: ScanModel) => {
+      if (scan && scan.text) {
+        let servers = ServerModel.serversFromJSON(scan.text);
+        servers.forEach(server => this.addServer(server, true, false));
+      }
+    }, err => { });
+  }
+
+  onAddManuallyClicked() {
     let alert = this.alertCtrl.create({
       title: 'Add manually',
       inputs: [{
@@ -104,7 +118,6 @@ export class SelectServerPage {
   }
 
   scanForServers() {
-    this.serverProvider.unwatch();
     this.serverProvider.watchForServers().subscribe(data => {
       let server = data.server;
       if (data.action == 'added') {

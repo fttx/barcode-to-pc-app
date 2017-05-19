@@ -14,10 +14,13 @@
 				<ion-spinner color="text"></ion-spinner>
 			</button>
 
-			<button ion-button icon-only (click)="addManually()">
-        		<ion-icon name="add"></ion-icon>
+			<button ion-button icon-only (click)="onScanQRCodeClicked()">
+        		<ion-icon name="qr-scanner"></ion-icon>
       		</button>
 
+			<button ion-button icon-only (click)="onAddManuallyClicked()">
+        		<ion-icon name="add"></ion-icon>
+      		</button>
 		</ion-buttons>
 	</ion-navbar>
 
