@@ -10,9 +10,9 @@ iOS: https://itunes.apple.com/app/id1180168368
 git clone https://github.com/fttx/barcode-to-pc-app/
 cd barcode-to-pc-app
 npm install
-ionic platform add android@latest
-ionic platform add ios
-ionic resources
+ionic cordova platform add android
+ionic cordova platform add ios
+ionic cordova resources
 ```
 
 ## Build
@@ -24,17 +24,20 @@ ionic run android
 ## Release
 ```
 # iOS
-ionic build ios --release
+ionic cordova build ios --release
 
 # Android Pre-Lollipop (more info: https://github.com/crosswalk-project/cordova-plugin-crosswalk-webview#install)
 # Increase version code in config.xml
-ionic plugin add cordova-plugin-crosswalk-webview
-ionic build android --release
-# Sign and zip align: http://ionicframework.com/docs/v1/guide/publishing.html
+ionic cordova plugin add cordova-plugin-crosswalk-webview
+ionic cordova build android --release
+APK_PATH="platforms/android/build/outputs/apk/android-release-unsigned.apk"
+jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore barcode-to-pc-keystore.jks $APK_PATH keystore
+zipalign -v 4 $APK_PATH out.apk
 
 # Android
 # Increase version code in config.xml (again)
-ionic plugin rm cordova-plugin-crosswalk-webview
-ionic build android --release -- --minSdkVersion=21
-# Sign and zip align: http://ionicframework.com/docs/v1/guide/publishing.html
+ionic cordova plugin rm cordova-plugin-crosswalk-webview
+ionic cordova build android --release -- --minSdkVersion=21 # https://github.com/driftyco/ionic-cli/issues/2323
+jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore barcode-to-pc-keystore.jks $APK_PATH keystore
+zipalign -v 4 $APK_PATH out.apk
 ```
