@@ -17,8 +17,8 @@ ionic cordova resources
 
 ## Build
 ```
-ionic run ios --device
-ionic run android
+ionic cordova run ios --device
+ionic cordova run android
 ```
 
 ## Release
