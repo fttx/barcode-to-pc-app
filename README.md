@@ -15,7 +15,7 @@ ionic cordova platform add ios
 ionic cordova resources
 ```
 
-## Build
+## Run
 ```
 ionic cordova run ios --device
 ionic cordova run android
