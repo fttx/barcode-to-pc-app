@@ -89,7 +89,7 @@
     <icon src="resources/android/icon/drawable-xhdpi-icon.png" />
     <engine name="android" spec="^6.2.3" />
     <engine name="ios" spec="^4.4.0" />
-    <plugin name="com.xmartlabs.cordova.market" spec="~1.1" />
+    <plugin name="com.xmartlabs.cordova.market" />
     <plugin name="cordova-plugin-app-version" spec="~0.1.9" />
     <plugin name="cordova-plugin-console" spec="1.0.5" />
     <plugin name="cordova-plugin-device" spec="~1.1.3" />

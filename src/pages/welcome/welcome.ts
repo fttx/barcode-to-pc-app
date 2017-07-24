@@ -88,7 +88,7 @@ export class WelcomePage {
 
   attempConnection(server: ServerModel) {
     if (this.connecting) {
-      this.slider.slideNext();
+      this.slider.slideTo(this.slider.length() - 1);
       this.lastServerAttempted = server;
       this.serverProvider.connect(server).subscribe(obj => {
         let wsAction = obj.wsAction;
