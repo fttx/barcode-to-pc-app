@@ -57,7 +57,6 @@ export class ScanSessionPage {
   }
 
   scan() { // Called when the user want to scan (except for retake scan)
-
     let selectScanningModeModal = this.modalCtrl.create(SelectScanningModePage);
     selectScanningModeModal.onDidDismiss(mode => {
 
@@ -98,6 +97,11 @@ export class ScanSessionPage {
       }, err => {
         if (this.scanSession.scannings.length == 0) {
           this.navCtrl.pop();
+        } else {
+          if (this.isNewSession) {
+            this.setName();
+            this.isNewSession = false;
+          }
         }
       });
   }

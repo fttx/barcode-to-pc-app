@@ -20,8 +20,12 @@ export class CameraScannerProvider {
       this.barcodeScanner.scan({
         "showFlipCameraButton": true, // iOS and Android
         "prompt": "Place a barcode inside the scan area", // supported on Android only
-        "orientation": "landscape" // Android only (portrait|landscape), default unset so it rotates with the device
+        "showTorchButton": true
       }).then((scan: ScanModel) => {
+        if (scan.cancelled) {
+          reject();
+        }
+
         if (scan && scan.text) {
           scan.id = new Date().getTime() + "";
           resolve(scan);
