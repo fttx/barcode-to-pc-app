@@ -42,9 +42,8 @@
         "cordova-plugin-device": "^1.1.6",
         "cordova-plugin-google-analytics": "^1.8.3",
         "cordova-plugin-inappbrowser": "^1.7.1",
-        "cordova-plugin-market": "^1.1.3",
+        "cordova-plugin-market": "git+https://github.com/xmartlabs/cordova-plugin-market.git",
         "cordova-plugin-splashscreen": "^4.0.3",
-        "cordova-plugin-statusbar": "^2.2.3",
         "cordova-plugin-whitelist": "^1.3.2",
         "cordova-plugin-x-socialsharing": "^5.2.0",
         "cordova-plugin-zeroconf": "^1.2.6",
@@ -55,7 +54,8 @@
         "phonegap-plugin-barcodescanner": "^6.0.8",
         "rxjs": "5.4.0",
         "sw-toolbox": "3.6.0",
-        "zone.js": "0.8.12"
+        "zone.js": "0.8.12",
+        "cordova-plugin-statusbar": "2.2.2"
     },
     "devDependencies": {
         "@ionic/app-scripts": "2.1.3",
@@ -68,7 +68,6 @@
     "cordovaPlugins": [
         "cordova-plugin-whitelist",
         "cordova-plugin-console",
-        "cordova-plugin-statusbar",
         "cordova-plugin-device",
         "cordova-plugin-splashscreen",
         "ionic-plugin-keyboard"
@@ -90,15 +89,15 @@
             "cordova-plugin-google-analytics": {},
             "cordova-plugin-inappbrowser": {},
             "cordova-plugin-splashscreen": {},
-            "cordova-plugin-statusbar": {},
             "cordova-plugin-whitelist": {},
             "cordova-plugin-x-socialsharing": {},
             "ionic-plugin-keyboard": {},
             "phonegap-plugin-barcodescanner": {
                 "CAMERA_USAGE_DESCRIPTION": "To scan barcodes"
             },
-            "com.xmartlabs.cordova.market": {},
-            "cordova-plugin-zeroconf": {}
+            "cordova-plugin-zeroconf": {},
+            "cordova-plugin-market": {},
+            "cordova-plugin-statusbar": {}
         },
         "platforms": [
             "android",
