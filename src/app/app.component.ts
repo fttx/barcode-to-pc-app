@@ -28,9 +28,6 @@ export class MyApp {
   ) {
 
     platform.ready().then(() => {
-      statusBar.overlaysWebView(true);
-      statusBar.backgroundColorByHexString('#B71C1C');
-
       this.settings.getNoRunnings().then(runnings => {
         if (!runnings) {
           this.rootPage = WelcomePage;
