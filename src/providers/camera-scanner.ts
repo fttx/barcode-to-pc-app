@@ -19,7 +19,7 @@ export class CameraScannerProvider {
     return new Promise((resolve, reject) => {
       this.barcodeScanner.scan({
         "showFlipCameraButton": true, // iOS and Android
-        "prompt": "Place a barcode inside the scan area", // supported on Android only
+        "prompt": "Place a barcode inside the scan area.\nPress the back button to exit.", // supported on Android only
         "showTorchButton": true
       }).then((scan: ScanModel) => {
         if (scan.cancelled) {
