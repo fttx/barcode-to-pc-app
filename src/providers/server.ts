@@ -171,7 +171,7 @@ export class ServerProvider {
 
   watchForServers(): Observable<any> {
     return Observable.create(observer => {
-      if (this.platform.is('core')) { // for browser support
+      if (!this.platform.is('cordova')) { // for browser support
         setTimeout(() =>
           observer.next({ server: { address: 'localhost', name: 'localhost' }, action: 'added' })
           , 1000
