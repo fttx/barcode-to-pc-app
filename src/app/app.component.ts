@@ -1,5 +1,5 @@
 import { Component, ViewChild } from '@angular/core';
-import { Platform, MenuController, NavController, AlertController, ModalController } from 'ionic-angular';
+import { Platform, MenuController, NavController, ModalController } from 'ionic-angular';
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
 
@@ -15,17 +15,16 @@ import { SettingsPage } from '../pages/settings/settings';
 })
 export class MyApp {
   @ViewChild('mainMenu') nav: NavController
-  
+
   public rootPage;
 
   constructor(
     platform: Platform,
+    statusBar: StatusBar,
+    splashScreen: SplashScreen,
     private settings: Settings,
     public menuCtrl: MenuController,
-    private alertCtrl: AlertController,
     public modalCtrl: ModalController,
-    private statusBar: StatusBar,
-    private splashScreen: SplashScreen,
   ) {
 
     platform.ready().then(() => {

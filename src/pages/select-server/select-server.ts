@@ -1,6 +1,6 @@
 import { ServerModel } from './../../models/server.model';
 import { Settings } from '../../providers/settings';
-import { Component, NgZone } from '@angular/core';
+import { Component } from '@angular/core';
 import { NavController, ViewController, AlertController } from 'ionic-angular';
 import { ServerProvider } from '../../providers/server'
 import { Config } from '../../providers/config'
@@ -31,7 +31,6 @@ export class SelectServerPage {
     private serverProvider: ServerProvider,
     private settings: Settings,
     private googleAnalytics: GoogleAnalyticsService,
-    private zone: NgZone,
     private barcodeScanner: BarcodeScanner,
   ) { }
 

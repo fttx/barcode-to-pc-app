@@ -1,7 +1,7 @@
 import { Settings } from './../../providers/settings';
 import { Config } from '../../providers/config';
 import { Component } from '@angular/core';
-import { Platform, PopoverController, NavController, AlertController } from 'ionic-angular';
+import { PopoverController, NavController, AlertController } from 'ionic-angular';
 import { ScanSessionModel } from '../../models/scan-session.model'
 import { ScanSessionPage } from '../scan-session/scan-session'
 import { SelectServerPage } from '../select-server/select-server'
@@ -12,7 +12,6 @@ import { Device } from '@ionic-native/device';
 import { Market } from '@ionic-native/market';
 import * as Promise from 'bluebird'
 
-declare var cordova: any;
 
 @Component({
   selector: 'page-scannings',
@@ -28,7 +27,6 @@ export class ScanSessionsPage {
     public navCtrl: NavController,
     private alertCtrl: AlertController,
     private serverProvider: ServerProvider,
-    private platform: Platform,
     private scanSessionsStorage: ScanSessionsStorage,
     public popoverCtrl: PopoverController,
     private googleAnalytics: GoogleAnalyticsService,

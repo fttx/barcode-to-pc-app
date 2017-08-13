@@ -30,7 +30,7 @@ export class ScanSessionPage {
   private isNewSession = false;
 
   constructor(
-    private navParams: NavParams,
+    navParams: NavParams,
     public actionSheetCtrl: ActionSheetController,
     private alertCtrl: AlertController,
     private serverProvider: ServerProvider,
