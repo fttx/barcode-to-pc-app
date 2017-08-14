@@ -1,6 +1,5 @@
 import { Component, ViewChild } from '@angular/core';
 import { Platform, MenuController, NavController, ModalController } from 'ionic-angular';
-import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
 
 import { ScanSessionsPage } from '../pages/scan-sessions/scan-sessions';
@@ -20,25 +19,28 @@ export class MyApp {
 
   constructor(
     platform: Platform,
-    statusBar: StatusBar,
     splashScreen: SplashScreen,
     private settings: Settings,
     public menuCtrl: MenuController,
     public modalCtrl: ModalController,
   ) {
-
     platform.ready().then(() => {
-      this.settings.getNoRunnings().then(runnings => {
-        if (!runnings) {
+      Promise.all([this.settings.getNoRunnings(), this.settings.getEverConnected(), this.settings.getAlwaysSkipWelcomePage()]).then((results: any[]) => {
+        let runnings = results[0];
+        let everConnected = results[1];
+        let alwaysSkipWelcomePage = results[2];
+
+        if ((!runnings || !everConnected) && !alwaysSkipWelcomePage) {
           this.rootPage = WelcomePage;
         } else {
           this.rootPage = ScanSessionsPage;
         }
+        
         let newRunnings = runnings || 0;
         this.settings.setNoRunnings(++newRunnings);
-      });
 
-      splashScreen.hide();
+        splashScreen.hide();
+      });
     });
   }
 

@@ -18,8 +18,6 @@ import * as Promise from 'bluebird'
   templateUrl: 'scan-sessions.html',
 })
 export class ScanSessionsPage {
-  private selectServerShown = false;
-
   public connected = false;
   public scanSessions: ScanSessionModel[] = [];
 
@@ -57,10 +55,7 @@ export class ScanSessionsPage {
           }
         });
       }, err => { // no default server:
-        if (!this.selectServerShown) {
-          this.selectServerShown = true;
-          this.navCtrl.push(SelectServerPage)
-        }
+       
       })
     }
   }

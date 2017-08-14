@@ -98,7 +98,9 @@ export class ServerProvider {
 
     this.webSocket.onopen = () => {
       console.log('onopen')
-      this.everConnected = true;
+      this.everConnected = true; // for current instance
+      this.settings.setEverConnected(true); // for statistics usage
+      
       this.serverQueue = [];
 
       if (this.reconnectInterval) {

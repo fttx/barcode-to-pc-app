@@ -1,7 +1,7 @@
 import { ServerModel } from './../../models/server.model';
 import { ScanModel } from './../../models/scan.model';
 import { Component } from '@angular/core';
-import { NavController, Slides, ViewController } from 'ionic-angular';
+import { NavController, Slides, ViewController, AlertController } from 'ionic-angular';
 import { ViewChild, NgZone } from '@angular/core';
 import { ScanSessionsPage } from '../scan-sessions/scan-sessions';
 import { ServerProvider } from '../../providers/server'
@@ -28,6 +28,7 @@ export class WelcomePage {
   public lastServerAttempted: ServerModel;
 
   constructor(
+    private alertCtrl: AlertController,
     public navCtrl: NavController,
     private serverProvider: ServerProvider,
     public viewCtrl: ViewController,
@@ -53,7 +54,29 @@ export class WelcomePage {
 
   onSkipClicked() {
     this.googleAnalytics.trackEvent('connectivity', 'server_discovery', 'welcome', 0);
-    this.navCtrl.setRoot(ScanSessionsPage);
+
+    let alert = this.alertCtrl.create({
+      inputs: [
+        {
+          type: 'checkbox',
+          label: 'Do not show anymore',
+          value: 'alwaysSkipWelcomePage',
+          checked: false
+        }
+      ],
+      buttons: [
+        {
+          text: 'Skip',
+          handler: data => {
+            if (data == 'alwaysSkipWelcomePage') {
+              this.settings.setAlwaysSkipWelcomePage(true);
+            }
+            this.navCtrl.setRoot(ScanSessionsPage);
+          }
+        }
+      ]
+    });
+    alert.present();
   }
 
   onNextClicked() {

@@ -15,6 +15,8 @@ export class Settings {
   private static CONTINUE_MODE_TIMEOUT = "continuemode_timeout";
   private static RATED = "rated";
   private static MANUALLY_ADDED = "manually_added";
+  private static EVER_CONNECTED = "ever_connected";
+  private static ALWAYS_SKIP_WELCOME_PAGE = "always_skip_welcome_page";
 
   constructor(public storage: Storage) { }
 
@@ -36,11 +38,27 @@ export class Settings {
     });
   }
 
+  setEverConnected(everConnected: boolean) {
+    return this.storage.set(Settings.EVER_CONNECTED, everConnected);
+  }
+
+  getEverConnected(): Promise<boolean> {
+    return this.storage.get(Settings.EVER_CONNECTED);
+  }
+
+  setAlwaysSkipWelcomePage(alwaysSkipWelcomePage: boolean) {
+    return this.storage.set(Settings.ALWAYS_SKIP_WELCOME_PAGE, alwaysSkipWelcomePage);
+  }
+
+  getAlwaysSkipWelcomePage(): Promise<boolean> {
+    return this.storage.get(Settings.ALWAYS_SKIP_WELCOME_PAGE);
+  }
+
   setNoRunnings(noRunnings: number) {
     return this.storage.set(Settings.NO_RUNNINGS, noRunnings);
   }
 
-  getNoRunnings() {
+  getNoRunnings(): Promise<number> {
     return this.storage.get(Settings.NO_RUNNINGS);
   }
 
@@ -48,16 +66,15 @@ export class Settings {
     return this.storage.set(Settings.CONTINUE_MODE_TIMEOUT, seconds);
   }
 
-  getContinueModeTimeout() {
+  getContinueModeTimeout(): Promise<number> {
     return this.storage.get(Settings.CONTINUE_MODE_TIMEOUT);
   }
-
 
   setRated(rated: boolean) {
     return this.storage.set(Settings.RATED, rated);
   }
 
-  getRated() {
+  getRated(): Promise<boolean> {
     return this.storage.get(Settings.RATED);
   }
 
