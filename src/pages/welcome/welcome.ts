@@ -25,6 +25,7 @@ export class WelcomePage {
   public showNext = true;
   public connecting = true;
 
+  private troubleshootingDialogTimeout = null;
   public lastServerAttempted: ServerModel;
 
   constructor(
@@ -103,6 +104,9 @@ export class WelcomePage {
 
   onSlideChanged() {
     this.showNext = !this.slider.isEnd();
+    if (this.slider.isEnd()) {
+      this.scheduleShowTroubleshootingDialog(40);
+    }
   }
 
   getWebSiteName() {
@@ -127,6 +131,34 @@ export class WelcomePage {
           });
         }
       });
+      this.scheduleShowTroubleshootingDialog(20);
     }
+  }
+
+  scheduleShowTroubleshootingDialog(secs) {
+    if (this.troubleshootingDialogTimeout) clearTimeout(this.troubleshootingDialogTimeout);
+
+    this.troubleshootingDialogTimeout = setTimeout(() => {
+      if (this.connecting) {
+        let alert = this.alertCtrl.create({
+          title: 'The connection is taking too long',
+          message: 'Your firewall/antivirus may keep the app from connecting, would you like to see the instructions to configure your computer?',
+          buttons: [
+            {
+              text: 'Cancel',
+              role: 'cancel',
+              handler: () => { }
+            },
+            {
+              text: 'View instructions',
+              handler: () => {
+                window.open(Config.INSTRUCTIONS_URL, '_blank');
+              }
+            }
+          ]
+        });
+        alert.present();
+      }
+    }, 1000 * secs)
   }
 }
