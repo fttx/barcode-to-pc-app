@@ -42,6 +42,7 @@
         "cordova-plugin-console": "^1.0.7",
         "cordova-plugin-device": "^1.1.6",
         "cordova-plugin-google-analytics": "^1.8.3",
+        "cordova-plugin-headercolor": "^1.0.0",
         "cordova-plugin-inappbrowser": "^1.7.1",
         "cordova-plugin-market": "git+https://github.com/xmartlabs/cordova-plugin-market.git",
         "cordova-plugin-splashscreen": "^4.0.3",
@@ -60,11 +61,9 @@
     },
     "devDependencies": {
         "@ionic/app-scripts": "2.1.3",
-        "@ionic/cli-plugin-cordova": "1.6.2",
-        "@ionic/cli-plugin-ionic-angular": "1.4.1",
-        "ionic": "3.7.0",
-        "typescript": "2.3.4",
-        "@types/bluebird": "^3.0.37"
+        "@types/bluebird": "^3.0.37",
+        "ionic": "3.8.0",
+        "typescript": "2.3.4"
     },
     "cordovaPlugins": [
         "cordova-plugin-whitelist",
@@ -98,7 +97,8 @@
             },
             "cordova-plugin-zeroconf": {},
             "cordova-plugin-market": {},
-            "cordova-plugin-statusbar": {}
+            "cordova-plugin-statusbar": {},
+            "cordova-plugin-headercolor": {}
         },
         "platforms": [
             "android",
