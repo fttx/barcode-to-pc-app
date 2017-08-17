@@ -60,9 +60,9 @@
         "zone.js": "0.8.12"
     },
     "devDependencies": {
-        "@ionic/app-scripts": "2.1.3",
+        "@ionic/app-scripts": "2.1.4",
         "@types/bluebird": "^3.0.37",
-        "ionic": "3.8.0",
+        "ionic": "3.9.1",
         "typescript": "2.3.4"
     },
     "cordovaPlugins": [
