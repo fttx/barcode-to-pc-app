@@ -23,6 +23,7 @@ import { ScanModel } from "../../models/scan.model";
 export class SelectServerPage {
   public selectedServer: ServerModel;
   public servers: ServerModel[] = [];
+  private lastConnectedServer: ServerModel;
 
   constructor(
     public navCtrl: NavController,
@@ -68,10 +69,12 @@ export class SelectServerPage {
 
   onServerClicked(server: ServerModel) {
     console.log('selected server: ', server, ' disconnecting from the old one...', this.selectedServer);
-    this.serverProvider.disconnect();
-    this.connect(server);
+    if (!this.lastConnectedServer || (this.lastConnectedServer && !this.lastConnectedServer.equals(server))) {
+      this.serverProvider.disconnect();
+      this.selectedServer = server;
+      this.connect(server);
+    }
     // this.navCtrl.pop();
-    this.selectedServer = server;
   }
 
   onScanQRCodeClicked() {
@@ -227,7 +230,8 @@ export class SelectServerPage {
     this.serverProvider.getObserver().subscribe(wsResult => {
       if (wsResult.action == 'open' || wsResult.action == 'message') {
         this.settings.setDefaultServer(server);
-        this.addServer(server, true, false)
+        this.addServer(server, true, false);
+        this.lastConnectedServer = server;
       } else {
         this.setOnline(server, false)
       }
