@@ -1,10 +1,12 @@
 import { ServerModel } from './../models/server.model';
 import { Injectable, NgZone } from '@angular/core';
-import { Observable } from 'rxjs'
 import { Settings } from '../providers/settings'
 import { Config } from './config'
 import { ToastController, Platform } from 'ionic-angular';
 import { Zeroconf } from '@ionic-native/zeroconf';
+import { Subject, Observable } from "rxjs";
+import { wsResponse } from "../models/ws-response";
+import { discoveryResult } from "../models/discovery-result";
 /*
   Generated class for the Server provider.
 
@@ -22,7 +24,7 @@ export class ServerProvider {
   public static EVENT_CODE_DO_NOT_ATTEMP_RECCONECTION = 4000; // Another server has been selected, do not attemp to connect again
 
   private webSocket: WebSocket;
-  private observer;
+  private observer = new Subject<wsResponse>();
   private reconnectInterval;
   private reconnecting = false;
   private everConnected = false;
@@ -34,21 +36,23 @@ export class ServerProvider {
     private toastCtrl: ToastController,
     private zeroconf: Zeroconf,
     public platform: Platform
-  ) { }
+  ) {
+  }
 
-  connect(server: ServerModel): Observable<any> {
-    return Observable.create(observer => { // ONLY THE LAST SUBSCRIBER WILL RECEIVE UPDATES!!
-      this.observer = observer;
-      if (!this.webSocket || this.webSocket.readyState != WebSocket.OPEN) {
-        console.log('not connected, creating a new WS connection...');
-        this.wsConnect(server);
-      } else if (this.webSocket.readyState == WebSocket.OPEN) {
-        console.log('already connected to a server, no action taken');
-        this.observer.next({ wsAction: 'open' });
-      }
 
-      console.log('queue: ', this.serverQueue);
-    });
+  getObserver(): Subject<wsResponse> {
+    return this.observer;
+  }
+
+  connect(server: ServerModel) {
+    if (!this.webSocket || this.webSocket.readyState != WebSocket.OPEN) {
+      console.log('not connected, creating a new WS connection...');
+      this.wsConnect(server);
+    } else if (this.webSocket.readyState == WebSocket.OPEN) {
+      console.log('already connected to a server, no action taken');
+      this.observer.next(new wsResponse({ wsAction: 'open' }));
+    }
+    console.log('queue: ', this.serverQueue);
   }
 
   disconnect(reconnect = false) {
@@ -93,14 +97,14 @@ export class ServerProvider {
       if (message.data) {
         messageData = JSON.parse(message.data);
       }
-      this.observer.next({ wsAction: 'message', message: messageData });
+      this.observer.next(new wsResponse({ wsAction: 'message', message: messageData }));
     }
 
     this.webSocket.onopen = () => {
       console.log('onopen')
       this.everConnected = true; // for current instance
       this.settings.setEverConnected(true); // for statistics usage
-      
+
       this.serverQueue = [];
 
       if (this.reconnectInterval) {
@@ -111,7 +115,7 @@ export class ServerProvider {
       }
 
       this.settings.saveServer(server);
-      this.observer.next({ wsAction: 'open', server: server });
+      this.observer.next(new wsResponse({ wsAction: 'open'}));
 
       this.toastCtrl.create({ message: 'Connection established with ' + server.name, duration: 3000 }).present();
     };
@@ -123,7 +127,7 @@ export class ServerProvider {
         this.toastCtrl.create({ message: 'Connection problem', duration: 3000 }).present();
       }
 
-      this.observer.next({ wsAction: 'error', err: err });
+      this.observer.next(new wsResponse({ wsAction: 'error', err: err }));
 
       this.scheduleNewWsConnection(server);
     }
@@ -138,7 +142,7 @@ export class ServerProvider {
         this.scheduleNewWsConnection(server);
       }
 
-      this.observer.next({ wsAction: 'close' });
+      this.observer.next(new wsResponse({ wsAction: 'close' }));
     }
   }
 
@@ -171,7 +175,7 @@ export class ServerProvider {
     }
   }
 
-  watchForServers(): Observable<any> {
+  watchForServers(): Observable<discoveryResult> {
     return Observable.create(observer => {
       if (!this.platform.is('cordova')) { // for browser support
         setTimeout(() =>
@@ -184,8 +188,9 @@ export class ServerProvider {
       this.zeroconf.watch('_http._tcp.', 'local.').subscribe(result => {
         var action = result.action;
         var service = result.service;
-        // console.log("ACTION:", action, service);
         if (service.port == Config.SERVER_PORT && service.ipv4Addresses && service.ipv4Addresses.length) {
+          console.log("ZEROCONF:", result);
+        
           this.NgZone.run(() => {
             service.ipv4Addresses.forEach(ipv4 => {
               if (ipv4) {
@@ -199,6 +204,7 @@ export class ServerProvider {
   }
 
   unwatch() {
+    console.log('UNWATCHED ')
     this.zeroconf.close();
   }
 

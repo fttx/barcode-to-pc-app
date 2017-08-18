@@ -24,6 +24,7 @@ export class WelcomePage {
   @ViewChild('welcome') slider: Slides;
   public showNext = true;
   public connecting = true;
+  public connected = false;
 
   private troubleshootingDialogTimeout = null;
   public lastServerAttempted: ServerModel;
@@ -48,9 +49,11 @@ export class WelcomePage {
       this.serverProvider.unwatch();
     })
 
-    this.serverProvider.watchForServers().subscribe(data =>
-      this.attempConnection(data.server)
-    );
+    this.serverProvider.watchForServers().subscribe(data => {
+      if (data.action == 'added' || data.action == 'resolved') {
+        this.attempConnection(data.server)
+      }
+    });
   }
 
   onSkipClicked() {
@@ -117,11 +120,9 @@ export class WelcomePage {
     if (this.connecting) {
       this.slider.slideTo(this.slider.length() - 1);
       this.lastServerAttempted = server;
-      this.serverProvider.connect(server).subscribe(obj => {
-        let wsAction = obj.wsAction;
-        let server = obj.server; // since serverProvider is shared among the app the server object may be different
-        if (wsAction == 'open') {
-          console.log('connection opened with the server: ', server);
+      this.serverProvider.getObserver().subscribe(result => {
+        if (result.action == 'open' && !this.connected) {
+          // console.log('connection opened with the server: ', server);
           this.serverProvider.unwatch();
           this.settings.setDefaultServer(server);
           this.slider.slideTo(this.slider.length() - 1);
@@ -129,8 +130,10 @@ export class WelcomePage {
             this.connecting = false;
             this.showNext = false;
           });
+          this.connected = true;          
         }
       });
+      this.serverProvider.connect(server)
       this.scheduleShowTroubleshootingDialog(20);
     }
   }

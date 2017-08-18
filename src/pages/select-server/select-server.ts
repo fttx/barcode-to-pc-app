@@ -60,17 +60,16 @@ export class SelectServerPage {
 
     this.settings.getDefaultServer().then((defaultServer: ServerModel) => {
       this.selectedServer = defaultServer;
+      this.connect(defaultServer);
     },
       err => { }
     );
   }
 
   onServerClicked(server: ServerModel) {
-    console.log('selected server: ' + server.address + ' disconnecting from the old one...');
+    console.log('selected server: ', server, ' disconnecting from the old one...', this.selectedServer);
     this.serverProvider.disconnect();
-    this.serverProvider.connect(server).subscribe(result => {
-      this.settings.setDefaultServer(server);
-    });
+    this.connect(server);
     // this.navCtrl.pop();
     this.selectedServer = server;
   }
@@ -119,15 +118,12 @@ export class SelectServerPage {
   scanForServers() {
     this.serverProvider.watchForServers().subscribe(data => {
       let server = data.server;
-      if (data.action == 'added') {
-        console.log("server discovered:  ", server);
+      if (data.action == 'added' || data.action == 'resolved') {
+        // console.log("server discovered:  ", server);
         this.addServer(server, true, false);
       } else {
-        console.log("server undiscovered:  ", server);
-        let previuslyDiscovered = this.servers.find(x => x.equals(server));
-        if (previuslyDiscovered) {
-          previuslyDiscovered.online = false;
-        }
+        // console.log("server undiscovered:  ", server);
+        this.setOnline(server, false);
       }
     });
 
@@ -210,5 +206,33 @@ export class SelectServerPage {
         this.settings.setDefaultServer(this.selectedServer);
       }
     }
+  }
+
+  /**
+   * It works only if the server is present in the list,
+   * if you want to override the online status and 
+   * you're not sure if the server is present use addServer() 
+   * to override the online status
+   * @param server 
+   * @param online 
+   */
+  setOnline(server: ServerModel, online: boolean) {
+    let previuslyDiscovered = this.servers.find(x => x.equals(server));
+    if (previuslyDiscovered) {
+      previuslyDiscovered.online = online;
+    }
+  }
+
+  connect(server: ServerModel) {
+    this.serverProvider.getObserver().subscribe(wsResult => {
+      if (wsResult.action == 'open' || wsResult.action == 'message') {
+        this.settings.setDefaultServer(server);
+        this.addServer(server, true, false)
+      } else {
+        this.setOnline(server, false)
+      }
+    });
+
+    this.serverProvider.connect(server);
   }
 }

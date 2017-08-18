@@ -41,11 +41,12 @@ export class ScanSessionsPage {
 
     if (this.connected == false) {
       this.settings.getDefaultServer().then(server => {
-        this.serverProvider.connect(server).subscribe(obj => {
-          let wsAction = obj.wsAction;
+        this.serverProvider.getObserver().subscribe(result => {
+
+          let wsAction = result.action;
 
           if (wsAction == 'message') {
-            this.onMessage(obj.message);
+            this.onMessage(result.message);
           } else if (wsAction == 'open') {
             this.onConnect();
           } else if (wsAction == 'close') {
@@ -54,8 +55,9 @@ export class ScanSessionsPage {
             this.onDisconnect();
           }
         });
+        this.serverProvider.connect(server);
+
       }, err => { // no default server:
-       
       })
     }
   }
