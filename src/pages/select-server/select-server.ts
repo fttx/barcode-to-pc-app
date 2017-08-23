@@ -60,21 +60,25 @@ export class SelectServerPage {
     );
 
     this.settings.getDefaultServer().then((defaultServer: ServerModel) => {
-      this.selectedServer = defaultServer;
+      this.setSelectedServer(defaultServer);
+      console.log("SELSER: default server present in localstorage: ", defaultServer, " connecting...")
       this.connect(defaultServer);
     },
       err => { }
     );
   }
 
-  onServerClicked(server: ServerModel) {
-    console.log('selected server: ', server, ' disconnecting from the old one...', this.selectedServer);
-    if (!this.lastConnectedServer || (this.lastConnectedServer && !this.lastConnectedServer.equals(server))) {
-      this.serverProvider.disconnect();
-      this.selectedServer = server;
-      this.connect(server);
+  onSelectServerChanged() {
+    console.log("SELSER: onSelectServerChanged() -> ", this.selectedServer);
+    if (this.selectedServer) {
+      if (!this.lastConnectedServer || !this.lastConnectedServer.equals(this.selectedServer)) {
+        console.log('SELSER: selected server: ', this.selectedServer, ' disconnecting from the old one...', this.lastConnectedServer);
+
+        this.serverProvider.disconnect();
+        this.connect(this.selectedServer);
+      }
+      // this.navCtrl.pop();
     }
-    // this.navCtrl.pop();
   }
 
   onScanQRCodeClicked() {
@@ -110,7 +114,7 @@ export class SelectServerPage {
           let server = new ServerModel(input.address, input.name);
           this.addServer(server, false, true);
           this.settings.setDefaultServer(server);
-          this.selectedServer = server;
+          this.setSelectedServer(server);
           this.settings.saveServer(server);
         }
       }]
@@ -122,10 +126,8 @@ export class SelectServerPage {
     this.serverProvider.watchForServers().subscribe(data => {
       let server = data.server;
       if (data.action == 'added' || data.action == 'resolved') {
-        // console.log("server discovered:  ", server);
         this.addServer(server, true, false);
       } else {
-        // console.log("server undiscovered:  ", server);
         this.setOnline(server, false);
       }
     });
@@ -165,10 +167,7 @@ export class SelectServerPage {
 
 
   isSelected(server: ServerModel) {
-    if (this.selectedServer) {
-      return this.selectedServer.equals(server);
-    }
-    return false;
+    return this.selectedServer.equals(server);
   }
 
   addServers(servers: ServerModel[], forceOnline: boolean, forceNameUpdate: boolean) {
@@ -205,7 +204,7 @@ export class SelectServerPage {
 
     if (this.selectedServer && this.selectedServer.equals(server)) {
       if (this.servers.length) {
-        this.selectedServer = this.servers[0];
+        this.setSelectedServer(this.servers[0]);
         this.settings.setDefaultServer(this.selectedServer);
       }
     }
@@ -238,5 +237,12 @@ export class SelectServerPage {
     });
 
     this.serverProvider.connect(server);
+  }
+
+  setSelectedServer(server: ServerModel) {
+    let s = this.servers.find(x => x.equals(server));
+    if (s) {
+      this.selectedServer = s;
+    }
   }
 }

@@ -12,6 +12,9 @@ export class ServerModel {
     }
 
     equals(server: ServerModel) {
+        if (!server) {
+            return false;
+        }
         return this.address == server.address;
     }
 
@@ -20,7 +23,7 @@ export class ServerModel {
         if (jsonString.indexOf(Config.WEBSITE_NAME) == -1) {
             return result;
         }
-        
+
         let hostname = Utils.getUrlParameterValue(jsonString, 'h');
         let addresses = Utils.getUrlParameterValue(jsonString, 'a').split('-');
         addresses.forEach(address => {

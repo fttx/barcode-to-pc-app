@@ -28,8 +28,7 @@
 
 
 <ion-content>
-	<!--[(ngModel)]="selectedServer"-->
-	<ion-list>
+	<ion-list radio-group  [(ngModel)]="selectedServer"  (ionChange)="onSelectServerChanged()">
 		<ion-item *ngIf="!servers">
 			Empty
 		</ion-item>
@@ -42,7 +41,7 @@
 					<h2>{{ server.name }}</h2>
 					<p>{{ server.address }}</p>
 				</ion-label>
-				<ion-radio [value]="server" [checked]="isSelected(server)" (click)="onServerClicked(server)"></ion-radio>
+				<ion-radio [value]="server"></ion-radio>
 			</ion-item>
 
 			<ion-item-options side="right">

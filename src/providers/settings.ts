@@ -98,6 +98,10 @@ export class Settings {
 
   saveServer(server: ServerModel) {
     this.getSavedServers().then((savedServers: ServerModel[]) => {
+      let alredyPresent = savedServers.find(x => x.equals(server));
+      if (alredyPresent) {
+        savedServers.splice(savedServers.indexOf(alredyPresent), 1);
+      }
       savedServers.push(server);
       this.setSavedServers(savedServers);
     },
