@@ -14,6 +14,7 @@ import { NavController } from 'ionic-angular';
 import { ScanSessionsStorage } from '../../providers/scan-sessions-storage'
 import { EditScanSessionPage } from './edit-scan-session/edit-scan-session'
 import { SelectScanningModePage } from "./select-scanning-mode/select-scanning-mode";
+import { NativeAudio } from '@ionic-native/native-audio';
 
 /*
   Generated class for the Scan page.
@@ -41,9 +42,11 @@ export class ScanSessionPage {
     private settings: Settings,
     private socialSharing: SocialSharing,
     private cameraScannerProvider: CameraScannerProvider,
+    private nativeAudio: NativeAudio,
   ) {
     this.scanSession = navParams.get('scanSession');
     this.isNewSession = navParams.get('isNewSession');
+    this.nativeAudio.preloadSimple('beep', 'assets/audio/beep.ogg');
   }
 
   ionViewDidEnter() {
@@ -54,6 +57,10 @@ export class ScanSessionPage {
     if (this.isNewSession) { // se ho premuto + su scan-sessions allora posso già iniziare la scansione
       this.scan();
     }
+  }
+
+  ionViewDidLeave() {
+    this.nativeAudio.unload('beep'); 
   }
 
   scan() { // Called when the user want to scan (except for retake scan)
@@ -69,7 +76,7 @@ export class ScanSessionPage {
       if (mode == SelectScanningModePage.SCAN_MODE_SINGLE) {
         this.cameraScannerProvider.scan().then(
           (scan: ScanModel) => {
-            this.saveScan(scan);
+            this.onScan(scan);
           }, err => {
             if (this.scanSession.scannings.length == 0) {
               this.navCtrl.pop();
@@ -82,7 +89,7 @@ export class ScanSessionPage {
     selectScanningModeModal.present();
   }
 
-  saveScan(scan) {
+  onScan(scan: ScanModel) {
     this.googleAnalytics.trackEvent('scannings', 'scan');
     this.scanSession.scannings.unshift(scan);
     this.save();
@@ -92,7 +99,7 @@ export class ScanSessionPage {
   continueScan() {
     this.cameraScannerProvider.scan().then(
       (scan: ScanModel) => {
-        this.saveScan(scan);
+        this.onScan(scan);
         this.showAddMoreDialog();
       }, err => {
         if (this.scanSession.scannings.length == 0) {
@@ -152,7 +159,12 @@ export class ScanSessionPage {
     });
   }
 
-  onPress(scan, scanIndex) {
+  onItemClicked(scan: ScanModel, scanIndex: number) {
+    this.sendPutScan(scan);
+    this.nativeAudio.play('beep');
+  }
+
+  onItemPressed(scan: ScanModel, scanIndex: number) {
     let buttons = [];
 
     buttons.push({

@@ -30,6 +30,7 @@ import { Device } from '@ionic-native/device';
 import { AppVersion } from '@ionic-native/app-version';
 import { SocialSharing } from '@ionic-native/social-sharing';
 import { BarcodeScanner } from '@ionic-native/barcode-scanner';
+import { NativeAudio } from '@ionic-native/native-audio';
 
 @NgModule({
   declarations: [
@@ -78,6 +79,7 @@ import { BarcodeScanner } from '@ionic-native/barcode-scanner';
     AppVersion,
     BarcodeScanner,
     Zeroconf,
+    NativeAudio,
     { provide: ErrorHandler, useClass: IonicErrorHandler },
   ]
 })
