@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { ViewController } from 'ionic-angular';
+import { Settings } from './../../../providers/settings';
 
 /*
   Generated class for the SelectScanningModePage page.
@@ -15,14 +16,26 @@ export class SelectScanningModePage {
   public static SCAN_MODE_CONTINUE = 'continue';
   public static SCAN_MODE_SINGLE = 'single';
 
+  public isDefault = false;
+
   constructor(
     public viewCtrl: ViewController,
+    private settings: Settings,
   ) {
   }
 
-  ionViewDidLoad() { }
+  ionViewWillEnter() {
+    this.settings.getDefaultMode().then(savedScanMode => {
+      if (savedScanMode && savedScanMode.length > 0) {
+        this.viewCtrl.dismiss(savedScanMode);
+      }
+    })
+  }
 
   dismiss(scanMode) {
+    if (this.isDefault) {
+      this.settings.setDefaultMode(scanMode);
+    }
     this.viewCtrl.dismiss(scanMode);
   }
 }

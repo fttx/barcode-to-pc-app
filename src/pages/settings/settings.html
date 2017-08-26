@@ -20,6 +20,7 @@
 
 <ion-content>
   <ion-list>
+
     <ion-item>
       <ion-label color="primary" stacked>Continue mode timeout (seconds)</ion-label>
       <ion-range pin="true" min="0" max="20" step="1" [(ngModel)]="seconds" placeholder="8 seconds" type="number">
@@ -27,5 +28,15 @@
         <ion-label range-right>20</ion-label>
       </ion-range>
     </ion-item>
+
+    <ion-item>
+      <ion-label>Scan mode</ion-label>
+      <ion-select [(ngModel)]="scanMode">
+        <ion-option value="">Ask every time</ion-option>
+        <ion-option value="single">Single scan</ion-option>
+        <ion-option value="continue">Continue mode</ion-option>
+      </ion-select>
+    </ion-item>
+
   </ion-list>
 </ion-content>

@@ -115,7 +115,7 @@ export class ServerProvider {
       }
 
       this.settings.saveServer(server);
-      this.observer.next(new wsResponse({ wsAction: 'open'}));
+      this.observer.next(new wsResponse({ wsAction: 'open' }));
 
       this.toastCtrl.create({ message: 'Connection established with ' + server.name, duration: 3000 }).present();
     };
@@ -178,10 +178,10 @@ export class ServerProvider {
   watchForServers(): Observable<discoveryResult> {
     return Observable.create(observer => {
       if (!this.platform.is('cordova')) { // for browser support
-        setTimeout(() =>
-          observer.next({ server: { address: 'localhost', name: 'localhost' }, action: 'added' })
-          , 1000
-        )
+        setTimeout(() => {
+          let dummyServer: discoveryResult = { server: new ServerModel('localhost', 'localhost'), action: 'added' };
+          observer.next(dummyServer);
+        }, 1000)
         return;
       }
       this.unwatch();
@@ -190,7 +190,7 @@ export class ServerProvider {
         var service = result.service;
         if (service.port == Config.SERVER_PORT && service.ipv4Addresses && service.ipv4Addresses.length) {
           console.log("ZEROCONF:", result);
-        
+
           this.NgZone.run(() => {
             service.ipv4Addresses.forEach(ipv4 => {
               if (ipv4) {

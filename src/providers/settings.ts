@@ -17,6 +17,7 @@ export class Settings {
   private static MANUALLY_ADDED = "manually_added";
   private static EVER_CONNECTED = "ever_connected";
   private static ALWAYS_SKIP_WELCOME_PAGE = "always_skip_welcome_page";
+  private static SCAN_MODE = 'scan_mode';
 
   constructor(public storage: Storage) { }
 
@@ -121,5 +122,13 @@ export class Settings {
     },
       err => { }
     );
+  }
+
+  setDefaultMode(scanMode) {
+    return this.storage.set(Settings.SCAN_MODE, scanMode);
+  }
+
+  getDefaultMode(): Promise<string> {
+    return this.storage.get(Settings.SCAN_MODE);
   }
 }

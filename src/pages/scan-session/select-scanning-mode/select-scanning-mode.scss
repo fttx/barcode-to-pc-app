@@ -1,13 +1,12 @@
 page-select-scanning-mode {
-    img{
-        width: 55%;
+    .half-button {
+        text-align: center;
     }
 
-    .half-button {
-        height: calc(50vh - #{$toolbar-md-height/2});
-        margin: 0;
-        text-align: center;
-        position: relative
+    .half-button img {
+        width: 55%;
+        max-width: 100%;
+        height: auto;
     }
 
     .half-button p {
