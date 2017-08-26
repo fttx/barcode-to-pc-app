@@ -62,7 +62,7 @@ export class MyApp {
   }
 
   setPage(page, isRoot = false) {
-    if (this.nav.getActive().name != page.name) {
+    if (!this.nav.isActive(page)) {
       this.menuCtrl.close();
       if (isRoot) {
         this.nav.setRoot(page);
