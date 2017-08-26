@@ -27,17 +27,21 @@ export class SettingsPage {
 
   ionViewDidLoad() {
     this.settings.getContinueModeTimeout().then(seconds => {
-      this.seconds = seconds;
+      if (seconds) {
+        this.seconds = seconds;
+      }
     })
 
     this.settings.getDefaultMode().then(scanMode => {
-      this.scanMode = scanMode;
+      if (scanMode) {
+        this.scanMode = scanMode;
+      }
     })
   }
 
   ionViewWillLeave() {
     if (!this.changesSaved) {
-      this.saveChanges();      
+      this.saveChanges();
     }
   }
 
@@ -49,9 +53,9 @@ export class SettingsPage {
 
   saveChanges() {
     this.settings.setContinueModeTimeout(this.seconds);
-    this.settings.setDefaultMode(this.scanMode);    
-    
-    
+    this.settings.setDefaultMode(this.scanMode);
+
+
     let toast = this.toastCtrl.create({
       message: 'Settings saved',
       duration: 2000,
