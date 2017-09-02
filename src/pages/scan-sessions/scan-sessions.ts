@@ -65,9 +65,14 @@ export class ScanSessionsPage {
   onConnect() {
     this.connected = true;
     this.sendPutScanSessions();
+
+    // getVersion is deprecated, the new versions of the server won't reply back
+    // this line is used to detect if there is an old version of the server.
     this.serverProvider.send(ServerProvider.ACTION_GET_VERSION);
 
-    Promise.join(this.settings.getNoRunnings(), this.settings.getRated(), (runnings, rated) => {
+    Promise.join(this.settings.getNoRunnings(), this.settings.getRated(), this.settings.getDeviceName(), (runnings, rated, deviceName) => {
+      this.serverProvider.send(ServerProvider.ACTION_HELO, { deviceName: deviceName });
+
       if (runnings >= Config.NO_RUNNINGS_BEFORE_SHOW_RATING && !rated) {
         let os = this.device.platform;
         let isAndroid = os.toLowerCase().indexOf('android') != -1;
@@ -106,7 +111,7 @@ export class ScanSessionsPage {
 
   onMessage(message: any) {
     console.log('onMessage()', message)
-    if (message.action == ServerProvider.ACTION_GET_VERSION) {
+    if (message.action == ServerProvider.ACTION_HELO || message.action == ServerProvider.ACTION_GET_VERSION) {
       if (message.data.version != Config.REQUIRED_SERVER_VERSION) {
         this.onVersionMismatch();
       }

@@ -19,6 +19,10 @@ export class ServerProvider {
   public static ACTION_PUT_SCAN = 'putScan';
   public static ACTION_DELETE_SCAN = 'deleteScan';
   public static ACTION_DELETE_SCANSESSION = 'deleteScanSession';
+  public static ACTION_HELO = 'helo';
+  /**
+   * @deprecated use ACTION_HELO, the server response will include the version.
+   */
   public static ACTION_GET_VERSION = 'getVersion';
   public static RECONNECT_INTERVAL = 7000;
   public static EVENT_CODE_DO_NOT_ATTEMP_RECCONECTION = 4000; // Another server has been selected, do not attemp to connect again

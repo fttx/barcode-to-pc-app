@@ -20,13 +20,11 @@
 
 <ion-content>
   <ion-list>
-
     <ion-item>
-      <ion-label color="primary" stacked>Continue mode timeout (seconds)</ion-label>
-      <ion-range pin="true" min="0" max="20" step="1" [(ngModel)]="seconds" placeholder="8 seconds" type="number">
-        <ion-label range-left>0</ion-label>
-        <ion-label range-right>20</ion-label>
-      </ion-range>
+      <ion-label>Continue mode timeout (seconds)</ion-label>
+      <ion-select [(ngModel)]="seconds">
+        <ion-option *ngFor="let second of availableSeconds" [value]="second">{{ second }}</ion-option>
+      </ion-select>
     </ion-item>
 
     <ion-item>
@@ -36,6 +34,11 @@
         <ion-option value="single">Single scan</ion-option>
         <ion-option value="continue">Continue mode</ion-option>
       </ion-select>
+    </ion-item>
+
+    <ion-item>
+      <ion-label>Device name</ion-label>
+      <ion-input [(ngModel)]="deviceName" placeholder="The name of this device">{{ deviceName }}</ion-input>
     </ion-item>
 
   </ion-list>

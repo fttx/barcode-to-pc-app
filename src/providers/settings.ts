@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Storage } from '@ionic/storage';
 import { ServerModel } from '../models/server.model'
+import { Device } from "@ionic-native/device";
 
 /*
   Generated class for the Settings provider.
@@ -18,8 +19,12 @@ export class Settings {
   private static EVER_CONNECTED = "ever_connected";
   private static ALWAYS_SKIP_WELCOME_PAGE = "always_skip_welcome_page";
   private static SCAN_MODE = 'scan_mode';
+  private static DEVICE_NAME = 'device_name';
 
-  constructor(public storage: Storage) { }
+  constructor(
+    public storage: Storage,
+    public device: Device
+  ) { }
 
   setDefaultServer(server: ServerModel) {
     return this.storage.set(Settings.DEFAULT_SERVER, JSON.stringify(server));
@@ -130,5 +135,21 @@ export class Settings {
 
   getDefaultMode(): Promise<string> {
     return this.storage.get(Settings.SCAN_MODE);
+  }
+
+
+  setDeviceName(deviceName: string) {
+    return this.storage.set(Settings.DEVICE_NAME, deviceName);
+  }
+  getDeviceName(): Promise<string> {
+    return new Promise(resolve => {
+      this.storage.get(Settings.DEVICE_NAME).then(deviceName => {
+        if (!deviceName) {
+          resolve(this.device.model);
+        } else {
+          resolve(deviceName)
+        }
+      });
+    });
   }
 }
