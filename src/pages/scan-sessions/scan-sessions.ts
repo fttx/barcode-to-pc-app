@@ -11,7 +11,9 @@ import { ScanSessionsStorage } from '../../providers/scan-sessions-storage'
 import { Device } from '@ionic-native/device';
 import { Market } from '@ionic-native/market';
 import * as Promise from 'bluebird'
-
+import { responseModel } from '../../models/response.model';
+import { wsEvent } from '../../models/ws-event.model';
+import { requestModelHelo, requestModelSetScanSessions, requestModelDeleteScanSession } from '../../models/request.model';
 
 @Component({
   selector: 'page-scannings',
@@ -41,24 +43,26 @@ export class ScanSessionsPage {
 
     if (this.connected == false) {
       this.settings.getDefaultServer().then(server => {
-        this.serverProvider.getObserver().subscribe(result => {
-
-          let wsAction = result.action;
-
-          if (wsAction == 'message') {
-            this.onMessage(result.message);
-          } else if (wsAction == 'open') {
-            this.onConnect();
-          } else if (wsAction == 'close') {
-            this.onDisconnect();
-          } else if (wsAction == 'error') {
-            this.onDisconnect();
+        this.serverProvider.onResponse().subscribe((response: responseModel) => {
+          console.log('onMessage()', response)
+          if (response.action == responseModel.ACTION_HELO) {
+            if (response.data.version != Config.REQUIRED_SERVER_VERSION) {
+              this.onVersionMismatch();
+            }
           }
         });
         this.serverProvider.connect(server);
+      }, err => { })
 
-      }, err => { // no default server:
-      })
+      this.serverProvider.onWsEvent().subscribe((event: wsEvent) => {
+        if (event.name == wsEvent.EVENT_OPEN) {
+          this.onConnect();
+        } else if (event.name == wsEvent.EVENT_CLOSE) {
+          this.onDisconnect();
+        } else if (event.name == wsEvent.EVENT_ERROR) {
+          this.onDisconnect();
+        }
+      });
     }
   }
 
@@ -66,15 +70,14 @@ export class ScanSessionsPage {
     this.connected = true;
     this.sendPutScanSessions();
 
-    // getVersion is deprecated, the new versions of the server won't reply back
-    // this line is used to detect if there is an old version of the server.
-    this.serverProvider.send(ServerProvider.ACTION_GET_VERSION);
-
     Promise.join(this.settings.getNoRunnings(), this.settings.getRated(), this.settings.getDeviceName(), (runnings, rated, deviceName) => {
-      this.serverProvider.send(ServerProvider.ACTION_HELO, { deviceName: deviceName });
+      let request = new requestModelHelo().fromObject({
+        deviceName: deviceName,
+      });
+      this.serverProvider.send(request);
 
       if (runnings >= Config.NO_RUNNINGS_BEFORE_SHOW_RATING && !rated) {
-        let os = this.device.platform;
+        let os = this.device.platform || 'unknown';
         let isAndroid = os.toLowerCase().indexOf('android') != -1;
         let store = isAndroid ? 'PlayStore' : 'Appstore';
         this.alertCtrl.create({
@@ -108,15 +111,6 @@ export class ScanSessionsPage {
     this.connected = false;
   }
 
-
-  onMessage(message: any) {
-    console.log('onMessage()', message)
-    if (message.action == ServerProvider.ACTION_HELO || message.action == ServerProvider.ACTION_GET_VERSION) {
-      if (message.data.version != Config.REQUIRED_SERVER_VERSION) {
-        this.onVersionMismatch();
-      }
-    }
-  }
 
   onVersionMismatch() {
     this.alertCtrl.create({
@@ -158,7 +152,7 @@ export class ScanSessionsPage {
   onAddClick() {
     let date: Date = new Date();
     let newScanSession: ScanSessionModel = {
-      id: date.getTime().toString(),
+      id: date.getTime(),
       name: 'Scan session ' + (this.scanSessions.length + 1),
       date: date,
       scannings: []
@@ -167,11 +161,18 @@ export class ScanSessionsPage {
   }
 
   sendPutScanSessions() {
-    this.serverProvider.send(ServerProvider.ACTION_PUT_SCANSESSIONS, this.scanSessions)
+    let wsRequest = new requestModelSetScanSessions().fromObject({
+      scanSessions: this.scanSessions,
+      sendKeystrokes: false
+    });
+    this.serverProvider.send(wsRequest);
   }
 
   sendDeleteScanSessions(scanSession: ScanSessionModel) {
-    this.serverProvider.send(ServerProvider.ACTION_DELETE_SCANSESSION, scanSession)
+    let wsRequest = new requestModelDeleteScanSession().fromObject({
+      scanSessionId: scanSession.id
+    });
+    this.serverProvider.send(wsRequest);
   }
 
   save() {

@@ -1,6 +1,6 @@
 import { ServerModel } from "./server.model";
 
-export interface discoveryResult {
+export interface discoveryResultModel {
     server: ServerModel;
     action: 'registered' | 'added' | 'resolved' | 'removed';
 }

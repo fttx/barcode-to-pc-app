@@ -3,6 +3,7 @@ import { Settings } from './../../providers/settings';
 import { Component } from '@angular/core';
 import { NavController, ViewController, ToastController } from 'ionic-angular';
 import { ServerProvider } from "../../providers/server";
+import { requestModelHelo } from '../../models/request.model';
 /*
   Generated class for the Settings page.
 
@@ -64,7 +65,7 @@ export class SettingsPage {
     this.settings.setDefaultMode(this.scanMode);
     this.settings.setDeviceName(this.deviceName);
 
-    this.serverProvider.send(ServerProvider.ACTION_HELO, { deviceName: this.deviceName });
+    this.serverProvider.send(new requestModelHelo().fromObject({ deviceName: this.deviceName }));
 
     let toast = this.toastCtrl.create({
       message: 'Settings saved',

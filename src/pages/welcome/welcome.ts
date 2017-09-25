@@ -9,6 +9,7 @@ import { Config } from '../../providers/config'
 import { Settings } from '../../providers/settings'
 import { GoogleAnalyticsService } from '../../providers/google-analytics'
 import { BarcodeScanner } from '@ionic-native/barcode-scanner';
+import { wsEvent } from '../../models/ws-event.model';
 
 /*
   Generated class for the Welcome page.
@@ -120,8 +121,8 @@ export class WelcomePage {
     if (this.connecting) {
       this.slider.slideTo(this.slider.length() - 1);
       this.lastServerAttempted = server;
-      this.serverProvider.getObserver().subscribe(result => {
-        if (result.action == 'open' && !this.connected) {
+      this.serverProvider.onWsEvent().subscribe((event: wsEvent) => {
+        if (event.name == wsEvent.EVENT_OPEN && !this.connected) {
           // console.log('connection opened with the server: ', server);
           this.serverProvider.unwatch();
           this.settings.setDefaultServer(server);
@@ -130,9 +131,10 @@ export class WelcomePage {
             this.connecting = false;
             this.showNext = false;
           });
-          this.connected = true;          
+          this.connected = true;
         }
       });
+    
       this.serverProvider.connect(server)
       this.scheduleShowTroubleshootingDialog(20);
     }

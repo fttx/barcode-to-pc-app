@@ -5,8 +5,10 @@ import { Config } from './config'
 import { ToastController, Platform } from 'ionic-angular';
 import { Zeroconf } from '@ionic-native/zeroconf';
 import { Subject, Observable } from "rxjs";
-import { wsResponse } from "../models/ws-response";
-import { discoveryResult } from "../models/discovery-result";
+import { discoveryResultModel } from "../models/discovery-result";
+import { responseModel } from '../models/response.model';
+import { requestModel } from '../models/request.model';
+import { wsEvent } from '../models/ws-event.model';
 /*
   Generated class for the Server provider.
 
@@ -15,20 +17,12 @@ import { discoveryResult } from "../models/discovery-result";
 */
 @Injectable()
 export class ServerProvider {
-  public static ACTION_PUT_SCANSESSIONS = 'putScanSessions';
-  public static ACTION_PUT_SCAN = 'putScan';
-  public static ACTION_DELETE_SCAN = 'deleteScan';
-  public static ACTION_DELETE_SCANSESSION = 'deleteScanSession';
-  public static ACTION_HELO = 'helo';
-  /**
-   * @deprecated use ACTION_HELO, the server response will include the version.
-   */
-  public static ACTION_GET_VERSION = 'getVersion';
   public static RECONNECT_INTERVAL = 7000;
   public static EVENT_CODE_DO_NOT_ATTEMP_RECCONECTION = 4000; // Another server has been selected, do not attemp to connect again
 
   private webSocket: WebSocket;
-  private observer = new Subject<wsResponse>();
+  private responseObserver = new Subject<responseModel>();
+  private wsEventObserver = new Subject<wsEvent>();
   private reconnectInterval;
   private reconnecting = false;
   private everConnected = false;
@@ -44,8 +38,12 @@ export class ServerProvider {
   }
 
 
-  getObserver(): Subject<wsResponse> {
-    return this.observer;
+  onResponse(): Subject<responseModel> {
+    return this.responseObserver;
+  }
+
+  onWsEvent(): Subject<wsEvent> {
+    return this.wsEventObserver;
   }
 
   connect(server: ServerModel) {
@@ -54,7 +52,7 @@ export class ServerProvider {
       this.wsConnect(server);
     } else if (this.webSocket.readyState == WebSocket.OPEN) {
       console.log('already connected to a server, no action taken');
-      this.observer.next(new wsResponse({ wsAction: 'open' }));
+      this.wsEventObserver.next({ name: 'open' });
     }
     console.log('queue: ', this.serverQueue);
   }
@@ -97,11 +95,12 @@ export class ServerProvider {
     console.log('WS: A new WebSocket has been created')
 
     this.webSocket.onmessage = message => {
-      let messageData = null;
+      let messageData: responseModel = null;
       if (message.data) {
         messageData = JSON.parse(message.data);
       }
-      this.observer.next(new wsResponse({ wsAction: 'message', message: messageData }));
+
+      this.responseObserver.next(messageData);
     }
 
     this.webSocket.onopen = () => {
@@ -119,7 +118,7 @@ export class ServerProvider {
       }
 
       this.settings.saveServer(server);
-      this.observer.next(new wsResponse({ wsAction: 'open' }));
+      this.wsEventObserver.next({ name: 'open' });
 
       this.toastCtrl.create({ message: 'Connection established with ' + server.name, duration: 3000 }).present();
     };
@@ -131,8 +130,7 @@ export class ServerProvider {
         this.toastCtrl.create({ message: 'Connection problem', duration: 3000 }).present();
       }
 
-      this.observer.next(new wsResponse({ wsAction: 'error', err: err }));
-
+      this.wsEventObserver.next({ name: 'error' });
       this.scheduleNewWsConnection(server);
     }
 
@@ -146,7 +144,7 @@ export class ServerProvider {
         this.scheduleNewWsConnection(server);
       }
 
-      this.observer.next(new wsResponse({ wsAction: 'close' }));
+      this.wsEventObserver.next({ name: 'close' });
     }
   }
 
@@ -167,10 +165,11 @@ export class ServerProvider {
     }
   }
 
-  send(action, data = {}) {
+  send(request: requestModel) {
     if (this.webSocket) {
       if (this.webSocket.readyState == WebSocket.OPEN) {
-        this.webSocket.send(JSON.stringify({ 'action': action, 'data': data }));
+        console.log(request, JSON.stringify(request));
+        this.webSocket.send(JSON.stringify(request));
       } else {
         this.toastCtrl.create({ message: 'Connection problem', duration: 3000 }).present();
       }
@@ -179,11 +178,11 @@ export class ServerProvider {
     }
   }
 
-  watchForServers(): Observable<discoveryResult> {
+  watchForServers(): Observable<discoveryResultModel> {
     return Observable.create(observer => {
       if (!this.platform.is('cordova')) { // for browser support
         setTimeout(() => {
-          let dummyServer: discoveryResult = { server: new ServerModel('localhost', 'localhost'), action: 'added' };
+          let dummyServer: discoveryResultModel = { server: new ServerModel('localhost', 'localhost'), action: 'added' };
           observer.next(dummyServer);
         }, 1000)
         return;

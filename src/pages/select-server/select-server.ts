@@ -7,6 +7,8 @@ import { Config } from '../../providers/config'
 import { GoogleAnalyticsService } from '../../providers/google-analytics'
 import { BarcodeScanner } from '@ionic-native/barcode-scanner';
 import { ScanModel } from "../../models/scan.model";
+import { responseModel } from '../../models/response.model';
+import { wsEvent } from '../../models/ws-event.model';
 
 /*
   Generated class for the SelectServer page.
@@ -73,8 +75,9 @@ export class SelectServerPage {
     if (this.selectedServer) {
       if (!this.lastConnectedServer || !this.lastConnectedServer.equals(this.selectedServer)) {
         console.log('SELSER: selected server: ', this.selectedServer, ' disconnecting from the old one...', this.lastConnectedServer);
-
-        this.serverProvider.disconnect();
+        if (this.lastConnectedServer) {
+          this.serverProvider.disconnect();
+        }
         this.connect(this.selectedServer);
       }
       // this.navCtrl.pop();
@@ -226,8 +229,12 @@ export class SelectServerPage {
   }
 
   connect(server: ServerModel) {
-    this.serverProvider.getObserver().subscribe(wsResult => {
-      if (wsResult.action == 'open' || wsResult.action == 'message') {
+    // this.serverProvider.onResponse().subscribe((response: responseModel) => {
+
+    // });
+
+    this.serverProvider.onWsEvent().subscribe((event: wsEvent) => {
+      if (event.name == wsEvent.EVENT_OPEN) {
         this.settings.setDefaultServer(server);
         this.addServer(server, true, false);
         this.lastConnectedServer = server;

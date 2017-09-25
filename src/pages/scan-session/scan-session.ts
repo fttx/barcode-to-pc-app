@@ -15,7 +15,7 @@ import { ScanSessionsStorage } from '../../providers/scan-sessions-storage'
 import { EditScanSessionPage } from './edit-scan-session/edit-scan-session'
 import { SelectScanningModePage } from "./select-scanning-mode/select-scanning-mode";
 import { NativeAudio } from '@ionic-native/native-audio';
-
+import { requestModelSetScanSessions, requestModelDeleteScan, requestModelPutScan, requestModelDeleteScanSession, requestModelPutScanSession } from '../../models/request.model';
 /*
   Generated class for the Scan page.
 
@@ -29,6 +29,7 @@ import { NativeAudio } from '@ionic-native/native-audio';
 export class ScanSessionPage {
   public scanSession: ScanSessionModel;
   private isNewSession = false;
+  private isSynced = false;
 
   constructor(
     navParams: NavParams,
@@ -54,22 +55,31 @@ export class ScanSessionPage {
   }
 
   ionViewDidLoad() {
+    if (this.isNewSession && !this.isSynced) {
+      let wsRequest = new requestModelPutScanSession().fromObject({
+        scanSession: this.scanSession,
+      });
+      this.serverProvider.send(wsRequest);
+
+      this.isSynced = true;
+    }
+
     if (this.isNewSession) { // se ho premuto + su scan-sessions allora posso già iniziare la scansione
       this.scan();
     }
   }
 
   ionViewDidLeave() {
-    this.nativeAudio.unload('beep'); 
+    this.nativeAudio.unload('beep');
   }
 
   scan() { // Called when the user want to scan (except for retake scan)
     let selectScanningModeModal = this.modalCtrl.create(SelectScanningModePage);
     selectScanningModeModal.onDidDismiss(mode => {
 
-      // if the user doesn't choose the mode (clicks cancel) and didn't enter the scan-session page yet
+      // if the user doesn't choose the mode (clicks cancel) and didn't enter the scan-session page
       if (!mode && this.isNewSession) {
-        this.navCtrl.pop();
+        this.destroyScanSession();
         return;
       }
 
@@ -79,7 +89,7 @@ export class ScanSessionPage {
             this.onScan(scan);
           }, err => {
             if (this.scanSession.scannings.length == 0) {
-              this.navCtrl.pop();
+              this.destroyScanSession();
             }
           });
       } else if (mode == SelectScanningModePage.SCAN_MODE_CONTINUE) {
@@ -103,7 +113,7 @@ export class ScanSessionPage {
         this.showAddMoreDialog();
       }, err => {
         if (this.scanSession.scannings.length == 0) {
-          this.navCtrl.pop();
+          this.destroyScanSession();
         } else {
           if (this.isNewSession) {
             this.setName();
@@ -268,23 +278,31 @@ export class ScanSessionPage {
     this.scanSessionsStorage.setScanSession(this.scanSession);
   }
 
-  sendPutScan(scan: ScanModel, retakeIndex: number = -1) {
-    let dummyScanSession: ScanSessionModel = { // creo una scanSession fittizia che contiene soltanto la scanModel da inviare
-      id: this.scanSession.id,
-      name: this.scanSession.name,
-      date: this.scanSession.date,
-      scannings: [scan]
-    };
-    this.serverProvider.send(ServerProvider.ACTION_PUT_SCAN, dummyScanSession);
+  sendPutScan(scan: ScanModel, sendKeystrokes = true) {
+    let wsRequest = new requestModelPutScan().fromObject({
+      scan: scan,
+      scanSessionId: this.scanSession.id,
+      sendKeystrokes: sendKeystrokes
+    });
+
+    this.serverProvider.send(wsRequest);
   }
 
   sendDeleteScan(scan: ScanModel) {
-    let dummyScanSession: ScanSessionModel = {
-      id: this.scanSession.id,
-      name: this.scanSession.name,
-      date: this.scanSession.date,
-      scannings: [scan]
-    };
-    this.serverProvider.send(ServerProvider.ACTION_DELETE_SCAN, dummyScanSession);
+    let wsRequest = new requestModelDeleteScan().fromObject({
+      scan: scan,
+      scanSessionId: this.scanSession.id,
+    });
+    this.serverProvider.send(wsRequest);
+  }
+
+  destroyScanSession() {
+    if (this.isSynced) {
+      let wsRequest = new requestModelDeleteScanSession().fromObject({
+        scanSessionId: this.scanSession.id,
+      });
+      this.serverProvider.send(wsRequest);
+    }
+    this.navCtrl.pop();
   }
 }
