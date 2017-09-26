@@ -75,7 +75,7 @@ export class SettingsPage {
     this.settings.setDefaultMode(this.scanMode);
     this.settings.setDeviceName(this.deviceName);
 
-    this.serverProvider.send(new requestModelHelo().fromObject({ clientName: this.deviceName }));
+    this.serverProvider.send(new requestModelHelo().fromObject({ deviceName: this.deviceName }));
 
     let toast = this.toastCtrl.create({
       message: 'Settings saved',

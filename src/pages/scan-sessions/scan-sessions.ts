@@ -72,7 +72,7 @@ export class ScanSessionsPage {
 
     Promise.join(this.settings.getNoRunnings(), this.settings.getRated(), this.settings.getDeviceName(), (runnings, rated, deviceName) => {
       let request = new requestModelHelo().fromObject({
-        clientName: deviceName,
+        deviceName: deviceName,
       });
       this.serverProvider.send(request);
 
