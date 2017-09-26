@@ -63,7 +63,7 @@
     "devDependencies": {
         "@ionic/app-scripts": "2.1.4",
         "@types/bluebird": "^3.0.37",
-        "ionic": "3.9.2",
+        "ionic": "3.12.0",
         "typescript": "2.3.4"
     },
     "cordovaPlugins": [
