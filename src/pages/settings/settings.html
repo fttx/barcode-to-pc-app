@@ -22,8 +22,15 @@
   <ion-list>
     <ion-item>
       <ion-label>Continue mode timeout (seconds)</ion-label>
-      <ion-select [(ngModel)]="seconds">
-        <ion-option *ngFor="let second of availableSeconds" [value]="second">{{ second }}</ion-option>
+      <ion-select [(ngModel)]="continueModeTimeout">
+        <ion-option *ngFor="let second of availableContinueModeTimeouts" [value]="second">{{ second }}</ion-option>
+      </ion-select>
+    </ion-item>
+
+    <ion-item>
+      <ion-label>Repeat interval (milliseconds)</ion-label>
+      <ion-select [(ngModel)]="repeatInterval">
+        <ion-option *ngFor="let ms of availableRepeatIntervals" [value]="ms">{{ ms }}</ion-option>
       </ion-select>
     </ion-item>
 

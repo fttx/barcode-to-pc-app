@@ -15,7 +15,7 @@ import { ScanSessionsStorage } from '../../providers/scan-sessions-storage'
 import { EditScanSessionPage } from './edit-scan-session/edit-scan-session'
 import { SelectScanningModePage } from "./select-scanning-mode/select-scanning-mode";
 import { NativeAudio } from '@ionic-native/native-audio';
-import { requestModelSetScanSessions, requestModelDeleteScan, requestModelPutScan, requestModelDeleteScanSession, requestModelPutScanSession } from '../../models/request.model';
+import { requestModelDeleteScan, requestModelPutScan, requestModelDeleteScanSession, requestModelPutScanSession } from '../../models/request.model';
 /*
   Generated class for the Scan page.
 
@@ -30,6 +30,12 @@ export class ScanSessionPage {
   public scanSession: ScanSessionModel;
   private isNewSession = false;
   private isSynced = false;
+
+  public repeatInterval = 0;
+  public repeatAllTimeout = null;
+  public next = -1;
+  public isRepeating: 'paused' | true | false = false;
+
 
   constructor(
     navParams: NavParams,
@@ -48,6 +54,8 @@ export class ScanSessionPage {
     this.scanSession = navParams.get('scanSession');
     this.isNewSession = navParams.get('isNewSession');
     this.nativeAudio.preloadSimple('beep', 'assets/audio/beep.ogg');
+
+    this.settings.getRepeatInterval().then(repeatInterval => this.repeatInterval = repeatInterval)
   }
 
   ionViewDidEnter() {
@@ -170,8 +178,8 @@ export class ScanSessionPage {
   }
 
   onItemClicked(scan: ScanModel, scanIndex: number) {
-    this.sendPutScan(scan);
-    this.nativeAudio.play('beep');
+    this.googleAnalytics.trackEvent('scannings', 'repeat');
+    this.repeat(scan);
   }
 
   onItemPressed(scan: ScanModel, scanIndex: number) {
@@ -213,17 +221,13 @@ export class ScanSessionPage {
     }
 
     buttons.push({
-      text: 'Retake',
+      text: 'Repeat from here',
       icon: 'refresh',
       handler: () => {
-        this.googleAnalytics.trackEvent('scannings', 'retake');
-        this.cameraScannerProvider.scan().then(
-          (scan: ScanModel) => {
-            this.scanSession.scannings.splice(scanIndex, 1, scan);
-            this.save();
-            this.sendDeleteScan(scan);
-            this.sendPutScan(scan);
-          });
+        this.googleAnalytics.trackEvent('scannings', 'repeatAll');
+        if (this.isRepeating == false) {
+          this.repeatAll(scanIndex);
+        }
       }
     });
 
@@ -304,5 +308,77 @@ export class ScanSessionPage {
       this.serverProvider.send(wsRequest);
     }
     this.navCtrl.pop();
+  }
+
+  repeat(scan: ScanModel) {
+    // let repeatedScan: ScanModel = Object.assign({}, scan);
+    // repeatedScan.repeated = true;
+
+    scan.repeated = true;
+    this.sendPutScan(scan);
+    this.nativeAudio.play('beep');
+  }
+
+
+  onRepeatAllClicked() {
+    this.googleAnalytics.trackEvent('scannings', 'repeatAll');
+
+    let startFrom = -1;
+    if (startFrom == -1) {
+      startFrom = this.scanSession.scannings.length - 1;
+    }
+
+    if (this.isRepeating === true) {
+      this.isRepeating = 'paused';
+      if (this.repeatAllTimeout) clearTimeout(this.repeatAllTimeout)
+    } else if (this.isRepeating === 'paused') {
+      this.isRepeating = true;
+      this.repeatAll(this.next);
+    } else {
+      this.repeatAll(startFrom);
+    }
+  }
+
+
+
+  repeatAll(startFrom = -1) {
+    if (startFrom < 0 || startFrom >= this.scanSession.scannings.length) {
+      this.stopRepeating();
+      return;
+    }
+
+    this.isRepeating = true;
+    let scan = this.scanSession.scannings[startFrom];
+
+    this.repeat(scan);
+    this.next = startFrom - 1;
+
+    if (this.repeatAllTimeout) clearTimeout(this.repeatAllTimeout)
+
+    this.repeatAllTimeout = setTimeout(() => {
+      if (this.next >= 0) {
+        this.repeatAll(this.next);
+      } else {
+        this.stopRepeating();
+      }
+    }, this.repeatInterval);
+  }
+
+  stopRepeating() {
+    if (this.repeatAllTimeout) clearTimeout(this.repeatAllTimeout)
+    this.repeatAllTimeout = null;
+    this.next = -1;
+    this.isRepeating = false;
+    this.scanSession.scannings.forEach(scan => scan.repeated = false);
+  }
+
+  getRepeatAllIcon() {
+    if (this.isRepeating === true) {
+      return 'pause';
+    } else if (this.isRepeating === 'paused') {
+      return 'play';
+    } else {
+      return 'refresh';
+    }
   }
 }

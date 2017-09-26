@@ -16,8 +16,10 @@ import { requestModelHelo } from '../../models/request.model';
 })
 export class SettingsPage {
   public deviceName: string;
-  public seconds = Config.DEFAULT_CONTINUE_MODE_TIMEOUT;
-  public availableSeconds = Array.from(Array(30).keys());
+  public continueModeTimeout = Config.DEFAULT_CONTINUE_MODE_TIMEOUT;
+  public repeatInterval = Config.DEFAULT_REPEAT_INVERVAL;
+  public availableContinueModeTimeouts = Array.from(Array(30).keys());
+  public availableRepeatIntervals = [];
   public scanMode = '';
   private changesSaved = false;
 
@@ -28,12 +30,15 @@ export class SettingsPage {
     private toastCtrl: ToastController,
     private serverProvider: ServerProvider,
   ) {
+    for (let i = 0; i <= 15000; i += 250) {
+      this.availableRepeatIntervals.push(i);
+    }
   }
 
   ionViewDidLoad() {
     this.settings.getContinueModeTimeout().then(seconds => {
       if (seconds) {
-        this.seconds = seconds;
+        this.continueModeTimeout = seconds;
       }
     })
 
@@ -45,6 +50,10 @@ export class SettingsPage {
 
     this.settings.getDeviceName().then(deviceName => {
       this.deviceName = deviceName;
+    })
+
+    this.settings.getRepeatInterval().then(repeatInterval => {
+      this.repeatInterval = repeatInterval;
     })
   }
 
@@ -61,7 +70,8 @@ export class SettingsPage {
   }
 
   saveChanges() {
-    this.settings.setContinueModeTimeout(this.seconds);
+    this.settings.setContinueModeTimeout(this.continueModeTimeout);
+    this.settings.setRepeatInterval(this.repeatInterval);
     this.settings.setDefaultMode(this.scanMode);
     this.settings.setDeviceName(this.deviceName);
 

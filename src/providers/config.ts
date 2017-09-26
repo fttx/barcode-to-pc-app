@@ -18,6 +18,7 @@ export class Config {
   public static DEFAULT_CONTINUE_MODE_TIMEOUT = 0;
   public static NO_RUNNINGS_BEFORE_SHOW_RATING = 5;
   public static SHOW_CANNOT_FIND_DIALOG_TIMEOUT = 90 * 1000;
+  public static DEFAULT_REPEAT_INVERVAL = 500;
 
   constructor() {
   }

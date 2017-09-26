@@ -10,6 +10,14 @@
 		<ion-title>{{ scanSession.name }}</ion-title>
 
 		<ion-buttons end>
+			<button [hidden]="isRepeating == false" ion-button icon-only (click)="stopRepeating()">
+				<ion-icon name="square"></ion-icon>
+			</button>
+
+			<button ion-button icon-only (click)="onRepeatAllClicked()">
+				<ion-icon [name]="getRepeatAllIcon()"></ion-icon>
+			</button>
+
 			<button ion-button icon-only (click)="edit()">
 				<ion-icon name="create"></ion-icon>
 			</button>
@@ -20,7 +28,7 @@
 
 <ion-content>
 	<ion-list>
-		<button ion-item *ngFor="let scan of scanSession.scannings; let i = index" (click)="onItemClicked(scan, i)" (press)="onItemPressed(scan, i)">
+		<button ion-item *ngFor="let scan of scanSession.scannings; let i = index" (click)="onItemClicked(scan, i)" (press)="onItemPressed(scan, i)" [color]="scan.repeated ? 'light' : 'default'">
 			{{ scan.text }}
 		</button>
 	</ion-list>

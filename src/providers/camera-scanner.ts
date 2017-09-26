@@ -17,6 +17,12 @@ export class CameraScannerProvider {
 
   scan(): Promise<ScanModel> {
     return new Promise((resolve, reject) => {
+      // let s = new ScanModel();
+      // let id = new Date().getMilliseconds();
+      // s.cancelled = false;
+      // s.id = id;
+      // s.text = 'random scan: ' + id
+      // resolve(s)
       this.barcodeScanner.scan({
         "showFlipCameraButton": true, // iOS and Android
         "prompt": "Place a barcode inside the scan area.\nPress the back button to exit.", // supported on Android only
@@ -27,7 +33,8 @@ export class CameraScannerProvider {
         }
 
         if (scan && scan.text) {
-          scan.id = new Date().getTime() + "";
+          scan.id = new Date().getTime();
+          scan.repeated = false;
           resolve(scan);
         }
       }, (err) => {

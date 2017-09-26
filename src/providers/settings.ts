@@ -20,6 +20,7 @@ export class Settings {
   private static ALWAYS_SKIP_WELCOME_PAGE = "always_skip_welcome_page";
   private static SCAN_MODE = 'scan_mode';
   private static DEVICE_NAME = 'device_name';
+  private static REPEAT_INTERVAL = 'repeat_interval';
 
   constructor(
     public storage: Storage,
@@ -151,5 +152,12 @@ export class Settings {
         }
       });
     });
+  }
+
+  setRepeatInterval(interval: number) {
+    return this.storage.set(Settings.REPEAT_INTERVAL, interval);
+  }
+  getRepeatInterval(): Promise<number> {
+    return this.storage.get(Settings.REPEAT_INTERVAL);
   }
 }
