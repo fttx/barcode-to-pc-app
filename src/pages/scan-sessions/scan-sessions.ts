@@ -46,7 +46,7 @@ export class ScanSessionsPage {
         this.serverProvider.onResponse().subscribe((response: responseModel) => {
           console.log('onMessage()', response)
           if (response.action == responseModel.ACTION_HELO) {
-            if (response.data.version != Config.REQUIRED_SERVER_VERSION) {
+            if (response.version != Config.REQUIRED_SERVER_VERSION) {
               this.onVersionMismatch();
             }
           }
@@ -72,7 +72,7 @@ export class ScanSessionsPage {
 
     Promise.join(this.settings.getNoRunnings(), this.settings.getRated(), this.settings.getDeviceName(), (runnings, rated, deviceName) => {
       let request = new requestModelHelo().fromObject({
-        deviceName: deviceName,
+        clientName: deviceName,
       });
       this.serverProvider.send(request);
 

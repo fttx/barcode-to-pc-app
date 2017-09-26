@@ -1,6 +1,6 @@
 export class responseModel {
     action: 'helo';
-    data: any;
+    version: string;
 
     public static readonly ACTION_HELO = 'helo';    
 }
