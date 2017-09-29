@@ -31,7 +31,7 @@ export class ScanSessionPage {
   private isNewSession = false;
   private isSynced = false;
 
-  public repeatInterval = 0;
+  public repeatInterval;
   public repeatAllTimeout = null;
   public next = -1;
   public isRepeating: 'paused' | true | false = false;
@@ -55,7 +55,6 @@ export class ScanSessionPage {
     this.isNewSession = navParams.get('isNewSession');
     this.nativeAudio.preloadSimple('beep', 'assets/audio/beep.ogg');
 
-    this.settings.getRepeatInterval().then(repeatInterval => this.repeatInterval = repeatInterval)
   }
 
   ionViewDidEnter() {
@@ -322,6 +321,10 @@ export class ScanSessionPage {
 
   onRepeatAllClicked() {
     this.googleAnalytics.trackEvent('scannings', 'repeatAll');
+
+    this.settings.getRepeatInterval().then(repeatInterval => {
+      this.repeatInterval = repeatInterval
+    })
 
     let startFrom = -1;
     if (startFrom == -1) {
