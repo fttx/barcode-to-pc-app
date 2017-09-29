@@ -384,4 +384,35 @@ export class ScanSessionPage {
       return 'refresh';
     }
   }
+
+  addManually() {
+    const alert = this.alertCtrl.create({
+      title: 'Add a scan manually',
+      inputs: [
+        {
+          name: 'text',
+          placeholder: 'Text to send',
+        },
+      ],
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+          handler: data => { }
+        },
+        {
+          text: 'Add',
+          handler: data => {
+            let scan = new ScanModel();
+            scan.cancelled = false;
+            scan.id = new Date().getTime();
+            scan.repeated = false;
+            scan.text = data.text;
+            this.onScan(scan);
+          }
+        }
+      ]
+    });
+    alert.present();
+  }
 }
