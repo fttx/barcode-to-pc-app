@@ -1,7 +1,7 @@
 import { Config } from './../../providers/config';
 import { Settings } from './../../providers/settings';
 import { Component } from '@angular/core';
-import { NavController, ViewController, ToastController } from 'ionic-angular';
+import { NavController, ViewController } from 'ionic-angular';
 import { ServerProvider } from "../../providers/server";
 import { requestModelHelo } from '../../models/request.model';
 /*
@@ -21,13 +21,13 @@ export class SettingsPage {
   public availableContinueModeTimeouts = Array.from(Array(30).keys());
   public availableRepeatIntervals = [];
   public scanMode = '';
+  public preferFrontCamera = false;
   private changesSaved = false;
 
   constructor(
     public viewCtrl: ViewController,
     public navCtrl: NavController,
     public settings: Settings,
-    private toastCtrl: ToastController,
     private serverProvider: ServerProvider,
   ) {
     for (let i = 0; i <= 15000; i += 250) {
@@ -55,6 +55,10 @@ export class SettingsPage {
     this.settings.getRepeatInterval().then(repeatInterval => {
       this.repeatInterval = repeatInterval;
     })
+
+    this.settings.getPreferFrontCamera().then(preferFrontCamera => {
+      this.preferFrontCamera = preferFrontCamera;
+    })
   }
 
   ionViewWillLeave() {
@@ -74,14 +78,15 @@ export class SettingsPage {
     this.settings.setRepeatInterval(this.repeatInterval);
     this.settings.setDefaultMode(this.scanMode);
     this.settings.setDeviceName(this.deviceName);
+    this.settings.setPreferFrontCamera(this.preferFrontCamera);
 
     this.serverProvider.send(new requestModelHelo().fromObject({ deviceName: this.deviceName }));
 
-    let toast = this.toastCtrl.create({
-      message: 'Settings saved',
-      duration: 2000,
-      position: 'bottom'
-    });
-    toast.present();
+    // let toast = this.toastCtrl.create({
+    //   message: 'Settings saved',
+    //   duration: 2000,
+    //   position: 'bottom'
+    // });
+    // toast.present();
   }
 }

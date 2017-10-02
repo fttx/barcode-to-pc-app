@@ -21,6 +21,7 @@ export class Settings {
   private static SCAN_MODE = 'scan_mode';
   private static DEVICE_NAME = 'device_name';
   private static REPEAT_INTERVAL = 'repeat_interval';
+  private static PREFER_FRONT_CAMERA = 'prefer_front_camera';
 
   constructor(
     public storage: Storage,
@@ -159,5 +160,12 @@ export class Settings {
   }
   getRepeatInterval(): Promise<number> {
     return this.storage.get(Settings.REPEAT_INTERVAL);
+  }
+
+  setPreferFrontCamera(preferFrontCamera: boolean) {
+    return this.storage.set(Settings.PREFER_FRONT_CAMERA, preferFrontCamera);
+  }
+  getPreferFrontCamera(): Promise<boolean> {
+    return this.storage.get(Settings.PREFER_FRONT_CAMERA);
   }
 }
