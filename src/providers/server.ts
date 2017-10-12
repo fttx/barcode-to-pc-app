@@ -158,7 +158,7 @@ export class ServerProvider {
           this.disconnect(false);
           this.scheduleNewWsConnection(server); // se il timeout non è stato fermato prima da una risposta, allora schedulo una nuova connessione
         }, 1000 * 5);
-      }, 1000 * 15); // ogni 60 secondi invio ping
+      }, 1000 * 60); // ogni 60 secondi invio ping
     };
 
     this.webSocket.onerror = err => {
