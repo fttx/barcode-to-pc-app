@@ -11,7 +11,7 @@ import { ScanSessionsStorage } from '../../providers/scan-sessions-storage'
 import { Device } from '@ionic-native/device';
 import { Market } from '@ionic-native/market';
 import * as Promise from 'bluebird'
-import { responseModel } from '../../models/response.model';
+import { responseModel, responseModelHelo } from '../../models/response.model';
 import { wsEvent } from '../../models/ws-event.model';
 import { requestModelHelo, requestModelSetScanSessions, requestModelDeleteScanSession } from '../../models/request.model';
 
@@ -43,10 +43,11 @@ export class ScanSessionsPage {
 
     if (this.connected == false) {
       this.settings.getDefaultServer().then(server => {
-        this.serverProvider.onResponse().subscribe((response: responseModel) => {
+        this.serverProvider.onResponse().subscribe((response: any) => {
           console.log('onMessage()', response)
           if (response.action == responseModel.ACTION_HELO) {
-            if (response.version != Config.REQUIRED_SERVER_VERSION) {
+            let heloResponse: responseModelHelo = response;
+            if (heloResponse.version != Config.REQUIRED_SERVER_VERSION) {
               this.onVersionMismatch();
             }
           }
@@ -71,6 +72,7 @@ export class ScanSessionsPage {
     this.sendPutScanSessions();
 
     Promise.join(this.settings.getNoRunnings(), this.settings.getRated(), this.settings.getDeviceName(), (runnings, rated, deviceName) => {
+      console.log('promise join: getNoRunnings getRated getDeviceName ')
       let request = new requestModelHelo().fromObject({
         deviceName: deviceName,
       });
