@@ -53,7 +53,9 @@ export class SettingsPage {
     })
 
     this.settings.getRepeatInterval().then(repeatInterval => {
-      this.repeatInterval = repeatInterval;
+      if (repeatInterval && repeatInterval != null) {
+        this.repeatInterval = repeatInterval;
+      }
     })
 
     this.settings.getPreferFrontCamera().then(preferFrontCamera => {
