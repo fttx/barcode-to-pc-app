@@ -47,6 +47,7 @@
         "cordova-plugin-google-analytics": "^1.8.3",
         "cordova-plugin-headercolor": "^1.0.0",
         "cordova-plugin-inappbrowser": "^1.7.1",
+        "cordova-plugin-ionic-webview": "^1.1.16",
         "cordova-plugin-market": "git+https://github.com/xmartlabs/cordova-plugin-market.git",
         "cordova-plugin-nativeaudio": "^3.0.9",
         "cordova-plugin-splashscreen": "^4.0.3",
@@ -61,8 +62,7 @@
         "phonegap-plugin-barcodescanner": "^6.0.8",
         "rxjs": "5.4.0",
         "sw-toolbox": "3.6.0",
-        "zone.js": "0.8.18",
-        "cordova-plugin-ionic-webview": "^1.1.16"
+        "zone.js": "0.8.18"
     },
     "devDependencies": {
         "@ionic/app-scripts": "3.0.1",
