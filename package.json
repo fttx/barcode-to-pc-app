@@ -36,7 +36,7 @@
         "@ionic/storage": "2.0.1",
         "angular2-moment": "^1.0.0",
         "bluebird": "^3.4.7",
-        "cordova-android": "^6.2.3",
+        "cordova-android": "^6.3.0",
         "cordova-browser": "^4.1.0",
         "cordova-ios": "^4.5.2",
         "cordova-plugin-add-swift-support": "^1.7.0",
