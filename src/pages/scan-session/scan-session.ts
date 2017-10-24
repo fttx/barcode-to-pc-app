@@ -1,6 +1,6 @@
 import { Config } from './../../providers/config';
 import { Settings } from './../../providers/settings';
-import { Component } from '@angular/core';
+import { Component, NgZone } from '@angular/core';
 import { NavParams, ModalController } from 'ionic-angular';
 import { SocialSharing } from '@ionic-native/social-sharing';
 import { ScanSessionModel } from '../../models/scan-session.model'
@@ -51,6 +51,7 @@ export class ScanSessionPage {
     private socialSharing: SocialSharing,
     private cameraScannerProvider: CameraScannerProvider,
     private nativeAudio: NativeAudio,
+    private ngZone: NgZone,
   ) {
     this.scanSession = navParams.get('scanSession');
     this.isNewSession = navParams.get('isNewSession');
@@ -68,7 +69,7 @@ export class ScanSessionPage {
           let len = this.scanSession.scannings.length;
           for (let i = (len - 1); i >= 0; i--) {
             if (this.scanSession.scannings[i].id == response.scanId) {
-              this.scanSession.scannings[i].ack = true;
+              this.ngZone.run(() => this.scanSession.scannings[i].ack = true);
             }
           }
         }
@@ -365,13 +366,13 @@ export class ScanSessionPage {
   }
 
 
-  private skipAlreadySent = true;
+  private skipAlreadySent = false;
 
   onRepeatAllClicked() {
     this.googleAnalytics.trackEvent('scannings', 'repeatAll');
 
     let alert = this.alertCtrl.create({
-      title: 'Send barcodes again',
+      title: 'Send all barcodes again',
       inputs: [
         {
           type: 'checkbox',
@@ -452,6 +453,7 @@ export class ScanSessionPage {
     this.next = -1;
     this.isRepeating = false;
     this.scanSession.scannings.forEach(scan => scan.repeated = false);
+    this.skipAlreadySent = false;
   }
 
   getRepeatAllIcon() {
