@@ -65,10 +65,10 @@ export class ServerProvider {
     if (this.webSocket) {
       let code = reconnect ? ServerProvider.EVENT_CODE_CLOSE_NORMAL : ServerProvider.EVENT_CODE_DO_NOT_ATTEMP_RECCONECTION;
       this.webSocket.close(code);
-      this.webSocket.removeEventListener('onmessage');
-      this.webSocket.removeEventListener('onopen');
-      this.webSocket.removeEventListener('onerror');
-      this.webSocket.removeEventListener('onclose');
+      this.webSocket.onmessage = null;
+      this.webSocket.onopen = null; 
+      this.webSocket.onerror = null;
+      this.webSocket.onclose = null;
       this.webSocket = null;
       console.log('disconnected(reconnect=' + reconnect + ')');
     }
