@@ -29,6 +29,7 @@ export class CameraScannerProvider {
 
 
       this.settings.getPreferFrontCamera().then(preferFrontCamera => {
+        if ( preferFrontCamera == null || !preferFrontCamera) preferFrontCamera = false;
         this.barcodeScanner.scan({
           showFlipCameraButton: true, // iOS and Android
           prompt: "Place a barcode inside the scan area.\nPress the back button to exit.", // supported on Android only
