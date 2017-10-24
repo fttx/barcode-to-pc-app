@@ -354,6 +354,9 @@ export class ScanSessionPage {
   repeat(scan: ScanModel, setRepeated: boolean = true) {
     // let repeatedScan: ScanModel = Object.assign({}, scan);
     // repeatedScan.repeated = true;
+    if (this.skipAlreadySent && scan.ack) {
+      return;
+    }
     if (setRepeated) {
       scan.repeated = true;
     }
@@ -362,27 +365,60 @@ export class ScanSessionPage {
   }
 
 
+  private skipAlreadySent = true;
+
   onRepeatAllClicked() {
     this.googleAnalytics.trackEvent('scannings', 'repeatAll');
 
-    this.settings.getRepeatInterval().then(repeatInterval => {
-      this.repeatInterval = repeatInterval
-    })
+    let alert = this.alertCtrl.create({
+      title: 'Send barcodes again',
+      inputs: [
+        {
+          type: 'checkbox',
+          label: 'Skip the already sent ones',
+          value: 'skipAlreadySent',
+          checked: false
+        }
+      ],
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+          handler: data => { }
+        },
+        {
+          text: 'Send',
+          handler: data => {
+            this.skipAlreadySent = (data == 'skipAlreadySent')
 
-    let startFrom = -1;
-    if (startFrom == -1) {
-      startFrom = this.scanSession.scannings.length - 1;
-    }
 
-    if (this.isRepeating === true) {
-      this.isRepeating = 'paused';
-      if (this.repeatAllTimeout) clearTimeout(this.repeatAllTimeout)
-    } else if (this.isRepeating === 'paused') {
-      this.isRepeating = true;
-      this.repeatAll(this.next);
-    } else {
-      this.repeatAll(startFrom);
-    }
+            this.settings.getRepeatInterval().then(repeatInterval => {
+              if (!repeatInterval || repeatInterval == null) {
+                this.repeatInterval = repeatInterval;
+              }
+
+              let startFrom = -1;
+              if (startFrom == -1) {
+                startFrom = this.scanSession.scannings.length - 1;
+              }
+
+              if (this.isRepeating === true) {
+                this.isRepeating = 'paused';
+                if (this.repeatAllTimeout) clearTimeout(this.repeatAllTimeout)
+              } else if (this.isRepeating === 'paused') {
+                this.isRepeating = true;
+                this.repeatAll(this.next);
+              } else {
+                this.repeatAll(startFrom);
+              }
+            })
+
+
+          }
+        }
+      ]
+    });
+    alert.present();
   }
 
 
