@@ -20,7 +20,7 @@
     <preference name="xwalkMultipleApk" value="false" />
     <preference name="HeaderColor" value="#B71C1C" />
     <preference name="StatusBarBackgroundColor" value="#B71C1C" />
-    <preference name="StatusBarOverlaysWebView" value="false" />
+    <preference name="StatusBarOverlaysWebView" value="true" />
     <preference name="StatusBarStyle" value="lightcontent" />
     <preference name="SplashShowOnlyFirstTime" value="false" />
     <preference name="SplashScreen" value="screen" />
