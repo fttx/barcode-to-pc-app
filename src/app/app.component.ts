@@ -8,6 +8,7 @@ import { SelectServerPage } from './../pages/select-server/select-server';
 import { AboutPage } from '../pages/about/about';
 import { Settings } from '../providers/settings';
 import { SettingsPage } from '../pages/settings/settings';
+import { StatusBar } from '@ionic-native/status-bar';
 
 @Component({
   templateUrl: 'app.html',
@@ -20,6 +21,7 @@ export class MyApp {
   constructor(
     platform: Platform,
     splashScreen: SplashScreen,
+    statusBar: StatusBar,
     private settings: Settings,
     public menuCtrl: MenuController,
     public modalCtrl: ModalController,
@@ -40,6 +42,9 @@ export class MyApp {
         this.settings.setNoRunnings(++newRunnings);
 
         splashScreen.hide();
+        if (platform.is('ios')) {
+          statusBar.overlaysWebView(true);
+        }
       });
     });
   }

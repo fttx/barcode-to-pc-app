@@ -20,7 +20,7 @@
     <preference name="xwalkMultipleApk" value="false" />
     <preference name="HeaderColor" value="#B71C1C" />
     <preference name="StatusBarBackgroundColor" value="#B71C1C" />
-    <preference name="StatusBarOverlaysWebView" value="true" />
+    <preference name="StatusBarOverlaysWebView" value="false" />
     <preference name="StatusBarStyle" value="lightcontent" />
     <preference name="SplashShowOnlyFirstTime" value="false" />
     <preference name="SplashScreen" value="screen" />
@@ -104,7 +104,6 @@
     <plugin name="cordova-plugin-zeroconf" spec="^1.2.7" />
     <plugin name="ionic-plugin-keyboard" spec="^2.2.1" />
     <plugin name="cordova-plugin-ionic-webview" spec="^1.1.11" />
-    
     <plugin name="phonegap-plugin-barcodescanner" spec="^6.0.8">
         <variable name="CAMERA_USAGE_DESCRIPTION" value="To scan barcodes" />
     </plugin>
@@ -113,7 +112,6 @@
         <param name="ios-package" value="CDVWKWebViewEngine" />
     </feature>
     <preference name="CordovaWebViewEngine" value="CDVWKWebViewEngine" />
-
     <engine name="android" spec="~6.2.3" />
     <engine name="ios" spec="~4.4.0" />
 </widget>
