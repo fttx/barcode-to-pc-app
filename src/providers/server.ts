@@ -42,7 +42,7 @@ export class ServerProvider {
   }
 
 
-  onResponse(): Subject<responseModel> {
+  onResponse(): Subject<any> {
     return this.responseObserver;
   }
 

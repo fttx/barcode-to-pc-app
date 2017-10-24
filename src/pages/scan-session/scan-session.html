@@ -32,14 +32,23 @@
 
 <ion-content>
 	<ion-list>
-		<button ion-item *ngFor="let scan of scanSession.scannings; let i = index" (click)="onItemClicked(scan, i)" (press)="onItemPressed(scan, i)" [color]="scan.repeated ? 'light' : 'default'">
-			{{ scan.text }}
+		<button ion-item *ngFor="let scan of scanSession.scannings; let i = index"  (click)="onItemClicked(scan, i)" (press)="onItemPressed(scan, i)"  [color]="scan.repeated ? 'light' : 'default'">
+			<ion-grid no-padding>
+				<ion-row>
+					<ion-col align-self-start col-1>
+						<ion-icon [name]="scan.ack ? 'checkmark-circle' : 'alert'" [style.color]="scan.ack ? 'green' : 'red'"></ion-icon>
+					</ion-col>
+					<ion-col>
+						{{ scan.text }}
+					</ion-col>
+				</ion-row>
+			</ion-grid>
 		</button>
 	</ion-list>
 
 	<ion-fab bottom right>
 		<button ion-fab (click)="onAddClick()">
-			 <ion-icon name="camera"></ion-icon>
+			<ion-icon name="camera"></ion-icon>
 		</button>
 	</ion-fab>
 </ion-content>

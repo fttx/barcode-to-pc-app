@@ -16,6 +16,7 @@ import { EditScanSessionPage } from './edit-scan-session/edit-scan-session'
 import { SelectScanningModePage } from "./select-scanning-mode/select-scanning-mode";
 import { NativeAudio } from '@ionic-native/native-audio';
 import { requestModelDeleteScan, requestModelPutScan, requestModelDeleteScanSession, requestModelPutScanSession } from '../../models/request.model';
+import { responseModel, responseModelPutScanAck } from '../../models/response.model';
 /*
   Generated class for the Scan page.
 
@@ -57,8 +58,22 @@ export class ScanSessionPage {
 
   }
 
+  private responseSubscription = null;
   ionViewDidEnter() {
     this.googleAnalytics.trackView("ScanSessionPage");
+    this.responseSubscription = this.serverProvider.onResponse().subscribe(message => {
+      if (message.action == responseModel.ACTION_PUT_SCAN_ACK) {
+        let response: responseModelPutScanAck = message;
+        if (this.scanSession.id == response.scanSessionId) {
+          let len = this.scanSession.scannings.length;
+          for (let i = (len - 1); i >= 0; i--) {
+            if (this.scanSession.scannings[i].id == response.scanId) {
+              this.scanSession.scannings[i].ack = true;
+            }
+          }
+        }
+      }
+    });
   }
 
   ionViewDidLoad() {
@@ -78,6 +93,13 @@ export class ScanSessionPage {
 
   ionViewDidLeave() {
     this.nativeAudio.unload('beep');
+    if (this.responseSubscription != null && this.responseSubscription) {
+      this.responseSubscription.unsubscribe();
+    }
+  }
+
+  ionViewWillLeave() {
+    this.save();
   }
 
   scan() { // Called when the user want to scan (except for retake scan)
@@ -177,8 +199,28 @@ export class ScanSessionPage {
   }
 
   onItemClicked(scan: ScanModel, scanIndex: number) {
+    if (scan.ack == true) {
+      this.alertCtrl.create({
+        title: 'The server has already received this scan',
+        message: 'Do you want to send it again?',
+        buttons: [
+          {
+            text: 'Cancel',
+            role: 'cancel',
+            handler: () => { }
+          },
+          {
+            text: 'Send again',
+            handler: () => {
+              this.repeat(scan, false);
+            }
+          }
+        ]
+      }).present();
+    } else {
+      this.repeat(scan, false);
+    }
     this.googleAnalytics.trackEvent('scannings', 'repeat');
-    this.repeat(scan);
   }
 
   onItemPressed(scan: ScanModel, scanIndex: number) {
@@ -309,11 +351,12 @@ export class ScanSessionPage {
     this.navCtrl.pop();
   }
 
-  repeat(scan: ScanModel) {
+  repeat(scan: ScanModel, setRepeated: boolean = true) {
     // let repeatedScan: ScanModel = Object.assign({}, scan);
     // repeatedScan.repeated = true;
-
-    scan.repeated = true;
+    if (setRepeated) {
+      scan.repeated = true;
+    }
     this.sendPutScan(scan);
     this.nativeAudio.play('beep');
   }
