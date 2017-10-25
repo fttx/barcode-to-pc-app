@@ -43,7 +43,7 @@ export class ScanSessionsStorage {
     });
   }
 
-  setScanSession(scanSession: ScanSessionModel) {
+  pushScanSession(scanSession: ScanSessionModel) {
     return this.getScanSessions().then(sessions => {
       let existingSessionIndex = sessions.findIndex((x) => x.id == scanSession.id);
       if (existingSessionIndex == -1) {

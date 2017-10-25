@@ -321,7 +321,9 @@ export class ScanSessionPage {
   }
 
   save() {
-    this.scanSessionsStorage.setScanSession(this.scanSession);
+    if (this.scanSession && this.scanSession.scannings.length != 0) {
+      this.scanSessionsStorage.pushScanSession(this.scanSession);
+    }
   }
 
   sendPutScan(scan: ScanModel, sendKeystrokes = true) {
