@@ -63,18 +63,21 @@ export class ScanSessionPage {
   ionViewDidEnter() {
     this.googleAnalytics.trackView("ScanSessionPage");
     this.responseSubscription = this.serverProvider.onResponse().subscribe(message => {
-      if (message.action == responseModel.ACTION_PUT_SCAN_ACK) {
-        let response: responseModelPutScanAck = message;
-        if (this.scanSession.id == response.scanSessionId) {
-          let len = this.scanSession.scannings.length;
-          for (let i = (len - 1); i >= 0; i--) {
-            if (this.scanSession.scannings[i].id == response.scanId) {
-              this.ngZone.run(() => this.scanSession.scannings[i].ack = true);
+      this.ngZone.run(() => {
+        if (message.action == responseModel.ACTION_PUT_SCAN_ACK) {
+          let response: responseModelPutScanAck = message;
+          if (this.scanSession.id == response.scanSessionId) {
+            let len = this.scanSession.scannings.length;
+            for (let i = (len - 1); i >= 0; i--) {
+              if (this.scanSession.scannings[i].id == response.scanId) {
+                this.scanSession.scannings[i].ack = true;
+                this.scanSession.scannings[i].repeated = false;
+              }
             }
           }
         }
-      }
-    });
+      });
+    })
   }
 
   ionViewDidLoad() {
@@ -108,7 +111,7 @@ export class ScanSessionPage {
     selectScanningModeModal.onDidDismiss(mode => {
 
       // if the user doesn't choose the mode (clicks cancel) and didn't enter the scan-session page
-      if (!mode && this.isNewSession) {
+      if (!mode && this.isNewSession && this.scanSession.scannings.length == 0) {
         this.destroyScanSession();
         return;
       }
@@ -213,13 +216,13 @@ export class ScanSessionPage {
           {
             text: 'Send again',
             handler: () => {
-              this.repeat(scan, false);
+              this.repeat(scan);
             }
           }
         ]
       }).present();
     } else {
-      this.repeat(scan, false);
+      this.repeat(scan);
     }
     this.googleAnalytics.trackEvent('scannings', 'repeat');
   }
