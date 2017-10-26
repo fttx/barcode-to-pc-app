@@ -383,7 +383,7 @@ export class ScanSessionPage {
           type: 'checkbox',
           label: 'Skip the already sent ones',
           value: 'skipAlreadySent',
-          checked: false
+          checked: true
         }
       ],
       buttons: [
