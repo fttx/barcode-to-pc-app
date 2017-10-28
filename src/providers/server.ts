@@ -2,11 +2,11 @@ import { ServerModel } from './../models/server.model';
 import { Injectable, NgZone } from '@angular/core';
 import { Settings } from '../providers/settings'
 import { Config } from './config'
-import { ToastController, Platform } from 'ionic-angular';
+import { ToastController, Platform, AlertController } from 'ionic-angular';
 import { Zeroconf } from '@ionic-native/zeroconf';
 import { Subject, Observable } from "rxjs";
 import { discoveryResultModel } from "../models/discovery-result";
-import { responseModel } from '../models/response.model';
+import { responseModel, responseModelPopup } from '../models/response.model';
 import { requestModel, requestModelPing } from '../models/request.model';
 import { wsEvent } from '../models/ws-event.model';
 /*
@@ -37,6 +37,7 @@ export class ServerProvider {
     private NgZone: NgZone,
     private toastCtrl: ToastController,
     private zeroconf: Zeroconf,
+    private alertCtrl: AlertController,    
     public platform: Platform
   ) {
   }
@@ -66,7 +67,7 @@ export class ServerProvider {
       let code = reconnect ? ServerProvider.EVENT_CODE_CLOSE_NORMAL : ServerProvider.EVENT_CODE_DO_NOT_ATTEMP_RECCONECTION;
       this.webSocket.close(code);
       this.webSocket.onmessage = null;
-      this.webSocket.onopen = null; 
+      this.webSocket.onopen = null;
       this.webSocket.onerror = null;
       this.webSocket.onclose = null;
       this.webSocket = null;
@@ -86,16 +87,16 @@ export class ServerProvider {
       // If the connection is in one of these two transitioning states the new connection should be queued
       if (!this.serverQueue.find(x => x.equals(server))) {
         this.serverQueue.push(server);
-        console.log('WS: the server has been added to the connections list')        
+        console.log('WS: the server has been added to the connections list')
       } else {
-        console.log('WS: the server is already in the connections queue');        
+        console.log('WS: the server is already in the connections queue');
       }
-      
+
       setTimeout(() => {
         if (this.isTransitioningState()) {
           console.log('the server ' + server.address + ' is still in transitiong state after 5 secs of connect(), closing the connection...')
           this.disconnect();
-          this.webSocket= null;
+          this.webSocket = null;
         }
       }, 5000);
       return;
@@ -122,6 +123,13 @@ export class ServerProvider {
       if (messageData.action == responseModel.ACTION_PONG) {
         console.log('WS: pong received, stop waiting 5 secs')
         if (this.pongTimeout) clearTimeout(this.pongTimeout);
+      } else if (messageData.action == responseModel.ACTION_POPUP) {
+        let responseModelPopup: responseModelPopup = message.data;
+        this.alertCtrl.create({
+          title: responseModelPopup.title,
+          message: responseModelPopup.message,
+          buttons: ['Ok']
+        }).present();
       } else {
         this.responseObserver.next(messageData);
       }
