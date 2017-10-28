@@ -76,9 +76,9 @@ export class SelectServerPage {
       if (!this.lastConnectedServer || !this.lastConnectedServer.equals(this.selectedServer)) {
         console.log('SELSER: selected server: ', this.selectedServer, ' disconnecting from the old one...', this.lastConnectedServer);
         if (this.lastConnectedServer) {
-          this.serverProvider.disconnect();
+          this.serverProvider.wsDisconnect();
         }
-        this.connect(this.selectedServer);
+        this.connect(this.selectedServer, true);
       }
       // this.navCtrl.pop();
     }
@@ -228,14 +228,15 @@ export class SelectServerPage {
     }
   }
 
-  connect(server: ServerModel) {
+  connect(server: ServerModel, skipQueue: boolean = false) {
     // this.serverProvider.onResponse().subscribe((response: responseModel) => {
 
     // });
 
+    this.settings.setDefaultServer(server);
+    
     this.serverProvider.onWsEvent().subscribe((event: wsEvent) => {
       if (event.name == wsEvent.EVENT_OPEN) {
-        this.settings.setDefaultServer(server);
         this.addServer(server, true, false);
         this.lastConnectedServer = server;
       } else {
@@ -243,7 +244,7 @@ export class SelectServerPage {
       }
     });
 
-    this.serverProvider.connect(server);
+    this.serverProvider.connect(server, skipQueue);
   }
 
   setSelectedServer(server: ServerModel) {

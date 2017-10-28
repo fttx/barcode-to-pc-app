@@ -32,14 +32,29 @@ export class ServerProvider {
   private heartBeatInterval = null;
   private pongTimeout = null;
 
+  private paused = false;
+  private lastToastMessage: string;
+
   constructor(
     private settings: Settings,
     private NgZone: NgZone,
     private toastCtrl: ToastController,
     private zeroconf: Zeroconf,
-    private alertCtrl: AlertController,    
+    private alertCtrl: AlertController,
     public platform: Platform
   ) {
+    platform.pause.subscribe(() => {
+      this.paused = true;
+      console.log('paused')
+    });
+
+    platform.resume.subscribe(() => {
+      this.paused = false;
+      if (this.lastToastMessage && this.lastToastMessage.length) {
+        this.toast(this.lastToastMessage);
+      }
+      console.log('resumed')
+    });
   }
 
 
@@ -51,10 +66,10 @@ export class ServerProvider {
     return this.wsEventObserver;
   }
 
-  connect(server: ServerModel) {
+  connect(server: ServerModel, skipQueue: boolean = false) {
     if (!this.webSocket || this.webSocket.readyState != WebSocket.OPEN) {
       console.log('not connected, creating a new WS connection...');
-      this.wsConnect(server);
+      this.wsConnect(server, skipQueue);
     } else if (this.webSocket.readyState == WebSocket.OPEN) {
       console.log('already connected to a server, no action taken');
       this.wsEventObserver.next({ name: 'open' });
@@ -62,7 +77,7 @@ export class ServerProvider {
     console.log('queue: ', this.serverQueue);
   }
 
-  disconnect(reconnect = false) {
+  wsDisconnect(reconnect = false) {
     if (this.webSocket) {
       let code = reconnect ? ServerProvider.EVENT_CODE_CLOSE_NORMAL : ServerProvider.EVENT_CODE_DO_NOT_ATTEMP_RECCONECTION;
       this.webSocket.close(code);
@@ -79,14 +94,20 @@ export class ServerProvider {
     return this.webSocket && (this.webSocket.readyState == WebSocket.CLOSING || this.webSocket.readyState == WebSocket.CONNECTING);
   }
 
-  private wsConnect(server: ServerModel) {
+  private wsConnect(server: ServerModel, skipQueue: boolean = false) {
     console.log('wsConnect(' + server.address + ')', new Date())
 
     if (this.isTransitioningState()) {
       console.log('WS: the connection is in a transitioning state');
       // If the connection is in one of these two transitioning states the new connection should be queued
       if (!this.serverQueue.find(x => x.equals(server))) {
-        this.serverQueue.push(server);
+        if (skipQueue) {
+          console.log('WS: skipQueue is true, skipping the queue and disconnecting from the old one')
+          this.serverQueue.unshift(server);
+          this.wsDisconnect();
+        } else {
+          this.serverQueue.push(server);
+        }
         console.log('WS: the server has been added to the connections list')
       } else {
         console.log('WS: the server is already in the connections queue');
@@ -95,7 +116,7 @@ export class ServerProvider {
       setTimeout(() => {
         if (this.isTransitioningState()) {
           console.log('the server ' + server.address + ' is still in transitiong state after 5 secs of connect(), closing the connection...')
-          this.disconnect();
+          this.wsDisconnect();
           this.webSocket = null;
         }
       }, 5000);
@@ -108,7 +129,7 @@ export class ServerProvider {
       return;
     }
 
-    this.disconnect();
+    this.wsDisconnect();
 
     let wsUrl = 'ws://' + server.address + ':' + Config.SERVER_PORT + '/';
     this.webSocket = new WebSocket(wsUrl);
@@ -151,7 +172,7 @@ export class ServerProvider {
 
       this.settings.saveServer(server);
       this.wsEventObserver.next({ name: 'open' });
-      this.toastCtrl.create({ message: 'Connection established with ' + server.name, duration: 3000 }).present();
+      this.toast('Connection established with ' + server.name)
 
       console.log('WS: new heartbeat started');
       if (this.heartBeatInterval) clearInterval(this.heartBeatInterval);
@@ -163,7 +184,7 @@ export class ServerProvider {
         if (this.pongTimeout) clearTimeout(this.pongTimeout);
         this.pongTimeout = setTimeout(() => { // do 5 secondi per rispondere
           console.log('WS pong not received, closing connection...')
-          this.disconnect(false);
+          this.wsDisconnect(false);
           this.scheduleNewWsConnection(server); // se il timeout non è stato fermato prima da una risposta, allora schedulo una nuova connessione
         }, 1000 * 5);
       }, 1000 * 60); // ogni 60 secondi invio ping
@@ -173,7 +194,7 @@ export class ServerProvider {
       console.log('onerror')
 
       if (!this.reconnecting) {
-        this.toastCtrl.create({ message: 'Connection problem', duration: 3000 }).present();
+        this.toast('Connection problem');
       }
 
       this.wsEventObserver.next({ name: 'error' });
@@ -184,7 +205,7 @@ export class ServerProvider {
       console.log('onclose')
 
       if (this.everConnected && !this.reconnecting) {
-        this.toastCtrl.create({ message: 'Connection closed', duration: 3000 }).present();
+        this.toast('Connection closed');
       }
       if (ev.code != ServerProvider.EVENT_CODE_DO_NOT_ATTEMP_RECCONECTION) {
         this.scheduleNewWsConnection(server);
@@ -219,7 +240,7 @@ export class ServerProvider {
         console.log(request, JSON.stringify(request));
         this.webSocket.send(JSON.stringify(request));
       } else {
-        this.toastCtrl.create({ message: 'Connection problem', duration: 3000 }).present();
+        this.toast('Connection problem');
       }
     } else {
       // console.log("offline mode, cannot send!")
@@ -265,4 +286,11 @@ export class ServerProvider {
   //   }
   //   return true;
   // }
+
+  private toast(message: string) {
+    if (!this.paused) {
+      this.lastToastMessage =  message;
+      this.toastCtrl.create({ message: message, duration: 3000 }).present();
+    }
+  }
 }
