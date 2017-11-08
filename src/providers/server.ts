@@ -315,6 +315,7 @@ export class ServerProvider {
     if (!this.paused) {
       this.lastToastMessage = message;
       this.toastCtrl.create({ message: message, duration: 3000 }).present();
+      this.lastToastMessage = null;
     }
   }
 }
