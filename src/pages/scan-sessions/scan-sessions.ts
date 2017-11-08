@@ -13,7 +13,7 @@ import { Market } from '@ionic-native/market';
 import * as Promise from 'bluebird'
 import { responseModel, responseModelHelo, responseModelRequestSync } from '../../models/response.model';
 import { wsEvent } from '../../models/ws-event.model';
-import { requestModelHelo, requestModelPutScanSessions, requestModelDeleteScanSession } from '../../models/request.model';
+import { requestModelHelo, requestModelDeleteScanSession } from '../../models/request.model';
 
 @Component({
   selector: 'page-scannings',
@@ -43,7 +43,7 @@ export class ScanSessionsPage {
     });
 
     this.responseSubscription = this.serverProvider.onResponse().subscribe(response => {
-    
+
     });
 
     if (this.connected == false) {
@@ -66,6 +66,8 @@ export class ScanSessionsPage {
           this.onDisconnect();
         } else if (event.name == wsEvent.EVENT_ERROR) {
           this.onDisconnect();
+        } else if (event.name == wsEvent.EVENT_ALREADY_OPEN) {
+          this.connected = true;
         }
       });
     }
@@ -121,6 +123,7 @@ export class ScanSessionsPage {
   }
 
   onDisconnect() {
+    console.log('onDisconnect()')
     this.connected = false;
   }
 

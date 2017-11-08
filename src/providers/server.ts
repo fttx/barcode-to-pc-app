@@ -47,7 +47,7 @@ export class ServerProvider {
     private alertCtrl: AlertController,
     public platform: Platform,
     public device: Device,
-    private scanSessionsStorage: ScanSessionsStorage,    
+    private scanSessionsStorage: ScanSessionsStorage,
   ) {
     platform.pause.subscribe(() => {
       this.paused = true;
@@ -78,13 +78,17 @@ export class ServerProvider {
       this.wsConnect(server, skipQueue);
     } else if (this.webSocket.readyState == WebSocket.OPEN) {
       console.log('already connected to a server, no action taken');
-      this.wsEventObserver.next({ name: 'open' });
+      this.wsEventObserver.next({ name: 'alreadyOpen' });
     }
     console.log('queue: ', this.serverQueue);
   }
 
   wsDisconnect(reconnect = false) {
     if (this.webSocket) {
+      if (this.everConnected && !this.reconnecting) {
+        this.toast('Connection lost');
+        this.wsEventObserver.next({ name: 'error' });
+      }
       let code = reconnect ? ServerProvider.EVENT_CODE_CLOSE_NORMAL : ServerProvider.EVENT_CODE_DO_NOT_ATTEMP_RECCONECTION;
       this.webSocket.close(code);
       this.webSocket.onmessage = null;
@@ -143,7 +147,7 @@ export class ServerProvider {
 
     this.webSocket.onmessage = message => {
       console.log('this.webSocket.onmessage()', message)
-      
+
       let messageData: responseModel = null;
       if (message.data) {
         messageData = JSON.parse(message.data);
@@ -309,7 +313,7 @@ export class ServerProvider {
 
   private toast(message: string) {
     if (!this.paused) {
-      this.lastToastMessage =  message;
+      this.lastToastMessage = message;
       this.toastCtrl.create({ message: message, duration: 3000 }).present();
     }
   }
