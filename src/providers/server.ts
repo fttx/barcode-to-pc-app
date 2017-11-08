@@ -7,8 +7,12 @@ import { Zeroconf } from '@ionic-native/zeroconf';
 import { Subject, Observable } from "rxjs";
 import { discoveryResultModel } from "../models/discovery-result";
 import { responseModel, responseModelPopup } from '../models/response.model';
-import { requestModel, requestModelPing } from '../models/request.model';
+import { requestModel, requestModelPing, requestModelPutScanSessions } from '../models/request.model';
 import { wsEvent } from '../models/ws-event.model';
+import { ScanSessionsStorage } from './scan-sessions-storage';
+import * as Promise from 'bluebird'
+import { Device } from '@ionic-native/device';
+
 /*
   Generated class for the Server provider.
 
@@ -41,7 +45,9 @@ export class ServerProvider {
     private toastCtrl: ToastController,
     private zeroconf: Zeroconf,
     private alertCtrl: AlertController,
-    public platform: Platform
+    public platform: Platform,
+    public device: Device,
+    private scanSessionsStorage: ScanSessionsStorage,    
   ) {
     platform.pause.subscribe(() => {
       this.paused = true;
@@ -136,9 +142,23 @@ export class ServerProvider {
     console.log('WS: A new WebSocket has been created')
 
     this.webSocket.onmessage = message => {
+      console.log('this.webSocket.onmessage()', message)
+      
       let messageData: responseModel = null;
       if (message.data) {
         messageData = JSON.parse(message.data);
+      }
+
+      if (messageData.action == responseModel.ACTION_REQUEST_SYNC) {
+        Promise.join(this.scanSessionsStorage.getLastScanDate(), this.scanSessionsStorage.getScanSessions(), (lastScanDate, scanSessions) => {
+          let wsRequest = new requestModelPutScanSessions().fromObject({
+            scanSessions: scanSessions,
+            sendKeystrokes: false,
+            lastScanDate: lastScanDate,
+            deviceId: this.device.uuid,
+          });
+          this.send(wsRequest);
+        })
       }
 
       if (messageData.action == responseModel.ACTION_PONG) {

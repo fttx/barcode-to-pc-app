@@ -11,9 +11,9 @@ import { ScanSessionsStorage } from '../../providers/scan-sessions-storage'
 import { Device } from '@ionic-native/device';
 import { Market } from '@ionic-native/market';
 import * as Promise from 'bluebird'
-import { responseModel, responseModelHelo } from '../../models/response.model';
+import { responseModel, responseModelHelo, responseModelRequestSync } from '../../models/response.model';
 import { wsEvent } from '../../models/ws-event.model';
-import { requestModelHelo, requestModelSetScanSessions, requestModelDeleteScanSession } from '../../models/request.model';
+import { requestModelHelo, requestModelPutScanSessions, requestModelDeleteScanSession } from '../../models/request.model';
 
 @Component({
   selector: 'page-scannings',
@@ -22,6 +22,7 @@ import { requestModelHelo, requestModelSetScanSessions, requestModelDeleteScanSe
 export class ScanSessionsPage {
   public connected = false;
   public scanSessions: ScanSessionModel[] = [];
+  private responseSubscription = null;
 
   constructor(
     public navCtrl: NavController,
@@ -41,10 +42,13 @@ export class ScanSessionsPage {
       this.scanSessions = data;
     });
 
+    this.responseSubscription = this.serverProvider.onResponse().subscribe(response => {
+    
+    });
+
     if (this.connected == false) {
       this.settings.getDefaultServer().then(server => {
         this.serverProvider.onResponse().subscribe((response: any) => {
-          console.log('onMessage()', response)
           if (response.action == responseModel.ACTION_HELO) {
             let heloResponse: responseModelHelo = response;
             if (heloResponse.version != Config.REQUIRED_SERVER_VERSION) {
@@ -67,14 +71,21 @@ export class ScanSessionsPage {
     }
   }
 
+  ionViewDidLeave() {
+    if (this.responseSubscription != null && this.responseSubscription) {
+      this.responseSubscription.unsubscribe();
+    }
+  }
+
   onConnect() {
     this.connected = true;
-    this.sendPutScanSessions();
 
-    Promise.join(this.settings.getNoRunnings(), this.settings.getRated(), this.settings.getDeviceName(), (runnings, rated, deviceName) => {
+    Promise.join(this.settings.getNoRunnings(), this.settings.getRated(), this.settings.getDeviceName(), this.scanSessionsStorage.getLastScanDate(), (runnings, rated, deviceName, lastScanDate) => {
       console.log('promise join: getNoRunnings getRated getDeviceName ')
       let request = new requestModelHelo().fromObject({
         deviceName: deviceName,
+        deviceId: this.device.uuid,
+        lastScanDate: lastScanDate,
       });
       this.serverProvider.send(request);
 
@@ -162,14 +173,6 @@ export class ScanSessionsPage {
     this.navCtrl.push(ScanSessionPage, { scanSession: newScanSession, isNewSession: true });
   }
 
-  sendPutScanSessions() {
-    let wsRequest = new requestModelSetScanSessions().fromObject({
-      scanSessions: this.scanSessions,
-      sendKeystrokes: false
-    });
-    this.serverProvider.send(wsRequest);
-  }
-
   sendDeleteScanSessions(scanSession: ScanSessionModel) {
     let wsRequest = new requestModelDeleteScanSession().fromObject({
       scanSessionId: scanSession.id
@@ -178,6 +181,6 @@ export class ScanSessionsPage {
   }
 
   save() {
-    this.scanSessionsStorage.setScanSessions(this.scanSessions);
+    this.scanSessionsStorage.putScanSessions(this.scanSessions);
   }
 }

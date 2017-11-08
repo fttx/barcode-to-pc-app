@@ -23,7 +23,7 @@
         "@ionic-native/app-version": "^3.6.1",
         "@ionic-native/barcode-scanner": "^3.6.1",
         "@ionic-native/core": "3.12.1",
-        "@ionic-native/device": "^3.6.1",
+        "@ionic-native/device": "^3.14.0",
         "@ionic-native/google-analytics": "^3.6.1",
         "@ionic-native/header-color": "^4.1.0",
         "@ionic-native/in-app-browser": "^3.6.1",

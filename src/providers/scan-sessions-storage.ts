@@ -11,12 +11,13 @@ import { ScanSessionModel } from '../models/scan-session.model'
 @Injectable()
 export class ScanSessionsStorage {
   private static SCAN_SESSIONS = "scan_sessions";
+  private static LAST_SCAN_DATE = 'last_modified';
 
   constructor(
     public storage: Storage,
   ) { }
 
-  setScanSessions(scanSessions: ScanSessionModel[]) {
+  putScanSessions(scanSessions: ScanSessionModel[]) {
     return this.storage.set(ScanSessionsStorage.SCAN_SESSIONS, JSON.stringify(scanSessions));
   }
 
@@ -51,7 +52,23 @@ export class ScanSessionsStorage {
       } else {
         sessions[existingSessionIndex] = scanSession;
       }
-      this.setScanSessions(sessions);
+      this.putScanSessions(sessions);
     })
+  }
+
+  setLastScanDate(date: number) {
+    this.storage.set(ScanSessionsStorage.LAST_SCAN_DATE, date);
+  }
+
+  getLastScanDate(): Promise<number> {
+    return new Promise((resolve, reject) => {
+      this.storage.get(ScanSessionsStorage.LAST_SCAN_DATE).then(lastScanDate => {
+        if (lastScanDate) {
+          resolve(lastScanDate);
+        } else {
+          resolve(0);
+        }
+      }).catch(err => reject(err)); 
+    });
   }
 }

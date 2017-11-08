@@ -4,6 +4,8 @@ import { Component } from '@angular/core';
 import { NavController, ViewController } from 'ionic-angular';
 import { ServerProvider } from "../../providers/server";
 import { requestModelHelo } from '../../models/request.model';
+import { Device } from '@ionic-native/device';
+import { ScanSessionsStorage } from '../../providers/scan-sessions-storage';
 /*
   Generated class for the Settings page.
 
@@ -24,11 +26,15 @@ export class SettingsPage {
   public preferFrontCamera = false;
   private changesSaved = false;
 
+  private lastScanDate = 0;
+
   constructor(
     public viewCtrl: ViewController,
     public navCtrl: NavController,
     public settings: Settings,
     private serverProvider: ServerProvider,
+    private device: Device,
+    private scanSessionsStorage: ScanSessionsStorage,
   ) {
     for (let i = 0; i <= 15000; i += 250) {
       this.availableRepeatIntervals.push(i);
@@ -60,7 +66,11 @@ export class SettingsPage {
 
     this.settings.getPreferFrontCamera().then(preferFrontCamera => {
       this.preferFrontCamera = preferFrontCamera;
-    })
+    });
+
+    this.scanSessionsStorage.getLastScanDate().then(lastScanDate => {
+      this.lastScanDate = lastScanDate;
+    });
   }
 
   ionViewWillLeave() {
@@ -82,7 +92,11 @@ export class SettingsPage {
     this.settings.setDeviceName(this.deviceName);
     this.settings.setPreferFrontCamera(this.preferFrontCamera);
 
-    this.serverProvider.send(new requestModelHelo().fromObject({ deviceName: this.deviceName }));
+    this.serverProvider.send(new requestModelHelo().fromObject({ 
+      deviceName: this.deviceName,
+      lastScanDate: this.lastScanDate,
+      deviceId: this.device.uuid
+     }));
 
     // let toast = this.toastCtrl.create({
     //   message: 'Settings saved',

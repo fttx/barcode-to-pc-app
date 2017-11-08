@@ -17,6 +17,7 @@ import { SelectScanningModePage } from "./select-scanning-mode/select-scanning-m
 import { NativeAudio } from '@ionic-native/native-audio';
 import { requestModelDeleteScan, requestModelPutScan, requestModelDeleteScanSession, requestModelPutScanSession } from '../../models/request.model';
 import { responseModel, responseModelPutScanAck } from '../../models/response.model';
+import { Device } from '@ionic-native/device';
 /*
   Generated class for the Scan page.
 
@@ -31,6 +32,8 @@ export class ScanSessionPage {
   public scanSession: ScanSessionModel;
   private isNewSession = false;
   private isSynced = false;
+  private lastScanDate: number;
+  private newScanDate: number;
 
   public repeatInterval;
   public repeatAllTimeout = null;
@@ -52,6 +55,7 @@ export class ScanSessionPage {
     private cameraScannerProvider: CameraScannerProvider,
     private nativeAudio: NativeAudio,
     private ngZone: NgZone,
+    private device: Device,
   ) {
     this.scanSession = navParams.get('scanSession');
     this.isNewSession = navParams.get('isNewSession');
@@ -78,6 +82,8 @@ export class ScanSessionPage {
         }
       });
     })
+
+    this.scanSessionsStorage.getLastScanDate().then(lastScanDate => this.lastScanDate = lastScanDate);
   }
 
   ionViewDidLoad() {
@@ -136,7 +142,13 @@ export class ScanSessionPage {
     this.googleAnalytics.trackEvent('scannings', 'scan');
     this.scanSession.scannings.unshift(scan);
     this.save();
+    // console.log('onScan -> newScanDate = now()')
+    this.newScanDate = new Date().getTime();    
+    // console.log('onScan -> sendPutScan')    
     this.sendPutScan(scan);
+    // console.log('onScan -> setLastScanDate = newScanDate')        
+    this.lastScanDate = this.newScanDate;
+    this.scanSessionsStorage.setLastScanDate(this.lastScanDate);
   }
 
   continueScan() {
@@ -333,7 +345,10 @@ export class ScanSessionPage {
     let wsRequest = new requestModelPutScan().fromObject({
       scan: scan,
       scanSessionId: this.scanSession.id,
-      sendKeystrokes: sendKeystrokes
+      sendKeystrokes: sendKeystrokes,
+      lastScanDate: this.lastScanDate,
+      newScanDate: this.newScanDate,
+      deviceId: this.device.uuid,
     });
 
     this.serverProvider.send(wsRequest);
