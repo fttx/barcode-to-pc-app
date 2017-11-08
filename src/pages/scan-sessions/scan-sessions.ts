@@ -11,7 +11,7 @@ import { ScanSessionsStorage } from '../../providers/scan-sessions-storage'
 import { Device } from '@ionic-native/device';
 import { Market } from '@ionic-native/market';
 import * as Promise from 'bluebird'
-import { responseModel, responseModelHelo, responseModelRequestSync } from '../../models/response.model';
+import { responseModel, responseModelHelo } from '../../models/response.model';
 import { wsEvent } from '../../models/ws-event.model';
 import { requestModelHelo, requestModelDeleteScanSession } from '../../models/request.model';
 
@@ -23,6 +23,7 @@ export class ScanSessionsPage {
   public connected = false;
   public scanSessions: ScanSessionModel[] = [];
   private responseSubscription = null;
+  private wsEventSubscription = null;
 
   constructor(
     public navCtrl: NavController,
@@ -42,41 +43,51 @@ export class ScanSessionsPage {
       this.scanSessions = data;
     });
 
-    this.responseSubscription = this.serverProvider.onResponse().subscribe(response => {
+  }
 
-    });
-
+  ionViewDidLoad() {
     if (this.connected == false) {
       this.settings.getDefaultServer().then(server => {
-        this.serverProvider.onResponse().subscribe((response: any) => {
-          if (response.action == responseModel.ACTION_HELO) {
-            let heloResponse: responseModelHelo = response;
-            if (heloResponse.version != Config.REQUIRED_SERVER_VERSION) {
-              this.onVersionMismatch();
+
+        if (!this.wsEventSubscription) {
+          this.wsEventSubscription = this.serverProvider.onWsEvent().subscribe((event: wsEvent) => {
+            if (event.name == wsEvent.EVENT_OPEN) {
+              this.onConnect();
+            } else if (event.name == wsEvent.EVENT_CLOSE) {
+              this.onDisconnect();
+            } else if (event.name == wsEvent.EVENT_ERROR) {
+              this.onDisconnect();
+            } else if (event.name == wsEvent.EVENT_ALREADY_OPEN) {
+              this.connected = true;
             }
-          }
-        });
+          });
+        }
+
+
+        if (!this.responseSubscription) {
+          this.responseSubscription = this.serverProvider.onResponse().subscribe((response: any) => {
+            if (response.action == responseModel.ACTION_HELO) {
+              let heloResponse: responseModelHelo = response;
+              if (heloResponse.version != Config.REQUIRED_SERVER_VERSION) {
+                this.onVersionMismatch();
+              }
+            }
+          });
+        }
+
         this.serverProvider.connect(server);
       }, err => { })
-
-      this.serverProvider.onWsEvent().subscribe((event: wsEvent) => {
-        if (event.name == wsEvent.EVENT_OPEN) {
-          this.onConnect();
-        } else if (event.name == wsEvent.EVENT_CLOSE) {
-          this.onDisconnect();
-        } else if (event.name == wsEvent.EVENT_ERROR) {
-          this.onDisconnect();
-        } else if (event.name == wsEvent.EVENT_ALREADY_OPEN) {
-          this.connected = true;
-        }
-      });
     }
   }
 
   ionViewDidLeave() {
-    if (this.responseSubscription != null && this.responseSubscription) {
-      this.responseSubscription.unsubscribe();
-    }
+    // if (this.responseSubscription != null && this.responseSubscription) {
+    //   this.responseSubscription.unsubscribe();
+    // }
+
+    // if (this.wsEventSubscription != null && this.wsEventSubscription) {
+    //   this.wsEventSubscription.unsubscribe();
+    // }
   }
 
   onConnect() {
