@@ -43,20 +43,21 @@ export class ScanSessionsPage {
       this.scanSessions = data;
     });
 
-  }
-
-  ionViewDidLoad() {
-    if (this.connected == false) {
+    console.log('ionViewDidEnter');
+    
+    // if (this.connected == false) {
       this.settings.getDefaultServer().then(server => {
+        // console.log('SERVER: ', server)
 
         if (!this.wsEventSubscription) {
           this.wsEventSubscription = this.serverProvider.onWsEvent().subscribe((event: wsEvent) => {
+            console.log('[S-SESSIONS]: ' + event.name)
             if (event.name == wsEvent.EVENT_OPEN) {
               this.onConnect();
             } else if (event.name == wsEvent.EVENT_CLOSE) {
-              this.onDisconnect();
+              this.connected = false;
             } else if (event.name == wsEvent.EVENT_ERROR) {
-              this.onDisconnect();
+              this.connected = false;
             } else if (event.name == wsEvent.EVENT_ALREADY_OPEN) {
               this.connected = true;
             }
@@ -75,19 +76,26 @@ export class ScanSessionsPage {
           });
         }
 
+        console.log('[S-SESSIONS]: connect()')
         this.serverProvider.connect(server);
       }, err => { })
-    }
+    // }
+  }
+
+  ionViewDidLoad() {
+
   }
 
   ionViewDidLeave() {
-    // if (this.responseSubscription != null && this.responseSubscription) {
-    //   this.responseSubscription.unsubscribe();
-    // }
+    if (this.responseSubscription) {
+      this.responseSubscription.unsubscribe();
+      this.responseSubscription = null;
+    }
 
-    // if (this.wsEventSubscription != null && this.wsEventSubscription) {
-    //   this.wsEventSubscription.unsubscribe();
-    // }
+    if (this.wsEventSubscription) {
+      this.wsEventSubscription.unsubscribe();
+      this.wsEventSubscription = null;
+    }
   }
 
   onConnect() {
@@ -132,12 +140,6 @@ export class ScanSessionsPage {
       }
     });
   }
-
-  onDisconnect() {
-    console.log('onDisconnect()')
-    this.connected = false;
-  }
-
 
   onVersionMismatch() {
     this.alertCtrl.create({

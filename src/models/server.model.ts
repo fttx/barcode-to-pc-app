@@ -4,7 +4,7 @@ import { Config } from "../providers/config";
 export class ServerModel {
     address: string;
     name: string;
-    online: boolean;
+    online: 'online' | 'offline' | 'connected' = 'offline';
 
     constructor(address: string, name: string) {
         this.address = address;

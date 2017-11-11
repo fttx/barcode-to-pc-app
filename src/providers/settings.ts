@@ -29,13 +29,18 @@ export class Settings {
   ) { }
 
   setDefaultServer(server: ServerModel) {
+    if (!server) {
+      this.storage.remove(Settings.DEFAULT_SERVER);
+    }
     return this.storage.set(Settings.DEFAULT_SERVER, JSON.stringify(server));
   }
 
   getDefaultServer(): Promise<any> {
     return new Promise((resolve, reject) => {
       this.storage.get(Settings.DEFAULT_SERVER).then((data) => {
-        if (data != null) {
+        console.log('getDefaultServer()', data)
+        if (data && data != '' && data != 'null') {
+          console.log('resolve')
           data = JSON.parse(data);
           let server = new ServerModel(data.address, data.name);
           resolve(server);

@@ -1,4 +1,5 @@
 export class wsEvent {
+    ws: WebSocket;
     name: ('open' | 'close' | 'error' | 'alreadyOpen')
     public static readonly EVENT_OPEN = 'open'
     public static readonly EVENT_ALREADY_OPEN = 'alreadyOpen'

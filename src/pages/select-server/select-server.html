@@ -28,20 +28,21 @@
 
 
 <ion-content>
-	<ion-list radio-group  [(ngModel)]="selectedServer"  (ionChange)="onSelectServerChanged()">
+	<ion-list radio-group  [(ngModel)]="selectedServer" >
 		<ion-item *ngIf="!servers">
 			Empty
 		</ion-item>
 		<ion-item-sliding *ngFor="let server of servers">
 			<ion-item>
 				<ion-avatar class="status-icon" item-left>
-					<ion-icon [name]="server.online ? 'ios-wifi' : 'ios-wifi-outline'" [style.color]="server.online ? 'red': 'rgba(0,0,0,.4)'"></ion-icon>
+					<ion-icon [name]="server.online != 'offline' ? 'ios-wifi' : 'ios-wifi-outline'" [style.color]="server.online != 'connected' ? 'rgba(0,0,0,.4)' : 'red'"></ion-icon>
 				</ion-avatar>
 				<ion-label>
 					<h2>{{ server.name }}</h2>
 					<p>{{ server.address }}</p>
+					<!-- <p>online: {{ server.online  }} </p> -->
 				</ion-label>
-				<ion-radio [value]="server"></ion-radio>
+				<ion-radio [value]="server" (ionSelect)="onSelectServerChanged()"></ion-radio>
 			</ion-item>
 
 			<ion-item-options side="right">
@@ -53,5 +54,10 @@
 
 		</ion-item-sliding>
 	</ion-list>
+	<br>
+	<!-- Servers: {{ servers | json }}<br><br>
+	Reconnecting: {{ serverProvider.reconnecting }} -->
+
+	
 	<ion-spinner class="main-spinner" color="primary" [hidden]="servers.length != 0"></ion-spinner>
 </ion-content>
