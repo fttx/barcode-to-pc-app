@@ -11,7 +11,6 @@ import { responseModel } from '../../models/response.model';
 import { wsEvent } from '../../models/ws-event.model';
 import { Promise } from 'bluebird';
 import { ScanSessionsStorage } from '../../providers/scan-sessions-storage';
-import { requestModelHelo } from '../../models/request.model';
 import { Device } from '@ionic-native/device';
 
 /*
@@ -269,17 +268,6 @@ export class SelectServerPage {
           // this.addServer(server, true, false);
           // this.lastConnectedServer = server;
           this.setOnline(server, 'connected');
-          if (event.name == wsEvent.EVENT_OPEN) {
-            Promise.join(this.settings.getRated(), this.settings.getDeviceName(), this.scanSessionsStorage.getLastScanDate(), (rated, deviceName, lastScanDate) => {
-              console.log('promise join: getNoRunnings getRated getDeviceName ')
-              let request = new requestModelHelo().fromObject({
-                deviceName: deviceName,
-                deviceId: this.device.uuid,
-                lastScanDate: lastScanDate,
-              });
-              this.serverProvider.send(request);
-            });
-          }
         } else {
           // console.log('[SEL-SER]connect()->event: ' + event.name + ' setting ' + server.address + ' online= false')
           this.setOnline(server, 'offline')

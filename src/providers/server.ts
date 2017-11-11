@@ -7,7 +7,7 @@ import { Zeroconf } from '@ionic-native/zeroconf';
 import { Subject, Observable } from "rxjs";
 import { discoveryResultModel } from "../models/discovery-result";
 import { responseModel, responseModelPopup } from '../models/response.model';
-import { requestModel, requestModelPing, requestModelPutScanSessions } from '../models/request.model';
+import { requestModel, requestModelPing, requestModelPutScanSessions, requestModelHelo } from '../models/request.model';
 import { wsEvent } from '../models/ws-event.model';
 import { ScanSessionsStorage } from './scan-sessions-storage';
 import * as Promise from 'bluebird'
@@ -78,7 +78,7 @@ export class ServerProvider {
       this.wsConnect(server, skipQueue);
     } else if (this.webSocket.readyState == WebSocket.OPEN) {
       console.log('[S]: already connected to a server, no action taken');
-      this.serverQueue = []; 
+      this.serverQueue = [];
       this.wsEventObserver.next({ name: 'alreadyOpen', ws: this.webSocket });
     }
     //console.log('[S]: queue: ', this.serverQueue);
@@ -90,7 +90,7 @@ export class ServerProvider {
 
   private wsDisconnect(reconnect = false) {
     console.log('[S]: wsDisconnect(reconnect=' + reconnect + ')', this.webSocket);
-    
+
     if (this.webSocket) {
       if (this.everConnected && !this.reconnecting) {
         this.toast('Connection lost');
@@ -137,7 +137,7 @@ export class ServerProvider {
       }, 5000);
       return;
     }
-    
+
     this.wsDisconnect();
 
     let wsUrl = 'ws://' + server.address + ':' + Config.SERVER_PORT + '/';
@@ -211,6 +211,17 @@ export class ServerProvider {
           this.scheduleNewWsConnection(server); // se il timeout non è stato fermato prima da una risposta, allora schedulo una nuova connessione
         }, 1000 * 5);
       }, 1000 * 60); // ogni 60 secondi invio ping
+
+
+      Promise.join(this.settings.getRated(), this.settings.getDeviceName(), this.scanSessionsStorage.getLastScanDate(), (rated, deviceName, lastScanDate) => {
+        console.log('promise join: getNoRunnings getRated getDeviceName ')
+        let request = new requestModelHelo().fromObject({
+          deviceName: deviceName,
+          deviceId: this.device.uuid,
+          lastScanDate: lastScanDate,
+        });
+        this.send(request);
+      });
     };
 
     this.webSocket.onerror = err => {

@@ -44,41 +44,41 @@ export class ScanSessionsPage {
     });
 
     console.log('ionViewDidEnter');
-    
+
     // if (this.connected == false) {
-      this.settings.getDefaultServer().then(server => {
-        // console.log('SERVER: ', server)
+    this.settings.getDefaultServer().then(server => {
+      // console.log('SERVER: ', server)
 
-        if (!this.wsEventSubscription) {
-          this.wsEventSubscription = this.serverProvider.onWsEvent().subscribe((event: wsEvent) => {
-            console.log('[S-SESSIONS]: ' + event.name)
-            if (event.name == wsEvent.EVENT_OPEN) {
-              this.onConnect();
-            } else if (event.name == wsEvent.EVENT_CLOSE) {
-              this.connected = false;
-            } else if (event.name == wsEvent.EVENT_ERROR) {
-              this.connected = false;
-            } else if (event.name == wsEvent.EVENT_ALREADY_OPEN) {
-              this.connected = true;
+      if (!this.wsEventSubscription) {
+        this.wsEventSubscription = this.serverProvider.onWsEvent().subscribe((event: wsEvent) => {
+          console.log('[S-SESSIONS]: ' + event.name)
+          if (event.name == wsEvent.EVENT_OPEN) {
+            this.onConnect();
+          } else if (event.name == wsEvent.EVENT_CLOSE) {
+            this.connected = false;
+          } else if (event.name == wsEvent.EVENT_ERROR) {
+            this.connected = false;
+          } else if (event.name == wsEvent.EVENT_ALREADY_OPEN) {
+            this.connected = true;
+          }
+        });
+      }
+
+
+      if (!this.responseSubscription) {
+        this.responseSubscription = this.serverProvider.onResponse().subscribe((response: any) => {
+          if (response.action == responseModel.ACTION_HELO) {
+            let heloResponse: responseModelHelo = response;
+            if (heloResponse.version != Config.REQUIRED_SERVER_VERSION) {
+              this.onVersionMismatch();
             }
-          });
-        }
+          }
+        });
+      }
 
-
-        if (!this.responseSubscription) {
-          this.responseSubscription = this.serverProvider.onResponse().subscribe((response: any) => {
-            if (response.action == responseModel.ACTION_HELO) {
-              let heloResponse: responseModelHelo = response;
-              if (heloResponse.version != Config.REQUIRED_SERVER_VERSION) {
-                this.onVersionMismatch();
-              }
-            }
-          });
-        }
-
-        console.log('[S-SESSIONS]: connect()')
-        this.serverProvider.connect(server);
-      }, err => { })
+      console.log('[S-SESSIONS]: connect()')
+      this.serverProvider.connect(server);
+    }, err => { })
     // }
   }
 
@@ -101,15 +101,8 @@ export class ScanSessionsPage {
   onConnect() {
     this.connected = true;
 
-    Promise.join(this.settings.getNoRunnings(), this.settings.getRated(), this.settings.getDeviceName(), this.scanSessionsStorage.getLastScanDate(), (runnings, rated, deviceName, lastScanDate) => {
+    Promise.join(this.settings.getNoRunnings(), this.settings.getRated(), (runnings, rated) => {
       console.log('promise join: getNoRunnings getRated getDeviceName ')
-      let request = new requestModelHelo().fromObject({
-        deviceName: deviceName,
-        deviceId: this.device.uuid,
-        lastScanDate: lastScanDate,
-      });
-      this.serverProvider.send(request);
-
       if (runnings >= Config.NO_RUNNINGS_BEFORE_SHOW_RATING && !rated) {
         let os = this.device.platform || 'unknown';
         let isAndroid = os.toLowerCase().indexOf('android') != -1;
