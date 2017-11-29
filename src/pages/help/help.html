@@ -1,0 +1,89 @@
+<!--
+  Generated template for the HelpPage page.
+
+  See http://ionicframework.com/docs/components/#navigation for more info on
+  Ionic pages and navigation.
+-->
+<ion-header>
+
+  <ion-navbar color="primary">
+    <ion-title>Help</ion-title>
+  </ion-navbar>
+
+</ion-header>
+
+
+<ion-content padding>
+
+  <h1>Icons meaning</h1>
+  <ion-grid>
+
+    <ion-row>
+      <ion-col col-2>
+        <ion-icon name="refresh"></ion-icon>
+      </ion-col>
+      <ion-col>
+        Sends and type the barcodes of the current scan session again.
+        <br> You can also use this button to send to your computer the barcodes that you've scanned offline.
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col col-2>
+        <ion-icon name="add"></ion-icon>
+      </ion-col>
+      <ion-col>
+        Shows a dialog to insert a barcode with the smartphone keyboard (eg. incase the barcode is damaged)
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col col-2>
+        <ion-icon name="create"></ion-icon>
+      </ion-col>
+      <ion-col>
+        Shows a page to edit the current scan session details
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col col-2>
+        <ion-icon name="checkmark-circle" [style.color]="'green'"></ion-icon>
+      </ion-col>
+      <ion-col>
+        Means that the computer has received and typed (if enabled) the barcode at least one time since it has been scanned.
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col col-2>
+        <ion-icon name="alert" [style.color]="'red'"></ion-icon>
+      </ion-col>
+      <ion-col>
+        Means that the computer hasn't received the barcode yet.
+        <br> This can happen when you scan a barcode while your smartphone isn't connected.
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col col-2>
+        <ion-icon name="ios-wifi-outline"></ion-icon>
+      </ion-col>
+      <ion-col>
+        Offline server
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col col-2>
+        <ion-icon name="ios-wifi" [style.color]="'rgba(0,0,0,.4)'"></ion-icon>
+      </ion-col>
+      <ion-col>
+        Online server
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col col-2>
+        <ion-icon name="ios-wifi" [style.color]="'red'"></ion-icon>
+      </ion-col>
+      <ion-col>
+        Server connected with the app
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+
+</ion-content>

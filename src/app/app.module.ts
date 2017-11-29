@@ -5,6 +5,7 @@ import { HttpModule } from '@angular/http';
 import { IonicApp, IonicModule, IonicErrorHandler } from 'ionic-angular';
 import { MyApp } from './app.component';
 import { SettingsPage } from '../pages/settings/settings';
+import { HelpPage } from '../pages/help/help';
 import { AboutPage } from '../pages/about/about';
 import { ScanSessionsPage } from '../pages/scan-sessions/scan-sessions';
 import { EditScanSessionPage } from '../pages/scan-session/edit-scan-session/edit-scan-session';
@@ -44,6 +45,7 @@ import { NativeAudio } from '@ionic-native/native-audio';
     SelectServerPage,
     CircleTextComponent,
     SettingsPage,
+    HelpPage,
   ],
   imports: [
     BrowserModule,
@@ -61,6 +63,7 @@ import { NativeAudio } from '@ionic-native/native-audio';
     EditScanSessionPage,
     SelectScanningModePage,
     SettingsPage,
+    HelpPage,
     WelcomePage,
     ScanSessionPage,
   ],

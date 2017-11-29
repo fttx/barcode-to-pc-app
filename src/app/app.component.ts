@@ -9,6 +9,7 @@ import { AboutPage } from '../pages/about/about';
 import { Settings } from '../providers/settings';
 import { SettingsPage } from '../pages/settings/settings';
 import { StatusBar } from '@ionic-native/status-bar';
+import { HelpPage } from '../pages/help/help';
 
 @Component({
   templateUrl: 'app.html',
@@ -64,6 +65,10 @@ export class MyApp {
 
   about() {
     this.setPage(AboutPage);
+  }
+
+  help() {
+    this.setPage(HelpPage);
   }
 
   setPage(page, isRoot = false) {
