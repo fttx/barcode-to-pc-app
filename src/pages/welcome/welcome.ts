@@ -45,6 +45,10 @@ export class WelcomePage {
     this.googleAnalytics.trackView("WelcomePage");
   }
 
+  ionViewDidLeave() {
+    clearTimeout(this.troubleshootingDialogTimeout);
+  }
+
   ionViewDidLoad() {
     this.viewCtrl.willLeave.subscribe(() => {
       this.serverProvider.unwatch();
@@ -134,7 +138,7 @@ export class WelcomePage {
           this.connected = true;
         }
       });
-    
+
       this.serverProvider.connect(server)
       this.scheduleShowTroubleshootingDialog(20);
     }
