@@ -143,7 +143,7 @@ export class ScanSessionPage {
     this.scanSession.scannings.unshift(scan);
     this.save();
     // console.log('onScan -> newScanDate = now()')
-    this.newScanDate = new Date().getTime();    
+    this.newScanDate = new Date().getTime();
     // console.log('onScan -> sendPutScan')    
     this.sendPutScan(scan);
     // console.log('onScan -> setLastScanDate = newScanDate')        
@@ -331,7 +331,7 @@ export class ScanSessionPage {
     }).present();
   }
 
-  onAddClick() {
+  onAddClicked() {
     this.scan();
   }
 
