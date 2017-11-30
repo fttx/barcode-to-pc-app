@@ -10,7 +10,6 @@ import { GoogleAnalyticsService } from '../../providers/google-analytics'
 export class AboutPage {
 
   public websiteUrl = Config.WEBSITE_URL;
-  public faqUrl = Config.FAQ_URL;
   public websiteName = Config.WEBSITE_NAME;
   public requiredServerVersion = Config.REQUIRED_SERVER_VERSION;
   public version = "";
@@ -26,8 +25,6 @@ export class AboutPage {
     this.appVersion.getVersionNumber().then(version => this.version = version);
   }
 
-  contactMe() {
-    window.open('mailto:' + Config.EMAIL_SUPPORT, '_system');
-  }
+ 
 
 }

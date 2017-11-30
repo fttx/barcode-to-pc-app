@@ -228,7 +228,7 @@ export class ServerProvider {
       //console.log('[S]: onerror')
 
       if (!this.reconnecting) {
-        this.toast('Connection problem (error 1)');
+        this.toast('Unable to connect. Select Help from the app menu in order to determine the cause');
       }
 
       this.wsEventObserver.next({ name: 'error', ws: this.webSocket });
@@ -276,7 +276,7 @@ export class ServerProvider {
         //console.log(request, JSON.stringify(request));
         this.webSocket.send(JSON.stringify(request));
       } else {
-        this.toast('Connection problem (error 2)');
+        this.toast('Connection problem');
       }
     } else {
       // //console.log("offline mode, cannot send!")
