@@ -1,112 +1,112 @@
 {
-    "name": "barcode-to-pc-app",
-    "author": "Filippo Tortomasi",
-    "version": "2.0.0",
-    "homepage": "https://barcodetopc.com/",
-    "private": true,
-    "scripts": {
-        "clean": "ionic-app-scripts clean",
-        "build": "ionic-app-scripts build",
-        "lint": "ionic-app-scripts lint",
-        "ionic:build": "ionic-app-scripts build",
-        "ionic:serve": "ionic-app-scripts serve"
-    },
-    "dependencies": {
-        "@angular/common": "4.1.3",
-        "@angular/compiler": "4.1.3",
-        "@angular/compiler-cli": "4.1.3",
-        "@angular/core": "4.1.3",
-        "@angular/forms": "4.1.3",
-        "@angular/http": "4.1.3",
-        "@angular/platform-browser": "4.1.3",
-        "@angular/platform-browser-dynamic": "4.1.3",
-        "@ionic-native/app-version": "^3.6.1",
-        "@ionic-native/barcode-scanner": "^3.6.1",
-        "@ionic-native/core": "3.12.1",
-        "@ionic-native/device": "^3.14.0",
-        "@ionic-native/google-analytics": "^3.6.1",
-        "@ionic-native/header-color": "^4.1.0",
-        "@ionic-native/in-app-browser": "^3.6.1",
-        "@ionic-native/market": "^4.1.0",
-        "@ionic-native/native-audio": "^4.1.0",
-        "@ionic-native/social-sharing": "^3.6.1",
-        "@ionic-native/splash-screen": "3.12.1",
-        "@ionic-native/status-bar": "3.12.1",
-        "@ionic-native/zeroconf": "^4.1.0",
-        "@ionic/storage": "2.0.1",
-        "angular2-moment": "^1.0.0",
-        "bluebird": "^3.4.7",
-        "cordova-android": "^6.3.0",
-        "cordova-ios": "^4.4.0",
-        "cordova-plugin-add-swift-support": "^1.7.0",
-        "cordova-plugin-app-version": "^0.1.9",
-        "cordova-plugin-compat": "^1.2.0",
-        "cordova-plugin-console": "^1.1.0",
-        "cordova-plugin-device": "^1.1.6",
-        "cordova-plugin-google-analytics": "^1.8.3",
-        "cordova-plugin-headercolor": "^1.0.0",
-        "cordova-plugin-inappbrowser": "^1.7.1",
-        "cordova-plugin-market": "git+https://github.com/xmartlabs/cordova-plugin-market.git",
-        "cordova-plugin-nativeaudio": "^3.0.9",
-        "cordova-plugin-splashscreen": "^4.0.3",
-        "cordova-plugin-statusbar": "^2.2.3",
-        "cordova-plugin-whitelist": "^1.3.2",
-        "cordova-plugin-x-socialsharing": "^5.2.1",
-        "cordova-plugin-zeroconf": "^1.2.8",
-        "es6-promise-plugin": "^4.1.0",
-        "ionic-angular": "3.5.3",
-        "ionic-plugin-keyboard": "^2.2.1",
-        "ionicons": "3.0.0",
-        "phonegap-plugin-barcodescanner": "^6.0.8",
-        "rxjs": "5.4.0",
-        "sw-toolbox": "3.6.0",
-        "zone.js": "0.8.12"
-    },
-    "devDependencies": {
-        "@ionic/app-scripts": "^3.0.0",
-        "@types/bluebird": "^3.0.37",
-        "ionic": "3.12.0",
-        "typescript": "2.3.4"
-    },
-    "cordovaPlugins": [
-        "cordova-plugin-whitelist",
-        "cordova-plugin-console",
-        "cordova-plugin-device",
-        "cordova-plugin-splashscreen",
-        "ionic-plugin-keyboard"
-    ],
-    "cordovaPlatforms": [
-        "ios",
-        {
-            "platform": "ios",
-            "version": "",
-            "locator": "ios"
-        }
-    ],
-    "description": "Barcode to PC: Turn your smartphone into a real barcode scanner",
-    "cordova": {
-        "plugins": {
-            "cordova-plugin-app-version": {},
-            "cordova-plugin-console": {},
-            "cordova-plugin-device": {},
-            "cordova-plugin-google-analytics": {},
-            "cordova-plugin-inappbrowser": {},
-            "cordova-plugin-splashscreen": {},
-            "cordova-plugin-whitelist": {},
-            "cordova-plugin-x-socialsharing": {},
-            "ionic-plugin-keyboard": {},
-            "phonegap-plugin-barcodescanner": {
-                "CAMERA_USAGE_DESCRIPTION": "To scan barcodes"
-            },
-            "cordova-plugin-zeroconf": {},
-            "cordova-plugin-market": {},
-            "cordova-plugin-statusbar": {},
-            "cordova-plugin-headercolor": {},
-            "cordova-plugin-nativeaudio": {}
-        },
-        "platforms": [
-            "android",
-            "ios"
-        ]
+  "name": "barcode-to-pc-app",
+  "author": "Filippo Tortomasi",
+  "version": "2.0.0",
+  "homepage": "https://barcodetopc.com/",
+  "private": true,
+  "scripts": {
+    "clean": "ionic-app-scripts clean",
+    "build": "ionic-app-scripts build",
+    "lint": "ionic-app-scripts lint",
+    "ionic:build": "ionic-app-scripts build",
+    "ionic:serve": "ionic-app-scripts serve"
+  },
+  "dependencies": {
+    "@angular/common": "4.1.3",
+    "@angular/compiler": "4.1.3",
+    "@angular/compiler-cli": "4.1.3",
+    "@angular/core": "4.1.3",
+    "@angular/forms": "4.1.3",
+    "@angular/http": "4.1.3",
+    "@angular/platform-browser": "4.1.3",
+    "@angular/platform-browser-dynamic": "4.1.3",
+    "@ionic-native/app-version": "^3.6.1",
+    "@ionic-native/barcode-scanner": "^3.6.1",
+    "@ionic-native/core": "3.12.1",
+    "@ionic-native/device": "^3.14.0",
+    "@ionic-native/google-analytics": "^3.6.1",
+    "@ionic-native/header-color": "^4.1.0",
+    "@ionic-native/in-app-browser": "^3.6.1",
+    "@ionic-native/market": "^4.4.2",
+    "@ionic-native/native-audio": "^4.1.0",
+    "@ionic-native/social-sharing": "^3.6.1",
+    "@ionic-native/splash-screen": "3.12.1",
+    "@ionic-native/status-bar": "3.12.1",
+    "@ionic-native/zeroconf": "^4.1.0",
+    "@ionic/storage": "2.0.1",
+    "angular2-moment": "^1.0.0",
+    "bluebird": "^3.4.7",
+    "cordova-android": "^6.3.0",
+    "cordova-ios": "^4.4.0",
+    "cordova-plugin-add-swift-support": "^1.7.0",
+    "cordova-plugin-app-version": "^0.1.9",
+    "cordova-plugin-compat": "^1.2.0",
+    "cordova-plugin-console": "^1.1.0",
+    "cordova-plugin-device": "^1.1.6",
+    "cordova-plugin-google-analytics": "^1.8.3",
+    "cordova-plugin-headercolor": "^1.0.0",
+    "cordova-plugin-inappbrowser": "^1.7.1",
+    "cordova-plugin-market": "^1.2.0",
+    "cordova-plugin-nativeaudio": "^3.0.9",
+    "cordova-plugin-splashscreen": "^4.0.3",
+    "cordova-plugin-statusbar": "^2.2.3",
+    "cordova-plugin-whitelist": "^1.3.2",
+    "cordova-plugin-x-socialsharing": "^5.2.1",
+    "cordova-plugin-zeroconf": "^1.2.8",
+    "es6-promise-plugin": "^4.1.0",
+    "ionic-angular": "3.5.3",
+    "ionic-plugin-keyboard": "^2.2.1",
+    "ionicons": "3.0.0",
+    "phonegap-plugin-barcodescanner": "^6.0.8",
+    "rxjs": "5.4.0",
+    "sw-toolbox": "3.6.0",
+    "zone.js": "0.8.12"
+  },
+  "devDependencies": {
+    "@ionic/app-scripts": "^3.0.0",
+    "@types/bluebird": "^3.0.37",
+    "ionic": "3.12.0",
+    "typescript": "2.3.4"
+  },
+  "cordovaPlugins": [
+    "cordova-plugin-whitelist",
+    "cordova-plugin-console",
+    "cordova-plugin-device",
+    "cordova-plugin-splashscreen",
+    "ionic-plugin-keyboard"
+  ],
+  "cordovaPlatforms": [
+    "ios",
+    {
+      "platform": "ios",
+      "version": "",
+      "locator": "ios"
     }
+  ],
+  "description": "Barcode to PC: Turn your smartphone into a real barcode scanner",
+  "cordova": {
+    "plugins": {
+      "cordova-plugin-app-version": {},
+      "cordova-plugin-console": {},
+      "cordova-plugin-device": {},
+      "cordova-plugin-google-analytics": {},
+      "cordova-plugin-inappbrowser": {},
+      "cordova-plugin-splashscreen": {},
+      "cordova-plugin-whitelist": {},
+      "cordova-plugin-x-socialsharing": {},
+      "ionic-plugin-keyboard": {},
+      "phonegap-plugin-barcodescanner": {
+        "CAMERA_USAGE_DESCRIPTION": "To scan barcodes"
+      },
+      "cordova-plugin-zeroconf": {},
+      "cordova-plugin-statusbar": {},
+      "cordova-plugin-headercolor": {},
+      "cordova-plugin-nativeaudio": {},
+      "cordova-plugin-market": {}
+    },
+    "platforms": [
+      "android",
+      "ios"
+    ]
+  }
 }
