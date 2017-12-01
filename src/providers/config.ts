@@ -9,7 +9,7 @@ import { Injectable } from '@angular/core';
 @Injectable()
 export class Config {
   public static SERVER_PORT = 57891;
-  public static REQUIRED_SERVER_VERSION = '1.1.0';
+  public static REQUIRED_SERVER_VERSION = '2.0.0';
   public static WEBSITE_URL = 'https://barcodetopc.com/';
   public static WEBSITE_NAME = 'barcodetopc.com';
   public static FAQ_URL = 'https://barcodetopc.com/faq.html';

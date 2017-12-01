@@ -6,8 +6,8 @@ import { ToastController, Platform, AlertController } from 'ionic-angular';
 import { Zeroconf } from '@ionic-native/zeroconf';
 import { Subject, Observable } from "rxjs";
 import { discoveryResultModel } from "../models/discovery-result";
-import { responseModel, responseModelPopup } from '../models/response.model';
-import { requestModel, requestModelPing, requestModelPutScanSessions, requestModelHelo } from '../models/request.model';
+import { responseModel, responseModelPopup, responseModelHelo } from '../models/response.model';
+import { requestModel, requestModelPing, requestModelPutScanSessions, requestModelHelo, requestModelGetVersion } from '../models/request.model';
 import { wsEvent } from '../models/ws-event.model';
 import { ScanSessionsStorage } from './scan-sessions-storage';
 import * as Promise from 'bluebird'
@@ -38,6 +38,8 @@ export class ServerProvider {
 
   private paused = false;
   private lastToastMessage: string;
+
+  private fallBackTimeout = null;
 
   constructor(
     private settings: Settings,
@@ -164,6 +166,18 @@ export class ServerProvider {
         })
       }
 
+      if (messageData.action == responseModel.ACTION_HELO) {
+        // fallBack for old server versions                
+        console.log('FallBack: new HELO request received, aborting fallback')
+        if (this.fallBackTimeout) clearTimeout(this.fallBackTimeout);
+        // fallBack for old server versions        
+
+        let heloResponse: any = messageData;
+        if (heloResponse.version != Config.REQUIRED_SERVER_VERSION) {
+          this.onVersionMismatch();
+        }
+      }
+
       if (messageData.action == responseModel.ACTION_PONG) {
         //console.log('[S]: WS: pong received, stop waiting 5 secs')
         if (this.pongTimeout) clearTimeout(this.pongTimeout);
@@ -174,6 +188,11 @@ export class ServerProvider {
           message: responseModelPopup.message,
           buttons: ['Ok']
         }).present();
+      } else if (messageData.action == responseModel.ACTION_GET_VERSION) {
+        // fallBack for old server versions
+        console.log('FallBack: old getVersion received, showing version mismatch');
+        this.onVersionMismatch();
+        // fallBack for old server versions                
       } else {
         this.responseObserver.next(messageData);
       }
@@ -221,6 +240,17 @@ export class ServerProvider {
           lastScanDate: lastScanDate,
         });
         this.send(request);
+
+        // fallBack for old server versions
+        console.log('FallBack: new Helo sent, waiting for response...')
+        if (this.fallBackTimeout) clearTimeout(this.fallBackTimeout);
+        this.fallBackTimeout = setTimeout(() => {
+          console.log('FallBack: new Helo response not received, sending old getVersion');
+          let request = new requestModelGetVersion().fromObject({});
+          this.send(request);
+        }, 5000);
+        // fallBack for old server versions
+
       });
     };
 
@@ -329,5 +359,18 @@ export class ServerProvider {
       this.toastCtrl.create({ message: message, duration: 3000 }).present();
       this.lastToastMessage = null;
     }
+  }
+
+  private onVersionMismatch() {
+    this.alertCtrl.create({
+      title: 'Server/app version mismatch',
+      message: 'Please update both app and server, otherwise they may not work properly.<br><br>Server can be downloaded at <a href="' + Config.WEBSITE_URL + '">' + Config.WEBSITE_NAME + '</a>',
+      buttons: [
+        {
+          text: 'Ok',
+          role: 'cancel'
+        }
+      ]
+    }).present();
   }
 }

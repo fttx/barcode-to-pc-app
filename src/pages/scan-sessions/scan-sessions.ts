@@ -13,7 +13,7 @@ import { Market } from '@ionic-native/market';
 import * as Promise from 'bluebird'
 import { responseModel, responseModelHelo } from '../../models/response.model';
 import { wsEvent } from '../../models/ws-event.model';
-import { requestModelHelo, requestModelDeleteScanSession } from '../../models/request.model';
+import { requestModelDeleteScanSession } from '../../models/request.model';
 
 @Component({
   selector: 'page-scannings',
@@ -65,16 +65,11 @@ export class ScanSessionsPage {
       }
 
 
-      if (!this.responseSubscription) {
-        this.responseSubscription = this.serverProvider.onResponse().subscribe((response: any) => {
-          if (response.action == responseModel.ACTION_HELO) {
-            let heloResponse: responseModelHelo = response;
-            if (heloResponse.version != Config.REQUIRED_SERVER_VERSION) {
-              this.onVersionMismatch();
-            }
-          }
-        });
-      }
+      // if (!this.responseSubscription) {
+      //   this.responseSubscription = this.serverProvider.onResponse().subscribe((response: any) => {
+         
+      //   });
+      // }
 
       console.log('[S-SESSIONS]: connect()')
       this.serverProvider.connect(server);
@@ -132,19 +127,6 @@ export class ScanSessionsPage {
         }).present();
       }
     });
-  }
-
-  onVersionMismatch() {
-    this.alertCtrl.create({
-      title: 'Server/app version mismatch',
-      message: 'Please update both app and server, otherwise they may not work properly.<br><br>Server can be downloaded at <a href="' + Config.WEBSITE_URL + '">' + Config.WEBSITE_NAME + '</a>',
-      buttons: [
-        {
-          text: 'Ok',
-          role: 'cancel'
-        }
-      ]
-    }).present();
   }
 
   onSelectServerClick() {
