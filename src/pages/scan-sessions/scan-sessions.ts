@@ -6,7 +6,7 @@ import { ScanSessionModel } from '../../models/scan-session.model'
 import { ScanSessionPage } from '../scan-session/scan-session'
 import { SelectServerPage } from '../select-server/select-server'
 import { ServerProvider } from '../../providers/server'
-import { GoogleAnalyticsService } from '../../providers/google-analytics'
+import { GoogleAnalytics } from '@ionic-native/google-analytics';
 import { ScanSessionsStorage } from '../../providers/scan-sessions-storage'
 import { Device } from '@ionic-native/device';
 import { Market } from '@ionic-native/market';
@@ -31,14 +31,15 @@ export class ScanSessionsPage {
     private serverProvider: ServerProvider,
     private scanSessionsStorage: ScanSessionsStorage,
     public popoverCtrl: PopoverController,
-    private googleAnalytics: GoogleAnalyticsService,
+    private ga: GoogleAnalytics,
     private settings: Settings,
     private market: Market,
     private device: Device,
   ) { }
 
   ionViewDidEnter() {
-    this.googleAnalytics.trackView("ScanSessionsPage");
+    this.ga.trackView('ScanSessionsPage');
+
     this.scanSessionsStorage.getScanSessions().then(data => {
       this.scanSessions = data;
     });
@@ -67,7 +68,7 @@ export class ScanSessionsPage {
 
       // if (!this.responseSubscription) {
       //   this.responseSubscription = this.serverProvider.onResponse().subscribe((response: any) => {
-         
+
       //   });
       // }
 

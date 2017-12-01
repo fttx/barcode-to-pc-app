@@ -1,7 +1,7 @@
 import { AppVersion } from '@ionic-native/app-version';
 import { Config } from '../../providers/config';
 import { Component } from '@angular/core';
-import { GoogleAnalyticsService } from '../../providers/google-analytics'
+import { GoogleAnalytics } from '@ionic-native/google-analytics';
 
 @Component({
   selector: 'page-about',
@@ -16,12 +16,12 @@ export class AboutPage {
 
 
   constructor(
-    private googleAnalytics: GoogleAnalyticsService,
+    private ga: GoogleAnalytics,
     private appVersion: AppVersion,
   ) { }
 
   ionViewDidEnter() {
-    this.googleAnalytics.trackView("AboutPage");
+    this.ga.trackView("AboutPage");
     this.appVersion.getVersionNumber().then(version => this.version = version);
   }
 

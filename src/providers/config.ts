@@ -19,6 +19,8 @@ export class Config {
   public static NO_RUNNINGS_BEFORE_SHOW_RATING = 5;
   public static SHOW_CANNOT_FIND_DIALOG_TIMEOUT = 90 * 1000;
   public static DEFAULT_REPEAT_INVERVAL = 500;
+  public static GOOGLE_ANALYTICS_ID = 'UA-87867313-1';
+  public static GOOGLE_ANALYTICS_DEBUG = false;
 
   constructor() {
   }

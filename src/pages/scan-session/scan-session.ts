@@ -8,7 +8,7 @@ import { ActionSheetController } from 'ionic-angular'
 import { AlertController } from 'ionic-angular'
 import { CameraScannerProvider } from '../../providers/camera-scanner';
 import { ServerProvider } from '../../providers/server'
-import { GoogleAnalyticsService } from '../../providers/google-analytics'
+import { GoogleAnalytics } from '@ionic-native/google-analytics';
 import { ScanModel } from '../../models/scan.model'
 import { NavController } from 'ionic-angular';
 import { ScanSessionsStorage } from '../../providers/scan-sessions-storage'
@@ -49,7 +49,7 @@ export class ScanSessionPage {
     public navCtrl: NavController,
     private scanSessionsStorage: ScanSessionsStorage,
     public modalCtrl: ModalController,
-    private googleAnalytics: GoogleAnalyticsService,
+    private ga: GoogleAnalytics,
     private settings: Settings,
     private socialSharing: SocialSharing,
     private cameraScannerProvider: CameraScannerProvider,
@@ -65,7 +65,7 @@ export class ScanSessionPage {
 
   private responseSubscription = null;
   ionViewDidEnter() {
-    this.googleAnalytics.trackView("ScanSessionPage");
+    this.ga.trackView("ScanSessionPage");
     this.responseSubscription = this.serverProvider.onResponse().subscribe(message => {
       this.ngZone.run(() => {
         if (message.action == responseModel.ACTION_PUT_SCAN_ACK) {
@@ -139,7 +139,7 @@ export class ScanSessionPage {
   }
 
   onScan(scan: ScanModel) {
-    this.googleAnalytics.trackEvent('scannings', 'scan');
+    this.ga.trackEvent('scannings', 'scan');
     this.scanSession.scannings.unshift(scan);
     this.save();
     // console.log('onScan -> newScanDate = now()')
@@ -199,7 +199,7 @@ export class ScanSessionPage {
       if (timeoutSeconds == null) {
         timeoutSeconds = Config.DEFAULT_CONTINUE_MODE_TIMEOUT;
       } else {
-        this.googleAnalytics.trackEvent('scannings', 'custom_timeout', null, timeoutSeconds);
+        this.ga.trackEvent('scannings', 'custom_timeout', null, timeoutSeconds);
       }
 
       interval = setInterval(() => {
@@ -236,7 +236,7 @@ export class ScanSessionPage {
     } else {
       this.repeat(scan);
     }
-    this.googleAnalytics.trackEvent('scannings', 'repeat');
+    this.ga.trackEvent('scannings', 'repeat');
   }
 
   onItemPressed(scan: ScanModel, scanIndex: number) {
@@ -247,7 +247,7 @@ export class ScanSessionPage {
       icon: 'trash',
       role: 'destructive',
       handler: () => {
-        this.googleAnalytics.trackEvent('scannings', 'delete');
+        this.ga.trackEvent('scannings', 'delete');
         this.scanSession.scannings.splice(scanIndex, 1);
         this.save();
         this.sendDeleteScan(scan);
@@ -261,7 +261,7 @@ export class ScanSessionPage {
       text: 'Share',
       icon: 'share',
       handler: () => {
-        this.googleAnalytics.trackEvent('scannings', 'share');
+        this.ga.trackEvent('scannings', 'share');
         this.socialSharing.share(scan.text, "", "", "")
       }
     });
@@ -271,7 +271,7 @@ export class ScanSessionPage {
         text: 'Open in browser',
         icon: 'open',
         handler: () => {
-          this.googleAnalytics.trackEvent('scannings', 'open_browser');
+          this.ga.trackEvent('scannings', 'open_browser');
           window.open(scan.text, '_blank');
         }
       });
@@ -281,7 +281,7 @@ export class ScanSessionPage {
       text: 'Repeat from here',
       icon: 'refresh',
       handler: () => {
-        this.googleAnalytics.trackEvent('scannings', 'repeatAll');
+        this.ga.trackEvent('scannings', 'repeatAll');
         if (this.isRepeating == false) {
           this.repeatAll(scanIndex);
         }
@@ -300,7 +300,7 @@ export class ScanSessionPage {
   } // onItemClick
 
   edit() {
-    this.googleAnalytics.trackEvent('scannings', 'edit_scan');
+    this.ga.trackEvent('scannings', 'edit_scan');
     let editModal = this.modalCtrl.create(EditScanSessionPage, this.scanSession);
     editModal.onDidDismiss(scanSession => {
       this.scanSession = scanSession
@@ -389,7 +389,7 @@ export class ScanSessionPage {
   private skipAlreadySent = false;
 
   onRepeatAllClicked() {
-    this.googleAnalytics.trackEvent('scannings', 'repeatAll');
+    this.ga.trackEvent('scannings', 'repeatAll');
 
     let alert = this.alertCtrl.create({
       title: 'Send all barcodes again',

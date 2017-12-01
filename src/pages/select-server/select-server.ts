@@ -4,7 +4,7 @@ import { Component } from '@angular/core';
 import { NavController, ViewController, AlertController } from 'ionic-angular';
 import { ServerProvider } from '../../providers/server'
 import { Config } from '../../providers/config'
-import { GoogleAnalyticsService } from '../../providers/google-analytics'
+import { GoogleAnalytics } from '@ionic-native/google-analytics';
 import { BarcodeScanner } from '@ionic-native/barcode-scanner';
 import { ScanModel } from "../../models/scan.model";
 import { responseModel } from '../../models/response.model';
@@ -39,7 +39,7 @@ export class SelectServerPage {
     private alertCtrl: AlertController,
     private serverProvider: ServerProvider,
     private settings: Settings,
-    private googleAnalytics: GoogleAnalyticsService,
+    private ga: GoogleAnalytics,
     private barcodeScanner: BarcodeScanner,
     private scanSessionsStorage: ScanSessionsStorage,
     private device: Device,
@@ -48,7 +48,7 @@ export class SelectServerPage {
   public isVisible = false;
 
   ionViewDidEnter() {
-    this.googleAnalytics.trackView("SelectServerPage");
+    this.ga.trackView("SelectServerPage");
     this.isVisible = true;
     this.scanForServers();
 

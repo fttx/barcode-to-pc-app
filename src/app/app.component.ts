@@ -10,6 +10,8 @@ import { Settings } from '../providers/settings';
 import { SettingsPage } from '../pages/settings/settings';
 import { StatusBar } from '@ionic-native/status-bar';
 import { HelpPage } from '../pages/help/help';
+import { GoogleAnalytics } from '@ionic-native/google-analytics';
+import { Config } from '../providers/config';
 
 @Component({
   templateUrl: 'app.html',
@@ -26,8 +28,18 @@ export class MyApp {
     private settings: Settings,
     public menuCtrl: MenuController,
     public modalCtrl: ModalController,
+    private ga: GoogleAnalytics,
   ) {
     platform.ready().then(() => {
+
+      this.ga.startTrackerWithId(Config.GOOGLE_ANALYTICS_ID).then(() => {
+        this.ga.setAllowIDFACollection(true);
+
+        if (Config.GOOGLE_ANALYTICS_DEBUG) {
+          this.ga.debugMode();
+        }
+      })
+
       Promise.all([this.settings.getNoRunnings(), this.settings.getEverConnected(), this.settings.getAlwaysSkipWelcomePage()]).then((results: any[]) => {
         let runnings = results[0];
         let everConnected = results[1];
@@ -38,7 +50,7 @@ export class MyApp {
         } else {
           this.rootPage = ScanSessionsPage;
         }
-        
+
         let newRunnings = runnings || 0;
         this.settings.setNoRunnings(++newRunnings);
 

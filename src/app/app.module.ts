@@ -18,7 +18,6 @@ import { ServerProvider } from '../providers/server'
 import { Settings } from '../providers/settings'
 import { CameraScannerProvider } from '../providers/camera-scanner';
 
-import { GoogleAnalyticsService } from '../providers/google-analytics'
 import { ScanSessionsStorage } from '../providers/scan-sessions-storage'
 import { IonicStorageModule } from '@ionic/storage';
 import { MomentModule } from 'angular2-moment';
@@ -72,7 +71,6 @@ import { NativeAudio } from '@ionic-native/native-audio';
     CameraScannerProvider,
     Settings,
     ScanSessionsStorage,
-    GoogleAnalyticsService,
     GoogleAnalytics,
     StatusBar,
     SplashScreen,
