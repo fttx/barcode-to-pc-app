@@ -37,7 +37,7 @@
     "angular2-moment": "^1.0.0",
     "bluebird": "^3.4.7",
     "cordova-android": "^6.3.0",
-    "cordova-ios": "^4.4.0",
+    "cordova-ios": "4.5.4",
     "cordova-plugin-add-swift-support": "^1.7.0",
     "cordova-plugin-app-version": "^0.1.9",
     "cordova-plugin-compat": "^1.2.0",
