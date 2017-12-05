@@ -2,7 +2,7 @@ import { ServerModel } from './../models/server.model';
 import { Injectable, NgZone } from '@angular/core';
 import { Settings } from '../providers/settings'
 import { Config } from './config'
-import { ToastController, Platform, AlertController } from 'ionic-angular';
+import { ToastController, Platform, AlertController, Alert } from 'ionic-angular';
 import { Zeroconf } from '@ionic-native/zeroconf';
 import { Subject, Observable } from "rxjs";
 import { discoveryResultModel } from "../models/discovery-result";
@@ -40,6 +40,7 @@ export class ServerProvider {
   private lastToastMessage: string;
 
   private fallBackTimeout = null;
+  private popup: Alert = null;
 
   constructor(
     private settings: Settings,
@@ -183,11 +184,15 @@ export class ServerProvider {
         if (this.pongTimeout) clearTimeout(this.pongTimeout);
       } else if (messageData.action == responseModel.ACTION_POPUP) {
         let responseModelPopup: responseModelPopup = messageData;
-        this.alertCtrl.create({
+        if (this.popup) {
+          this.popup.dismiss();
+        }
+        this.popup = this.alertCtrl.create({
           title: responseModelPopup.title,
           message: responseModelPopup.message,
           buttons: ['Ok']
-        }).present();
+        });
+        this.popup.present();
       } else if (messageData.action == responseModel.ACTION_GET_VERSION) {
         // fallBack for old server versions
         console.log('FallBack: old getVersion received, showing version mismatch');
