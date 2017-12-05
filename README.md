@@ -37,18 +37,11 @@ ionic cordova run android
 # iOS
 ionic cordova build ios --prod --release
 
-# Android Pre-Lollipop (more info: https://github.com/crosswalk-project/cordova-plugin-crosswalk-webview#install)
-# Increase version code in config.xml
-ionic cordova plugin add cordova-plugin-crosswalk-webview
-ionic cordova build android --prod --release
-APK_PATH="platforms/android/build/outputs/apk/release/android-release-unsigned.apk"
-jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore barcode-to-pc-keystore.jks $APK_PATH keystore
-zipalign -v 4 $APK_PATH out.apk
-
 # Android
-# Increase version code in config.xml (again)
+# Increase version code in config.xml
 ionic cordova plugin rm cordova-plugin-crosswalk-webview
 ionic cordova build android --prod --release -- -- --minSdkVersion=21
+APK_PATH="platforms/android/build/outputs/apk/release/android-release-unsigned.apk"
 jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore barcode-to-pc-keystore.jks $APK_PATH keystore
 zipalign -v 4 $APK_PATH out.apk
 ```
