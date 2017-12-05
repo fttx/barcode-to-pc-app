@@ -149,7 +149,7 @@ export class ServerProvider {
     this.webSocket.onmessage = message => {
       //console.log('[S]: this.webSocket.onmessage()', message)
 
-      let messageData: responseModel = null;
+      let messageData = null;
       if (message.data) {
         messageData = JSON.parse(message.data);
       }
@@ -172,7 +172,7 @@ export class ServerProvider {
         if (this.fallBackTimeout) clearTimeout(this.fallBackTimeout);
         // fallBack for old server versions        
 
-        let heloResponse: any = messageData;
+        let heloResponse: responseModelHelo = messageData;
         if (heloResponse.version != Config.REQUIRED_SERVER_VERSION) {
           this.onVersionMismatch();
         }
@@ -182,7 +182,7 @@ export class ServerProvider {
         //console.log('[S]: WS: pong received, stop waiting 5 secs')
         if (this.pongTimeout) clearTimeout(this.pongTimeout);
       } else if (messageData.action == responseModel.ACTION_POPUP) {
-        let responseModelPopup: responseModelPopup = message.data;
+        let responseModelPopup: responseModelPopup = messageData;
         this.alertCtrl.create({
           title: responseModelPopup.title,
           message: responseModelPopup.message,
