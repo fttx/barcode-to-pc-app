@@ -1,7 +1,7 @@
 import { Config } from './../../providers/config';
 import { Settings } from './../../providers/settings';
 import { Component, NgZone } from '@angular/core';
-import { NavParams, ModalController } from 'ionic-angular';
+import { NavParams, ModalController, Platform } from 'ionic-angular';
 import { SocialSharing } from '@ionic-native/social-sharing';
 import { ScanSessionModel } from '../../models/scan-session.model'
 import { ActionSheetController } from 'ionic-angular'
@@ -56,6 +56,7 @@ export class ScanSessionPage {
     private nativeAudio: NativeAudio,
     private ngZone: NgZone,
     private device: Device,
+    private platform: Platform,
   ) {
     this.scanSession = navParams.get('scanSession');
     this.isNewSession = navParams.get('isNewSession');
@@ -123,7 +124,7 @@ export class ScanSessionPage {
       }
 
       if (mode == SelectScanningModePage.SCAN_MODE_SINGLE) {
-        this.cameraScannerProvider.scan().then(
+        this.cameraScannerProvider.scan().subscribe(
           (scan: ScanModel) => {
             this.onScan(scan);
           }, err => {
@@ -152,10 +153,12 @@ export class ScanSessionPage {
   }
 
   continueScan() {
-    this.cameraScannerProvider.scan().then(
+    this.cameraScannerProvider.scan(true).subscribe(
       (scan: ScanModel) => {
         this.onScan(scan);
-        this.showAddMoreDialog();
+        if (!this.platform.is('android')) {
+          this.showAddMoreDialog();
+        }
       }, err => {
         if (this.scanSession.scannings.length == 0) {
           this.destroyScanSession();

@@ -29,7 +29,7 @@ import { Market } from '@ionic-native/market';
 import { Device } from '@ionic-native/device';
 import { AppVersion } from '@ionic-native/app-version';
 import { SocialSharing } from '@ionic-native/social-sharing';
-import { BarcodeScanner } from '@ionic-native/barcode-scanner';
+import { BarcodeScanner } from '@fttx/barcode-scanner';
 import { NativeAudio } from '@ionic-native/native-audio';
 
 @NgModule({

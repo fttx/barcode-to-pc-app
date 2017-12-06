@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
-import { BarcodeScanner } from '@ionic-native/barcode-scanner';
+import { BarcodeScanner } from '@fttx/barcode-scanner';
 import { ScanModel } from '../models/scan.model'
 import { Settings } from './settings'
+import { Observable } from 'rxjs/Observable';
 
 /*
   Generated class for the CameraScanner provider.
@@ -17,38 +18,37 @@ export class CameraScannerProvider {
     private settings: Settings,
   ) { }
 
-  scan(): Promise<ScanModel> {
-
-    return new Promise((resolve, reject) => {
-      // let s = new ScanModel();
-      // let id = new Date().getMilliseconds();
-      // s.cancelled = false;
-      // s.id = id;
-      // s.text = 'random scan: ' + id
-      // resolve(s)
-
-
+  scan(continuosMode: boolean = false): Observable<ScanModel> {
+    return new Observable(observer => {
       this.settings.getPreferFrontCamera().then(preferFrontCamera => {
-        if ( preferFrontCamera == null || !preferFrontCamera) preferFrontCamera = false;
+        if (preferFrontCamera == null || !preferFrontCamera) preferFrontCamera = false;
         this.barcodeScanner.scan({
           showFlipCameraButton: true, // iOS and Android
           prompt: "Place a barcode inside the scan area.\nPress the back button to exit.", // supported on Android only
           showTorchButton: true,
-          preferFrontCamera: preferFrontCamera
-        }).then((scan: ScanModel) => {
+          preferFrontCamera: preferFrontCamera,
+          continuosMode: continuosMode
+        }).subscribe((scan: ScanModel) => {
           if (scan.cancelled) {
-            reject();
+            observer.error();
           }
 
           if (scan && scan.text) {
             scan.id = new Date().getTime();
             scan.repeated = false;
-            resolve(scan);
+            observer.next(scan);
           }
         }, (err) => {
-          reject(err)
+          observer.error(err)
         });
       });
+
     });
-  } // scan
+    // let s = new ScanModel();
+    // let id = new Date().getMilliseconds();
+    // s.cancelled = false;
+    // s.id = id;
+    // s.text = 'random scan: ' + id
+    // resolve(s)
+  }
 }
