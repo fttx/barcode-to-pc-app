@@ -104,6 +104,6 @@
     <plugin name="cordova-plugin-nativeaudio" spec="^3.0.9" />
     <plugin name="cordova-plugin-market" spec="^1.2.0" />
     <plugin name="phonegap-plugin-barcodescanner" spec="@fttx/phonegap-plugin-barcodescanner@~7.0.0">
-        <variable name="CAMERA_USAGE_DESCRIPTION" value=" " />
+        <variable name="CAMERA_USAGE_DESCRIPTION" value="To scan barcodes" />
     </plugin>
 </widget>

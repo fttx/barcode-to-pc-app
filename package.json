@@ -60,8 +60,7 @@
     "ionicons": "3.0.0",
     "rxjs": "5.4.0",
     "sw-toolbox": "3.6.0",
-    "zone.js": "0.8.12",
-    "phonegap-plugin-barcodescanner": "@fttx/phonegap-plugin-barcodescanner@~7.0.0"
+    "zone.js": "0.8.12"
   },
   "devDependencies": {
     "@ionic/app-scripts": "^3.0.0",
@@ -101,9 +100,7 @@
       "cordova-plugin-headercolor": {},
       "cordova-plugin-nativeaudio": {},
       "cordova-plugin-market": {},
-      "phonegap-plugin-barcodescanner": {
-        "CAMERA_USAGE_DESCRIPTION": "To scan barcodes"
-      }
+      "phonegap-plugin-barcodescanner": {}
     },
     "platforms": [
       "android",
