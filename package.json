@@ -28,6 +28,7 @@
     "@ionic-native/google-analytics": "^3.14.0",
     "@ionic-native/header-color": "^4.1.0",
     "@ionic-native/in-app-browser": "^3.6.1",
+    "@ionic-native/in-app-purchase-2": "^4.5.0",
     "@ionic-native/market": "^4.4.2",
     "@ionic-native/native-audio": "^4.1.0",
     "@ionic-native/social-sharing": "^3.6.1",
@@ -37,6 +38,7 @@
     "@ionic/storage": "2.0.1",
     "angular2-moment": "^1.0.0",
     "bluebird": "^3.4.7",
+    "cc.fovea.cordova.purchase": "^7.1.0",
     "cordova-android": "^6.3.0",
     "cordova-ios": "4.5.4",
     "cordova-plugin-add-swift-support": "^1.7.0",
@@ -102,6 +104,9 @@
       "cordova-plugin-market": {},
       "phonegap-plugin-barcodescanner": {
         "CAMERA_USAGE_DESCRIPTION": "To scan barcodes"
+      },
+      "cc.fovea.cordova.purchase": {
+        "BILLING_KEY": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtBe7TEwulSjHC3qq5k7je1yGGB8nLRubQxNN9ZA7C9YW4LvcSTB5sFcLW8DNmDEQ1Psdyil7TVZ0FKcSx7deykaynQy0jC36UAaHzQNBKPB7J9HhJFVo6cgutOzlVavdlIBgyEfgBon4XXcByzdNsawydVaiMtuV2mUCEpnheetnH36bEPqex0bXPY43cCEBjRCL4Utn0Ne/hbu+og57sTH4JvAs99oSRo1AIsGPwALpFUsNOwG170bO8cDsCWtMKcNnAzGhl5dgKHAyiqSXf1p8bwSWHOCO685IrcWAdH6uVq+eTfjmvqQnUDLl/ZsiXvVcozcjYVo0dJut2JUqcQIDAQAB"
       }
     },
     "platforms": [
