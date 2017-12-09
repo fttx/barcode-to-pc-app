@@ -100,7 +100,9 @@
       "cordova-plugin-headercolor": {},
       "cordova-plugin-nativeaudio": {},
       "cordova-plugin-market": {},
-      "phonegap-plugin-barcodescanner": {}
+      "phonegap-plugin-barcodescanner": {
+        "CAMERA_USAGE_DESCRIPTION": "To scan barcodes"
+      }
     },
     "platforms": [
       "android",
