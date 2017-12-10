@@ -1,8 +1,10 @@
+// Modules
 import { NgModule, ErrorHandler } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { HttpModule } from '@angular/http';
 import { IonicApp, IonicModule, IonicErrorHandler } from 'ionic-angular';
 import { IonicStorageModule } from '@ionic/storage';
+import { MomentModule } from 'angular2-moment';
 
 // Ionic-native
 import { SplashScreen } from '@ionic-native/splash-screen';
@@ -27,6 +29,7 @@ import { SelectScanningModePage } from '../pages/scan-session/select-scanning-mo
 import { WelcomePage } from '../pages/welcome/welcome';
 import { ScanSessionPage } from '../pages/scan-session/scan-session';
 import { SelectServerPage } from '../pages/select-server/select-server';
+import { BuyProPage } from '../pages/buy-pro/buy-pro';
 
 // Providers
 import { ServerProvider } from '../providers/server'
