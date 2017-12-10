@@ -1,27 +1,10 @@
-import { Zeroconf } from '@ionic-native/zeroconf';
 import { NgModule, ErrorHandler } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { HttpModule } from '@angular/http';
 import { IonicApp, IonicModule, IonicErrorHandler } from 'ionic-angular';
-import { MyApp } from './app.component';
-import { SettingsPage } from '../pages/settings/settings';
-import { HelpPage } from '../pages/help/help';
-import { AboutPage } from '../pages/about/about';
-import { ScanSessionsPage } from '../pages/scan-sessions/scan-sessions';
-import { EditScanSessionPage } from '../pages/scan-session/edit-scan-session/edit-scan-session';
-import { SelectScanningModePage } from '../pages/scan-session/select-scanning-mode/select-scanning-mode';
-import { WelcomePage } from '../pages/welcome/welcome';
-import { ScanSessionPage } from '../pages/scan-session/scan-session';
-import { SelectServerPage } from '../pages/select-server/select-server';
-import { CircleTextComponent } from '../components/circle-text';
-import { ServerProvider } from '../providers/server'
-import { Settings } from '../providers/settings'
-import { CameraScannerProvider } from '../providers/camera-scanner';
-
-import { ScanSessionsStorage } from '../providers/scan-sessions-storage'
 import { IonicStorageModule } from '@ionic/storage';
-import { MomentModule } from 'angular2-moment';
 
+// Ionic-native
 import { SplashScreen } from '@ionic-native/splash-screen';
 import { StatusBar } from '@ionic-native/status-bar';
 import { GoogleAnalytics } from '@ionic-native/google-analytics';
@@ -31,6 +14,29 @@ import { AppVersion } from '@ionic-native/app-version';
 import { SocialSharing } from '@ionic-native/social-sharing';
 import { BarcodeScanner } from '@fttx/barcode-scanner';
 import { NativeAudio } from '@ionic-native/native-audio';
+import { InAppPurchase2 } from '@ionic-native/in-app-purchase-2';
+import { Zeroconf } from '@ionic-native/zeroconf';
+
+// Pages
+import { SettingsPage } from '../pages/settings/settings';
+import { HelpPage } from '../pages/help/help';
+import { AboutPage } from '../pages/about/about';
+import { ScanSessionsPage } from '../pages/scan-sessions/scan-sessions';
+import { EditScanSessionPage } from '../pages/scan-session/edit-scan-session/edit-scan-session';
+import { SelectScanningModePage } from '../pages/scan-session/select-scanning-mode/select-scanning-mode';
+import { WelcomePage } from '../pages/welcome/welcome';
+import { ScanSessionPage } from '../pages/scan-session/scan-session';
+import { SelectServerPage } from '../pages/select-server/select-server';
+
+// Providers
+import { ServerProvider } from '../providers/server'
+import { Settings } from '../providers/settings'
+import { CameraScannerProvider } from '../providers/camera-scanner';
+import { ScanSessionsStorage } from '../providers/scan-sessions-storage'
+
+// Compontents
+import { MyApp } from './app.component';
+import { CircleTextComponent } from '../components/circle-text';
 
 @NgModule({
   declarations: [
@@ -51,7 +57,6 @@ import { NativeAudio } from '@ionic-native/native-audio';
     HttpModule,
     IonicStorageModule.forRoot(),
     IonicModule.forRoot(MyApp),
-    MomentModule,
   ],
   bootstrap: [IonicApp],
   entryComponents: [
@@ -81,6 +86,7 @@ import { NativeAudio } from '@ionic-native/native-audio';
     BarcodeScanner,
     Zeroconf,
     NativeAudio,
+    InAppPurchase2,
     { provide: ErrorHandler, useClass: IonicErrorHandler },
   ]
 })
