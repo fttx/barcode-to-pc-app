@@ -87,8 +87,6 @@
         <icon height="1024" src="resources/ios/icon/icon-1024.png" width="1024" />
         <splash height="2732" src="resources/ios/splash/Default@2x~universal~anyany.png" width="2732" />
     </platform>
-    <engine name="android" spec="^6.3.0" />
-    <engine name="ios" spec="4.5.4" />
     <plugin name="cordova-plugin-app-version" spec="^0.1.9" />
     <plugin name="cordova-plugin-console" spec="^1.1.0" />
     <plugin name="cordova-plugin-device" spec="^1.1.6" />
@@ -103,10 +101,12 @@
     <plugin name="cordova-plugin-headercolor" spec="^1.0.0" />
     <plugin name="cordova-plugin-nativeaudio" spec="^3.0.9" />
     <plugin name="cordova-plugin-market" spec="^1.2.0" />
-    <plugin name="phonegap-plugin-barcodescanner" spec="@fttx/phonegap-plugin-barcodescanner@~7.0.0">
+    <plugin name="@fttx/phonegap-plugin-barcodescanner" spec="^7.0.1">
         <variable name="CAMERA_USAGE_DESCRIPTION" value="To scan barcodes" />
     </plugin>
     <plugin name="cc.fovea.cordova.purchase" spec="^7.1.0">
         <variable name="BILLING_KEY" value="MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtBe7TEwulSjHC3qq5k7je1yGGB8nLRubQxNN9ZA7C9YW4LvcSTB5sFcLW8DNmDEQ1Psdyil7TVZ0FKcSx7deykaynQy0jC36UAaHzQNBKPB7J9HhJFVo6cgutOzlVavdlIBgyEfgBon4XXcByzdNsawydVaiMtuV2mUCEpnheetnH36bEPqex0bXPY43cCEBjRCL4Utn0Ne/hbu+og57sTH4JvAs99oSRo1AIsGPwALpFUsNOwG170bO8cDsCWtMKcNnAzGhl5dgKHAyiqSXf1p8bwSWHOCO685IrcWAdH6uVq+eTfjmvqQnUDLl/ZsiXvVcozcjYVo0dJut2JUqcQIDAQAB" />
     </plugin>
+    <engine name="android" spec="~6.3.0" />
+    <engine name="ios" spec="~4.5.4" />
 </widget>
