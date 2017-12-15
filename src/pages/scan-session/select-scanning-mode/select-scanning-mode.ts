@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { ViewController } from 'ionic-angular';
+import { ViewController, NavParams } from 'ionic-angular';
 import { Settings } from './../../../providers/settings';
 
 /*
@@ -15,13 +15,18 @@ import { Settings } from './../../../providers/settings';
 export class SelectScanningModePage {
   public static SCAN_MODE_CONTINUE = 'continue';
   public static SCAN_MODE_SINGLE = 'single';
+  public static SCAN_MODE_EMPTY = 'empty';
 
   public isDefault = false;
+
+  public showCreateEmptyScanSession = false;
 
   constructor(
     public viewCtrl: ViewController,
     private settings: Settings,
+    public navParams: NavParams
   ) {
+    this.showCreateEmptyScanSession = navParams.get('showCreateEmptyScanSession');
   }
 
   ionViewWillEnter() {

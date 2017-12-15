@@ -114,7 +114,7 @@ export class ScanSessionPage {
   }
 
   scan() { // Called when the user want to scan (except for retake scan)
-    let selectScanningModeModal = this.modalCtrl.create(SelectScanningModePage);
+    let selectScanningModeModal = this.modalCtrl.create(SelectScanningModePage, { showCreateEmptyScanSession: this.isNewSession });
     selectScanningModeModal.onDidDismiss(mode => {
 
       // if the user doesn't choose the mode (clicks cancel) and didn't enter the scan-session page

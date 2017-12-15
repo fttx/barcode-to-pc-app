@@ -33,6 +33,14 @@
           <p>Continue mode</p>
         </div>
       </ion-col>
+      <ion-col col-12 col-sm padding-vertical color="text" full  class="half-button" [hidden]="!showCreateEmptyScanSession">
+        or
+      </ion-col>
+      <ion-col col-12 col-sm [hidden]="!showCreateEmptyScanSession">
+        <div padding-vertical full class="half-button" (click)="dismiss('empty')">
+          <button ion-button small>Create an empty scan session</button>
+        </div>
+      </ion-col>
     </ion-row>
   </ion-grid>
 </ion-content>
@@ -41,7 +49,7 @@
   <ion-toolbar>
     <ion-title>Set as default mode</ion-title>
     <ion-buttons right>
-      <ion-checkbox  margin-right [(ngModel)]="isDefault"></ion-checkbox>      
+      <ion-checkbox margin-right [(ngModel)]="isDefault"></ion-checkbox>
     </ion-buttons>
   </ion-toolbar>
 </ion-footer>
