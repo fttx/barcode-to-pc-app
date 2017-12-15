@@ -1,6 +1,6 @@
 import { Config } from './../../providers/config';
 import { Settings } from './../../providers/settings';
-import { Component, NgZone } from '@angular/core';
+import { Component, NgZone, HostListener } from '@angular/core';
 import { NavParams, ModalController, Platform } from 'ionic-angular';
 import { SocialSharing } from '@ionic-native/social-sharing';
 import { ScanSessionModel } from '../../models/scan-session.model'
@@ -40,6 +40,7 @@ export class ScanSessionPage {
   public next = -1;
   public isRepeating: 'paused' | true | false = false;
 
+  public keyboardBuffer = '';
 
   constructor(
     navParams: NavParams,
@@ -62,6 +63,22 @@ export class ScanSessionPage {
     this.isNewSession = navParams.get('isNewSession');
     this.nativeAudio.preloadSimple('beep', 'assets/audio/beep.ogg');
 
+  }
+
+  @HostListener('window:keyup', ['$event'])
+  keyEvent(event: KeyboardEvent) {
+    console.log(event)
+    if (event.keyCode == 13) {
+      let scan = new ScanModel();
+      scan.cancelled = false;
+      scan.id = new Date().getTime();
+      scan.repeated = false;
+      scan.text = this.keyboardBuffer;
+      this.keyboardBuffer = '';
+      this.onScan(scan);
+    } else {
+      this.keyboardBuffer += event.key;
+    }
   }
 
   private responseSubscription = null;
