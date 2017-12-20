@@ -1,0 +1,47 @@
+<ion-header>
+
+  <ion-navbar color="primary">
+    <ion-title>Buy Pro</ion-title>
+  </ion-navbar>
+
+</ion-header>
+
+
+<ion-content padding>
+  <ion-card>
+    <ion-card-header>
+      {{ product?.title }}
+    </ion-card-header>
+    <ion-card-content>
+      {{ product?.description }}
+      <p>{{ product?.price }} </p>
+
+
+    </ion-card-content>
+
+
+    <ion-row>
+      <!-- <ion-col>
+        <button ion-button clear small color="danger" icon-start>
+          <ion-icon name='star'></ion-icon>
+          Favorite
+        </button>
+      </ion-col>
+      <ion-col text-center>
+        <button ion-button clear small color="danger" icon-start>
+          <ion-icon name='musical-notes'></ion-icon>
+          Listen
+        </button>
+      </ion-col> -->
+      <ion-col text-right>
+        <!-- <button ion-button text-right (click)="purchase()">Buy</button> -->
+        <button ion-button (click)="purchase()" icon-start>
+          <ion-icon name="cart"></ion-icon>
+          Buy
+        </button>
+      </ion-col>
+    </ion-row>
+  </ion-card>
+
+  {{ product | json }}
+</ion-content>
