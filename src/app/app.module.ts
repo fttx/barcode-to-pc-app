@@ -29,7 +29,7 @@ import { SelectScanningModePage } from '../pages/scan-session/select-scanning-mo
 import { WelcomePage } from '../pages/welcome/welcome';
 import { ScanSessionPage } from '../pages/scan-session/scan-session';
 import { SelectServerPage } from '../pages/select-server/select-server';
-import { BuyProPage } from '../pages/buy-pro/buy-pro';
+// import { BuyProPage } from '../pages/buy-pro/buy-pro';
 
 // Providers
 import { ServerProvider } from '../providers/server'
@@ -58,6 +58,7 @@ import { CircleTextComponent } from '../components/circle-text';
   imports: [
     BrowserModule,
     HttpModule,
+    MomentModule,
     IonicStorageModule.forRoot(),
     IonicModule.forRoot(MyApp),
   ],
