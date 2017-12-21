@@ -22,6 +22,7 @@ export class Settings {
   private static DEVICE_NAME = 'device_name';
   private static REPEAT_INTERVAL = 'repeat_interval';
   private static PREFER_FRONT_CAMERA = 'prefer_front_camera';
+  private static LAST_VERSION = 'last_version';
 
   constructor(
     public storage: Storage,
@@ -73,6 +74,14 @@ export class Settings {
 
   getNoRunnings(): Promise<number> {
     return this.storage.get(Settings.NO_RUNNINGS);
+  }
+
+  setLastVersion(lastVersion: string) {
+    return this.storage.set(Settings.LAST_VERSION, lastVersion);
+  }
+
+  getLastVersion(): Promise<string> {
+    return this.storage.get(Settings.LAST_VERSION);
   }
 
   setContinueModeTimeout(seconds: number) {

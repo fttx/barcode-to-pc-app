@@ -1,5 +1,5 @@
 import { Component, ViewChild } from '@angular/core';
-import { Platform, MenuController, NavController, ModalController } from 'ionic-angular';
+import { Platform, MenuController, NavController, ModalController, AlertController } from 'ionic-angular';
 import { SplashScreen } from '@ionic-native/splash-screen';
 
 import { ScanSessionsPage } from '../pages/scan-sessions/scan-sessions';
@@ -12,6 +12,8 @@ import { StatusBar } from '@ionic-native/status-bar';
 import { HelpPage } from '../pages/help/help';
 import { GoogleAnalytics } from '@ionic-native/google-analytics';
 import { Config } from '../providers/config';
+import { AppVersion } from '@ionic-native/app-version';
+import { Http } from '@angular/http';
 
 @Component({
   templateUrl: 'app.html',
@@ -25,10 +27,13 @@ export class MyApp {
     platform: Platform,
     splashScreen: SplashScreen,
     statusBar: StatusBar,
+    appVersion: AppVersion,
+    private alertCtrl: AlertController,
     private settings: Settings,
     public menuCtrl: MenuController,
     public modalCtrl: ModalController,
     private ga: GoogleAnalytics,
+    private http: Http,
   ) {
     platform.ready().then(() => {
 
@@ -40,10 +45,12 @@ export class MyApp {
         }
       })
 
-      Promise.all([this.settings.getNoRunnings(), this.settings.getEverConnected(), this.settings.getAlwaysSkipWelcomePage()]).then((results: any[]) => {
+      Promise.all([this.settings.getNoRunnings(), this.settings.getEverConnected(), this.settings.getAlwaysSkipWelcomePage(), this.settings.getLastVersion(), appVersion.getVersionNumber()]).then((results: any[]) => {
         let runnings = results[0];
         let everConnected = results[1];
         let alwaysSkipWelcomePage = results[2];
+        let lastVersion = results[3];
+        let currentVersion = results[4];
 
         if ((!runnings || !everConnected) && !alwaysSkipWelcomePage) {
           this.rootPage = WelcomePage;
@@ -53,6 +60,28 @@ export class MyApp {
 
         let newRunnings = runnings || 0;
         this.settings.setNoRunnings(++newRunnings);
+
+        if (lastVersion != currentVersion) {
+          this.http.get(Config.GITHUB_LATEST_RELEASE_URL).subscribe(res => {
+            let changelog = '';
+
+            let releases = [];
+            releases = res.json();
+
+            releases.forEach(release => {
+              if (!release['prerelease'] && release['body'].length > 1) {
+                changelog += '<h1>' + release['name']  + '</h1><ul>' + release['body'].replace(/\n\r/g, '<br>').replace(/\n/g, '<br>').replace(/\-/g, '<li>') + '</ul><br>';
+              }
+            });
+
+            this.alertCtrl.create({
+              title: 'The app has been updated',
+              message: changelog,
+              buttons: ['Ok']
+            }).present();
+          });
+          this.settings.setLastVersion(currentVersion);
+        }
 
         splashScreen.hide();
         if (platform.is('ios')) {

@@ -98,7 +98,7 @@ export class ScanSessionsPage {
     this.connected = true;
 
     Promise.join(this.settings.getNoRunnings(), this.settings.getRated(), (runnings, rated) => {
-      console.log('promise join: getNoRunnings getRated getDeviceName ')
+      console.log('promise join: getNoRunnings getRated ')
       if (runnings >= Config.NO_RUNNINGS_BEFORE_SHOW_RATING && !rated) {
         let os = this.device.platform || 'unknown';
         let isAndroid = os.toLowerCase().indexOf('android') != -1;

@@ -238,7 +238,7 @@ export class ServerProvider {
 
 
       Promise.join(this.settings.getRated(), this.settings.getDeviceName(), this.scanSessionsStorage.getLastScanDate(), (rated, deviceName, lastScanDate) => {
-        console.log('promise join: getNoRunnings getRated getDeviceName ')
+        console.log('promise join: getDeviceName getRated getLastScanDate ')
         let request = new requestModelHelo().fromObject({
           deviceName: deviceName,
           deviceId: this.device.uuid,
