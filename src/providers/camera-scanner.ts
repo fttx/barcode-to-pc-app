@@ -34,8 +34,10 @@ export class CameraScannerProvider {
           }
 
           if (scan && scan.text) {
-            scan.id = new Date().getTime();
+            let now = new Date().getTime();
+            scan.id = now;
             scan.repeated = false;
+            scan.date = now;
             observer.next(scan);
           }
         }, (err) => {
