@@ -7,5 +7,4 @@ export class ScanModel implements BarcodeScanResult {
     text: string;
     ack: boolean;
     id: number;
-    date: number;
 }

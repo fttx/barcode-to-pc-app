@@ -70,10 +70,8 @@ export class ScanSessionPage {
     console.log(event)
     if (event.keyCode == 13) {
       let scan = new ScanModel();
-      let now = new Date().getTime();
       scan.cancelled = false;
-      scan.id = now;
-      scan.date = now;
+      scan.id = new Date().getTime();
       scan.repeated = false;
       scan.text = this.keyboardBuffer;
       this.keyboardBuffer = '';
@@ -527,12 +525,10 @@ export class ScanSessionPage {
           text: 'Add',
           handler: data => {
             let scan = new ScanModel();
-            let now = new Date().getTime();
             scan.cancelled = false;
-            scan.id = now;
+            scan.id = new Date().getTime();
             scan.repeated = false;
             scan.text = data.text;
-            scan.date = now;
             this.onScan(scan);
           }
         }

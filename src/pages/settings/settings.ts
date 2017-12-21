@@ -14,9 +14,9 @@ import { ScanSessionsStorage } from '../../providers/scan-sessions-storage';
 */
 @Component({
   selector: 'page-settings',
-  templateUrl: 'general-settings.html'
+  templateUrl: 'settings.html'
 })
-export class GeneralSettingsPage {
+export class SettingsPage {
   public deviceName: string;
   public continueModeTimeout = Config.DEFAULT_CONTINUE_MODE_TIMEOUT;
   public repeatInterval = Config.DEFAULT_REPEAT_INVERVAL;
