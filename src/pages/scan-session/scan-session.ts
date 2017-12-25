@@ -35,7 +35,7 @@ export class ScanSessionPage {
   private lastScanDate: number;
   private newScanDate: number;
 
-  public repeatInterval;
+  public repeatInterval = Config.DEFAULT_REPEAT_INVERVAL;
   public repeatAllTimeout = null;
   public next = -1;
   public isRepeating: 'paused' | true | false = false;
@@ -436,7 +436,7 @@ export class ScanSessionPage {
 
 
             this.settings.getRepeatInterval().then(repeatInterval => {
-              if (!repeatInterval || repeatInterval == null) {
+              if (repeatInterval && repeatInterval != null) {
                 this.repeatInterval = repeatInterval;
               }
 
