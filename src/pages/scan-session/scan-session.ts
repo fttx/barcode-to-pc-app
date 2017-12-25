@@ -95,7 +95,7 @@ export class ScanSessionPage {
             for (let i = (len - 1); i >= 0; i--) {
               if (this.scanSession.scannings[i].id == response.scanId) {
                 this.scanSession.scannings[i].ack = true;
-                this.scanSession.scannings[i].repeated = false;
+                // this.scanSession.scannings[i].repeated = false;
               }
             }
           }
