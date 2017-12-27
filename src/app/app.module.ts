@@ -18,6 +18,7 @@ import { BarcodeScanner } from '@fttx/barcode-scanner';
 import { NativeAudio } from '@ionic-native/native-audio';
 import { InAppPurchase2 } from '@ionic-native/in-app-purchase-2';
 import { Zeroconf } from '@ionic-native/zeroconf';
+import { Network } from '@ionic-native/network';
 
 // Pages
 import { SettingsPage } from '../pages/settings/settings';
@@ -89,6 +90,7 @@ import { CircleTextComponent } from '../components/circle-text';
     AppVersion,
     BarcodeScanner,
     Zeroconf,
+    Network,
     NativeAudio,
     InAppPurchase2,
     { provide: ErrorHandler, useClass: IonicErrorHandler },
