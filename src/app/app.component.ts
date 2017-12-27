@@ -61,7 +61,7 @@ export class MyApp {
         let newRunnings = runnings || 0;
         this.settings.setNoRunnings(++newRunnings);
 
-        if (lastVersion != currentVersion) {
+        if (lastVersion != currentVersion && newRunnings > 1) {
           this.http.get(Config.GITHUB_LATEST_RELEASE_URL).subscribe(res => {
             let changelog = '';
 
