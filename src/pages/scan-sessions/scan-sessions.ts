@@ -13,7 +13,7 @@ import { Market } from '@ionic-native/market';
 import * as Promise from 'bluebird'
 import { responseModel, responseModelHelo } from '../../models/response.model';
 import { wsEvent } from '../../models/ws-event.model';
-import { requestModelDeleteScanSession } from '../../models/request.model';
+import { requestModelDeleteScanSession, requestModelClearScanSessions } from '../../models/request.model';
 
 @Component({
   selector: 'page-scannings',
@@ -94,7 +94,7 @@ export class ScanSessionsPage {
     }
   }
 
-  onConnect() {
+  private onConnect() {
     this.connected = true;
 
     Promise.join(this.settings.getNoRunnings(), this.settings.getRated(), (runnings, rated) => {
@@ -146,6 +146,11 @@ export class ScanSessionsPage {
         text: 'Cancel', role: 'cancel'
       }, {
         text: 'Delete', handler: () => {
+          if (!this.connected) {
+            this.showCannotDeleteOffline();
+            return;
+          }
+
           this.scanSessions.splice(index, 1);
           this.save();
           this.sendDeleteScanSessions(scanSession);
@@ -165,14 +170,49 @@ export class ScanSessionsPage {
     this.navCtrl.push(ScanSessionPage, { scanSession: newScanSession, isNewSession: true });
   }
 
-  sendDeleteScanSessions(scanSession: ScanSessionModel) {
+  onClearScanSessionsClick() {
+    this.alertCtrl.create({
+      title: 'Confirm delete',
+      message: 'Do you really want to delete ALL scan sessions?',
+      buttons: [{
+        text: 'Cancel', role: 'cancel'
+      }, {
+        text: 'Delete', handler: () => {
+          if (!this.connected) {
+            this.showCannotDeleteOffline();
+            return;
+          }
+
+          this.scanSessions = [];
+          this.save();
+          this.sendClearScanSessions();
+        }
+      }]
+    }).present();
+  }
+
+  showCannotDeleteOffline() {
+    this.alertCtrl.create({
+      title: 'Cannot perform this action while offline',
+      message: 'Please connect the app to the server',
+      buttons: [{
+        text: 'Ok', role: 'cancel'
+      }]
+    }).present();
+  }
+
+  private sendClearScanSessions() {
+    this.serverProvider.send( new requestModelClearScanSessions().fromObject({}));
+  }
+
+  private sendDeleteScanSessions(scanSession: ScanSessionModel) {
     let wsRequest = new requestModelDeleteScanSession().fromObject({
       scanSessionId: scanSession.id
     });
     this.serverProvider.send(wsRequest);
   }
 
-  save() {
+  private save() {
     this.scanSessionsStorage.putScanSessions(this.scanSessions);
   }
 }

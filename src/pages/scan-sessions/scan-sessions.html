@@ -7,11 +7,12 @@
 		<ion-title>Scan sessions</ion-title>
 
 		<ion-buttons end>
+			<button ion-button icon-only (click)="onClearScanSessionsClick()">
+				<ion-icon name="trash"></ion-icon>
+			</button>
 			<button ion-button icon-only (click)="onSelectServerClick()">
-				<ion-icon 
-					name="ios-wifi"
-					[style.color]="connected ? 'white': 'rgba(255,255,255,.4)'"></ion-icon>
-      		</button>
+				<ion-icon name="ios-wifi" [style.color]="connected ? 'white': 'rgba(255,255,255,.4)'"></ion-icon>
+			</button>
 		</ion-buttons>
 	</ion-navbar>
 </ion-header>
@@ -40,8 +41,9 @@
 	</ion-list>
 
 	<div class="empty" *ngIf="scanSessions.length == 0">
-		<img src="assets/welcome/a5fsa.jpg" alt="logo" class="desaturate-img" /> <br /> Scan sessions list is empty<br /> Click
-		on the camera button to start scanning
+		<img src="assets/welcome/a5fsa.jpg" alt="logo" class="desaturate-img" />
+		<br /> Scan sessions list is empty
+		<br /> Click on the camera button to start scanning
 	</div>
 
 	<!--Other possible implementation-->
@@ -61,7 +63,7 @@
 
 	<ion-fab bottom right>
 		<button ion-fab (click)="onAddClick()">
-			 <ion-icon name="camera"></ion-icon>
+			<ion-icon name="camera"></ion-icon>
 		</button>
 	</ion-fab>
 </ion-content>
