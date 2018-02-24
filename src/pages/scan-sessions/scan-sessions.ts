@@ -162,7 +162,7 @@ export class ScanSessionsPage {
     if (this.selectedScanSessions.length == 0) { // prevent click after long press
       if (this.preventClickTimeout) clearTimeout(this.preventClickTimeout);
       this.clickDisabled = true;
-      this.preventClickTimeout = setTimeout(() => this.clickDisabled = false, 1000);
+      this.preventClickTimeout = setTimeout(() => this.clickDisabled = false, 500);
     }
 
     this.select(scanSession, index);
