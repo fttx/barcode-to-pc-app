@@ -1,7 +1,7 @@
 import { Settings } from './../../providers/settings';
 import { Config } from '../../providers/config';
 import { Component } from '@angular/core';
-import { PopoverController, NavController, AlertController } from 'ionic-angular';
+import { PopoverController, NavController, AlertController, Platform, ItemSliding } from 'ionic-angular';
 import { ScanSessionModel } from '../../models/scan-session.model'
 import { ScanSessionPage } from '../scan-session/scan-session'
 import { SelectServerPage } from '../select-server/select-server'
@@ -13,7 +13,7 @@ import { Market } from '@ionic-native/market';
 import * as Promise from 'bluebird'
 import { responseModel, responseModelHelo } from '../../models/response.model';
 import { wsEvent } from '../../models/ws-event.model';
-import { requestModelDeleteScanSession, requestModelClearScanSessions } from '../../models/request.model';
+import { requestModelDeleteScanSessions, requestModelClearScanSessions } from '../../models/request.model';
 
 @Component({
   selector: 'page-scannings',
@@ -22,8 +22,12 @@ import { requestModelDeleteScanSession, requestModelClearScanSessions } from '..
 export class ScanSessionsPage {
   public connected = false;
   public scanSessions: ScanSessionModel[] = [];
+  public selectedScanSessions: ScanSessionModel[] = [];
+
   private responseSubscription = null;
   private wsEventSubscription = null;
+  private preventClickTimeout = null;
+  private clickDisabled = false;
 
   constructor(
     public navCtrl: NavController,
@@ -94,6 +98,10 @@ export class ScanSessionsPage {
     }
   }
 
+  ionViewWillLeave() {
+    this.unselectAll();
+  }
+
   private onConnect() {
     this.connected = true;
 
@@ -134,11 +142,37 @@ export class ScanSessionsPage {
     this.navCtrl.push(SelectServerPage);
   }
 
-  onItemSelected(scanSession) {
-    this.navCtrl.push(ScanSessionPage, { scanSession: scanSession, isNewSession: false });
+  onScanSessionClick(scanSession, index: number) {
+    if (this.clickDisabled) return; // prevent click after long press
+
+    if (this.selectedScanSessions.length == 0) {
+      // this.cancelSelection();
+      this.navCtrl.push(ScanSessionPage, { scanSession: scanSession, isNewSession: false });
+    } else {
+      this.select(scanSession, index);
+    }
   }
 
-  delete(scanSession, index) {
+  onSelectAllClick() {
+    this.scanSessions.forEach(x => x.selected = true);
+    this.selectedScanSessions = [].concat(this.scanSessions);
+  }
+
+  onScanSessionPress(scanSession: ScanSessionModel, index: number) {
+    if (this.selectedScanSessions.length == 0) { // prevent click after long press
+      if (this.preventClickTimeout) clearTimeout(this.preventClickTimeout);
+      this.clickDisabled = true;
+      this.preventClickTimeout = setTimeout(() => this.clickDisabled = false, 1000);
+    }
+
+    this.select(scanSession, index);
+  }
+
+  onCancelSelectionClick() {
+    this.unselectAll();
+  }
+
+  onDeleteClick(scanSession: ScanSessionModel, index: number) {
     this.alertCtrl.create({
       title: 'Confirm delete',
       message: 'Do you really want to delete ' + scanSession.name + '?',
@@ -151,12 +185,31 @@ export class ScanSessionsPage {
             return;
           }
 
-          this.scanSessions.splice(index, 1);
+          this.removeScanSession(index);
           this.save();
-          this.sendDeleteScanSessions(scanSession);
+          this.sendDeleteScanSessions([scanSession]);
         }
       }]
     }).present();
+  }
+
+  private unselectAll() {
+    this.selectedScanSessions.forEach(x => x.selected = false);
+    this.selectedScanSessions = [];
+  }
+
+  private select(scanSession: ScanSessionModel, index: number) {
+    if (scanSession.selected) {
+      scanSession.selected = false;
+      if (this.selectedScanSessions.length == 1) {
+        this.selectedScanSessions = [];
+      } else {
+        this.selectedScanSessions.splice(index, 1);
+      }
+    } else {
+      scanSession.selected = true;
+      this.selectedScanSessions.push(scanSession);
+    }
   }
 
   onAddClick() {
@@ -165,15 +218,20 @@ export class ScanSessionsPage {
       id: date.getTime(),
       name: 'Scan session ' + (this.scanSessions.length + 1),
       date: date,
-      scannings: []
+      scannings: [],
+      selected: false,
     };
     this.navCtrl.push(ScanSessionPage, { scanSession: newScanSession, isNewSession: true });
   }
 
-  onClearScanSessionsClick() {
+  // onArchiveSelectedClick() {
+
+  // }
+
+  onDeleteSelectedClick() {
     this.alertCtrl.create({
       title: 'Confirm delete',
-      message: 'Do you really want to delete ALL scan sessions?',
+      message: 'Do you really want to delete the selected scan sessions?',
       buttons: [{
         text: 'Cancel', role: 'cancel'
       }, {
@@ -183,13 +241,35 @@ export class ScanSessionsPage {
             return;
           }
 
-          this.scanSessions = [];
+          this.sendDeleteScanSessions(this.selectedScanSessions);
+          this.scanSessions = this.scanSessions.filter(x => !x.selected);
+          this.unselectAll();
           this.save();
-          this.sendClearScanSessions();
         }
       }]
     }).present();
   }
+
+  // onClearScanSessionsClick() {
+  //   this.alertCtrl.create({
+  //     title: 'Confirm delete',
+  //     message: 'Do you really want to delete ALL scan sessions?',
+  //     buttons: [{
+  //       text: 'Cancel', role: 'cancel'
+  //     }, {
+  //       text: 'Delete', handler: () => {
+  //         if (!this.connected) {
+  //           this.showCannotDeleteOffline();
+  //           return;
+  //         }
+
+  //         this.scanSessions = [];
+  //         this.save();
+  //         this.sendClearScanSessions();
+  //       }
+  //     }]
+  //   }).present();
+  // }
 
   showCannotDeleteOffline() {
     this.alertCtrl.create({
@@ -201,18 +281,26 @@ export class ScanSessionsPage {
     }).present();
   }
 
-  private sendClearScanSessions() {
-    this.serverProvider.send( new requestModelClearScanSessions().fromObject({}));
-  }
+  // private sendClearScanSessions() {
+  //   this.serverProvider.send(new requestModelClearScanSessions().fromObject({}));
+  // }
 
-  private sendDeleteScanSessions(scanSession: ScanSessionModel) {
-    let wsRequest = new requestModelDeleteScanSession().fromObject({
-      scanSessionId: scanSession.id
+  private sendDeleteScanSessions(scanSessions: ScanSessionModel[]) {
+    let wsRequest = new requestModelDeleteScanSessions().fromObject({
+      scanSessionIds: scanSessions.map(x => { return x.id })
     });
     this.serverProvider.send(wsRequest);
   }
 
   private save() {
     this.scanSessionsStorage.putScanSessions(this.scanSessions);
+  }
+
+  private removeScanSession(index: number) {
+    if (this.scanSessions.length == 1) {
+      this.scanSessions = [];
+    } else {
+      this.scanSessions.splice(index, 1);
+    }
   }
 }

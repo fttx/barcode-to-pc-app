@@ -1,17 +1,32 @@
 <ion-header>
-	<ion-navbar color="primary">
+	<ion-navbar [color]="selectedScanSessions.length != 0 ? 'light' : 'primary'">
 		<button ion-button menuToggle>
 			<ion-icon name="menu"></ion-icon>
 		</button>
 
-		<ion-title>Scan sessions</ion-title>
+		<ion-title *ngIf="selectedScanSessions.length == 0">Scan sessions</ion-title>
 
-		<ion-buttons end>
-			<button ion-button icon-only (click)="onClearScanSessionsClick()">
-				<ion-icon name="trash"></ion-icon>
-			</button>
+		<ion-buttons end *ngIf="selectedScanSessions.length == 0">
 			<button ion-button icon-only (click)="onSelectServerClick()">
 				<ion-icon name="ios-wifi" [style.color]="connected ? 'white': 'rgba(255,255,255,.4)'"></ion-icon>
+			</button>
+		</ion-buttons>
+
+		<ion-buttons end *ngIf="selectedScanSessions.length != 0">
+			<button ion-button icon-only (click)="onSelectAllClick()">
+				<ion-icon name="done-all"></ion-icon>
+			</button>
+<!-- 
+			<button ion-button icon-only (click)="onArchiveSelectedClick()">
+				<ion-icon name="archive"></ion-icon>
+			</button> -->
+
+			<button ion-button icon-only (click)="onDeleteSelectedClick()">
+				<ion-icon name="trash"></ion-icon>
+			</button>
+
+			<button ion-button icon-right color="royal" (click)="onCancelSelectionClick()">
+				Cancel
 			</button>
 		</ion-buttons>
 	</ion-navbar>
@@ -21,7 +36,7 @@
 	<ion-list>
 		<ion-item-sliding *ngFor="let scanSession of scanSessions; let i = index;">
 			<ion-item-options side="right">
-				<button color="danger" ion-button (click)="delete(scanSession, i)">
+				<button color="danger" ion-button (click)="onDeleteClick(scanSession, i)">
 					<ion-icon name="trash"></ion-icon>
 					Delete
 				</button>
@@ -29,9 +44,11 @@
 
 			<!-- ionic bug: press on ios also triggers click -->
 			<!-- work around: use sliding items on ios only -->
-			<button ion-item (click)="onItemSelected(scanSession)" (press)="platform && !platform.is('ios') && delete(scanSession, i)">
+			<!-- UPDATE: maybe fixed? -->
+			<button ion-item (click)="onScanSessionClick(scanSession, i)" (press)="onScanSessionPress(scanSession, i)"
+			 [color]="scanSession.selected ? 'light' : 'default'">
 				<ion-avatar item-left>
-					<circle-text [value]="scanSession.name">{{ scanSession.name }}</circle-text>
+					<circle-text [value]="scanSession.name" [checked]="scanSession.selected">{{ scanSession.name }}</circle-text>
 				</ion-avatar>
 				<h2>{{ scanSession.name }}</h2>
 				<p>Created: {{ scanSession.date | amDateFormat:"YYYY/MM/DD HH:mm" }}</p>

@@ -32,7 +32,8 @@ export class ScanSessionsStorage {
               id: x.id,
               name: x.name,
               date: new Date(x.date),
-              scannings: x.scannings
+              scannings: x.scannings,
+              selected: false,
             }
             return scanSession;
           });

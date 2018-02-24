@@ -15,7 +15,7 @@ import { ScanSessionsStorage } from '../../providers/scan-sessions-storage'
 import { EditScanSessionPage } from './edit-scan-session/edit-scan-session'
 import { SelectScanningModePage } from "./select-scanning-mode/select-scanning-mode";
 import { NativeAudio } from '@ionic-native/native-audio';
-import { requestModelDeleteScan, requestModelPutScan, requestModelDeleteScanSession, requestModelPutScanSession } from '../../models/request.model';
+import { requestModelDeleteScan, requestModelPutScan, requestModelDeleteScanSessions, requestModelPutScanSession } from '../../models/request.model';
 import { responseModel, responseModelPutScanAck } from '../../models/response.model';
 import { Device } from '@ionic-native/device';
 /*
@@ -386,8 +386,8 @@ export class ScanSessionPage {
 
   destroyScanSession() {
     if (this.isSynced) {
-      let wsRequest = new requestModelDeleteScanSession().fromObject({
-        scanSessionId: this.scanSession.id,
+      let wsRequest = new requestModelDeleteScanSessions().fromObject({
+        scanSessionIds: [this.scanSession.id],
       });
       this.serverProvider.send(wsRequest);
     }
