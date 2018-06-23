@@ -321,7 +321,18 @@ export class ScanSessionPage {
     actionSheet.present();
   } // onItemClick
 
-  edit() {
+  onEditClick() {
+    if (!this.serverProvider.isConnected()) {
+      this.alertCtrl.create({
+        title: 'Cannot perform this action offline',
+        message: 'Please connect the app to the computer',
+        buttons: [{
+          text: 'Close',
+          role: 'cancel',
+        }]
+      }).present();
+      return;
+    }
     this.ga.trackEvent('scannings', 'edit_scan');
     let editModal = this.modalCtrl.create(EditScanSessionPage, this.scanSession);
     editModal.onDidDismiss(scanSession => {

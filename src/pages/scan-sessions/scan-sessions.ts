@@ -57,14 +57,9 @@ export class ScanSessionsPage {
       if (!this.wsEventSubscription) {
         this.wsEventSubscription = this.serverProvider.onWsEvent().subscribe((event: wsEvent) => {
           console.log('[S-SESSIONS]: ' + event.name)
+          this.connected = this.serverProvider.isConnected();
           if (event.name == wsEvent.EVENT_OPEN) {
             this.onConnect();
-          } else if (event.name == wsEvent.EVENT_CLOSE) {
-            this.connected = false;
-          } else if (event.name == wsEvent.EVENT_ERROR) {
-            this.connected = false;
-          } else if (event.name == wsEvent.EVENT_ALREADY_OPEN) {
-            this.connected = true;
           }
         });
       }
@@ -103,8 +98,6 @@ export class ScanSessionsPage {
   }
 
   private onConnect() {
-    this.connected = true;
-
     Promise.join(this.settings.getNoRunnings(), this.settings.getRated(), (runnings, rated) => {
       console.log('promise join: getNoRunnings getRated ')
       if (runnings >= Config.NO_RUNNINGS_BEFORE_SHOW_RATING && !rated) {

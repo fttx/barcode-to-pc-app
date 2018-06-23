@@ -25,6 +25,7 @@ export class ServerProvider {
   public static EVENT_CODE_CLOSE_NORMAL = 1000;
   public static EVENT_CODE_DO_NOT_ATTEMP_RECCONECTION = 4000; // Another server has been selected, do not attemp to connect again
 
+  private connected = false;
   private webSocket: WebSocket;
   private responseObserver = new Subject<responseModel>();
   private wsEventObserver = new Subject<wsEvent>();
@@ -82,7 +83,8 @@ export class ServerProvider {
     } else if (this.webSocket.readyState == WebSocket.OPEN) {
       console.log('[S]: already connected to a server, no action taken');
       this.serverQueue = [];
-      this.wsEventObserver.next({ name: 'alreadyOpen', ws: this.webSocket });
+      this.connected = true;
+      this.wsEventObserver.next({ name: wsEvent.EVENT_ALREADY_OPEN, ws: this.webSocket });
     }
     //console.log('[S]: queue: ', this.serverQueue);
   }
@@ -97,7 +99,8 @@ export class ServerProvider {
     if (this.webSocket) {
       if (this.everConnected && !this.reconnecting) {
         this.toast('Connection lost');
-        this.wsEventObserver.next({ name: 'error', ws: this.webSocket });
+        this.connected = false;
+        this.wsEventObserver.next({ name: wsEvent.EVENT_ERROR, ws: this.webSocket });
       }
       let code = reconnect ? ServerProvider.EVENT_CODE_CLOSE_NORMAL : ServerProvider.EVENT_CODE_DO_NOT_ATTEMP_RECCONECTION;
       this.webSocket.close(code);
@@ -218,6 +221,7 @@ export class ServerProvider {
       }
 
       this.settings.saveServer(server);
+      this.connected = true;
       this.wsEventObserver.next({ name: 'open', ws: this.webSocket });
       this.toast('Connection established with ' + server.name)
 
@@ -265,8 +269,8 @@ export class ServerProvider {
       if (!this.reconnecting) {
         this.toast('Unable to connect. Select Help from the app menu in order to determine the cause');
       }
-
-      this.wsEventObserver.next({ name: 'error', ws: this.webSocket });
+      this.connected = false;
+      this.wsEventObserver.next({ name: wsEvent.EVENT_ERROR, ws: this.webSocket });
       this.scheduleNewWsConnection(server);
     }
 
@@ -280,7 +284,8 @@ export class ServerProvider {
         this.scheduleNewWsConnection(server);
       }
 
-      this.wsEventObserver.next({ name: 'close', ws: this.webSocket });
+      this.connected = false;
+      this.wsEventObserver.next({ name: wsEvent.EVENT_CLOSE, ws: this.webSocket });
     }
   }
 
@@ -377,5 +382,9 @@ export class ServerProvider {
         }
       ]
     }).present();
+  }
+
+  public isConnected() {
+    return this.connected;
   }
 }
