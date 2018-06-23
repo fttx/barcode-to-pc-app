@@ -1,17 +1,17 @@
-import { ServerModel } from './../../models/server.model';
-import { Settings } from '../../providers/settings';
 import { Component } from '@angular/core';
-import { NavController, ViewController, AlertController } from 'ionic-angular';
-import { ServerProvider } from '../../providers/server'
-import { Config } from '../../providers/config'
-import { GoogleAnalytics } from '@ionic-native/google-analytics';
 import { BarcodeScanner } from '@fttx/barcode-scanner';
-import { ScanModel } from "../../models/scan.model";
-import { responseModel } from '../../models/response.model';
-import { wsEvent } from '../../models/ws-event.model';
-import { Promise } from 'bluebird';
-import { ScanSessionsStorage } from '../../providers/scan-sessions-storage';
 import { Device } from '@ionic-native/device';
+import { GoogleAnalytics } from '@ionic-native/google-analytics';
+import { Promise } from 'bluebird';
+import { AlertController, NavController, ViewController } from 'ionic-angular';
+
+import { ScanModel } from '../../models/scan.model';
+import { wsEvent } from '../../models/ws-event.model';
+import { Config } from '../../providers/config';
+import { ScanSessionsStorage } from '../../providers/scan-sessions-storage';
+import { ServerProvider } from '../../providers/server';
+import { Settings } from '../../providers/settings';
+import { ServerModel } from './../../models/server.model';
 
 /*
   Generated class for the SelectServer page.
@@ -181,7 +181,7 @@ export class SelectServerPage {
           if (server.online != 'connected') {
             server.online = 'online';
 
-            if (this.selectedServer && this.selectedServer.equals(server) && this.serverProvider.reconnecting) {
+            if (this.selectedServer && this.selectedServer.equals(server) && this.serverProvider.isReconnecting()) {
               console.log('[SEL-SER] the connection state is != connected, trying to connect to ' + addServer.address + ' immediatly because is the selected server')
               this.connect(this.selectedServer);
             }

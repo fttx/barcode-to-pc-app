@@ -1,17 +1,24 @@
-import { ServerModel } from './../models/server.model';
 import { Injectable, NgZone } from '@angular/core';
-import { Settings } from '../providers/settings'
-import { Config } from './config'
-import { ToastController, Platform, AlertController, Alert } from 'ionic-angular';
-import { Zeroconf } from '@ionic-native/zeroconf';
-import { Subject, Observable } from "rxjs";
-import { discoveryResultModel } from "../models/discovery-result";
-import { responseModel, responseModelPopup, responseModelHelo } from '../models/response.model';
-import { requestModel, requestModelPing, requestModelPutScanSessions, requestModelHelo, requestModelGetVersion } from '../models/request.model';
-import { wsEvent } from '../models/ws-event.model';
-import { ScanSessionsStorage } from './scan-sessions-storage';
-import * as Promise from 'bluebird'
 import { Device } from '@ionic-native/device';
+import { Zeroconf } from '@ionic-native/zeroconf';
+import * as Promise from 'bluebird';
+import { Alert, AlertController, Platform, ToastController } from 'ionic-angular';
+import { Observable, Subject } from 'rxjs';
+
+import { discoveryResultModel } from '../models/discovery-result';
+import {
+  requestModel,
+  requestModelGetVersion,
+  requestModelHelo,
+  requestModelPing,
+  requestModelPutScanSessions,
+} from '../models/request.model';
+import { responseModel, responseModelHelo, responseModelPopup } from '../models/response.model';
+import { wsEvent } from '../models/ws-event.model';
+import { Settings } from '../providers/settings';
+import { ServerModel } from './../models/server.model';
+import { Config } from './config';
+import { ScanSessionsStorage } from './scan-sessions-storage';
 
 /*
   Generated class for the Server provider.
@@ -29,7 +36,7 @@ export class ServerProvider {
   private webSocket: WebSocket;
   private responseObserver = new Subject<responseModel>();
   private wsEventObserver = new Subject<wsEvent>();
-  public reconnecting = false;
+  private reconnecting = false;
   private everConnected = false;
   private serverQueue: ServerModel[] = [];
 
@@ -67,7 +74,6 @@ export class ServerProvider {
     });
   }
 
-
   onResponse(): Subject<any> {
     return this.responseObserver;
   }
@@ -91,6 +97,14 @@ export class ServerProvider {
 
   disconnect() {
     this.wsDisconnect(false);
+  }
+
+  isConnected() {
+    return this.connected;
+  }
+
+  isReconnecting() {
+    return this.reconnecting;
   }
 
   private wsDisconnect(reconnect = false) {
@@ -213,12 +227,9 @@ export class ServerProvider {
       this.serverQueue = [];
 
       if (this.pongTimeout) clearTimeout(this.pongTimeout);
-      if (this.reconnectInterval) {
-        clearInterval(this.reconnectInterval);
-        this.reconnectInterval = null;
-        this.reconnecting = false;
-        console.log("WS: reconnected successfully... interval cleared.")
-      }
+      console.log("[S]: WS: reconnected successfully...")
+      this.clearReconnectInterval();
+
 
       this.settings.saveServer(server);
       this.connected = true;
@@ -287,28 +298,7 @@ export class ServerProvider {
       this.connected = false;
       this.wsEventObserver.next({ name: wsEvent.EVENT_CLOSE, ws: this.webSocket });
     }
-  }
-
-  private scheduleNewWsConnection(server) {
-    console.log('[S]: scheduleNewWsConnection()->')
-    this.reconnecting = true;
-    if (this.pongTimeout) clearTimeout(this.pongTimeout);
-    if (this.heartBeatInterval) clearInterval(this.heartBeatInterval);
-    if (!this.reconnectInterval) {
-      if (this.serverQueue.length) {
-        console.log('[S]:    server queue is not empty, attemping a new reconnection whithout waiting')
-        server = this.serverQueue.shift(); // Removes the first element from an array and returns it
-        this.wsConnect(server);
-      } else {
-        console.log('[S]:    server queue is empty, attemping a new reconnection to the same server in ' + ServerProvider.RECONNECT_INTERVAL + ' secs');
-        this.reconnectInterval = setInterval(() => {
-          this.wsConnect(server);
-        }, ServerProvider.RECONNECT_INTERVAL);
-      }
-
-      //console.log("   reconnection scheduled.")
-    }
-  }
+  } // wsConnect() end
 
   send(request: requestModel) {
     if (this.webSocket) {
@@ -363,6 +353,37 @@ export class ServerProvider {
   //   return true;
   // }
 
+
+  private clearReconnectInterval() {
+    if (this.reconnectInterval) {
+      clearInterval(this.reconnectInterval);
+      this.reconnectInterval = null;
+      this.reconnecting = false;
+      console.log("[S]: interval cleared.")
+    }
+  }
+
+  private scheduleNewWsConnection(server) {
+    console.log('[S]: scheduleNewWsConnection()->')
+    this.reconnecting = true;
+    if (this.pongTimeout) clearTimeout(this.pongTimeout);
+    if (this.heartBeatInterval) clearInterval(this.heartBeatInterval);
+    if (!this.reconnectInterval) {
+      if (this.serverQueue.length) {
+        console.log('[S]:    server queue is not empty, attemping a new reconnection whithout waiting')
+        server = this.serverQueue.shift(); // Removes the first element from an array and returns it
+        this.wsConnect(server);
+      } else {
+        console.log('[S]:    server queue is empty, attemping a new reconnection to the same server in ' + ServerProvider.RECONNECT_INTERVAL + ' secs');
+        this.reconnectInterval = setInterval(() => {
+          this.wsConnect(server);
+        }, ServerProvider.RECONNECT_INTERVAL);
+      }
+
+      //console.log("   reconnection scheduled.")
+    }
+  }
+
   private toast(message: string) {
     if (!this.paused) {
       this.lastToastMessage = message;
@@ -382,9 +403,5 @@ export class ServerProvider {
         }
       ]
     }).present();
-  }
-
-  public isConnected() {
-    return this.connected;
   }
 }
