@@ -36,7 +36,7 @@ export class Settings {
     return this.storage.set(Settings.DEFAULT_SERVER, JSON.stringify(server));
   }
 
-  getDefaultServer(): Promise<any> {
+  getDefaultServer(): Promise<ServerModel> {
     return new Promise((resolve, reject) => {
       this.storage.get(Settings.DEFAULT_SERVER).then((data) => {
         console.log('getDefaultServer()', data)

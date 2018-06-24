@@ -50,6 +50,7 @@ export class SelectServerPage {
   ionViewDidEnter() {
     this.ga.trackView("SelectServerPage");
     this.isVisible = true;
+    this.serverProvider.setContinuoslyWatchForServers(true); // TODO: test if this even works
     this.scanForServers();
 
     Promise.join(this.settings.getSavedServers(), this.settings.getDefaultServer(), (savedServers, defaultServer) => {
@@ -64,6 +65,7 @@ export class SelectServerPage {
 
   ionViewDidLeave() {
     this.isVisible = false;
+    this.serverProvider.setContinuoslyWatchForServers(false);
     this.serverProvider.unwatch();
     if (this.wsEventsSubscription) this.wsEventsSubscription.unsubscribe();
     if (this.cannotFindServerTimeout) clearTimeout(this.cannotFindServerTimeout);

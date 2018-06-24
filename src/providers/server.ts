@@ -3,7 +3,7 @@ import { Device } from '@ionic-native/device';
 import { Zeroconf } from '@ionic-native/zeroconf';
 import * as Promise from 'bluebird';
 import { Alert, AlertController, Platform, ToastController } from 'ionic-angular';
-import { Observable, Subject } from 'rxjs';
+import { Observable, Subject, Subscription } from 'rxjs';
 
 import { discoveryResultModel } from '../models/discovery-result';
 import {
@@ -34,8 +34,10 @@ export class ServerProvider {
 
   private connected = false;
   private webSocket: WebSocket;
-  private responseObserver = new Subject<responseModel>();
-  private wsEventObserver = new Subject<wsEvent>();
+  private responseObservable = new Subject<responseModel>();
+  private wsEventObservable = new Subject<wsEvent>();
+  private watchForServersObservable = null;
+  private watchForServersObserver: Subscription;
   private reconnecting = false;
   private everConnected = false;
   private serverQueue: ServerModel[] = [];
@@ -49,6 +51,7 @@ export class ServerProvider {
 
   private fallBackTimeout = null;
   private popup: Alert = null;
+  private continuoslyWatchForServers: boolean; // if true it still watches for new servers after a successfully connection, and if it finds a new server with the same name of the defaultServer it re-connects (this happens when the server has a new ip address)
 
   constructor(
     private settings: Settings,
@@ -75,11 +78,11 @@ export class ServerProvider {
   }
 
   onResponse(): Subject<any> {
-    return this.responseObserver;
+    return this.responseObservable;
   }
 
   onWsEvent(): Subject<wsEvent> {
-    return this.wsEventObserver;
+    return this.wsEventObservable;
   }
 
   connect(server: ServerModel, skipQueue: boolean = false) {
@@ -90,7 +93,7 @@ export class ServerProvider {
       console.log('[S]: already connected to a server, no action taken');
       this.serverQueue = [];
       this.connected = true;
-      this.wsEventObserver.next({ name: wsEvent.EVENT_ALREADY_OPEN, ws: this.webSocket });
+      this.wsEventObservable.next({ name: wsEvent.EVENT_ALREADY_OPEN, ws: this.webSocket });
     }
     //console.log('[S]: queue: ', this.serverQueue);
   }
@@ -114,7 +117,7 @@ export class ServerProvider {
       if (this.everConnected && !this.reconnecting) {
         this.toast('Connection lost');
         this.connected = false;
-        this.wsEventObserver.next({ name: wsEvent.EVENT_ERROR, ws: this.webSocket });
+        this.wsEventObservable.next({ name: wsEvent.EVENT_ERROR, ws: this.webSocket });
       }
       let code = reconnect ? ServerProvider.EVENT_CODE_CLOSE_NORMAL : ServerProvider.EVENT_CODE_DO_NOT_ATTEMP_RECCONECTION;
       this.webSocket.close(code);
@@ -216,7 +219,7 @@ export class ServerProvider {
         this.onVersionMismatch();
         // fallBack for old server versions                
       } else {
-        this.responseObserver.next(messageData);
+        this.responseObservable.next(messageData);
       }
     }
 
@@ -233,7 +236,13 @@ export class ServerProvider {
 
       this.settings.saveServer(server);
       this.connected = true;
-      this.wsEventObserver.next({ name: 'open', ws: this.webSocket });
+      if (!this.continuoslyWatchForServers) {
+        console.log("[S]: stopping watching for servers")
+        this.unwatch();
+      } else {
+        console.log("[S]: stopping watching for servers")
+      }
+      this.wsEventObservable.next({ name: 'open', ws: this.webSocket });
       this.toast('Connection established with ' + server.name)
 
       //console.log('[S]: WS: new heartbeat started');
@@ -275,18 +284,18 @@ export class ServerProvider {
     };
 
     this.webSocket.onerror = err => {
-      //console.log('[S]: onerror')
+      console.log('[S]: WS: onerror ')
 
       if (!this.reconnecting) {
         this.toast('Unable to connect. Select Help from the app menu in order to determine the cause');
       }
       this.connected = false;
-      this.wsEventObserver.next({ name: wsEvent.EVENT_ERROR, ws: this.webSocket });
+      this.wsEventObservable.next({ name: wsEvent.EVENT_ERROR, ws: this.webSocket });
       this.scheduleNewWsConnection(server);
     }
 
     this.webSocket.onclose = (ev: CloseEvent) => {
-      //console.log('[S]: onclose')
+      console.log('[S]: onclose')
 
       if (this.everConnected && !this.reconnecting) {
         this.toast('Connection closed');
@@ -296,7 +305,35 @@ export class ServerProvider {
       }
 
       this.connected = false;
-      this.wsEventObserver.next({ name: wsEvent.EVENT_CLOSE, ws: this.webSocket });
+      this.wsEventObservable.next({ name: wsEvent.EVENT_CLOSE, ws: this.webSocket });
+
+
+      if (!this.watchForServersObserver) {
+        this.watchForServersObserver = this.watchForServers().subscribe((discoveryResult: discoveryResultModel) => {
+          this.settings.getDefaultServer().then(defaultServer => {
+            if (defaultServer.name == discoveryResult.server.name && defaultServer.address != discoveryResult.server.address) { // if the server has the same name, but a different ip => ask to reconnect 
+              let alert = this.alertCtrl.create({
+                title: "Reconnect",
+                message: "It seems that the computer " + defaultServer.name + " changed ip address from \
+                 " + defaultServer.address + " to " + discoveryResult.server.address + ", do you want to reconnect?",
+                buttons: [{
+                  text: 'No',
+                  role: 'cancel',
+                  handler: () => { }
+                }, {
+                  text: 'Reconnect',
+                  handler: () => {
+                    this.wsConnect(discoveryResult.server, true);
+                  }
+                }]
+              });
+              alert.present();
+            } else if (defaultServer.name == discoveryResult.server.name && defaultServer.address == discoveryResult.server.address && this.everConnected) { // if the server was closed and open again => reconnect whitout asking
+              this.wsConnect(discoveryResult.server, true);
+            }
+          })
+        })
+      }
     }
   } // wsConnect() end
 
@@ -314,7 +351,11 @@ export class ServerProvider {
   }
 
   watchForServers(): Observable<discoveryResultModel> {
-    return Observable.create(observer => {
+    if (this.watchForServersObservable) {
+      return this.watchForServersObservable;
+    }
+
+    this.watchForServersObservable = Observable.create(observer => {
       if (!this.platform.is('cordova')) { // for browser support
         setTimeout(() => {
           let dummyServer: discoveryResultModel = { server: new ServerModel('localhost', 'localhost'), action: 'added' };
@@ -327,11 +368,11 @@ export class ServerProvider {
         var action = result.action;
         var service = result.service;
         if (service.port == Config.SERVER_PORT && service.ipv4Addresses && service.ipv4Addresses.length) {
-          //console.log("ZEROCONF:", result);
+          console.log("ZEROCONF:", result);
 
           this.NgZone.run(() => {
             service.ipv4Addresses.forEach(ipv4 => {
-              if (ipv4) {
+              if (ipv4 && ipv4.length) {
                 observer.next({ server: new ServerModel(ipv4, service.hostname), action: action });
               }
             })
@@ -339,9 +380,15 @@ export class ServerProvider {
         }
       });
     });
+    return this.watchForServersObservable;
   }
 
   unwatch() {
+    this.watchForServersObservable = null;
+    if (this.watchForServersObserver) {
+      this.watchForServersObserver.unsubscribe();
+      this.watchForServersObserver = null;
+    }
     //console.log('[S]: UNWATCHED ')
     this.zeroconf.close();
   }
@@ -353,6 +400,12 @@ export class ServerProvider {
   //   return true;
   // }
 
+  public setContinuoslyWatchForServers(continuoslyWatchForServers: boolean) {
+    this.continuoslyWatchForServers = continuoslyWatchForServers;
+    if (!continuoslyWatchForServers) {
+      this.unwatch();
+    }
+  }
 
   private clearReconnectInterval() {
     if (this.reconnectInterval) {
