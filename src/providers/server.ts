@@ -445,16 +445,25 @@ export class ServerProvider {
     }
   }
 
+
+  private isVersionMismatchDialogVisible = false;
   private onVersionMismatch() {
-    this.alertCtrl.create({
-      title: 'Server/app version mismatch',
-      message: 'Please update both app and server, otherwise they may not work properly.<br><br>Server can be downloaded at <a href="' + Config.WEBSITE_URL + '">' + Config.WEBSITE_NAME + '</a>',
-      buttons: [
-        {
-          text: 'Ok',
-          role: 'cancel'
-        }
-      ]
-    }).present();
+    if (!this.isVersionMismatchDialogVisible) {
+      let dialog = this.alertCtrl.create({
+        title: 'Server/app version mismatch',
+        message: 'Please update both app and server, otherwise they may not work properly.<br><br>Server can be downloaded at <a href="' + Config.WEBSITE_URL + '">' + Config.WEBSITE_NAME + '</a>',
+        buttons: [
+          {
+            text: 'Ok',
+            role: 'cancel'
+          }
+        ]
+      });
+      dialog.didLeave.subscribe(() => {
+        this.isVersionMismatchDialogVisible = false;
+      })
+      this.isVersionMismatchDialogVisible = true;
+      dialog.present();
+    }
   }
 }
