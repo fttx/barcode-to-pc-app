@@ -369,7 +369,7 @@ export class ScanSessionPage {
   }
 
   save() {
-    if (this.scanSession && this.scanSession.scannings.length != 0) {
+    if (this.scanSession) {
       this.scanSessionsStorage.pushScanSession(this.scanSession);
     }
   }
