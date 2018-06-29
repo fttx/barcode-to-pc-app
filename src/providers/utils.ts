@@ -24,4 +24,241 @@ export class Utils {
     if (!results[2]) return '';
     return decodeURIComponent(results[2].replace(/\+/g, " "));
   }
+
+  // view-source:http://www.reminformatica.it/joomla/code32.html
+  // not my stuff :O=
+  public static convertCode39ToCode32(code39) {
+    var result = '';
+    var checkDigit = '';
+    var XP = code39
+    if (XP.length != "6") {
+      console.log('Invalid code32, fallback to code39')
+      return code39;
+    }
+    let x1 = XP.substring(0, 1)
+    let x2 = XP.substring(1, 2)
+    let x3 = XP.substring(2, 3)
+    let x4 = XP.substring(3, 4)
+    let x5 = XP.substring(4, 5)
+    let x6 = XP.substring(5, 6)
+
+    let a_1 = 33554432
+    let a_2 = 1048576
+    let a_3 = 32768
+    let a_4 = 1024
+    let a_5 = 32
+    let a_6 = 1
+
+    var a_1_1a = x1
+    let ab = a_1_1a
+    var ab1 = ""
+    quor()
+    var a_1_1 = ab1
+
+    var a_1_2a = x2
+    ab = a_1_2a
+    ab1 = ""
+    quor()
+    var a_1_2 = ab1
+
+    var a_1_3a = x3
+    ab = a_1_3a
+    ab1 = ""
+    quor()
+    var a_1_3 = ab1
+
+    var a_1_4a = x4
+    ab = a_1_4a
+    ab1 = ""
+    quor()
+    var a_1_4 = ab1
+
+    var a_1_5a = x5
+    ab = a_1_5a
+    ab1 = ""
+    quor()
+    var a_1_5 = ab1
+
+    var a_1_6a = x6
+    ab = a_1_6a
+    ab1 = ""
+    quor()
+    var a_1_6 = ab1
+
+    var P1 = parseInt(a_1_1) * a_1
+    var P2 = parseInt(a_1_2) * a_2
+    var P3 = parseInt(a_1_3) * a_3
+    var P4 = parseInt(a_1_4) * a_4
+    var P5 = parseInt(a_1_5) * a_5
+    var P6 = parseInt(a_1_6) * a_6
+
+    var P7 = P1 + P2 + P3 + P4 + P5 + P6
+
+    function quor() {
+      if (ab == "0") {
+        ab = 0
+      }
+      if (ab == "1") {
+        ab = 1
+      }
+      if (ab == "2") {
+        ab = 2
+      }
+      if (ab == "3") {
+        ab = 3
+      }
+      if (ab == "4") {
+        ab = 4
+      }
+      if (ab == "5") {
+        ab = 5
+      }
+      if (ab == "6") {
+        ab = 6
+      }
+      if (ab == "7") {
+        ab = 7
+      }
+      if (ab == "8") {
+        ab = 8
+      }
+      if (ab == "9") {
+        ab = 9
+      }
+      if (ab == "B") {
+        ab = 10
+      }
+      if (ab == "C") {
+        ab = 11
+      }
+      if (ab == "D") {
+        ab = 12
+      }
+      if (ab == "F") {
+        ab = 13
+      }
+      if (ab == "G") {
+        ab = 14
+      }
+      if (ab == "H") {
+        ab = 15
+      }
+      if (ab == "J") {
+        ab = 16
+      }
+      if (ab == "K") {
+        ab = 17
+      }
+      if (ab == "L") {
+        ab = 18
+      }
+      if (ab == "M") {
+        ab = 19
+      }
+      if (ab == "N") {
+        ab = 20
+      }
+      if (ab == "P") {
+        ab = 21
+      }
+      if (ab == "Q") {
+        ab = 22
+      }
+      if (ab == "R") {
+        ab = 23
+      }
+      if (ab == "S") {
+        ab = 24
+      }
+      if (ab == "T") {
+        ab = 25
+      }
+      if (ab == "U") {
+        ab = 26
+      }
+      if (ab == "V") {
+        ab = 27
+      }
+      if (ab == "W") {
+        ab = 28
+      }
+      if (ab == "X") {
+        ab = 29
+      }
+      if (ab == "Y") {
+        ab = 30
+      }
+      if (ab == "Z") {
+        ab = 31
+      }
+      ab1 = ab
+      return ab1
+    }
+
+    let P8 = "A" + P7
+    if (P8.length == 10) {
+      result = P8.substring(1, 9)
+    }
+    if (P8.length == 9) {
+      result = P8.substring(1, 8)
+    }
+    if (P8.length == 8) {
+      result = P8.substring(1, 7)
+    }
+    if (P8.length == 7) {
+      result = P8.substring(1, 6)
+    }
+    if (P8.length == 6) {
+      result = P8.substring(1, 5)
+    }
+    if (P8.length == 5) {
+      result = P8.substring(1, 4)
+    }
+    if (P8.length == 4) {
+      result = P8.substring(1, 3)
+    }
+    if (P8.length == 3) {
+      result = P8.substring(1, 2)
+    }
+    if (P8.length == 2) {
+      result = P8.substring(1, 1)
+    }
+    if (P8.length == 1) {
+      result = "0"
+    }
+    checkDigit = "0"
+    code39 = XP
+    if (result.length == 7) {
+      result = "0" + result
+    }
+    if (result.length == 6) {
+      result = "00" + result
+    }
+    if (result.length == 5) {
+      result = "000" + result
+    }
+    if (result.length == 4) {
+      result = "0000" + result
+    }
+    if (result.length == 3) {
+      result = "00000" + result
+    }
+    if (result.length == 2) {
+      result = "000000" + result
+    }
+    if (result.length == 1) {
+      result = "0000000" + result
+    }
+
+    result = 'A' + result;
+    // checksum:
+    // XP2 = XP
+    // base32()
+    // XP3 = code39
+    // if (XP3 != XP2) {
+    //     console.log('Invalid code32, fallback to code39')
+    //     return code39;
+    // }
+    return result;
+  }
 }

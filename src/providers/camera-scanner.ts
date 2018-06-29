@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
 import { BarcodeScanner, BarcodeScannerOptions } from '@fttx/barcode-scanner';
-import { ScanModel } from '../models/scan.model'
-import { Settings } from './settings'
 import { Observable } from 'rxjs/Observable';
-import { barcodeFormatModel } from '../models/barcode-format.model';
+
+import { ScanModel } from '../models/scan.model';
+import { Settings } from './settings';
+import { Utils } from './utils';
 
 /*
   Generated class for the CameraScanner provider.
@@ -55,6 +56,9 @@ export class CameraScannerProvider {
           }
 
           if (scan && scan.text) {
+            if (scan.format == 'CODE_39' && barcodeFormats.findIndex(x => x.enabled && x.name == 'CODE_32') != -1) {
+              scan.text = Utils.convertCode39ToCode32(scan.text);
+            }
             let now = new Date().getTime();
             scan.id = now;
             scan.repeated = false;
