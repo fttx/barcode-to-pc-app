@@ -98,6 +98,7 @@ export class WelcomePage {
   onScanQRCodeClicked() {
     this.barcodeScanner.scan({
       "showFlipCameraButton": true, // iOS and Android
+      formats: "QR_CODE"
     }).subscribe((scan: ScanModel) => {
       if (scan && scan.text) {
         let servers = ServerModel.serversFromJSON(scan.text);

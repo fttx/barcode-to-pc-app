@@ -21,21 +21,21 @@
 <ion-content>
   <ion-list>
     <ion-item>
-      <ion-label>Continue mode timeout (seconds)</ion-label>
+      <ion-label color="dark">Continue mode timeout (seconds)</ion-label>
       <ion-select [(ngModel)]="continueModeTimeout">
         <ion-option *ngFor="let second of availableContinueModeTimeouts" [value]="second">{{ second }}</ion-option>
       </ion-select>
     </ion-item>
 
     <ion-item>
-      <ion-label>Repeat interval (milliseconds)</ion-label>
+      <ion-label color="dark">Repeat interval (milliseconds)</ion-label>
       <ion-select [(ngModel)]="repeatInterval">
         <ion-option *ngFor="let ms of availableRepeatIntervals" [value]="ms">{{ ms }}</ion-option>
       </ion-select>
     </ion-item>
 
     <ion-item>
-      <ion-label>Scan mode</ion-label>
+      <ion-label color="dark">Scan mode</ion-label>
       <ion-select [(ngModel)]="scanMode">
         <ion-option value="">Ask every time</ion-option>
         <ion-option value="single">Single scan</ion-option>
@@ -44,14 +44,35 @@
     </ion-item>
 
     <ion-item>
-      <ion-label>Device name</ion-label>
-      <ion-input [(ngModel)]="deviceName" placeholder="The name of this device">{{ deviceName }}</ion-input>
+      <ion-label color="dark">Device name</ion-label>
+      <ion-input [(ngModel)]="deviceName" placeholder="The name of this device" text-right>{{ deviceName }}</ion-input>
     </ion-item>
 
     <ion-item>
-      <ion-label>Prefer front camera</ion-label>
+      <ion-label color="dark">Prefer front camera</ion-label>
       <ion-toggle [(ngModel)]="preferFrontCamera"></ion-toggle>
     </ion-item>
+
+    <ion-item text-wrap>
+      <ion-label>
+        <h2 color="dark">Limit barcode formats</h2>
+        <p>
+          Use this setting to keep enabled only the barcode formats that you scan. 
+          It may improve the scanning speed, but it may also lead to camera instability.
+        </p>
+      </ion-label>
+      <ion-toggle [(ngModel)]="enableLimitBarcodeFormats"></ion-toggle>
+    </ion-item>
+
+    <div [hidden]="!enableLimitBarcodeFormats" padding-left>
+      <!-- <ion-item-divider>
+        Barcode formats
+      </ion-item-divider> -->
+      <ion-item *ngFor="let barcodeFormat of barcodeFormats">
+        <ion-label color="dark">{{ barcodeFormat.name }}</ion-label>
+        <ion-toggle [(ngModel)]="barcodeFormat.enabled"></ion-toggle>
+      </ion-item>
+    </div>
 
   </ion-list>
 </ion-content>

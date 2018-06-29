@@ -1,23 +1,27 @@
+import { Component, HostListener, NgZone } from '@angular/core';
+import { Device } from '@ionic-native/device';
+import { GoogleAnalytics } from '@ionic-native/google-analytics';
+import { NativeAudio } from '@ionic-native/native-audio';
+import { SocialSharing } from '@ionic-native/social-sharing';
+import { ActionSheetController, AlertController, ModalController, NavController, NavParams, Platform } from 'ionic-angular';
+
+import {
+  requestModelDeleteScan,
+  requestModelDeleteScanSessions,
+  requestModelPutScan,
+  requestModelPutScanSession,
+} from '../../models/request.model';
+import { responseModel, responseModelPutScanAck } from '../../models/response.model';
+import { ScanSessionModel } from '../../models/scan-session.model';
+import { ScanModel } from '../../models/scan.model';
+import { CameraScannerProvider } from '../../providers/camera-scanner';
+import { ScanSessionsStorage } from '../../providers/scan-sessions-storage';
+import { ServerProvider } from '../../providers/server';
 import { Config } from './../../providers/config';
 import { Settings } from './../../providers/settings';
-import { Component, NgZone, HostListener } from '@angular/core';
-import { NavParams, ModalController, Platform } from 'ionic-angular';
-import { SocialSharing } from '@ionic-native/social-sharing';
-import { ScanSessionModel } from '../../models/scan-session.model'
-import { ActionSheetController } from 'ionic-angular'
-import { AlertController } from 'ionic-angular'
-import { CameraScannerProvider } from '../../providers/camera-scanner';
-import { ServerProvider } from '../../providers/server'
-import { GoogleAnalytics } from '@ionic-native/google-analytics';
-import { ScanModel } from '../../models/scan.model'
-import { NavController } from 'ionic-angular';
-import { ScanSessionsStorage } from '../../providers/scan-sessions-storage'
-import { EditScanSessionPage } from './edit-scan-session/edit-scan-session'
-import { SelectScanningModePage } from "./select-scanning-mode/select-scanning-mode";
-import { NativeAudio } from '@ionic-native/native-audio';
-import { requestModelDeleteScan, requestModelPutScan, requestModelDeleteScanSessions, requestModelPutScanSession } from '../../models/request.model';
-import { responseModel, responseModelPutScanAck } from '../../models/response.model';
-import { Device } from '@ionic-native/device';
+import { EditScanSessionPage } from './edit-scan-session/edit-scan-session';
+import { SelectScanningModePage } from './select-scanning-mode/select-scanning-mode';
+
 /*
   Generated class for the Scan page.
 
@@ -143,7 +147,7 @@ export class ScanSessionPage {
       }
 
       if (mode == SelectScanningModePage.SCAN_MODE_SINGLE) {
-        this.cameraScannerProvider.scan().subscribe(
+        this.cameraScannerProvider.scan(false).subscribe(
           (scan: ScanModel) => {
             this.onScan(scan);
           }, err => {
@@ -369,9 +373,10 @@ export class ScanSessionPage {
   }
 
   save() {
-    if (this.scanSession) {
-      this.scanSessionsStorage.pushScanSession(this.scanSession);
+    if (!this.scanSession || (this.scanSession.scannings.length == 0 && this.isNewSession)) {
+      return;
     }
+    this.scanSessionsStorage.pushScanSession(this.scanSession);
   }
 
   sendPutScan(scan: ScanModel, sendKeystrokes = true) {

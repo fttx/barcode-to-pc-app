@@ -1,11 +1,14 @@
+import { Component } from '@angular/core';
+import { Device } from '@ionic-native/device';
+import { NavController, ViewController } from 'ionic-angular';
+
+import { barcodeFormatModel } from '../../models/barcode-format.model';
+import { requestModelHelo } from '../../models/request.model';
+import { ScanSessionsStorage } from '../../providers/scan-sessions-storage';
+import { ServerProvider } from '../../providers/server';
 import { Config } from './../../providers/config';
 import { Settings } from './../../providers/settings';
-import { Component } from '@angular/core';
-import { NavController, ViewController } from 'ionic-angular';
-import { ServerProvider } from "../../providers/server";
-import { requestModelHelo } from '../../models/request.model';
-import { Device } from '@ionic-native/device';
-import { ScanSessionsStorage } from '../../providers/scan-sessions-storage';
+
 /*
   Generated class for the Settings page.
 
@@ -27,6 +30,9 @@ export class SettingsPage {
   private changesSaved = false;
 
   private lastScanDate = 0;
+
+  public barcodeFormats: barcodeFormatModel[] = barcodeFormatModel.supportedBarcodeFormats
+  public enableLimitBarcodeFormats: boolean = false;
 
   constructor(
     public viewCtrl: ViewController,
@@ -64,6 +70,14 @@ export class SettingsPage {
       }
     })
 
+    this.settings.getBarcodeFormats().then(barcodeFormats => {
+      this.barcodeFormats = barcodeFormats;
+    })
+
+    this.settings.getEnableLimitBarcodeFormats().then(enableLimitBarcodeFormats => {
+      this.enableLimitBarcodeFormats = enableLimitBarcodeFormats;
+    })
+
     this.settings.getPreferFrontCamera().then(preferFrontCamera => {
       this.preferFrontCamera = preferFrontCamera;
     });
@@ -91,12 +105,14 @@ export class SettingsPage {
     this.settings.setDefaultMode(this.scanMode);
     this.settings.setDeviceName(this.deviceName);
     this.settings.setPreferFrontCamera(this.preferFrontCamera);
+    this.settings.setBarcodeFormats(this.barcodeFormats);
+    this.settings.setEnableLimitBarcodeFormats(this.enableLimitBarcodeFormats);
 
-    this.serverProvider.send(new requestModelHelo().fromObject({ 
+    this.serverProvider.send(new requestModelHelo().fromObject({
       deviceName: this.deviceName,
       lastScanDate: this.lastScanDate,
       deviceId: this.device.uuid
-     }));
+    }));
 
     // let toast = this.toastCtrl.create({
     //   message: 'Settings saved',

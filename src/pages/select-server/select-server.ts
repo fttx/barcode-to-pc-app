@@ -83,6 +83,7 @@ export class SelectServerPage {
   onScanQRCodeClicked() {
     this.barcodeScanner.scan({
       "showFlipCameraButton": true,
+      formats: "QR_COD£"
     }).subscribe((scan: ScanModel) => {
       if (scan && scan.text) {
         let servers = ServerModel.serversFromJSON(scan.text);

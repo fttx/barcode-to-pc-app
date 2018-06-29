@@ -1,7 +1,10 @@
 import { Injectable } from '@angular/core';
+import { Device } from '@ionic-native/device';
 import { Storage } from '@ionic/storage';
-import { ServerModel } from '../models/server.model'
-import { Device } from "@ionic-native/device";
+import { resolve } from 'bluebird';
+
+import { barcodeFormatModel } from '../models/barcode-format.model';
+import { ServerModel } from '../models/server.model';
 
 /*
   Generated class for the Settings provider.
@@ -23,6 +26,8 @@ export class Settings {
   private static REPEAT_INTERVAL = 'repeat_interval';
   private static PREFER_FRONT_CAMERA = 'prefer_front_camera';
   private static LAST_VERSION = 'last_version';
+  private static BARCODE_FORMATS = 'barcode_formats';
+  private static ENABLE_LIMIT_BARCODE_FORMATS = 'enable_limit_barcode_formats';
 
   constructor(
     public storage: Storage,
@@ -181,5 +186,29 @@ export class Settings {
   }
   getPreferFrontCamera(): Promise<boolean> {
     return this.storage.get(Settings.PREFER_FRONT_CAMERA);
+  }
+
+  setEnableLimitBarcodeFormats(enableLimitBarcodeFormats: boolean) {
+    return this.storage.set(Settings.ENABLE_LIMIT_BARCODE_FORMATS, enableLimitBarcodeFormats);
+  }
+
+  getEnableLimitBarcodeFormats(): Promise<boolean> {
+    return this.storage.get(Settings.ENABLE_LIMIT_BARCODE_FORMATS);
+  }
+
+  setBarcodeFormats(barcodeFormats: barcodeFormatModel[]) {
+    return this.storage.set(Settings.BARCODE_FORMATS, barcodeFormats);
+  }
+
+  getBarcodeFormats(): Promise<barcodeFormatModel[]> {
+    return new Promise((resolve, reject) => {
+      this.storage.get(Settings.BARCODE_FORMATS).then((barcodeFormats) => {
+        if (barcodeFormats && barcodeFormats.length) {
+          resolve(barcodeFormats);
+        } else {
+          resolve(barcodeFormatModel.supportedBarcodeFormats);
+        }
+      }).catch(() => reject())
+    });
   }
 }
