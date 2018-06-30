@@ -204,7 +204,9 @@ export class Settings {
     return new Promise((resolve, reject) => {
       this.storage.get(Settings.BARCODE_FORMATS).then((barcodeFormats) => {
         if (barcodeFormats && barcodeFormats.length) {
-          resolve(barcodeFormats);
+          resolve(barcodeFormats.map(element => {
+            return new barcodeFormatModel(element.name, element.enabled)
+          }));
         } else {
           resolve(barcodeFormatModel.supportedBarcodeFormats);
         }

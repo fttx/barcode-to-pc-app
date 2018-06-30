@@ -1,47 +1,46 @@
 // Modules
-import { NgModule, ErrorHandler } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
+import { ErrorHandler, NgModule } from '@angular/core';
 import { HttpModule } from '@angular/http';
-import { IonicApp, IonicModule, IonicErrorHandler } from 'ionic-angular';
-import { IonicStorageModule } from '@ionic/storage';
-import { MomentModule } from 'angular2-moment';
-
-// Ionic-native
+import { BrowserModule } from '@angular/platform-browser';
+import { BarcodeScanner } from '@fttx/barcode-scanner';
+import { AppVersion } from '@ionic-native/app-version';
+import { Device } from '@ionic-native/device';
+import { GoogleAnalytics } from '@ionic-native/google-analytics';
+import { InAppPurchase2 } from '@ionic-native/in-app-purchase-2';
+import { Market } from '@ionic-native/market';
+import { NativeAudio } from '@ionic-native/native-audio';
+import { Network } from '@ionic-native/network';
+import { SocialSharing } from '@ionic-native/social-sharing';
 import { SplashScreen } from '@ionic-native/splash-screen';
 import { StatusBar } from '@ionic-native/status-bar';
-import { GoogleAnalytics } from '@ionic-native/google-analytics';
-import { Market } from '@ionic-native/market';
-import { Device } from '@ionic-native/device';
-import { AppVersion } from '@ionic-native/app-version';
-import { SocialSharing } from '@ionic-native/social-sharing';
-import { BarcodeScanner } from '@fttx/barcode-scanner';
-import { NativeAudio } from '@ionic-native/native-audio';
-import { InAppPurchase2 } from '@ionic-native/in-app-purchase-2';
 import { Zeroconf } from '@ionic-native/zeroconf';
-import { Network } from '@ionic-native/network';
+import { IonicStorageModule } from '@ionic/storage';
+import { MomentModule } from 'angular2-moment';
+import { IonicApp, IonicErrorHandler, IonicModule } from 'ionic-angular';
 
-// Pages
-import { SettingsPage } from '../pages/settings/settings';
-import { HelpPage } from '../pages/help/help';
+import { CircleTextComponent } from '../components/circle-text';
 import { AboutPage } from '../pages/about/about';
-import { ScanSessionsPage } from '../pages/scan-sessions/scan-sessions';
+import { HelpPage } from '../pages/help/help';
 import { EditScanSessionPage } from '../pages/scan-session/edit-scan-session/edit-scan-session';
-import { SelectScanningModePage } from '../pages/scan-session/select-scanning-mode/select-scanning-mode';
-import { WelcomePage } from '../pages/welcome/welcome';
 import { ScanSessionPage } from '../pages/scan-session/scan-session';
+import { SelectScanningModePage } from '../pages/scan-session/select-scanning-mode/select-scanning-mode';
+import { ScanSessionsPage } from '../pages/scan-sessions/scan-sessions';
 import { SelectServerPage } from '../pages/select-server/select-server';
+import { SettingsPage } from '../pages/settings/settings';
+import { WelcomePage } from '../pages/welcome/welcome';
+import { CameraScannerProvider } from '../providers/camera-scanner';
+import { ScanSessionsStorage } from '../providers/scan-sessions-storage';
+import { ServerProvider } from '../providers/server';
+import { Settings } from '../providers/settings';
+import { Utils } from '../providers/utils';
+import { MyApp } from './app.component';
+
+// Ionic-native
+// Pages
 // import { BuyProPage } from '../pages/buy-pro/buy-pro';
 
 // Providers
-import { ServerProvider } from '../providers/server'
-import { Settings } from '../providers/settings'
-import { CameraScannerProvider } from '../providers/camera-scanner';
-import { ScanSessionsStorage } from '../providers/scan-sessions-storage'
-
 // Compontents
-import { MyApp } from './app.component';
-import { CircleTextComponent } from '../components/circle-text';
-
 @NgModule({
   declarations: [
     MyApp,
@@ -79,6 +78,7 @@ import { CircleTextComponent } from '../components/circle-text';
   providers: [
     ServerProvider,
     CameraScannerProvider,
+    Utils,
     Settings,
     ScanSessionsStorage,
     GoogleAnalytics,

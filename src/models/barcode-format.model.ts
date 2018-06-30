@@ -12,6 +12,10 @@ export class barcodeFormatModel {
         return new barcodeFormatModel(value, true)
     });
 
+    public equals(barcodeFormatModel): boolean {
+        return this.name == barcodeFormatModel.name;
+    }
+
     constructor(name: string, enabled: boolean) {
         this.name = name;
         this.enabled = enabled;

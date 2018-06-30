@@ -1,5 +1,9 @@
-import { Injectable } from '@angular/core';
 import 'rxjs/add/operator/map';
+
+import { Injectable } from '@angular/core';
+
+import { barcodeFormatModel } from '../models/barcode-format.model';
+import { Settings } from '../providers/settings';
 
 /*
   Generated class for the Utils provider.
@@ -9,12 +13,8 @@ import 'rxjs/add/operator/map';
 */
 @Injectable()
 export class Utils {
-
   constructor(
-
-  ) {
-
-  }
+  ) { }
 
   public static getUrlParameterValue(url, parameterName) {
     parameterName = parameterName.replace(/[\[\]]/g, "\\$&");
@@ -23,6 +23,32 @@ export class Utils {
     if (!results) return null;
     if (!results[2]) return '';
     return decodeURIComponent(results[2].replace(/\+/g, " "));
+  }
+
+  public updateBarcodeFormats(savedBarcodeFormats) {
+    let supportedBarcodeFormats = barcodeFormatModel.supportedBarcodeFormats;
+    let addedBarcodeFormats: barcodeFormatModel[] = [];
+    let removedBarcodeFormats: barcodeFormatModel[] = [];
+
+    supportedBarcodeFormats.forEach((supportedBarcodeFormat: barcodeFormatModel) => {
+      if (savedBarcodeFormats.findIndex(x => x.equals(supportedBarcodeFormat)) == -1) { // if the saved list doesn't contain a supported barcode format
+        addedBarcodeFormats.push(supportedBarcodeFormat);
+      }
+    })
+
+    savedBarcodeFormats.forEach(savedBarcodeFormat => {
+      if (supportedBarcodeFormats.findIndex(x => x.equals(savedBarcodeFormat)) == -1) { // if the saved list doesn't contain a supported barcode format
+        removedBarcodeFormats.push(savedBarcodeFormat);
+      }
+    })
+    // console.log('update detected, changes:')
+    // console.log('==========================================')
+    // console.log('-----', removedBarcodeFormats)
+    // console.log('+++++', addedBarcodeFormats);
+    // console.log('==========================================')
+    // console.log('old:', savedBarcodeFormats);
+    // console.log('new:', savedBarcodeFormats.filter(x => removedBarcodeFormats.findIndex(y => x.equals(y)) == -1).concat(addedBarcodeFormats))
+    return savedBarcodeFormats.filter(x => removedBarcodeFormats.findIndex(y => x.equals(y)) == -1).concat(addedBarcodeFormats)
   }
 
   // view-source:http://www.reminformatica.it/joomla/code32.html
