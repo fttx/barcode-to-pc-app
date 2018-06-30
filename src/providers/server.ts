@@ -311,7 +311,7 @@ export class ServerProvider {
       if (!this.watchForServersObserver) {
         this.watchForServersObserver = this.watchForServers().subscribe((discoveryResult: discoveryResultModel) => {
           this.settings.getDefaultServer().then(defaultServer => {
-            if (defaultServer.name == discoveryResult.server.name && defaultServer.address != discoveryResult.server.address) { // if the server has the same name, but a different ip => ask to reconnect 
+            if (defaultServer.name == discoveryResult.server.name && discoveryResult.server.name.length && defaultServer.address != discoveryResult.server.address) { // if the server has the same name, but a different ip => ask to reconnect 
               let alert = this.alertCtrl.create({
                 title: "Reconnect",
                 message: "It seems that the computer " + defaultServer.name + " changed ip address from \
@@ -323,6 +323,10 @@ export class ServerProvider {
                 }, {
                   text: 'Reconnect',
                   handler: () => {
+                    this.settings.setDefaultServer(discoveryResult.server);
+                    this.settings.getSavedServers().then(savedServers => {
+                      this.settings.setSavedServers(savedServers.filter(x => !x.equals(discoveryResult.server)))
+                    })
                     this.wsConnect(discoveryResult.server, true);
                   }
                 }]
