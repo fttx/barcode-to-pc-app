@@ -323,10 +323,13 @@ export class ServerProvider {
                 }, {
                   text: 'Reconnect',
                   handler: () => {
-                    this.settings.setDefaultServer(discoveryResult.server);
+                    this.settings.setDefaultServer(discoveryResult.server); // override the defaultServer
                     this.settings.getSavedServers().then(savedServers => {
-                      this.settings.setSavedServers(savedServers.filter(x => !x.equals(discoveryResult.server)))
-                    })
+                      this.settings.setSavedServers(
+                        savedServers
+                          .filter(x => x.name != discoveryResult.server.name) // remove the old server
+                          .concat(discoveryResult.server)) // add a new one
+                    });
                     this.wsConnect(discoveryResult.server, true);
                   }
                 }]
