@@ -2,7 +2,7 @@ import { Injectable, NgZone } from '@angular/core';
 import { Device } from '@ionic-native/device';
 import { Zeroconf } from '@ionic-native/zeroconf';
 import * as Promise from 'bluebird';
-import { Alert, AlertController, Platform, ToastController } from 'ionic-angular';
+import { Alert, AlertController, Platform } from 'ionic-angular';
 import { Observable, Subject, Subscription } from 'rxjs';
 
 import { discoveryResultModel } from '../models/discovery-result';
@@ -18,6 +18,7 @@ import { wsEvent } from '../models/ws-event.model';
 import { Settings } from '../providers/settings';
 import { ServerModel } from './../models/server.model';
 import { Config } from './config';
+import { LastToastProvider } from './last-toast/last-toast';
 import { ScanSessionsStorage } from './scan-sessions-storage';
 
 /*
@@ -47,7 +48,6 @@ export class ServerProvider {
   private pongTimeout = null;
 
   private paused = false;
-  private lastToastMessage: string;
 
   private fallBackTimeout = null;
   private popup: Alert = null;
@@ -56,25 +56,14 @@ export class ServerProvider {
   constructor(
     private settings: Settings,
     private NgZone: NgZone,
-    private toastCtrl: ToastController,
+    private lastToast: LastToastProvider,
     private zeroconf: Zeroconf,
     private alertCtrl: AlertController,
     public platform: Platform,
     public device: Device,
     private scanSessionsStorage: ScanSessionsStorage,
   ) {
-    platform.pause.subscribe(() => {
-      this.paused = true;
-      //console.log('[S]: paused')
-    });
 
-    platform.resume.subscribe(() => {
-      this.paused = false;
-      if (this.lastToastMessage && this.lastToastMessage.length) {
-        this.toast(this.lastToastMessage);
-      }
-      //console.log('[S]: resumed')
-    });
   }
 
   onResponse(): Subject<any> {
@@ -115,7 +104,7 @@ export class ServerProvider {
 
     if (this.webSocket) {
       if (this.everConnected && !this.reconnecting) {
-        this.toast('Connection lost');
+        this.lastToast.present('Connection lost');
         this.connected = false;
         this.wsEventObservable.next({ name: wsEvent.EVENT_ERROR, ws: this.webSocket });
       }
@@ -243,7 +232,7 @@ export class ServerProvider {
         console.log("[S]: stopping watching for servers")
       }
       this.wsEventObservable.next({ name: 'open', ws: this.webSocket });
-      this.toast('Connection established with ' + server.name)
+      this.lastToast.present('Connection established with ' + server.name)
 
       //console.log('[S]: WS: new heartbeat started');
       if (this.heartBeatInterval) clearInterval(this.heartBeatInterval);
@@ -287,7 +276,7 @@ export class ServerProvider {
       console.log('[S]: WS: onerror ')
 
       if (!this.reconnecting) {
-        this.toast('Unable to connect. Select Help from the app menu in order to determine the cause');
+        this.lastToast.present('Unable to connect. Select Help from the app menu in order to determine the cause');
       }
       this.connected = false;
       this.wsEventObservable.next({ name: wsEvent.EVENT_ERROR, ws: this.webSocket });
@@ -298,7 +287,7 @@ export class ServerProvider {
       console.log('[S]: onclose')
 
       if (this.everConnected && !this.reconnecting) {
-        this.toast('Connection closed');
+        this.lastToast.present('Connection closed');
       }
       if (ev.code != ServerProvider.EVENT_CODE_DO_NOT_ATTEMP_RECCONECTION) {
         this.scheduleNewWsConnection(server);
@@ -350,7 +339,7 @@ export class ServerProvider {
         //console.log(request, JSON.stringify(request));
         this.webSocket.send(JSON.stringify(request));
       } else {
-        this.toast('Connection problem');
+        this.lastToast.present('Connection problem');
       }
     } else {
       // //console.log("offline mode, cannot send!")
@@ -443,15 +432,6 @@ export class ServerProvider {
       //console.log("   reconnection scheduled.")
     }
   }
-
-  private toast(message: string) {
-    if (!this.paused) {
-      this.lastToastMessage = message;
-      this.toastCtrl.create({ message: message, duration: 3000 }).present();
-      this.lastToastMessage = null;
-    }
-  }
-
 
   private isVersionMismatchDialogVisible = false;
   private onVersionMismatch() {
