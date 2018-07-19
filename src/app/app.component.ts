@@ -118,7 +118,7 @@ export class MyApp {
   }
 
   setPage(page, isRoot = false) {
-    if (!this.nav.isActive(page)) {
+    if (this.nav.getActive().component != page) {
       this.menuCtrl.close();
       if (isRoot) {
         this.nav.setRoot(page);
