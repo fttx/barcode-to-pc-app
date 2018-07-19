@@ -34,6 +34,7 @@ import { ServerProvider } from '../providers/server';
 import { Settings } from '../providers/settings';
 import { Utils } from '../providers/utils';
 import { MyApp } from './app.component';
+import { LastToastProvider } from '../providers/last-toast/last-toast';
 
 // Ionic-native
 // Pages
@@ -94,6 +95,7 @@ import { MyApp } from './app.component';
     NativeAudio,
     InAppPurchase2,
     { provide: ErrorHandler, useClass: IonicErrorHandler },
+    LastToastProvider,
   ]
 })
 export class AppModule { }
