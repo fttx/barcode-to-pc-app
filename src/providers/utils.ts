@@ -1,9 +1,9 @@
 import 'rxjs/add/operator/map';
 
 import { Injectable } from '@angular/core';
+import { AlertController } from 'ionic-angular';
 
 import { barcodeFormatModel } from '../models/barcode-format.model';
-import { Settings } from '../providers/settings';
 
 /*
   Generated class for the Utils provider.
@@ -14,6 +14,7 @@ import { Settings } from '../providers/settings';
 @Injectable()
 export class Utils {
   constructor(
+    private alertCtrl: AlertController,
   ) { }
 
   public static getUrlParameterValue(url, parameterName) {
@@ -286,5 +287,15 @@ export class Utils {
     //     return code39;
     // }
     return result;
+  }
+
+  showCannotPerformActionOffline() {
+    this.alertCtrl.create({
+      title: 'Cannot perform this action while offline',
+      message: 'Please connect the app to the server',
+      buttons: [{
+        text: 'Ok', role: 'cancel'
+      }]
+    }).present();
   }
 }

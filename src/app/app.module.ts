@@ -35,6 +35,7 @@ import { Settings } from '../providers/settings';
 import { Utils } from '../providers/utils';
 import { MyApp } from './app.component';
 import { LastToastProvider } from '../providers/last-toast/last-toast';
+import { ArchivedPage } from '../pages/archived/archived';
 
 // Ionic-native
 // Pages
@@ -46,6 +47,7 @@ import { LastToastProvider } from '../providers/last-toast/last-toast';
   declarations: [
     MyApp,
     AboutPage,
+    ArchivedPage,
     ScanSessionsPage,
     EditScanSessionPage,
     SelectScanningModePage,
@@ -67,6 +69,7 @@ import { LastToastProvider } from '../providers/last-toast/last-toast';
   entryComponents: [
     MyApp,
     AboutPage,
+    ArchivedPage,
     ScanSessionsPage,
     SelectServerPage,
     EditScanSessionPage,

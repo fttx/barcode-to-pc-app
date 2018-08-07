@@ -15,6 +15,7 @@ import { Config } from '../providers/config';
 import { AppVersion } from '@ionic-native/app-version';
 import { Http } from '@angular/http';
 import { Utils } from '../providers/utils';
+import { ArchivedPage } from '../pages/archived/archived';
 
 @Component({
   templateUrl: 'app.html',
@@ -102,6 +103,10 @@ export class MyApp {
 
   selectServer() {
     this.setPage(SelectServerPage);
+  }
+
+  archived() {
+    this.setPage(ArchivedPage, true);
   }
 
   settingsPage() {

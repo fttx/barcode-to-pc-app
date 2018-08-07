@@ -1,0 +1,39 @@
+<ion-header>
+  <ion-navbar color="archived">
+    <button ion-button menuToggle>
+      <ion-icon name="menu"></ion-icon>
+    </button>
+
+    <ion-title>Archived</ion-title>
+
+    <ion-buttons end>
+      <button ion-button icon-only (click)="onDeleteSelectedClick()">
+        <ion-icon name="trash"></ion-icon>
+      </button>
+    </ion-buttons>
+  </ion-navbar>
+</ion-header>
+
+<ion-content>
+  <ion-list>
+    <ion-item-sliding *ngFor="let scanSession of archivedScanSessions; let i = index;">
+      <!-- ionic bug: press on ios also triggers click -->
+      <!-- work around: use sliding items on ios only -->
+      <!-- UPDATE: maybe fixed? -->
+      <button ion-item (click)="onScanSessionClick(scanSession, i)">
+        <ion-avatar item-left>
+          <circle-text [value]="scanSession.name" [checked]="scanSession.selected">{{ scanSession.name }}</circle-text>
+        </ion-avatar>
+        <h2>{{ scanSession.name }}</h2>
+        <p>Created: {{ scanSession.date | amDateFormat:"YYYY/MM/DD HH:mm" }}</p>
+        <p>Number of scannings: {{ scanSession.scannings.length }}</p>
+      </button>
+    </ion-item-sliding>
+  </ion-list>
+
+  <div class="empty" *ngIf="archivedScanSessions.length == 0">
+    <img src="assets/welcome/a5fsa.jpg" alt="logo" class="desaturate-img" />
+    <br /> There aren't archived scan sessions
+  </div>
+
+</ion-content>

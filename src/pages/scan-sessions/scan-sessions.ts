@@ -1,19 +1,20 @@
-import { Settings } from './../../providers/settings';
-import { Config } from '../../providers/config';
 import { Component } from '@angular/core';
-import { PopoverController, NavController, AlertController, Platform, ItemSliding } from 'ionic-angular';
-import { ScanSessionModel } from '../../models/scan-session.model'
-import { ScanSessionPage } from '../scan-session/scan-session'
-import { SelectServerPage } from '../select-server/select-server'
-import { ServerProvider } from '../../providers/server'
-import { GoogleAnalytics } from '@ionic-native/google-analytics';
-import { ScanSessionsStorage } from '../../providers/scan-sessions-storage'
 import { Device } from '@ionic-native/device';
+import { GoogleAnalytics } from '@ionic-native/google-analytics';
 import { Market } from '@ionic-native/market';
-import * as Promise from 'bluebird'
-import { responseModel, responseModelHelo } from '../../models/response.model';
+import * as Promise from 'bluebird';
+import { AlertController, NavController, PopoverController } from 'ionic-angular';
+
+import { requestModelDeleteScanSessions } from '../../models/request.model';
+import { ScanSessionModel } from '../../models/scan-session.model';
 import { wsEvent } from '../../models/ws-event.model';
-import { requestModelDeleteScanSessions, requestModelClearScanSessions } from '../../models/request.model';
+import { Config } from '../../providers/config';
+import { ScanSessionsStorage } from '../../providers/scan-sessions-storage';
+import { ServerProvider } from '../../providers/server';
+import { ScanSessionPage } from '../scan-session/scan-session';
+import { SelectServerPage } from '../select-server/select-server';
+import { Settings } from './../../providers/settings';
+import { Utils } from '../../providers/utils';
 
 @Component({
   selector: 'page-scannings',
@@ -39,6 +40,7 @@ export class ScanSessionsPage {
     private settings: Settings,
     private market: Market,
     private device: Device,
+    private utils: Utils
   ) { }
 
   ionViewDidEnter() {
@@ -174,7 +176,7 @@ export class ScanSessionsPage {
       }, {
         text: 'Delete', handler: () => {
           if (!this.connected) {
-            this.showCannotDeleteOffline();
+            this.utils.showCannotPerformActionOffline();
             return;
           }
 
@@ -217,9 +219,22 @@ export class ScanSessionsPage {
     this.navCtrl.push(ScanSessionPage, { scanSession: newScanSession, isNewSession: true });
   }
 
-  // onArchiveSelectedClick() {
+  onArchiveSelectedClick() {
+    if (!this.connected) {
+      this.utils.showCannotPerformActionOffline();
+      return;
+    }
 
-  // }
+    let wsRequest = new requestModelDeleteScanSessions().fromObject({
+      scanSessionIds: this.selectedScanSessions.map(x => x.id)
+    });
+    this.serverProvider.send(wsRequest);
+
+    this.scanSessions = this.scanSessions.filter(x => !x.selected);
+    this.scanSessionsStorage.pushArchivedScanSessions(this.selectedScanSessions)
+    this.unselectAll();
+    this.save();
+  }
 
   onDeleteSelectedClick() {
     this.alertCtrl.create({
@@ -230,7 +245,7 @@ export class ScanSessionsPage {
       }, {
         text: 'Delete', handler: () => {
           if (!this.connected) {
-            this.showCannotDeleteOffline();
+            this.utils.showCannotPerformActionOffline();
             return;
           }
 
@@ -264,15 +279,7 @@ export class ScanSessionsPage {
   //   }).present();
   // }
 
-  showCannotDeleteOffline() {
-    this.alertCtrl.create({
-      title: 'Cannot perform this action while offline',
-      message: 'Please connect the app to the server',
-      buttons: [{
-        text: 'Ok', role: 'cancel'
-      }]
-    }).present();
-  }
+
 
   // private sendClearScanSessions() {
   //   this.serverProvider.send(new requestModelClearScanSessions().fromObject({}));
@@ -286,7 +293,7 @@ export class ScanSessionsPage {
   }
 
   private save() {
-    this.scanSessionsStorage.putScanSessions(this.scanSessions);
+    this.scanSessionsStorage.setScanSessions(this.scanSessions);
   }
 
   private removeScanSession(index: number) {

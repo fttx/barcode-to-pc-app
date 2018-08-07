@@ -13,16 +13,17 @@
 		</ion-buttons>
 
 		<ion-buttons end *ngIf="selectedScanSessions.length != 0">
-			<button ion-button icon-only (click)="onSelectAllClick()">
-				<ion-icon name="done-all"></ion-icon>
-			</button>
-<!-- 
+			
 			<button ion-button icon-only (click)="onArchiveSelectedClick()">
 				<ion-icon name="archive"></ion-icon>
-			</button> -->
+			</button>
 
 			<button ion-button icon-only (click)="onDeleteSelectedClick()">
 				<ion-icon name="trash"></ion-icon>
+			</button>
+
+			<button ion-button icon-only (click)="onSelectAllClick()">
+				Select all
 			</button>
 
 			<button ion-button icon-right color="royal" (click)="onCancelSelectionClick()">
@@ -45,8 +46,7 @@
 			<!-- ionic bug: press on ios also triggers click -->
 			<!-- work around: use sliding items on ios only -->
 			<!-- UPDATE: maybe fixed? -->
-			<button ion-item (click)="onScanSessionClick(scanSession, i)" (press)="onScanSessionPress(scanSession, i)"
-			 [color]="scanSession.selected ? 'light' : 'default'">
+			<button ion-item (click)="onScanSessionClick(scanSession, i)" (press)="onScanSessionPress(scanSession, i)" [color]="scanSession.selected ? 'light' : 'default'">
 				<ion-avatar item-left>
 					<circle-text [value]="scanSession.name" [checked]="scanSession.selected">{{ scanSession.name }}</circle-text>
 				</ion-avatar>
