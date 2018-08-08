@@ -13,7 +13,7 @@ import {
   requestModelPing,
   requestModelPutScanSessions,
 } from '../models/request.model';
-import { responseModel, responseModelHelo, responseModelPopup } from '../models/response.model';
+import { responseModel, responseModelHelo, responseModelPopup, responseModelEnableQuantity } from '../models/response.model';
 import { wsEvent } from '../models/ws-event.model';
 import { Settings } from '../providers/settings';
 import { ServerModel } from './../models/server.model';
@@ -186,6 +186,7 @@ export class ServerProvider {
         if (heloResponse.version != Config.REQUIRED_SERVER_VERSION) {
           this.onVersionMismatch();
         }
+        this.settings.setQuantityEnabled(heloResponse.quantityEnabled);
       }
 
       if (messageData.action == responseModel.ACTION_PONG) {
@@ -202,6 +203,9 @@ export class ServerProvider {
           buttons: ['Ok']
         });
         this.popup.present();
+      } else if (messageData.action == responseModel.ACTION_ENABLE_QUANTITY) {
+        let responseModelEnableQuantity: responseModelEnableQuantity = messageData;
+        this.settings.setQuantityEnabled(responseModelEnableQuantity.enable);
       } else if (messageData.action == responseModel.ACTION_GET_VERSION) {
         // fallBack for old server versions
         console.log('FallBack: old getVersion received, showing version mismatch');

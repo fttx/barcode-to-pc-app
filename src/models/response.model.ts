@@ -8,7 +8,7 @@ export abstract class responseModel {
     public static readonly ACTION_PUT_SCAN_ACK = 'putScanAck';
     public static readonly ACTION_POPUP = 'action_popup';
     public static readonly ACTION_REQUEST_SYNC = 'requestSync';
-
+    public static readonly ACTION_ENABLE_QUANTITY = 'enableQuantity'
 }
 
 /**
@@ -27,9 +27,11 @@ export class responseModelGetVersion extends responseModel {
 export class responseModelHelo extends responseModel {
     action = 'helo';
     version: string;
+    quantityEnabled: boolean;
 
-    public fromObject(obj: ({ version: string })) {
+    public fromObject(obj: ({ version: string, quantityEnabled: boolean })) {
         this.version = obj.version;
+        this.quantityEnabled = obj.quantityEnabled;
         return this;
     }
 }
@@ -70,6 +72,16 @@ export class responseModelPopup extends responseModel {
     public fromObject(obj: ({ title: string, message: string })) {
         this.title = obj.title;
         this.message = obj.message;
+        return this;
+    }
+}
+
+export class responseModelEnableQuantity extends responseModel {
+    action = responseModel.ACTION_ENABLE_QUANTITY;
+    enable: boolean;
+
+    public fromObject(obj: ({ enable: boolean })) {
+        this.enable = obj.enable;
         return this;
     }
 }
