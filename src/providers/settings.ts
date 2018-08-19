@@ -29,6 +29,7 @@ export class Settings {
   private static BARCODE_FORMATS = 'barcode_formats';
   private static ENABLE_LIMIT_BARCODE_FORMATS = 'enable_limit_barcode_formats';
   private static QUANTITY_ENABLED = 'quantity_enabled';
+  private static QUANTITY_TYPE = 'quantity_type';
 
   constructor(
     public storage: Storage,
@@ -221,5 +222,13 @@ export class Settings {
 
   getQuantityEnabled(): Promise<boolean> {
     return this.storage.get(Settings.QUANTITY_ENABLED);
+  }
+
+  setQuantityType(type: string) {
+    return this.storage.set(Settings.QUANTITY_TYPE, type);
+  }
+
+  getQuantityType(): Promise<string> {
+    return this.storage.get(Settings.QUANTITY_TYPE);
   }
 }

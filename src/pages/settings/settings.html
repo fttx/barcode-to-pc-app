@@ -52,6 +52,14 @@
       <ion-label color="dark">Prefer front camera</ion-label>
       <ion-toggle [(ngModel)]="preferFrontCamera"></ion-toggle>
     </ion-item>
+    
+    <ion-item>
+      <ion-label color="dark">Quantity type</ion-label>
+      <ion-select [(ngModel)]="quantityType">
+        <ion-option value="number">Number</ion-option>
+        <ion-option value="text">Text</ion-option>
+      </ion-select>
+    </ion-item>
 
     <ion-item text-wrap>
       <ion-label>

@@ -28,6 +28,7 @@ export class SettingsPage {
   public scanMode = '';
   public preferFrontCamera = false;
   private changesSaved = false;
+  public quantityType: string = 'number';
 
   private lastScanDate = 0;
 
@@ -82,6 +83,12 @@ export class SettingsPage {
       this.preferFrontCamera = preferFrontCamera;
     });
 
+    this.settings.getQuantityType().then(quantityType => {
+      if (quantityType) {
+        this.quantityType = quantityType;
+      }
+    });
+
     this.scanSessionsStorage.getLastScanDate().then(lastScanDate => {
       this.lastScanDate = lastScanDate;
     });
@@ -107,6 +114,7 @@ export class SettingsPage {
     this.settings.setPreferFrontCamera(this.preferFrontCamera);
     this.settings.setBarcodeFormats(this.barcodeFormats);
     this.settings.setEnableLimitBarcodeFormats(this.enableLimitBarcodeFormats);
+    this.settings.setQuantityType(this.quantityType);
 
     this.serverProvider.send(new requestModelHelo().fromObject({
       deviceName: this.deviceName,

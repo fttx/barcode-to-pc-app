@@ -25,8 +25,8 @@ export class CameraScannerProvider {
 
   scan(continuosMode: boolean = false): Observable<ScanModel> {
     return new Observable(observer => {
-      Promise.join(this.settings.getPreferFrontCamera(), this.settings.getEnableLimitBarcodeFormats(), this.settings.getBarcodeFormats(), this.settings.getQuantityEnabled(),
-        (preferFrontCamera, enableLimitBarcodeFormats, barcodeFormats, quantyEnabled) => {
+      Promise.join(this.settings.getPreferFrontCamera(), this.settings.getEnableLimitBarcodeFormats(), this.settings.getBarcodeFormats(), this.settings.getQuantityEnabled(), this.settings.getQuantityType(),
+        (preferFrontCamera, enableLimitBarcodeFormats, barcodeFormats, quantyEnabled, quantityType) => {
           if (preferFrontCamera == null || !preferFrontCamera) preferFrontCamera = false;
           let options: BarcodeScannerOptions = {
             showFlipCameraButton: true, // iOS and Android
@@ -60,13 +60,13 @@ export class CameraScannerProvider {
               scan.repeated = false;
               scan.date = now;
 
-              console.log('quantyEnabled:', quantyEnabled)
               if (quantyEnabled) {
                 this.alertCtrl.create({
                   title: 'Enter quantity value',
                   // message: 'Inse',
                   inputs: [{
                     name: 'quantity',
+                    type: quantityType || 'number',
                     placeholder: 'Eg. 5'
                   }],
                   buttons: [{
