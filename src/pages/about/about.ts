@@ -22,9 +22,12 @@ export class AboutPage {
 
   ionViewDidEnter() {
     this.ga.trackView("AboutPage");
+  }
+
+  ionViewWillEnter() {
     this.appVersion.getVersionNumber().then(version => this.version = version);
   }
 
- 
+
 
 }
