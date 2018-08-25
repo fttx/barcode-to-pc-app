@@ -67,7 +67,7 @@ export class MyApp {
         let newRunnings = runnings || 0;
         this.settings.setNoRunnings(++newRunnings);
 
-        if (true || lastVersion != currentVersion && newRunnings > 1) {
+        if (lastVersion != currentVersion && newRunnings > 1) {
           this.settings.setBarcodeFormats(this.utils.updateBarcodeFormats(savedBarcodeFormats));
 
           this.http.get(Config.URL_GITHUB_CHANGELOG).subscribe(res => {
