@@ -9,7 +9,7 @@ import { GoogleAnalytics } from '@ionic-native/google-analytics';
 })
 export class AboutPage {
 
-  public websiteUrl = Config.WEBSITE_URL;
+  public websiteUrl = Config.URL_WEBSITE;
   public websiteName = Config.WEBSITE_NAME;
   public requiredServerVersion = Config.REQUIRED_SERVER_VERSION;
   public version = "";

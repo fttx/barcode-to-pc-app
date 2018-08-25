@@ -36,7 +36,7 @@ import { Utils } from '../providers/utils';
 import { MyApp } from './app.component';
 import { LastToastProvider } from '../providers/last-toast/last-toast';
 import { ArchivedPage } from '../pages/archived/archived';
-
+import { MarkdownModule } from 'ngx-markdown';
 // Ionic-native
 // Pages
 // import { BuyProPage } from '../pages/buy-pro/buy-pro';
@@ -64,6 +64,7 @@ import { ArchivedPage } from '../pages/archived/archived';
     MomentModule,
     IonicStorageModule.forRoot(),
     IonicModule.forRoot(MyApp),
+    MarkdownModule.forRoot(),
   ],
   bootstrap: [IonicApp],
   entryComponents: [

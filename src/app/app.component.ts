@@ -16,6 +16,7 @@ import { AppVersion } from '@ionic-native/app-version';
 import { Http } from '@angular/http';
 import { Utils } from '../providers/utils';
 import { ArchivedPage } from '../pages/archived/archived';
+import { MarkdownService } from 'ngx-markdown';
 
 @Component({
   templateUrl: 'app.html',
@@ -36,7 +37,8 @@ export class MyApp {
     public modalCtrl: ModalController,
     private ga: GoogleAnalytics,
     private http: Http,
-    private utils: Utils
+    private utils: Utils,
+    private markdownService: MarkdownService,
   ) {
     platform.ready().then(() => {
 
@@ -65,25 +67,17 @@ export class MyApp {
         let newRunnings = runnings || 0;
         this.settings.setNoRunnings(++newRunnings);
 
-        if (lastVersion != currentVersion && newRunnings > 1) {
+        if (true || lastVersion != currentVersion && newRunnings > 1) {
           this.settings.setBarcodeFormats(this.utils.updateBarcodeFormats(savedBarcodeFormats));
 
-          this.http.get(Config.GITHUB_LATEST_RELEASE_URL).subscribe(res => {
-            let changelog = '';
-
-            let releases = [];
-            releases = res.json();
-
-            releases.forEach(release => {
-              if (!release['prerelease'] && release['body'].length > 1) {
-                changelog += '<h1>' + release['name'] + '</h1><ul>' + release['body'].replace(/\n\r/g, '<br>').replace(/\n/g, '<br>').replace(/\-/g, '<li>') + '</ul><br>';
-              }
-            });
+          this.http.get(Config.URL_GITHUB_CHANGELOG).subscribe(res => {
+            let changelog = '<div style="font-size: .1em">' + this.markdownService.compile(res.text()) + '</div>';
 
             this.alertCtrl.create({
               title: 'The app has been updated',
               message: changelog,
-              buttons: ['Ok']
+              buttons: ['Ok'],
+              cssClass: 'changelog'
             }).present();
           });
           this.settings.setLastVersion(currentVersion);

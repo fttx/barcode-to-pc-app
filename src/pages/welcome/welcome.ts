@@ -179,7 +179,7 @@ export class WelcomePage {
             {
               text: 'View instructions',
               handler: () => {
-                window.open(Config.INSTRUCTIONS_URL, '_blank');
+                window.open(Config.URL_INSTRUCTIONS, '_blank');
               }
             }
           ]

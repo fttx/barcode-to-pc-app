@@ -14,7 +14,7 @@ import { Config } from '../../providers/config';
   templateUrl: 'help.html',
 })
 export class HelpPage {
-  public faqUrl = Config.FAQ_URL;
+  public faqUrl = Config.URL_FAQ;
   
 
   constructor(public navCtrl: NavController, public navParams: NavParams) {
