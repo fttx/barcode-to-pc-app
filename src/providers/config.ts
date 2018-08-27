@@ -15,7 +15,7 @@ export class Config {
 
 
   public static SERVER_PORT = 57891;
-  public static REQUIRED_SERVER_VERSION = '2.0.0';
+  public static REQUIRED_SERVER_VERSION = '3.0.0';
   public static WEBSITE_NAME = 'barcodetopc.com';
   public static EMAIL_SUPPORT = 'filippo.tortomasi@gmail.com';
   public static DEFAULT_CONTINUE_MODE_TIMEOUT = 0;

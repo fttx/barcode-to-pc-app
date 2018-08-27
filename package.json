@@ -1,7 +1,7 @@
 {
   "name": "barcode-to-pc-app",
   "author": "Filippo Tortomasi",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "homepage": "https://barcodetopc.com/",
   "private": true,
   "scripts": {
@@ -67,7 +67,8 @@
     "ngx-markdown": "^6.1.0",
     "rxjs": "5.5.2",
     "sw-toolbox": "3.6.0",
-    "zone.js": "0.8.18"
+    "zone.js": "0.8.18",
+    "cordova-browser": "~5.0.4"
   },
   "devDependencies": {
     "@ionic/app-scripts": "^3.1.10",
