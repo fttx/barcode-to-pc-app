@@ -10,6 +10,7 @@ import {
   requestModelDeleteScanSessions,
   requestModelPutScan,
   requestModelPutScanSession,
+  requestModelUpdateScanSession,
 } from '../../models/request.model';
 import { responseModel, responseModelPutScanAck } from '../../models/response.model';
 import { ScanSessionModel } from '../../models/scan-session.model';
@@ -38,6 +39,7 @@ export class ScanSessionPage {
   private isSynced = false;
   private lastScanDate: number;
   private newScanDate: number;
+  private lastScanSessionName: string = null;
 
   public repeatInterval = Config.DEFAULT_REPEAT_INVERVAL;
   public repeatAllTimeout = null;
@@ -133,6 +135,9 @@ export class ScanSessionPage {
   }
 
   ionViewWillLeave() {
+    if (this.isPristine()) {
+      this.sendDestroyScanSession(false);
+    }
     this.save();
   }
 
@@ -142,19 +147,12 @@ export class ScanSessionPage {
 
       // if the user doesn't choose the mode (clicks cancel) and didn't enter the scan-session page
       if (!mode && this.isNewSession && this.scanSession.scannings.length == 0) {
-        this.destroyScanSession();
+        this.sendDestroyScanSession();
         return;
       }
 
       if (mode == SelectScanningModePage.SCAN_MODE_SINGLE) {
-        this.cameraScannerProvider.scan(false).subscribe(
-          (scan: ScanModel) => {
-            this.onScan(scan);
-          }, err => {
-            if (this.scanSession.scannings.length == 0) {
-              this.destroyScanSession();
-            }
-          });
+        this.singleScan();
       } else if (mode == SelectScanningModePage.SCAN_MODE_CONTINUE) {
         this.continueScan();
       }
@@ -175,6 +173,18 @@ export class ScanSessionPage {
     this.scanSessionsStorage.setLastScanDate(this.lastScanDate);
   }
 
+  singleScan() {
+    this.cameraScannerProvider.scan(false).subscribe(
+      (scan: ScanModel) => {
+        this.onScan(scan);
+        this.setName();
+      }, err => {
+        if (this.scanSession.scannings.length == 0) {
+          this.sendDestroyScanSession();
+        }
+      });
+  }
+
   continueScan() {
     this.cameraScannerProvider.scan(true).subscribe(
       (scan: ScanModel) => {
@@ -184,7 +194,7 @@ export class ScanSessionPage {
         }
       }, err => {
         if (this.scanSession.scannings.length == 0) {
-          this.destroyScanSession();
+          this.sendDestroyScanSession();
         } else {
           if (this.isNewSession) {
             this.setName();
@@ -340,9 +350,9 @@ export class ScanSessionPage {
     this.ga.trackEvent('scannings', 'edit_scan');
     let editModal = this.modalCtrl.create(EditScanSessionPage, this.scanSession);
     editModal.onDidDismiss(scanSession => {
-      this.scanSession = scanSession
+      this.scanSession = scanSession;
+      this.sendUpdateScanSession(this.scanSession);
       this.save();
-      // TODO: sync col server
     });
     editModal.present();
   }
@@ -359,9 +369,10 @@ export class ScanSessionPage {
         text: 'Ok',
         handler: data => {
           if (this.scanSession.name != data.name && data.name != "") {
+            this.lastScanSessionName = this.scanSession.name;
             this.scanSession.name = data.name;
+            this.sendUpdateScanSession(this.scanSession);
             this.save();
-            // TODO: sync
           }
         }
       }]
@@ -373,13 +384,14 @@ export class ScanSessionPage {
   }
 
   save() {
-    if (!this.scanSession || (this.scanSession.scannings.length == 0 && this.isNewSession)) {
+    if (this.isPristine()) {
       return;
     }
     this.scanSessionsStorage.pushScanSession(this.scanSession);
   }
 
   sendPutScan(scan: ScanModel, sendKeystrokes = true) {
+    console.log('sendPutScan, scan.date=', scan.date);
     let wsRequest = new requestModelPutScan().fromObject({
       scan: scan,
       scanSessionId: this.scanSession.id,
@@ -400,14 +412,25 @@ export class ScanSessionPage {
     this.serverProvider.send(wsRequest);
   }
 
-  destroyScanSession() {
+  sendDestroyScanSession(pop = true) {
     if (this.isSynced) {
       let wsRequest = new requestModelDeleteScanSessions().fromObject({
         scanSessionIds: [this.scanSession.id],
       });
       this.serverProvider.send(wsRequest);
     }
-    this.navCtrl.pop();
+    if (pop) {
+      this.navCtrl.pop();
+    }
+  }
+
+  sendUpdateScanSession(updatedScanSession: ScanSessionModel) {
+    let request = new requestModelUpdateScanSession().fromObject({
+      scanSessionId: this.scanSession.id,
+      scanSessionName: this.scanSession.name,
+      scanSessionDate: updatedScanSession.date
+    });
+    this.serverProvider.send(request);
   }
 
   repeat(scan: ScanModel, setRepeated: boolean = true) {
@@ -555,5 +578,11 @@ export class ScanSessionPage {
       ]
     });
     alert.present();
+  }
+
+  private isPristine() {
+    let neverScanned = !this.scanSession || (this.scanSession.scannings.length == 0 && this.isNewSession);
+    let hasBeenRenamed = this.lastScanSessionName && this.lastScanSessionName != this.scanSession.name;
+    return neverScanned && !hasBeenRenamed;
   }
 }

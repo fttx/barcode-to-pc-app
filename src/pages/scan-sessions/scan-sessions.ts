@@ -208,9 +208,9 @@ export class ScanSessionsPage {
   }
 
   onAddClick() {
-    let date: Date = new Date();
+    let date: number = new Date().getTime();
     let newScanSession: ScanSessionModel = {
-      id: date.getTime(),
+      id: date,
       name: 'Scan session ' + (this.scanSessions.length + 1),
       date: date,
       scannings: [],
