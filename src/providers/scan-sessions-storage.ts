@@ -35,7 +35,7 @@ export class ScanSessionsStorage {
             let scanSession: ScanSessionModel = {
               id: x.id,
               name: x.name,
-              date: new Date(x.date),
+              date: x.date,
               scannings: x.scannings,
               selected: false,
             }
@@ -95,7 +95,7 @@ export class ScanSessionsStorage {
             let scanSession: ScanSessionModel = {
               id: x.id,
               name: x.name,
-              date: new Date(x.date),
+              date: x.date,
               scannings: x.scannings,
               selected: false,
             }
