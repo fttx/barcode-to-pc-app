@@ -2,7 +2,7 @@
 import { ErrorHandler, NgModule } from '@angular/core';
 import { HttpModule } from '@angular/http';
 import { BrowserModule } from '@angular/platform-browser';
-import { BarcodeScanner } from '@fttx/barcode-scanner';
+import { BarcodeScanner } from '@ionic-native/barcode-scanner';
 import { AppVersion } from '@ionic-native/app-version';
 import { Device } from '@ionic-native/device';
 import { GoogleAnalytics } from '@ionic-native/google-analytics';

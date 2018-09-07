@@ -12,19 +12,18 @@
     "ionic:serve": "ionic-app-scripts serve"
   },
   "dependencies": {
-    "@angular/common": "5.0.3",
-    "@angular/compiler": "5.0.3",
-    "@angular/compiler-cli": "5.0.3",
-    "@angular/core": "5.0.3",
-    "@angular/forms": "5.0.3",
-    "@angular/http": "5.0.3",
-    "@angular/platform-browser": "5.0.3",
-    "@angular/platform-browser-dynamic": "5.0.3",
-    "@fttx/barcode-scanner": "^1.0.4",
-    "@fttx/phonegap-plugin-barcodescanner": "^7.0.1",
+    "@angular/animations": "5.2.11",
+    "@angular/common": "5.2.11",
+    "@angular/compiler": "5.2.11",
+    "@angular/compiler-cli": "5.2.11",
+    "@angular/core": "5.2.11",
+    "@angular/forms": "5.2.11",
+    "@angular/http": "5.2.11",
+    "@angular/platform-browser": "5.2.11",
+    "@angular/platform-browser-dynamic": "5.2.11",
     "@ionic-native/app-version": "4.5.0",
-    "@ionic-native/barcode-scanner": "^4.9.0",
-    "@ionic-native/core": "4.5.0",
+    "@ionic-native/barcode-scanner": "^4.12.2",
+    "@ionic-native/core": "~4.12.0",
     "@ionic-native/device": "4.5.0",
     "@ionic-native/google-analytics": "4.5.0",
     "@ionic-native/header-color": "4.5.0",
@@ -34,53 +33,54 @@
     "@ionic-native/native-audio": "4.5.0",
     "@ionic-native/network": "^4.5.2",
     "@ionic-native/social-sharing": "4.5.0",
-    "@ionic-native/splash-screen": "4.5.0",
-    "@ionic-native/status-bar": "4.5.0",
+    "@ionic-native/splash-screen": "~4.12.0",
+    "@ionic-native/status-bar": "~4.12.0",
     "@ionic-native/zeroconf": "4.5.0",
     "@ionic/storage": "2.1.3",
     "angular2-moment": "^1.7.0",
-    "bluebird": "^3.4.7",
+    "bluebird": "^3.5.1",
     "cc.fovea.cordova.purchase": "^7.1.3",
     "cordova-android": "7.0.0",
+    "cordova-browser": "~5.0.4",
     "cordova-ios": "4.5.4",
     "cordova-plugin-add-swift-support": "^1.7.2",
     "cordova-plugin-app-version": "^0.1.9",
     "cordova-plugin-compat": "^1.2.0",
     "cordova-plugin-console": "^1.1.0",
-    "cordova-plugin-device": "^1.1.7",
-    "cordova-plugin-google-analytics": "^1.8.3",
+    "cordova-plugin-device": "^2.0.2",
+    "cordova-plugin-google-analytics": "^1.8.6",
     "cordova-plugin-headercolor": "^1.0.0",
     "cordova-plugin-inappbrowser": "^1.7.2",
+    "cordova-plugin-ionic-keyboard": "^2.1.2",
+    "cordova-plugin-ionic-webview": "^2.1.3",
     "cordova-plugin-market": "^1.2.0",
     "cordova-plugin-nativeaudio": "^3.0.9",
     "cordova-plugin-network-information": "^1.3.4",
-    "cordova-plugin-splashscreen": "^4.1.0",
+    "cordova-plugin-splashscreen": "^5.0.2",
     "cordova-plugin-statusbar": "^2.4.2",
     "cordova-plugin-whitelist": "^1.3.3",
     "cordova-plugin-x-socialsharing": "^5.4.1",
-    "cordova-plugin-zeroconf": "^1.3.2",
+    "cordova-plugin-zeroconf": "^1.3.3",
     "es6-promise-plugin": "^4.2.2",
     "ionic-angular": "3.9.2",
-    "ionic-plugin-keyboard": "^2.2.1",
     "ionicons": "3.0.0",
     "marked": "^0.5.0",
     "ngx-markdown": "^6.1.0",
-    "rxjs": "5.5.2",
+    "phonegap-plugin-barcodescanner": "^8.0.0",
+    "rxjs": "5.5.11",
     "sw-toolbox": "3.6.0",
-    "zone.js": "0.8.18",
-    "cordova-browser": "~5.0.4"
+    "zone.js": "0.8.26"
   },
   "devDependencies": {
-    "@ionic/app-scripts": "^3.1.10",
-    "@types/bluebird": "^3.0.37",
-    "typescript": "2.4.2"
+    "@ionic/app-scripts": "3.2.0",
+    "@types/bluebird": "^3.5.20",
+    "typescript": "~2.6.2"
   },
   "cordovaPlugins": [
     "cordova-plugin-whitelist",
     "cordova-plugin-console",
     "cordova-plugin-device",
-    "cordova-plugin-splashscreen",
-    "ionic-plugin-keyboard"
+    "cordova-plugin-splashscreen"
   ],
   "cordovaPlatforms": [
     "ios",
@@ -96,31 +96,31 @@
       "cordova-plugin-app-version": {},
       "cordova-plugin-console": {},
       "cordova-plugin-device": {},
-      "cordova-plugin-google-analytics": {},
+      "cordova-plugin-google-analytics": {
+        "GMS_VERSION": "11.0.1"
+      },
       "cordova-plugin-inappbrowser": {},
       "cordova-plugin-splashscreen": {},
       "cordova-plugin-whitelist": {},
       "cordova-plugin-x-socialsharing": {},
-      "ionic-plugin-keyboard": {},
       "cordova-plugin-zeroconf": {},
       "cordova-plugin-statusbar": {},
       "cordova-plugin-headercolor": {},
       "cordova-plugin-nativeaudio": {},
       "cordova-plugin-market": {},
-      "@fttx/phonegap-plugin-barcodescanner": {
-        "CAMERA_USAGE_DESCRIPTION": "To scan barcodes"
-      },
       "cc.fovea.cordova.purchase": {
         "BILLING_KEY": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtBe7TEwulSjHC3qq5k7je1yGGB8nLRubQxNN9ZA7C9YW4LvcSTB5sFcLW8DNmDEQ1Psdyil7TVZ0FKcSx7deykaynQy0jC36UAaHzQNBKPB7J9HhJFVo6cgutOzlVavdlIBgyEfgBon4XXcByzdNsawydVaiMtuV2mUCEpnheetnH36bEPqex0bXPY43cCEBjRCL4Utn0Ne/hbu+og57sTH4JvAs99oSRo1AIsGPwALpFUsNOwG170bO8cDsCWtMKcNnAzGhl5dgKHAyiqSXf1p8bwSWHOCO685IrcWAdH6uVq+eTfjmvqQnUDLl/ZsiXvVcozcjYVo0dJut2JUqcQIDAQAB"
       },
+      "cordova-plugin-network-information": {},
       "phonegap-plugin-barcodescanner": {
-        "CAMERA_USAGE_DESCRIPTION": "To scan barcodes"
+        "ANDROID_SUPPORT_V4_VERSION": "27.+"
       },
-      "cordova-plugin-network-information": {}
+      "cordova-plugin-ionic-keyboard": {},
+      "cordova-plugin-ionic-webview": {}
     },
     "platforms": [
-      "android",
-      "ios"
+      "ios",
+      "android"
     ]
   }
 }

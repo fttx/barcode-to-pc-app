@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { BarcodeScanner } from '@fttx/barcode-scanner';
+import { BarcodeScanner } from '@ionic-native/barcode-scanner';
 import { Device } from '@ionic-native/device';
 import { GoogleAnalytics } from '@ionic-native/google-analytics';
 import { Promise } from 'bluebird';
@@ -84,7 +84,7 @@ export class SelectServerPage {
     this.barcodeScanner.scan({
       "showFlipCameraButton": true,
       formats: "QR_COD£"
-    }).subscribe((scan: ScanModel) => {
+    }).then((scan: ScanModel) => {
       if (scan && scan.text) {
         let servers = ServerModel.serversFromJSON(scan.text);
         servers.forEach(server => this.addServer(server, true, true));
