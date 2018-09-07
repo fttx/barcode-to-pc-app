@@ -9,7 +9,7 @@ import { ServerProvider } from '../../providers/server'
 import { Config } from '../../providers/config'
 import { Settings } from '../../providers/settings'
 import { GoogleAnalytics } from '@ionic-native/google-analytics';
-import { BarcodeScanner } from '@ionic-native/barcode-scanner';
+import { BarcodeScanner } from '@fttx/barcode-scanner';
 import { wsEvent } from '../../models/ws-event.model';
 
 /*
@@ -99,7 +99,7 @@ export class WelcomePage {
     this.barcodeScanner.scan({
       "showFlipCameraButton": true, // iOS and Android
       formats: "QR_CODE"
-    }).then((scan: ScanModel) => {
+    }).subscribe((scan: ScanModel) => {
       if (scan && scan.text) {
         let servers = ServerModel.serversFromJSON(scan.text);
         servers.forEach(server => {

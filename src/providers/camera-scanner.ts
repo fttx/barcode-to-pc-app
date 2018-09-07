@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BarcodeScanner, BarcodeScannerOptions } from '@ionic-native/barcode-scanner';
+import { BarcodeScanner, BarcodeScannerOptions } from '@fttx/barcode-scanner';
 import { Promise } from 'bluebird';
 import { AlertController } from 'ionic-angular';
 import { Observable } from 'rxjs/Observable';
@@ -28,7 +28,7 @@ export class CameraScannerProvider {
       Promise.join(this.settings.getPreferFrontCamera(), this.settings.getEnableLimitBarcodeFormats(), this.settings.getBarcodeFormats(), this.settings.getQuantityEnabled(), this.settings.getQuantityType(),
         (preferFrontCamera, enableLimitBarcodeFormats, barcodeFormats, quantyEnabled, quantityType) => {
           if (preferFrontCamera == null || !preferFrontCamera) preferFrontCamera = false;
-          let options: any = { // TODO change to BarcodeScannerOptions
+          let options: BarcodeScannerOptions = { // TODO change to BarcodeScannerOptions
             showFlipCameraButton: true, // iOS and Android
             prompt: "Place a barcode inside the scan area.\nPress the back button to exit.", // supported on Android only
             showTorchButton: true,
@@ -46,7 +46,7 @@ export class CameraScannerProvider {
 
           console.log('scanning with formats: ', options.formats)
 
-          this.barcodeScanner.scan(options).then((scan: ScanModel) => { // change to subscribe
+          this.barcodeScanner.scan(options).subscribe((scan: ScanModel) => { // may should call .unsubscribe
             if (scan.cancelled) {
               observer.error();
             }
