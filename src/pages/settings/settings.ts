@@ -6,6 +6,7 @@ import { barcodeFormatModel } from '../../models/barcode-format.model';
 import { requestModelHelo } from '../../models/request.model';
 import { ScanSessionsStorage } from '../../providers/scan-sessions-storage';
 import { ServerProvider } from '../../providers/server';
+import { SelectScanningModePage } from '../scan-session/select-scanning-mode/select-scanning-mode';
 import { Config } from './../../providers/config';
 import { Settings } from './../../providers/settings';
 
@@ -129,4 +130,8 @@ export class SettingsPage {
     // });
     // toast.present();
   }
+
+
+  public getScanModeName = SelectScanningModePage.GetScanModeName;
+  public getScanModeList = SelectScanningModePage.GetScanModeList;
 }

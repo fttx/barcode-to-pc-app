@@ -18,25 +18,10 @@
 <ion-content>
   <ion-grid class="modes-grid">
     <ion-row>
-      <ion-col col-12 col-sm align-self-center>
-        <div padding-vertical ion-item no-lines color="text" full class="half-button" (click)="dismiss('single')">
-          <img src="assets/select-scanning-mode/single.png">
-          <p>Single scan</p>
-        </div>
-      </ion-col>
-      <ion-col col-12 col-sm align-self-center>
-        <div padding-vertical ion-item no-lines color="text" full class="half-button" (click)="dismiss('continue')">
-          <img src="assets/select-scanning-mode/continue.png">
-          <p>Continue mode</p>
-        </div>
-      </ion-col>
-      <!-- <ion-col col-12 col-sm padding-vertical color="text" full class="half-button" [hidden]="!showCreateEmptyScanSession">
-        or
-      </ion-col> -->
-      <ion-col col-12 col-sm align-self-center [hidden]="!showCreateEmptyScanSession">
-        <div padding-vertical ion-item no-lines color="text" full class="half-button" (click)="dismiss('empty')">
-          <img src="assets/select-scanning-mode/keyboard.png">
-          <p>Enter manually</p>
+      <ion-col col-12 col-sm align-self-center *ngFor="let scanMode of getScanModeList()">
+        <div padding-vertical ion-item no-lines color="text" full class="half-button" (click)="dismiss(scanMode)">
+          <img [src]="'assets/select-scanning-mode/' + scanMode + '.png'">
+          <p>{{ getScanModeName(scanMode) }}</p>
         </div>
       </ion-col>
     </ion-row>

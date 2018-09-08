@@ -37,9 +37,7 @@
     <ion-item>
       <ion-label color="dark">Scan mode</ion-label>
       <ion-select [(ngModel)]="scanMode">
-        <ion-option value="">Ask every time</ion-option>
-        <ion-option value="single">Single scan</ion-option>
-        <ion-option value="continue">Continue mode</ion-option>
+        <ion-option *ngFor="let scanMode of getScanModeList()" [value]="scanMode">{{ getScanModeName(scanMode) }}</ion-option>
       </ion-select>
     </ion-item>
 

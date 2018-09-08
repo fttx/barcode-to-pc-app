@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
-import { ViewController, NavParams } from 'ionic-angular';
+import { ViewController } from 'ionic-angular';
+
 import { Settings } from './../../../providers/settings';
-import { platformBrowser } from '@angular/platform-browser';
 
 /*
   Generated class for the SelectScanningModePage page.
@@ -14,21 +14,36 @@ import { platformBrowser } from '@angular/platform-browser';
   templateUrl: 'select-scanning-mode.html'
 })
 export class SelectScanningModePage {
+  public static SCAN_MODE_ASK = '';
   public static SCAN_MODE_CONTINUE = 'continue';
   public static SCAN_MODE_SINGLE = 'single';
-  public static SCAN_MODE_EMPTY = 'empty';
+  public static SCAN_MODE_EMPTY = 'keyboard';
+
+  public static GetScanModeList() {
+    return [
+      SelectScanningModePage.SCAN_MODE_ASK,
+      SelectScanningModePage.SCAN_MODE_CONTINUE,
+      SelectScanningModePage.SCAN_MODE_SINGLE,
+      SelectScanningModePage.SCAN_MODE_EMPTY,
+    ]
+  }
+
+  public static GetScanModeName(scanMode: string) {
+    switch (scanMode) {
+      case SelectScanningModePage.SCAN_MODE_ASK: return 'Ask everytime'
+      case SelectScanningModePage.SCAN_MODE_CONTINUE: return 'Continue mode'
+      case SelectScanningModePage.SCAN_MODE_SINGLE: return 'Single mode'
+      case SelectScanningModePage.SCAN_MODE_EMPTY: return 'Enter manually'
+      default: break;
+    }
+  }
 
   public isDefault = false;
-
-  public showCreateEmptyScanSession = false;
 
   constructor(
     public viewCtrl: ViewController,
     private settings: Settings,
-    public navParams: NavParams,
-  ) {
-    this.showCreateEmptyScanSession = navParams.get('showCreateEmptyScanSession');
-  }
+  ) { }
 
   ionViewWillEnter() {
     this.settings.getDefaultMode().then(savedScanMode => {
@@ -43,5 +58,10 @@ export class SelectScanningModePage {
       this.settings.setDefaultMode(scanMode);
     }
     this.viewCtrl.dismiss(scanMode);
+  }
+
+  public getScanModeName = SelectScanningModePage.GetScanModeName;
+  public getScanModeList() {
+    return SelectScanningModePage.GetScanModeList().filter(x => x != SelectScanningModePage.SCAN_MODE_ASK);
   }
 }
