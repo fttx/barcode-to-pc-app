@@ -17,14 +17,14 @@ export class SelectScanningModePage {
   public static SCAN_MODE_ASK = '';
   public static SCAN_MODE_CONTINUE = 'continue';
   public static SCAN_MODE_SINGLE = 'single';
-  public static SCAN_MODE_EMPTY = 'keyboard';
+  public static SCAN_MODE_ENTER_MAUALLY = 'keyboard';
 
   public static GetScanModeList() {
     return [
       SelectScanningModePage.SCAN_MODE_ASK,
       SelectScanningModePage.SCAN_MODE_CONTINUE,
       SelectScanningModePage.SCAN_MODE_SINGLE,
-      SelectScanningModePage.SCAN_MODE_EMPTY,
+      SelectScanningModePage.SCAN_MODE_ENTER_MAUALLY,
     ]
   }
 
@@ -33,7 +33,7 @@ export class SelectScanningModePage {
       case SelectScanningModePage.SCAN_MODE_ASK: return 'Ask everytime'
       case SelectScanningModePage.SCAN_MODE_CONTINUE: return 'Continue mode'
       case SelectScanningModePage.SCAN_MODE_SINGLE: return 'Single mode'
-      case SelectScanningModePage.SCAN_MODE_EMPTY: return 'Enter manually'
+      case SelectScanningModePage.SCAN_MODE_ENTER_MAUALLY: return 'Enter manually'
       default: break;
     }
   }

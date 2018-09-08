@@ -155,6 +155,8 @@ export class ScanSessionPage {
         this.singleScan();
       } else if (mode == SelectScanningModePage.SCAN_MODE_CONTINUE) {
         this.continueScan();
+      } else if (mode == SelectScanningModePage.SCAN_MODE_ENTER_MAUALLY) {
+        this.addManually();
       }
     });
     selectScanningModeModal.present();
