@@ -179,7 +179,9 @@ export class ScanSessionPage {
     this.cameraScannerProvider.scan(false).subscribe(
       (scan: ScanModel) => {
         this.onScan(scan);
-        this.setName();
+        if (this.isNewSession) {
+          this.setName();
+        }
       }, err => {
         if (this.scanSession.scannings.length == 0) {
           this.sendDestroyScanSession();
@@ -200,7 +202,6 @@ export class ScanSessionPage {
         } else {
           if (this.isNewSession) {
             this.setName();
-            this.isNewSession = false;
           }
         }
       });
@@ -220,7 +221,6 @@ export class ScanSessionPage {
 
           if (this.isNewSession) {
             this.setName();
-            this.isNewSession = false;
           }
         }
       }, {
@@ -379,6 +379,7 @@ export class ScanSessionPage {
         }
       }]
     }).present();
+    this.isNewSession = false;
   }
 
   onAddClicked() {
