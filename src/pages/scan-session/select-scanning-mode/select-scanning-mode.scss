@@ -12,4 +12,8 @@ page-select-scanning-mode {
     .half-button p {
         font-size: 1.6em;
     }
+
+    .modes-grid, .modes-grid ion-row {
+        height: 100%;
+    }
 }

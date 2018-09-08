@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { ViewController, NavParams } from 'ionic-angular';
 import { Settings } from './../../../providers/settings';
+import { platformBrowser } from '@angular/platform-browser';
 
 /*
   Generated class for the SelectScanningModePage page.
@@ -24,7 +25,7 @@ export class SelectScanningModePage {
   constructor(
     public viewCtrl: ViewController,
     private settings: Settings,
-    public navParams: NavParams
+    public navParams: NavParams,
   ) {
     this.showCreateEmptyScanSession = navParams.get('showCreateEmptyScanSession');
   }
