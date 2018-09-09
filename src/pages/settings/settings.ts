@@ -89,10 +89,6 @@ export class SettingsPage {
         this.quantityType = quantityType;
       }
     });
-
-    this.scanSessionsStorage.getLastScanDate().then(lastScanDate => {
-      this.lastScanDate = lastScanDate;
-    });
   }
 
   ionViewWillLeave() {
@@ -119,7 +115,6 @@ export class SettingsPage {
 
     this.serverProvider.send(new requestModelHelo().fromObject({
       deviceName: this.deviceName,
-      lastScanDate: this.lastScanDate,
       deviceId: this.device.uuid
     }));
 

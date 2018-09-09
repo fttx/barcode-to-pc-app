@@ -8,8 +8,7 @@ import { ActionSheetController, AlertController, ModalController, NavController,
 import {
   requestModelDeleteScan,
   requestModelDeleteScanSessions,
-  requestModelPutScan,
-  requestModelPutScanSession,
+  requestModelPutScanSessions,
   requestModelUpdateScanSession,
 } from '../../models/request.model';
 import { responseModel, responseModelPutScanAck } from '../../models/response.model';
@@ -36,8 +35,6 @@ import { SelectScanningModePage } from './select-scanning-mode/select-scanning-m
 export class ScanSessionPage {
   public scanSession: ScanSessionModel;
   private isNewSession = false;
-  private isSynced = false;
-  private lastScanDate: number;
   private newScanDate: number;
   private lastScanSessionName: string = null;
 
@@ -108,20 +105,9 @@ export class ScanSessionPage {
         }
       });
     })
-
-    this.scanSessionsStorage.getLastScanDate().then(lastScanDate => this.lastScanDate = lastScanDate);
   }
 
   ionViewDidLoad() {
-    if (this.isNewSession && !this.isSynced) {
-      let wsRequest = new requestModelPutScanSession().fromObject({
-        scanSession: this.scanSession,
-      });
-      this.serverProvider.send(wsRequest);
-
-      this.isSynced = true;
-    }
-
     if (this.isNewSession) { // se ho premuto + su scan-sessions allora posso già iniziare la scansione
       this.scan();
     }
@@ -170,9 +156,6 @@ export class ScanSessionPage {
     this.newScanDate = new Date().getTime();
     // console.log('onScan -> sendPutScan')    
     this.sendPutScan(scan);
-    // console.log('onScan -> setLastScanDate = newScanDate')        
-    this.lastScanDate = this.newScanDate;
-    this.scanSessionsStorage.setLastScanDate(this.lastScanDate);
   }
 
   singleScan() {
@@ -395,15 +378,14 @@ export class ScanSessionPage {
 
   sendPutScan(scan: ScanModel, sendKeystrokes = true) {
     console.log('sendPutScan, scan.date=', scan.date);
-    let wsRequest = new requestModelPutScan().fromObject({
-      scan: scan,
-      scanSessionId: this.scanSession.id,
+    let scanSession = { ...this.scanSession }; // do a shallow copy (not a deep copy)
+    scanSession.scannings = [scan];
+
+    let wsRequest = new requestModelPutScanSessions().fromObject({
+      scanSessions: [scanSession],
       sendKeystrokes: sendKeystrokes,
-      lastScanDate: this.lastScanDate,
-      newScanDate: this.newScanDate,
       deviceId: this.device.uuid,
     });
-
     this.serverProvider.send(wsRequest);
   }
 
@@ -416,12 +398,10 @@ export class ScanSessionPage {
   }
 
   sendDestroyScanSession(pop = true) {
-    if (this.isSynced) {
-      let wsRequest = new requestModelDeleteScanSessions().fromObject({
-        scanSessionIds: [this.scanSession.id],
-      });
-      this.serverProvider.send(wsRequest);
-    }
+    let wsRequest = new requestModelDeleteScanSessions().fromObject({
+      scanSessionIds: [this.scanSession.id],
+    });
+    this.serverProvider.send(wsRequest);
     if (pop) {
       this.navCtrl.pop();
     }
