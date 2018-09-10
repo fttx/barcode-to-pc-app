@@ -29,7 +29,7 @@
     "@ionic-native/header-color": "4.5.0",
     "@ionic-native/in-app-browser": "4.5.0",
     "@ionic-native/in-app-purchase-2": "4.5.0",
-    "@ionic-native/market": "4.5.0",
+    "@ionic-native/launch-review": "^4.12.2",
     "@ionic-native/native-audio": "4.5.0",
     "@ionic-native/network": "^4.5.2",
     "@ionic-native/social-sharing": "4.5.0",
@@ -43,6 +43,7 @@
     "cordova-android": "7.0.0",
     "cordova-browser": "~5.0.4",
     "cordova-ios": "4.5.4",
+    "cordova-launch-review": "^3.1.1",
     "cordova-plugin-add-swift-support": "^1.7.2",
     "cordova-plugin-app-version": "^0.1.9",
     "cordova-plugin-compat": "^1.2.0",
@@ -53,14 +54,13 @@
     "cordova-plugin-inappbrowser": "^1.7.2",
     "cordova-plugin-ionic-keyboard": "^2.1.2",
     "cordova-plugin-ionic-webview": "^2.1.3",
-    "cordova-plugin-market": "^1.2.0",
     "cordova-plugin-nativeaudio": "^3.0.9",
     "cordova-plugin-network-information": "^1.3.4",
     "cordova-plugin-splashscreen": "^5.0.2",
     "cordova-plugin-statusbar": "^2.4.2",
     "cordova-plugin-whitelist": "^1.3.3",
     "cordova-plugin-x-socialsharing": "^5.4.1",
-    "cordova-plugin-zeroconf": "^1.3.3",
+    "cordova-plugin-zeroconf": "1.3.2",
     "es6-promise-plugin": "^4.2.2",
     "ionic-angular": "3.9.2",
     "ionicons": "3.0.0",
@@ -107,7 +107,6 @@
       "cordova-plugin-statusbar": {},
       "cordova-plugin-headercolor": {},
       "cordova-plugin-nativeaudio": {},
-      "cordova-plugin-market": {},
       "cc.fovea.cordova.purchase": {
         "BILLING_KEY": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtBe7TEwulSjHC3qq5k7je1yGGB8nLRubQxNN9ZA7C9YW4LvcSTB5sFcLW8DNmDEQ1Psdyil7TVZ0FKcSx7deykaynQy0jC36UAaHzQNBKPB7J9HhJFVo6cgutOzlVavdlIBgyEfgBon4XXcByzdNsawydVaiMtuV2mUCEpnheetnH36bEPqex0bXPY43cCEBjRCL4Utn0Ne/hbu+og57sTH4JvAs99oSRo1AIsGPwALpFUsNOwG170bO8cDsCWtMKcNnAzGhl5dgKHAyiqSXf1p8bwSWHOCO685IrcWAdH6uVq+eTfjmvqQnUDLl/ZsiXvVcozcjYVo0dJut2JUqcQIDAQAB"
       },
@@ -116,7 +115,8 @@
         "ANDROID_SUPPORT_V4_VERSION": "27.+"
       },
       "cordova-plugin-ionic-keyboard": {},
-      "cordova-plugin-ionic-webview": {}
+      "cordova-plugin-ionic-webview": {},
+      "cordova-launch-review": {}
     },
     "platforms": [
       "ios",

@@ -61,25 +61,9 @@ export class ScanSessionsStorage {
     })
   }
 
-  setLastScanDate(date: number) {
-    this.storage.set(ScanSessionsStorage.LAST_SCAN_DATE, date);
-  }
-
-  getLastScanDate(): Promise<number> {
-    return new Promise((resolve, reject) => {
-      this.storage.get(ScanSessionsStorage.LAST_SCAN_DATE).then(lastScanDate => {
-        if (lastScanDate) {
-          resolve(lastScanDate);
-        } else {
-          resolve(0);
-        }
-      }).catch(err => reject(err));
-    });
-  }
 
 
-
-
+  
   // Archived scan sessions
 
   setArchivedScanSessions(scanSessions: ScanSessionModel[]) {

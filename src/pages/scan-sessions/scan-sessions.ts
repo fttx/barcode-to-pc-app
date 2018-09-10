@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { Device } from '@ionic-native/device';
 import { GoogleAnalytics } from '@ionic-native/google-analytics';
-import { Market } from '@ionic-native/market';
+import { LaunchReview } from '@ionic-native/launch-review';
 import * as Promise from 'bluebird';
 import { AlertController, NavController, PopoverController } from 'ionic-angular';
 
@@ -38,7 +38,7 @@ export class ScanSessionsPage {
     public popoverCtrl: PopoverController,
     private ga: GoogleAnalytics,
     private settings: Settings,
-    private market: Market,
+    private launchReview: LaunchReview,
     private device: Device,
     private utils: Utils
   ) { }
@@ -120,11 +120,16 @@ export class ScanSessionsPage {
           }, {
             text: 'Rate',
             handler: () => {
-              this.settings.setRated(true);
-              if (isAndroid) {
-                this.market.open('com.barcodetopc');
+              if (this.launchReview.isRatingSupported()) {
+                this.launchReview.rating().then(result => {
+                  if (result == 'shown') {
+                    this.settings.setRated(true);
+                  }
+                });
               } else {
-                this.market.open('BarcodetoPC:Wi-Fiscanner');
+                this.launchReview.launch().then(() => {
+                  this.settings.setRated(true);
+                })
               }
             }
           }]

@@ -5,40 +5,23 @@
   Ionic pages and navigation.
 -->
 <ion-header>
-
   <ion-navbar color="primary">
-    <ion-title>Scanning mode</ion-title>
+    <ion-title>Select scanning mode</ion-title>
     <ion-buttons end>
       <button ion-button icon-right color="royal" (click)="dismiss()">
         Cancel
       </button>
     </ion-buttons>
   </ion-navbar>
-
 </ion-header>
 
-
 <ion-content>
-  <ion-grid>
+  <ion-grid class="modes-grid">
     <ion-row>
-      <ion-col col-12 col-sm>
-        <div padding-vertical ion-item color="text" full class="half-button single" (click)="dismiss('single')">
-          <img src="assets/select-scanning-mode/single.png">
-          <p>Single scan</p>
-        </div>
-      </ion-col>
-      <ion-col col-12 col-sm>
-        <div padding-vertical ion-item color="text" full class="half-button continue" (click)="dismiss('continue')">
-          <img src="assets/select-scanning-mode/continue.png">
-          <p>Continue mode</p>
-        </div>
-      </ion-col>
-      <ion-col col-12 col-sm padding-vertical color="text" full  class="half-button" [hidden]="!showCreateEmptyScanSession">
-        or
-      </ion-col>
-      <ion-col col-12 col-sm [hidden]="!showCreateEmptyScanSession">
-        <div padding-vertical full class="half-button" (click)="dismiss('empty')">
-          <button ion-button small>Create an empty scan session</button>
+      <ion-col col-12 col-sm align-self-center *ngFor="let scanMode of getScanModeList()">
+        <div padding-vertical ion-item no-lines color="text" full class="half-button" (click)="dismiss(scanMode)">
+          <img [src]="'assets/select-scanning-mode/' + scanMode + '.png'">
+          <p>{{ getScanModeName(scanMode) }}</p>
         </div>
       </ion-col>
     </ion-row>

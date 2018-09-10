@@ -1,12 +1,10 @@
 import { Component } from '@angular/core';
 import { Device } from '@ionic-native/device';
-import * as Promise from 'bluebird';
 import { ActionSheetController, AlertController, NavController, NavParams } from 'ionic-angular';
 
 import { GoogleAnalytics } from '../../../node_modules/@ionic-native/google-analytics';
-import { requestModelDeleteScanSessions, requestModelPutScanSessions } from '../../models/request.model';
+import { requestModelPutScanSessions } from '../../models/request.model';
 import { ScanSessionModel } from '../../models/scan-session.model';
-import { wsEvent } from '../../models/ws-event.model';
 import { ScanSessionsStorage } from '../../providers/scan-sessions-storage';
 import { ServerProvider } from '../../providers/server';
 import { Settings } from '../../providers/settings';
@@ -74,15 +72,12 @@ export class ArchivedPage {
               return;
             }
 
-            Promise.join(this.settings.getDeviceName(), this.scanSessionsStorage.getLastScanDate(), (deviceName, lastScanDate) => {
-              let wsRequest = new requestModelPutScanSessions().fromObject({
-                scanSessions: [scanSession],
-                sendKeystrokes: false,
-                lastScanDate: lastScanDate,
-                deviceId: this.device.uuid,
-              });
-              this.serverProvider.send(wsRequest);
+            let wsRequest = new requestModelPutScanSessions().fromObject({
+              scanSessions: [scanSession],
+              sendKeystrokes: false,
+              deviceId: this.device.uuid,
             });
+            this.serverProvider.send(wsRequest);
 
             this.scanSessionsStorage.pushScanSession(scanSession);
             this.archivedScanSessions = this.archivedScanSessions.filter(x => x != scanSession);

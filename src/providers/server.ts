@@ -1,19 +1,12 @@
 import { Injectable, NgZone } from '@angular/core';
 import { Device } from '@ionic-native/device';
 import { Zeroconf } from '@ionic-native/zeroconf';
-import * as Promise from 'bluebird';
 import { Alert, AlertController, Platform } from 'ionic-angular';
 import { Observable, Subject, Subscription } from 'rxjs';
 
 import { discoveryResultModel } from '../models/discovery-result';
-import {
-  requestModel,
-  requestModelGetVersion,
-  requestModelHelo,
-  requestModelPing,
-  requestModelPutScanSessions,
-} from '../models/request.model';
-import { responseModel, responseModelHelo, responseModelPopup, responseModelEnableQuantity } from '../models/response.model';
+import { requestModel, requestModelGetVersion, requestModelHelo, requestModelPing } from '../models/request.model';
+import { responseModel, responseModelEnableQuantity, responseModelHelo, responseModelPopup } from '../models/response.model';
 import { wsEvent } from '../models/ws-event.model';
 import { Settings } from '../providers/settings';
 import { ServerModel } from './../models/server.model';
@@ -164,18 +157,6 @@ export class ServerProvider {
         messageData = JSON.parse(message.data);
       }
 
-      if (messageData.action == responseModel.ACTION_REQUEST_SYNC) {
-        Promise.join(this.scanSessionsStorage.getLastScanDate(), this.scanSessionsStorage.getScanSessions(), (lastScanDate, scanSessions) => {
-          let wsRequest = new requestModelPutScanSessions().fromObject({
-            scanSessions: scanSessions,
-            sendKeystrokes: false,
-            lastScanDate: lastScanDate,
-            deviceId: this.device.uuid,
-          });
-          this.send(wsRequest);
-        })
-      }
-
       if (messageData.action == responseModel.ACTION_HELO) {
         // fallBack for old server versions                
         console.log('FallBack: new HELO request received, aborting fallback')
@@ -254,12 +235,11 @@ export class ServerProvider {
       }, 1000 * 60); // ogni 60 secondi invio ping
 
 
-      Promise.join(this.settings.getRated(), this.settings.getDeviceName(), this.scanSessionsStorage.getLastScanDate(), (rated, deviceName, lastScanDate) => {
+      this.settings.getDeviceName().then(deviceName => {
         console.log('promise join: getDeviceName getRated getLastScanDate ')
         let request = new requestModelHelo().fromObject({
           deviceName: deviceName,
           deviceId: this.device.uuid,
-          lastScanDate: lastScanDate,
         });
         this.send(request);
 

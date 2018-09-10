@@ -8,8 +8,7 @@ import { ActionSheetController, AlertController, ModalController, NavController,
 import {
   requestModelDeleteScan,
   requestModelDeleteScanSessions,
-  requestModelPutScan,
-  requestModelPutScanSession,
+  requestModelPutScanSessions,
   requestModelUpdateScanSession,
 } from '../../models/request.model';
 import { responseModel, responseModelPutScanAck } from '../../models/response.model';
@@ -36,8 +35,6 @@ import { SelectScanningModePage } from './select-scanning-mode/select-scanning-m
 export class ScanSessionPage {
   public scanSession: ScanSessionModel;
   private isNewSession = false;
-  private isSynced = false;
-  private lastScanDate: number;
   private newScanDate: number;
   private lastScanSessionName: string = null;
 
@@ -108,20 +105,9 @@ export class ScanSessionPage {
         }
       });
     })
-
-    this.scanSessionsStorage.getLastScanDate().then(lastScanDate => this.lastScanDate = lastScanDate);
   }
 
   ionViewDidLoad() {
-    if (this.isNewSession && !this.isSynced) {
-      let wsRequest = new requestModelPutScanSession().fromObject({
-        scanSession: this.scanSession,
-      });
-      this.serverProvider.send(wsRequest);
-
-      this.isSynced = true;
-    }
-
     if (this.isNewSession) { // se ho premuto + su scan-sessions allora posso già iniziare la scansione
       this.scan();
     }
@@ -135,9 +121,6 @@ export class ScanSessionPage {
   }
 
   ionViewWillLeave() {
-    if (this.isPristine()) {
-      this.sendDestroyScanSession(false);
-    }
     this.save();
   }
 
@@ -147,7 +130,6 @@ export class ScanSessionPage {
 
       // if the user doesn't choose the mode (clicks cancel) and didn't enter the scan-session page
       if (!mode && this.isNewSession && this.scanSession.scannings.length == 0) {
-        this.sendDestroyScanSession();
         return;
       }
 
@@ -155,6 +137,8 @@ export class ScanSessionPage {
         this.singleScan();
       } else if (mode == SelectScanningModePage.SCAN_MODE_CONTINUE) {
         this.continueScan();
+      } else if (mode == SelectScanningModePage.SCAN_MODE_ENTER_MAUALLY) {
+        this.addManually();
       }
     });
     selectScanningModeModal.present();
@@ -168,19 +152,18 @@ export class ScanSessionPage {
     this.newScanDate = new Date().getTime();
     // console.log('onScan -> sendPutScan')    
     this.sendPutScan(scan);
-    // console.log('onScan -> setLastScanDate = newScanDate')        
-    this.lastScanDate = this.newScanDate;
-    this.scanSessionsStorage.setLastScanDate(this.lastScanDate);
   }
 
   singleScan() {
     this.cameraScannerProvider.scan(false).subscribe(
       (scan: ScanModel) => {
         this.onScan(scan);
-        this.setName();
+        if (this.isNewSession) {
+          this.setName();
+        }
       }, err => {
         if (this.scanSession.scannings.length == 0) {
-          this.sendDestroyScanSession();
+          this.navCtrl.pop();
         }
       });
   }
@@ -194,14 +177,51 @@ export class ScanSessionPage {
         }
       }, err => {
         if (this.scanSession.scannings.length == 0) {
-          this.sendDestroyScanSession();
+          this.navCtrl.pop();
         } else {
           if (this.isNewSession) {
             this.setName();
-            this.isNewSession = false;
           }
         }
       });
+  }
+
+  addManually() {
+    const alert = this.alertCtrl.create({
+      title: 'Add a scan manually',
+      inputs: [
+        {
+          name: 'text',
+          placeholder: 'Text to send',
+        },
+      ],
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+          handler: data => {  // called also when backdropDismiss occours
+            this.navCtrl.pop();
+          }
+        },
+        {
+          text: 'Add',
+          handler: data => {
+            let scan = new ScanModel();
+            let now = new Date().getTime();
+            scan.cancelled = false;
+            scan.id = now;
+            scan.repeated = false;
+            scan.text = data.text;
+            scan.date = now;
+            this.onScan(scan);
+            if (this.isNewSession) {
+              this.setName();
+            }
+          }
+        }
+      ]
+    });
+    alert.present();
   }
 
   showAddMoreDialog() {
@@ -218,7 +238,6 @@ export class ScanSessionPage {
 
           if (this.isNewSession) {
             this.setName();
-            this.isNewSession = false;
           }
         }
       }, {
@@ -377,6 +396,7 @@ export class ScanSessionPage {
         }
       }]
     }).present();
+    this.isNewSession = false;
   }
 
   onAddClicked() {
@@ -392,15 +412,14 @@ export class ScanSessionPage {
 
   sendPutScan(scan: ScanModel, sendKeystrokes = true) {
     console.log('sendPutScan, scan.date=', scan.date);
-    let wsRequest = new requestModelPutScan().fromObject({
-      scan: scan,
-      scanSessionId: this.scanSession.id,
+    let scanSession = { ...this.scanSession }; // do a shallow copy (not a deep copy)
+    scanSession.scannings = [scan];
+
+    let wsRequest = new requestModelPutScanSessions().fromObject({
+      scanSessions: [scanSession],
       sendKeystrokes: sendKeystrokes,
-      lastScanDate: this.lastScanDate,
-      newScanDate: this.newScanDate,
       deviceId: this.device.uuid,
     });
-
     this.serverProvider.send(wsRequest);
   }
 
@@ -412,17 +431,15 @@ export class ScanSessionPage {
     this.serverProvider.send(wsRequest);
   }
 
-  sendDestroyScanSession(pop = true) {
-    if (this.isSynced) {
-      let wsRequest = new requestModelDeleteScanSessions().fromObject({
-        scanSessionIds: [this.scanSession.id],
-      });
-      this.serverProvider.send(wsRequest);
-    }
-    if (pop) {
-      this.navCtrl.pop();
-    }
-  }
+  // sendDestroyScanSession(pop = true) {
+  //   let wsRequest = new requestModelDeleteScanSessions().fromObject({
+  //     scanSessionIds: [this.scanSession.id],
+  //   });
+  //   this.serverProvider.send(wsRequest);
+  //   if (pop) {
+  //     this.navCtrl.pop();
+  //   }
+  // }
 
   sendUpdateScanSession(updatedScanSession: ScanSessionModel) {
     let request = new requestModelUpdateScanSession().fromObject({
@@ -545,39 +562,6 @@ export class ScanSessionPage {
     } else {
       return 'refresh';
     }
-  }
-
-  addManually() {
-    const alert = this.alertCtrl.create({
-      title: 'Add a scan manually',
-      inputs: [
-        {
-          name: 'text',
-          placeholder: 'Text to send',
-        },
-      ],
-      buttons: [
-        {
-          text: 'Cancel',
-          role: 'cancel',
-          handler: data => { }
-        },
-        {
-          text: 'Add',
-          handler: data => {
-            let scan = new ScanModel();
-            let now = new Date().getTime();
-            scan.cancelled = false;
-            scan.id = now;
-            scan.repeated = false;
-            scan.text = data.text;
-            scan.date = now;
-            this.onScan(scan);
-          }
-        }
-      ]
-    });
-    alert.present();
   }
 
   private isPristine() {
