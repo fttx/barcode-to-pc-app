@@ -82,7 +82,6 @@ export class CameraScannerProvider {
 
       if (scan.cancelled) {
         this.observer.complete();
-        console.log('@@@@complete')
         return;
       }
 
@@ -99,11 +98,7 @@ export class CameraScannerProvider {
           title: 'Enter quantity value',
           // message: 'Inse',
           enableBackdropDismiss: false,
-          inputs: [{
-            name: 'quantity',
-            type: this.quantityType || 'number',
-            placeholder: 'Eg. 5'
-          }],
+          inputs: [{ name: 'quantity', type: this.quantityType || 'number', placeholder: 'Eg. 5' }],
           buttons: [{
             text: 'Ok',
             handler: data => {
@@ -113,8 +108,7 @@ export class CameraScannerProvider {
               this.nextScan(scan)
             }
           }, {
-            role: 'cancel',
-            text: ' Cancel',
+            role: 'cancel', text: 'Cancel',
             handler: () => {
               this.observer.complete();
             }
@@ -138,20 +132,17 @@ export class CameraScannerProvider {
         this.showAddMoreDialog();
       } else {
         this.observer.complete();
-        console.log('@@@@complete')
       }
     } else {
       if (this.platform.is('android')) {
         if (!this.continuousMode) {
           this.observer.complete();
         }
-        console.log('@@@@complete')
       } else {
         if (this.continuousMode) {
           this.showAddMoreDialog();
         } else {
           this.observer.complete();
-          console.log('@@@@complete')
         }
       }
     }
@@ -166,15 +157,13 @@ export class CameraScannerProvider {
       title: 'Continue scanning?',
       message: 'Do you want to add another item to this scan session?',
       buttons: [{
-        text: 'Stop',
-        role: 'cancel',
+        text: 'Stop', role: 'cancel',
         handler: () => {
           if (interval) clearInterval(interval);
           this.observer.complete();
         }
       }, {
-        text: 'Continue',
-        handler: () => {
+        text: 'Continue', handler: () => {
           if (interval) clearInterval(interval);
           this.pluginScan();
         }
