@@ -7,7 +7,6 @@ import { ActionSheetController, AlertController, ModalController, NavController,
 
 import {
   requestModelDeleteScan,
-  requestModelDeleteScanSessions,
   requestModelPutScanSessions,
   requestModelUpdateScanSession,
 } from '../../models/request.model';
@@ -35,7 +34,6 @@ import { SelectScanningModePage } from './select-scanning-mode/select-scanning-m
 export class ScanSessionPage {
   public scanSession: ScanSessionModel;
   private isNewSession = false;
-  private newScanDate: number;
   private lastScanSessionName: string = null;
 
   public repeatInterval = Config.DEFAULT_REPEAT_INVERVAL;
@@ -59,8 +57,8 @@ export class ScanSessionPage {
     private cameraScannerProvider: CameraScannerProvider,
     private nativeAudio: NativeAudio,
     private ngZone: NgZone,
-    private device: Device,
     private platform: Platform,
+    private device: Device,
   ) {
     this.scanSession = navParams.get('scanSession');
     this.isNewSession = navParams.get('isNewSession');
@@ -80,7 +78,7 @@ export class ScanSessionPage {
       scan.repeated = false;
       scan.text = this.keyboardBuffer;
       this.keyboardBuffer = '';
-      this.onScan(scan);
+      this.saveAndSendScan(scan);
     } else {
       this.keyboardBuffer += event.key;
     }
@@ -130,13 +128,25 @@ export class ScanSessionPage {
 
       // if the user doesn't choose the mode (clicks cancel) and didn't enter the scan-session page
       if (!mode && this.isNewSession && this.scanSession.scannings.length == 0) {
+        this.navCtrl.pop();
         return;
       }
 
-      if (mode == SelectScanningModePage.SCAN_MODE_SINGLE) {
-        this.singleScan();
-      } else if (mode == SelectScanningModePage.SCAN_MODE_CONTINUE) {
-        this.continueScan();
+      let isContinueMode = (mode == SelectScanningModePage.SCAN_MODE_CONTINUE);
+      let isSingleMode = (mode == SelectScanningModePage.SCAN_MODE_SINGLE);
+      if (isSingleMode || isContinueMode) {
+        this.cameraScannerProvider.scan(isContinueMode).subscribe(
+          (scan: ScanModel) => {
+            this.saveAndSendScan(scan);
+          },
+          err => { },
+          () => { // on complete
+            if (this.isNewSession && this.scanSession.scannings.length != 0) {
+              this.setName();
+            } else if (this.scanSession.scannings.length == 0) {
+              this.navCtrl.pop();
+            }
+          });
       } else if (mode == SelectScanningModePage.SCAN_MODE_ENTER_MAUALLY) {
         this.addManually();
       }
@@ -144,46 +154,11 @@ export class ScanSessionPage {
     selectScanningModeModal.present();
   }
 
-  onScan(scan: ScanModel) {
+  saveAndSendScan(scan: ScanModel) {
     this.ga.trackEvent('scannings', 'scan');
     this.scanSession.scannings.unshift(scan);
     this.save();
-    // console.log('onScan -> newScanDate = now()')
-    this.newScanDate = new Date().getTime();
-    // console.log('onScan -> sendPutScan')    
     this.sendPutScan(scan);
-  }
-
-  singleScan() {
-    this.cameraScannerProvider.scan(false).subscribe(
-      (scan: ScanModel) => {
-        this.onScan(scan);
-        if (this.isNewSession) {
-          this.setName();
-        }
-      }, err => {
-        if (this.scanSession.scannings.length == 0) {
-          this.navCtrl.pop();
-        }
-      });
-  }
-
-  continueScan() {
-    this.cameraScannerProvider.scan(true).subscribe(
-      (scan: ScanModel) => {
-        this.onScan(scan);
-        if (!this.platform.is('android')) {
-          this.showAddMoreDialog();
-        }
-      }, err => {
-        if (this.scanSession.scannings.length == 0) {
-          this.navCtrl.pop();
-        } else {
-          if (this.isNewSession) {
-            this.setName();
-          }
-        }
-      });
   }
 
   addManually() {
@@ -213,7 +188,7 @@ export class ScanSessionPage {
             scan.repeated = false;
             scan.text = data.text;
             scan.date = now;
-            this.onScan(scan);
+            this.saveAndSendScan(scan);
             if (this.isNewSession) {
               this.setName();
             }
@@ -224,50 +199,6 @@ export class ScanSessionPage {
     alert.present();
   }
 
-  showAddMoreDialog() {
-    let interval = null;
-
-    let alert = this.alertCtrl.create({
-      title: 'Continue scanning?',
-      message: 'Do you want to add another item to this scan session?',
-      buttons: [{
-        text: 'Stop',
-        role: 'cancel',
-        handler: () => {
-          if (interval) clearInterval(interval);
-
-          if (this.isNewSession) {
-            this.setName();
-          }
-        }
-      }, {
-        text: 'Continue',
-        handler: () => {
-          if (interval) clearInterval(interval);
-          this.continueScan();
-        }
-      }]
-    });
-    alert.present();
-
-    this.settings.getContinueModeTimeout().then(timeoutSeconds => {
-      if (timeoutSeconds == null) {
-        timeoutSeconds = Config.DEFAULT_CONTINUE_MODE_TIMEOUT;
-      } else {
-        this.ga.trackEvent('scannings', 'custom_timeout', null, timeoutSeconds);
-      }
-
-      interval = setInterval(() => {
-        alert.setSubTitle('Timeout: ' + timeoutSeconds);
-        if (timeoutSeconds == 0) {
-          if (interval) clearInterval(interval);
-          alert.dismiss();
-          this.continueScan();
-        }
-        timeoutSeconds--;
-      }, 1000);
-    });
-  }
 
   onItemClicked(scan: ScanModel, scanIndex: number) {
     if (scan.ack == true) {
@@ -519,8 +450,6 @@ export class ScanSessionPage {
     });
     alert.present();
   }
-
-
 
   repeatAll(startFrom = -1) {
     if (startFrom < 0 || startFrom >= this.scanSession.scannings.length) {
