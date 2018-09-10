@@ -3,7 +3,8 @@ import { Device } from '@ionic-native/device';
 import { GoogleAnalytics } from '@ionic-native/google-analytics';
 import { NativeAudio } from '@ionic-native/native-audio';
 import { SocialSharing } from '@ionic-native/social-sharing';
-import { ActionSheetController, AlertController, ModalController, NavController, NavParams, Platform } from 'ionic-angular';
+import { Promise } from 'bluebird';
+import { ActionSheetController, AlertController, ModalController, NavController, NavParams } from 'ionic-angular';
 
 import {
   requestModelDeleteScan,
@@ -57,7 +58,6 @@ export class ScanSessionPage {
     private cameraScannerProvider: CameraScannerProvider,
     private nativeAudio: NativeAudio,
     private ngZone: NgZone,
-    private platform: Platform,
     private device: Device,
   ) {
     this.scanSession = navParams.get('scanSession');
@@ -148,7 +148,61 @@ export class ScanSessionPage {
             }
           });
       } else if (mode == SelectScanningModePage.SCAN_MODE_ENTER_MAUALLY) {
-        this.addManually();
+        this.alertCtrl.create({
+          title: 'Add a scan manually',
+          inputs: [{
+            name: 'text',
+            placeholder: 'Text to send',
+          },],
+          buttons: [{
+            text: 'Cancel', role: 'cancel',
+            handler: data => {  // called also when backdropDismiss occours
+              this.navCtrl.pop();
+            }
+          }, {
+            text: 'Add', handler: data => {
+              let scan = new ScanModel();
+              let now = new Date().getTime();
+              scan.cancelled = false;
+              scan.id = now;
+              scan.repeated = false;
+              scan.text = data.text;
+              scan.date = now;
+
+              Promise.join(this.settings.getQuantityEnabled(), this.settings.getQuantityType(), (quantyEnabled, quantityType) => {
+                let done = () => {
+                  this.saveAndSendScan(scan);
+                  if (this.isNewSession) {
+                    this.setName();
+                  }
+                }
+                if (quantyEnabled) {
+                  this.alertCtrl.create({
+                    title: 'Enter quantity value',
+                    // message: 'Inse',
+                    enableBackdropDismiss: false,
+                    inputs: [{ name: 'quantity', type: quantityType || 'number', placeholder: 'Eg. 5' }],
+                    buttons: [{
+                      text: 'Ok', handler: data => {
+                        if (data.quantity) {
+                          scan.quantity = data.quantity;
+                        }
+                        done();
+                      }
+                    }, {
+                      role: 'cancel', text: ' Cancel', handler: () => {
+                        this.navCtrl.pop();
+                      }
+                    }]
+                  }).present();
+                } else {
+                  done();
+                }
+              })
+            }
+          }
+          ]
+        }).present();
       }
     });
     selectScanningModeModal.present();
@@ -161,63 +215,13 @@ export class ScanSessionPage {
     this.sendPutScan(scan);
   }
 
-  addManually() {
-    const alert = this.alertCtrl.create({
-      title: 'Add a scan manually',
-      inputs: [
-        {
-          name: 'text',
-          placeholder: 'Text to send',
-        },
-      ],
-      buttons: [
-        {
-          text: 'Cancel',
-          role: 'cancel',
-          handler: data => {  // called also when backdropDismiss occours
-            this.navCtrl.pop();
-          }
-        },
-        {
-          text: 'Add',
-          handler: data => {
-            let scan = new ScanModel();
-            let now = new Date().getTime();
-            scan.cancelled = false;
-            scan.id = now;
-            scan.repeated = false;
-            scan.text = data.text;
-            scan.date = now;
-            this.saveAndSendScan(scan);
-            if (this.isNewSession) {
-              this.setName();
-            }
-          }
-        }
-      ]
-    });
-    alert.present();
-  }
-
-
   onItemClicked(scan: ScanModel, scanIndex: number) {
     if (scan.ack == true) {
       this.alertCtrl.create({
         title: 'The server has already received this scan',
         message: 'Do you want to send it again?',
-        buttons: [
-          {
-            text: 'Cancel',
-            role: 'cancel',
-            handler: () => { }
-          },
-          {
-            text: 'Send again',
-            handler: () => {
-              this.repeat(scan);
-            }
-          }
-        ]
+        buttons: [{ text: 'Cancel', role: 'cancel', handler: () => { } },
+        { text: 'Send again', handler: () => { this.repeat(scan); } }]
       }).present();
     } else {
       this.repeat(scan);
