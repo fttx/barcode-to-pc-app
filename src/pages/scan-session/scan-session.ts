@@ -402,7 +402,7 @@ export class ScanSessionPage {
   private skipAlreadySent = false;
 
   onRepeatAllClick() {
-   this.alertCtrl.create({
+    this.alertCtrl.create({
       title: 'Send all barcodes again',
       inputs: [{
         type: 'checkbox',
@@ -451,6 +451,10 @@ export class ScanSessionPage {
     this.scanSession.scannings.forEach(scan => scan.repeated = false);
     this.skipAlreadySent = false;
   }
+
+  // onShareClick() {
+
+  // }
 
   private repeatAll(startFrom = -1) {
     if (startFrom < 0 || startFrom >= this.scanSession.scannings.length) {
