@@ -10,12 +10,20 @@
 		<ion-title>{{ scanSession.name }}</ion-title>
 
 		<ion-buttons end>
-			<button [hidden]="isRepeating == false" ion-button icon-only (click)="stopRepeating()">
+			<button [hidden]="!(repeatingStatus == 'stopped')" ion-button icon-only (click)="onRepeatAllClick()">
+				<ion-icon name="refresh"></ion-icon>
+			</button>
+
+			<button [hidden]="!(repeatingStatus == 'repeating' || repeatingStatus == 'paused')" ion-button icon-only (click)="stopRepeatingClick()">
 				<ion-icon name="square"></ion-icon>
 			</button>
 
-			<button ion-button icon-only (click)="onRepeatAllClicked()">
-				<ion-icon [name]="getRepeatAllIcon()"></ion-icon>
+			<button [hidden]="!(repeatingStatus == 'repeating')" ion-button icon-only (click)="onPauseRepeatingClick()">
+				<ion-icon name="pause"></ion-icon>
+			</button>
+
+			<button [hidden]="!(repeatingStatus == 'paused')" ion-button icon-only (click)="onResumeRepeatingClick()">
+				<ion-icon name="play"></ion-icon>
 			</button>
 
 			<button ion-button icon-only (click)="onEditClick()">
@@ -28,7 +36,8 @@
 
 <ion-content>
 	<ion-list>
-		<button ion-item *ngFor="let scan of scanSession.scannings; let i = index"  (click)="onItemClicked(scan, i)" (press)="onItemPressed(scan, i)"  [color]="scan.repeated ? 'light' : 'default'">
+		<button ion-item *ngFor="let scan of scanSession.scannings; let i = index" (click)="onItemClicked(scan, i)" (press)="onItemPressed(scan, i)"
+		 [color]="scan.repeated ? 'light' : 'default'">
 			<ion-grid no-padding>
 				<ion-row>
 					<ion-col align-self-start col-1>

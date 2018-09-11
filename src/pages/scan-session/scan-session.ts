@@ -40,7 +40,7 @@ export class ScanSessionPage {
   public repeatInterval = Config.DEFAULT_REPEAT_INVERVAL;
   public repeatAllTimeout = null;
   public next = -1;
-  public isRepeating: 'paused' | true | false = false;
+  public repeatingStatus: 'paused' | 'repeating' | 'stopped' = 'stopped';
 
   public keyboardBuffer = '';
 
@@ -272,7 +272,7 @@ export class ScanSessionPage {
       icon: 'refresh',
       handler: () => {
         this.ga.trackEvent('scannings', 'repeatAll');
-        if (this.isRepeating == false) {
+        if (this.repeatingStatus == 'stopped') {
           this.repeatAll(scanIndex);
         }
       }
@@ -401,67 +401,64 @@ export class ScanSessionPage {
 
   private skipAlreadySent = false;
 
-  onRepeatAllClicked() {
-    this.ga.trackEvent('scannings', 'repeatAll');
-
-    let alert = this.alertCtrl.create({
+  onRepeatAllClick() {
+   this.alertCtrl.create({
       title: 'Send all barcodes again',
-      inputs: [
-        {
-          type: 'checkbox',
-          label: 'Skip the already sent ones',
-          value: 'skipAlreadySent',
-          checked: true
+      inputs: [{
+        type: 'checkbox',
+        label: 'Skip the already sent ones',
+        value: 'skipAlreadySent',
+        checked: true
+      }],
+      buttons: [{
+        text: 'Cancel', role: 'cancel', handler: data => { }
+      }, {
+        text: 'Send', handler: data => {
+          this.ga.trackEvent('scannings', 'repeatAll');
+
+          this.skipAlreadySent = (data == 'skipAlreadySent')
+
+          this.settings.getRepeatInterval().then(repeatInterval => {
+            if (repeatInterval && repeatInterval != null) {
+              this.repeatInterval = repeatInterval;
+            }
+
+            if (this.repeatingStatus != 'repeating' && this.repeatingStatus != 'paused') {
+              let startFrom = this.scanSession.scannings.length - 1;
+              this.repeatAll(startFrom);
+            }
+          })
         }
-      ],
-      buttons: [
-        {
-          text: 'Cancel',
-          role: 'cancel',
-          handler: data => { }
-        },
-        {
-          text: 'Send',
-          handler: data => {
-            this.skipAlreadySent = (data == 'skipAlreadySent')
-
-
-            this.settings.getRepeatInterval().then(repeatInterval => {
-              if (repeatInterval && repeatInterval != null) {
-                this.repeatInterval = repeatInterval;
-              }
-
-              let startFrom = -1;
-              if (startFrom == -1) {
-                startFrom = this.scanSession.scannings.length - 1;
-              }
-
-              if (this.isRepeating === true) {
-                this.isRepeating = 'paused';
-                if (this.repeatAllTimeout) clearTimeout(this.repeatAllTimeout)
-              } else if (this.isRepeating === 'paused') {
-                this.isRepeating = true;
-                this.repeatAll(this.next);
-              } else {
-                this.repeatAll(startFrom);
-              }
-            })
-
-
-          }
-        }
-      ]
-    });
-    alert.present();
+      }]
+    }).present();
   }
 
-  repeatAll(startFrom = -1) {
+  onPauseRepeatingClick() {
+    this.repeatingStatus = 'paused';
+    if (this.repeatAllTimeout) clearTimeout(this.repeatAllTimeout)
+  }
+
+  onResumeRepeatingClick() {
+    this.repeatingStatus = 'repeating';
+    this.repeatAll(this.next);
+  }
+
+  stopRepeatingClick() {
+    if (this.repeatAllTimeout) clearTimeout(this.repeatAllTimeout)
+    this.repeatAllTimeout = null;
+    this.next = -1;
+    this.repeatingStatus = 'stopped';
+    this.scanSession.scannings.forEach(scan => scan.repeated = false);
+    this.skipAlreadySent = false;
+  }
+
+  private repeatAll(startFrom = -1) {
     if (startFrom < 0 || startFrom >= this.scanSession.scannings.length) {
-      this.stopRepeating();
+      this.stopRepeatingClick();
       return;
     }
 
-    this.isRepeating = true;
+    this.repeatingStatus = 'repeating';
     let scan = this.scanSession.scannings[startFrom];
 
     this.repeat(scan);
@@ -473,28 +470,9 @@ export class ScanSessionPage {
       if (this.next >= 0) {
         this.repeatAll(this.next);
       } else {
-        this.stopRepeating();
+        this.stopRepeatingClick();
       }
     }, this.repeatInterval);
-  }
-
-  stopRepeating() {
-    if (this.repeatAllTimeout) clearTimeout(this.repeatAllTimeout)
-    this.repeatAllTimeout = null;
-    this.next = -1;
-    this.isRepeating = false;
-    this.scanSession.scannings.forEach(scan => scan.repeated = false);
-    this.skipAlreadySent = false;
-  }
-
-  getRepeatAllIcon() {
-    if (this.isRepeating === true) {
-      return 'pause';
-    } else if (this.isRepeating === 'paused') {
-      return 'play';
-    } else {
-      return 'refresh';
-    }
   }
 
   private isPristine() {
