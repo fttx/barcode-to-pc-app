@@ -65,7 +65,7 @@ export class MyApp {
         }
 
         let newRunnings = runnings || 0;
-        this.settings.setNoRunnings(++newRunnings);
+        this.settings.setNoRunnings(newRunnings + 1);
 
         if (lastVersion != currentVersion && newRunnings > 1) {
           this.settings.setBarcodeFormats(this.utils.updateBarcodeFormats(savedBarcodeFormats));
@@ -80,8 +80,8 @@ export class MyApp {
               cssClass: 'changelog'
             }).present();
           });
-          this.settings.setLastVersion(currentVersion);
         }
+        this.settings.setLastVersion(currentVersion);
 
         splashScreen.hide();
         if (platform.is('ios')) {
