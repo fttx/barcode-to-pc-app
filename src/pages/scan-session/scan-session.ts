@@ -68,20 +68,24 @@ export class ScanSessionPage {
 
   @HostListener('window:keyup', ['$event'])
   keyEvent(event: KeyboardEvent) {
-    console.log(event)
-    if (event.keyCode == 13) {
-      let scan = new ScanModel();
-      let now = new Date().getTime();
-      scan.cancelled = false;
-      scan.id = now;
-      scan.date = now;
-      scan.repeated = false;
-      scan.text = this.keyboardBuffer;
-      this.keyboardBuffer = '';
-      this.saveAndSendScan(scan);
-    } else {
-      this.keyboardBuffer += event.key;
-    }
+    this.ngZone.run(() => {
+      console.log(event)
+      if (event.keyCode == 13) {
+        let scan = new ScanModel();
+        let now = new Date().getTime();
+        scan.cancelled = false;
+        scan.id = now;
+        scan.date = now;
+        scan.repeated = false;
+        scan.text = this.keyboardBuffer;
+        this.keyboardBuffer = '';
+        if (scan.text != '') {
+          this.saveAndSendScan(scan);
+        }
+      } else if (event.key && event.key.length === 1) {
+        this.keyboardBuffer += event.key;
+      }
+    })
   }
 
   private responseSubscription = null;
@@ -159,6 +163,9 @@ export class ScanSessionPage {
             handler: data => {  // called also when backdropDismiss occours
               this.navCtrl.pop();
             }
+          }, {
+            text: 'Later',
+            handler: data => { }
           }, {
             text: 'Add', handler: data => {
               let scan = new ScanModel();

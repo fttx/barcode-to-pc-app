@@ -39,6 +39,25 @@
 </ion-header>
 
 <ion-content>
+	<div [hidden]="!(keyboardBuffer && keyboardBuffer.length)">
+		<ion-grid>
+			<ion-row>
+				<ion-col>
+					<ion-input class="keyboardBuffer" readonly clearInput [(ngModel)]="keyboardBuffer" placeholder="Keyboard input"
+					 type="text"></ion-input>
+				</ion-col>
+				<ion-col col-auto>
+					<button ion-button solid small color="secondary" (click)="keyboardBuffer = ''">
+						<ion-icon name="close"></ion-icon>
+					</button>
+				</ion-col>
+			</ion-row>
+		</ion-grid>
+	</div>
+
+
+
+
 	<ion-list>
 		<button ion-item *ngFor="let scan of scanSession.scannings; let i = index" (click)="onItemClicked(scan, i)" (press)="onItemPressed(scan, i)"
 		 [color]="scan.repeated ? 'light' : 'default'">
