@@ -1,4 +1,4 @@
-import { Component, HostListener, NgZone } from '@angular/core';
+import { Component, HostListener, NgZone, ViewChild } from '@angular/core';
 import { Device } from '@ionic-native/device';
 import { GoogleAnalytics } from '@ionic-native/google-analytics';
 import { NativeAudio } from '@ionic-native/native-audio';
@@ -33,6 +33,8 @@ import { SelectScanningModePage } from './select-scanning-mode/select-scanning-m
   templateUrl: 'scan-session.html'
 })
 export class ScanSessionPage {
+  @ViewChild('keyboardBufferInput') keyboardBufferInput;
+
   public scanSession: ScanSessionModel;
   private isNewSession = false;
   private lastScanSessionName: string = null;
@@ -43,6 +45,7 @@ export class ScanSessionPage {
   public repeatingStatus: 'paused' | 'repeating' | 'stopped' = 'stopped';
 
   public keyboardBuffer = '';
+  private isSetNameDialogOpen = false;
 
   constructor(
     navParams: NavParams,
@@ -68,20 +71,14 @@ export class ScanSessionPage {
 
   @HostListener('window:keyup', ['$event'])
   keyEvent(event: KeyboardEvent) {
+    if (this.isSetNameDialogOpen) {
+      return;
+    }
+
     this.ngZone.run(() => {
-      console.log(event)
+      // console.log(event)
       if (event.keyCode == 13) {
-        let scan = new ScanModel();
-        let now = new Date().getTime();
-        scan.cancelled = false;
-        scan.id = now;
-        scan.date = now;
-        scan.repeated = false;
-        scan.text = this.keyboardBuffer;
-        this.keyboardBuffer = '';
-        if (scan.text != '') {
-          this.saveAndSendScan(scan);
-        }
+        this.onEnterClick();
       } else if (event.key && event.key.length === 1) {
         this.keyboardBuffer += event.key;
       }
@@ -152,64 +149,11 @@ export class ScanSessionPage {
             }
           });
       } else if (mode == SelectScanningModePage.SCAN_MODE_ENTER_MAUALLY) {
-        this.alertCtrl.create({
-          title: 'Add a scan manually',
-          inputs: [{
-            name: 'text',
-            placeholder: 'Text to send',
-          },],
-          buttons: [{
-            text: 'Cancel', role: 'cancel',
-            handler: data => {  // called also when backdropDismiss occours
-              this.navCtrl.pop();
-            }
-          }, {
-            text: 'Later',
-            handler: data => { }
-          }, {
-            text: 'Add', handler: data => {
-              let scan = new ScanModel();
-              let now = new Date().getTime();
-              scan.cancelled = false;
-              scan.id = now;
-              scan.repeated = false;
-              scan.text = data.text;
-              scan.date = now;
-
-              Promise.join(this.settings.getQuantityEnabled(), this.settings.getQuantityType(), (quantyEnabled, quantityType) => {
-                let done = () => {
-                  this.saveAndSendScan(scan);
-                  if (this.isNewSession) {
-                    this.setName();
-                  }
-                }
-                if (quantyEnabled) {
-                  this.alertCtrl.create({
-                    title: 'Enter quantity value',
-                    // message: 'Inse',
-                    enableBackdropDismiss: false,
-                    inputs: [{ name: 'quantity', type: quantityType || 'number', placeholder: 'Eg. 5' }],
-                    buttons: [{
-                      text: 'Ok', handler: data => {
-                        if (data.quantity) {
-                          scan.quantity = data.quantity;
-                        }
-                        done();
-                      }
-                    }, {
-                      role: 'cancel', text: ' Cancel', handler: () => {
-                        this.navCtrl.pop();
-                      }
-                    }]
-                  }).present();
-                } else {
-                  done();
-                }
-              })
-            }
-          }
-          ]
-        }).present();
+        if (this.isNewSession) {
+          this.setName().then(() => {
+            this.keyboardBufferInput.setFocus();
+          });
+        }
       }
     });
     selectScanningModeModal.present();
@@ -319,26 +263,29 @@ export class ScanSessionPage {
   }
 
   setName() {
-    this.alertCtrl.create({
-      title: 'Name',
-      message: 'Insert a name for this scan session',
-      inputs: [{
-        name: 'name',
-        placeholder: this.scanSession.name
-      }],
-      buttons: [{
-        text: 'Ok',
-        handler: data => {
-          if (this.scanSession.name != data.name && data.name != "") {
-            this.lastScanSessionName = this.scanSession.name;
-            this.scanSession.name = data.name;
-            this.sendUpdateScanSession(this.scanSession);
-            this.save();
-          }
-        }
-      }]
-    }).present();
+    this.isSetNameDialogOpen = true;
     this.isNewSession = false;
+    return new Promise((resolve, reject) => {
+      let alert = this.alertCtrl.create({
+        title: 'Name', message: 'Insert a name for this scan session',
+        inputs: [{ name: 'name', placeholder: this.scanSession.name }],
+        buttons: [{
+          text: 'Ok', handler: data => {
+            if (this.scanSession.name != data.name && data.name != "") {
+              this.lastScanSessionName = this.scanSession.name;
+              this.scanSession.name = data.name;
+              this.sendUpdateScanSession(this.scanSession);
+              this.save();
+            }
+          }
+        }]
+      });
+      alert.onDidDismiss(() => {
+        this.isSetNameDialogOpen = false;
+        resolve();
+      })
+      alert.present();
+    });
   }
 
   onAddClicked() {
@@ -409,6 +356,7 @@ export class ScanSessionPage {
   private skipAlreadySent = false;
 
   onRepeatAllClick() {
+    console.log('@@repeatall')
     this.alertCtrl.create({
       title: 'Send all barcodes again',
       inputs: [{
@@ -459,9 +407,47 @@ export class ScanSessionPage {
     this.skipAlreadySent = false;
   }
 
-  // onShareClick() {
+  onEnterClick(event = null) {
+    if (this.keyboardBuffer == '') {
+      return;
+    }
 
-  // }
+    let scan = new ScanModel();
+    let now = new Date().getTime();
+    scan.cancelled = false;
+    scan.id = now;
+    scan.date = now;
+    scan.repeated = false;
+    scan.text = this.keyboardBuffer;
+    this.keyboardBuffer = '';
+
+    Promise.join(this.settings.getQuantityEnabled(), this.settings.getQuantityType(), (quantyEnabled, quantityType) => {
+      let done = () => {
+        this.saveAndSendScan(scan);
+      }
+      if (quantyEnabled) {
+        this.alertCtrl.create({
+          title: 'Enter quantity value', // message: 'Inse',
+          enableBackdropDismiss: false,
+          inputs: [{ name: 'quantity', type: quantityType || 'number', placeholder: 'Eg. 5' }],
+          buttons: [{
+            text: 'Ok', handler: data => {
+              if (data.quantity) {
+                scan.quantity = data.quantity;
+              }
+              done();
+            }
+          }, {
+            role: 'cancel', text: ' Cancel', handler: () => {
+              this.navCtrl.pop();
+            }
+          }]
+        }).present();
+      } else {
+        done();
+      }
+    })
+  }
 
   private repeatAll(startFrom = -1) {
     if (startFrom < 0 || startFrom >= this.scanSession.scannings.length) {

@@ -29,35 +29,12 @@
 			<button ion-button icon-only (click)="onEditClick()">
 				<ion-icon name="create"></ion-icon>
 			</button>
-
-			<!-- <button ion-button icon-only (click)="onShareClick()">
-				<ion-icon name="share"></ion-icon>
-			</button> -->
 		</ion-buttons>
 	</ion-navbar>
 
 </ion-header>
 
 <ion-content>
-	<div [hidden]="!(keyboardBuffer && keyboardBuffer.length)">
-		<ion-grid>
-			<ion-row>
-				<ion-col>
-					<ion-input class="keyboardBuffer" readonly clearInput [(ngModel)]="keyboardBuffer" placeholder="Keyboard input"
-					 type="text"></ion-input>
-				</ion-col>
-				<ion-col col-auto>
-					<button ion-button solid small color="secondary" (click)="keyboardBuffer = ''">
-						<ion-icon name="close"></ion-icon>
-					</button>
-				</ion-col>
-			</ion-row>
-		</ion-grid>
-	</div>
-
-
-
-
 	<ion-list>
 		<button ion-item *ngFor="let scan of scanSession.scannings; let i = index" (click)="onItemClicked(scan, i)" (press)="onItemPressed(scan, i)"
 		 [color]="scan.repeated ? 'light' : 'default'">
@@ -80,3 +57,14 @@
 		</button>
 	</ion-fab>
 </ion-content>
+
+<ion-footer ion-fixed>
+	<ion-toolbar>
+		<ion-input class="keyboardBuffer" clearInput [(ngModel)]="keyboardBuffer" placeholder="Keyboard input" type="text" #keyboardBufferInput></ion-input>
+		<ion-buttons end>
+			<button ion-button strong (touchstart)="$event.preventDefault();$event.stopPropagation();" (touchend)="onEnterClick($event);">
+				<ion-icon name="send" icon-only color="primary"></ion-icon>
+			</button>
+		</ion-buttons>
+	</ion-toolbar>
+</ion-footer>
