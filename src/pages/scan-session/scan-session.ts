@@ -33,7 +33,7 @@ import { SelectScanningModePage } from './select-scanning-mode/select-scanning-m
   templateUrl: 'scan-session.html'
 })
 export class ScanSessionPage {
-  @ViewChild('keyboardBufferInput') keyboardBufferInput;
+  @ViewChild('keyboardInput') keyboardInput;
 
   public scanSession: ScanSessionModel;
   private isNewSession = false;
@@ -45,6 +45,7 @@ export class ScanSessionPage {
   public repeatingStatus: 'paused' | 'repeating' | 'stopped' = 'stopped';
 
   public keyboardBuffer = '';
+  public keyboardInputFocussed = false;
   private isSetNameDialogOpen = false;
 
   constructor(
@@ -68,6 +69,7 @@ export class ScanSessionPage {
     this.nativeAudio.preloadSimple('beep', 'assets/audio/beep.ogg');
 
   }
+  public test = '';
 
   @HostListener('window:keyup', ['$event'])
   keyEvent(event: KeyboardEvent) {
@@ -79,7 +81,8 @@ export class ScanSessionPage {
       // console.log(event)
       if (event.keyCode == 13) {
         this.onEnterClick();
-      } else if (event.key && event.key.length === 1) {
+        this.keyboardInput.setFocus();
+      } else if (event.key && event.key.length === 1 && !this.keyboardInputFocussed) {
         this.keyboardBuffer += event.key;
       }
     })
@@ -151,7 +154,7 @@ export class ScanSessionPage {
       } else if (mode == SelectScanningModePage.SCAN_MODE_ENTER_MAUALLY) {
         if (this.isNewSession) {
           this.setName().then(() => {
-            this.keyboardBufferInput.setFocus();
+            this.keyboardInput.setFocus();
           });
         }
       }

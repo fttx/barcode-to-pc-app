@@ -60,7 +60,7 @@
 
 <ion-footer ion-fixed>
 	<ion-toolbar>
-		<ion-input class="keyboardBuffer" clearInput [(ngModel)]="keyboardBuffer" placeholder="Keyboard input" type="text" #keyboardBufferInput></ion-input>
+		<ion-input clearInput [(ngModel)]="keyboardBuffer" placeholder="Keyboard input" type="text" #keyboardInput (blur)="keyboardInputFocussed = false" (focus)="keyboardInputFocussed = true"></ion-input>
 		<ion-buttons end>
 			<button ion-button strong (touchstart)="$event.preventDefault();$event.stopPropagation();" (touchend)="onEnterClick($event);">
 				<ion-icon name="send" icon-only color="primary"></ion-icon>
