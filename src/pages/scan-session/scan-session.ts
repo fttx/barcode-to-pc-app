@@ -303,8 +303,8 @@ export class ScanSessionPage {
   }
 
   sendPutScan(scan: ScanModel, sendKeystrokes = true) {
-    console.log('sendPutScan, scan.date=', scan.date);
-    let scanSession = { ...this.scanSession }; // do a shallow copy (not a deep copy)
+    // console.log('sendPutScan, scan.date=', scan.date);
+    let scanSession = { ...this.scanSession }; // do a shallow copy (copy only the properties of the object first level)
     scanSession.scannings = [scan];
 
     let wsRequest = new requestModelPutScanSessions().fromObject({

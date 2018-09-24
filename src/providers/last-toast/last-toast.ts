@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Platform, ToastController } from 'ionic-angular';
+import { Config } from '../config';
 
 /*
   Generated class for the LastToastProvider provider.
@@ -31,12 +32,16 @@ export class LastToastProvider {
   }
 
   public present(message: string, duartion: number = 6000) {
+    if (Config.DEBUG) {
+      duartion = 2500;
+    }
+
     if (document.visibilityState == 'hidden') {
       this.paused = true;
     }
 
     if (!this.paused) {
-      this.toastCtrl.create({ message: message, duration: duartion }).present();
+      this.toastCtrl.create({ message: message, duration: duartion, showCloseButton: true, closeButtonText: 'DISMISS' }).present();
     } else {
       this.lastToastMessage = message;
     }

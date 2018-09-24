@@ -1,7 +1,7 @@
 import { Injectable, NgZone } from '@angular/core';
 import { Device } from '@ionic-native/device';
 import { Zeroconf } from '@ionic-native/zeroconf';
-import { Alert, AlertController, Platform } from 'ionic-angular';
+import { Alert, AlertController, Platform, Events, } from 'ionic-angular';
 import { Observable, Subject, Subscription } from 'rxjs';
 
 import { discoveryResultModel } from '../models/discovery-result';
@@ -12,7 +12,7 @@ import { Settings } from '../providers/settings';
 import { ServerModel } from './../models/server.model';
 import { Config } from './config';
 import { LastToastProvider } from './last-toast/last-toast';
-import { ScanSessionsStorage } from './scan-sessions-storage';
+import { HelpPage } from '../pages/help/help';
 
 /*
   Generated class for the Server provider.
@@ -33,14 +33,13 @@ export class ServerProvider {
   private watchForServersObservable = null;
   private watchForServersObserver: Subscription;
   private reconnecting = false;
-  private everConnected = false;
+  private everConnected = false; // in the current session
+  private connectionProblemAlert = false; // in the current session
   private serverQueue: ServerModel[] = [];
 
   private reconnectInterval = null;
   private heartBeatInterval = null;
   private pongTimeout = null;
-
-  private paused = false;
 
   private fallBackTimeout = null;
   private popup: Alert = null;
@@ -54,7 +53,7 @@ export class ServerProvider {
     private alertCtrl: AlertController,
     public platform: Platform,
     public device: Device,
-    private scanSessionsStorage: ScanSessionsStorage,
+    public events: Events,
   ) {
 
   }
@@ -199,6 +198,7 @@ export class ServerProvider {
 
     this.webSocket.onopen = () => {
       //console.log('[S]: onopen')
+      this.connectionProblemAlert = false;
       this.everConnected = true; // for current instance
       this.settings.setEverConnected(true); // for statistics usage
       this.serverQueue = [];
@@ -322,8 +322,16 @@ export class ServerProvider {
       if (this.webSocket.readyState == WebSocket.OPEN) {
         //console.log(request, JSON.stringify(request));
         this.webSocket.send(JSON.stringify(request));
-      } else {
-        this.lastToast.present('Connection problem');
+      } else if (!this.connectionProblemAlert) {
+        this.connectionProblemAlert = true;
+        this.alertCtrl.create({
+          title: 'Connection problem', message: 'To determine the cause check the help page',
+          buttons: [{ text: 'Close', role: 'cancel' }, {
+            text: 'Help page', handler: () => {
+              this.events.publish('setPage', HelpPage);
+            }
+          }]
+        }).present();
       }
     } else {
       // //console.log("offline mode, cannot send!")

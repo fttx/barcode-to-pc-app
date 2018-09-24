@@ -1,5 +1,5 @@
 import { Component, ViewChild } from '@angular/core';
-import { Platform, MenuController, NavController, ModalController, AlertController } from 'ionic-angular';
+import { Platform, MenuController, NavController, ModalController, AlertController, Events } from 'ionic-angular';
 import { SplashScreen } from '@ionic-native/splash-screen';
 
 import { ScanSessionsPage } from '../pages/scan-sessions/scan-sessions';
@@ -39,13 +39,14 @@ export class MyApp {
     private http: Http,
     private utils: Utils,
     private markdownService: MarkdownService,
+    public events: Events
   ) {
     platform.ready().then(() => {
 
       this.ga.startTrackerWithId(Config.GOOGLE_ANALYTICS_ID).then(() => {
         this.ga.setAllowIDFACollection(true);
 
-        if (Config.GOOGLE_ANALYTICS_DEBUG) {
+        if (Config.DEBUG) {
           this.ga.debugMode();
         }
       })
@@ -88,6 +89,10 @@ export class MyApp {
           statusBar.overlaysWebView(true);
         }
       });
+    });
+
+    this.events.subscribe('setPage', (page, isRoot = false) => {
+      this.setPage(page, isRoot);
     });
   }
 
