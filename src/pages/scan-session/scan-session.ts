@@ -156,6 +156,8 @@ export class ScanSessionPage {
           this.setName().then(() => {
             this.keyboardInput.setFocus();
           });
+        } else {
+          setTimeout(() => this.keyboardInput.setFocus(), 500)
         }
       }
     });
