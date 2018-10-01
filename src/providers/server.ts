@@ -44,6 +44,7 @@ export class ServerProvider {
   private fallBackTimeout = null;
   private popup: Alert = null;
   private continuoslyWatchForServers: boolean; // if true it still watches for new servers after a successfully connection, and if it finds a new server with the same name of the defaultServer it re-connects (this happens when the server has a new ip address)
+  private kickedOut = false;
 
   constructor(
     private settings: Settings,
@@ -167,9 +168,7 @@ export class ServerProvider {
           this.onVersionMismatch();
         }
         this.settings.setQuantityEnabled(heloResponse.quantityEnabled);
-      }
-
-      if (messageData.action == responseModel.ACTION_PONG) {
+      } else if (messageData.action == responseModel.ACTION_PONG) {
         //console.log('[S]: WS: pong received, stop waiting 5 secs')
         if (this.pongTimeout) clearTimeout(this.pongTimeout);
       } else if (messageData.action == responseModel.ACTION_POPUP) {
@@ -191,6 +190,14 @@ export class ServerProvider {
         console.log('FallBack: old getVersion received, showing version mismatch');
         this.onVersionMismatch();
         // fallBack for old server versions                
+      } else if (messageData.action == responseModel.ACTION_KICK) {
+        this.kickedOut = true;
+
+        this.alertCtrl.create({
+          title: 'Devices limit raeched', message: 'You\'ve reached the maximum number of connected devices, please subscribe',
+          buttons: [{ text: 'Close', role: 'cancel' }]
+        }).present();
+
       } else {
         this.responseObservable.next(messageData);
       }
@@ -278,6 +285,7 @@ export class ServerProvider {
       }
 
       this.connected = false;
+      this.kickedOut = false;
       this.wsEventObservable.next({ name: wsEvent.EVENT_CLOSE, ws: this.webSocket });
 
 
@@ -318,6 +326,10 @@ export class ServerProvider {
   } // wsConnect() end
 
   send(request: requestModel) {
+    if (this.kickedOut) {
+      return;
+    }
+
     if (this.webSocket) {
       if (this.webSocket.readyState == WebSocket.OPEN) {
         //console.log(request, JSON.stringify(request));
