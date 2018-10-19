@@ -6,7 +6,7 @@ import { Observable, Subject, Subscription } from 'rxjs';
 
 import { discoveryResultModel } from '../models/discovery-result';
 import { requestModel, requestModelGetVersion, requestModelHelo, requestModelPing } from '../models/request.model';
-import { responseModel, responseModelEnableQuantity, responseModelHelo, responseModelPopup } from '../models/response.model';
+import { responseModel, responseModelEnableQuantity, responseModelHelo, responseModelPopup, responseModelKick } from '../models/response.model';
 import { wsEvent } from '../models/ws-event.model';
 import { Settings } from '../providers/settings';
 import { ServerModel } from './../models/server.model';
@@ -191,13 +191,15 @@ export class ServerProvider {
         this.onVersionMismatch();
         // fallBack for old server versions                
       } else if (messageData.action == responseModel.ACTION_KICK) {
+        let responseModelKick: responseModelKick = messageData;
         this.kickedOut = true;
 
-        this.alertCtrl.create({
-          title: 'Devices limit raeched', message: 'You\'ve reached the maximum number of connected devices, please subscribe',
-          buttons: [{ text: 'Close', role: 'cancel' }]
-        }).present();
-
+        if (responseModelKick.message != '') {
+          this.alertCtrl.create({
+            title: 'Limit raeched', message: responseModelKick.message,
+            buttons: [{ text: 'Close', role: 'cancel' }]
+          }).present();
+        }
       } else {
         this.responseObservable.next(messageData);
       }
