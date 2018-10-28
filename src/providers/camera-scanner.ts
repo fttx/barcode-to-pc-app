@@ -19,6 +19,8 @@ import { Utils } from './utils';
 */
 @Injectable()
 export class CameraScannerProvider {
+  public isQuantityDialogOpen = false;
+
   private observer: Subscriber<ScanModel>;
   private continuousMode: boolean;
   private pluginOptions: BarcodeScannerOptions
@@ -94,7 +96,7 @@ export class CameraScannerProvider {
       scan.date = now;
 
       if (this.quantyEnabled) {
-        this.alertCtrl.create({
+        let alert = this.alertCtrl.create({
           title: 'Enter quantity value',
           // message: 'Inse',
           enableBackdropDismiss: false,
@@ -113,7 +115,12 @@ export class CameraScannerProvider {
               this.observer.complete();
             }
           }]
-        }).present();
+        })
+        this.isQuantityDialogOpen = true;
+        alert.onDidDismiss(() => {
+          this.isQuantityDialogOpen = false;
+        })
+        alert.present();
       } else {
         this.nextScan(scan)
       }

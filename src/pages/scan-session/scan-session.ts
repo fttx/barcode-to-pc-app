@@ -47,6 +47,7 @@ export class ScanSessionPage {
   public keyboardBuffer = '';
   public keyboardInputFocussed = false;
   private isSetNameDialogOpen = false;
+  private isQuantityDialogOpen = false;
 
   constructor(
     navParams: NavParams,
@@ -73,7 +74,7 @@ export class ScanSessionPage {
 
   @HostListener('window:keyup', ['$event'])
   keyEvent(event: KeyboardEvent) {
-    if (this.isSetNameDialogOpen) {
+    if (this.isSetNameDialogOpen || this.isQuantityDialogOpen || this.cameraScannerProvider.isQuantityDialogOpen) {
       return;
     }
 
@@ -268,7 +269,6 @@ export class ScanSessionPage {
   }
 
   setName() {
-    this.isSetNameDialogOpen = true;
     this.isNewSession = false;
     return new Promise((resolve, reject) => {
       let alert = this.alertCtrl.create({
@@ -285,6 +285,7 @@ export class ScanSessionPage {
           }
         }]
       });
+      this.isSetNameDialogOpen = true;
       alert.onDidDismiss(() => {
         this.isSetNameDialogOpen = false;
         resolve();
@@ -431,7 +432,10 @@ export class ScanSessionPage {
         this.saveAndSendScan(scan);
       }
       if (quantyEnabled) {
-        this.alertCtrl.create({
+        // This dialog is shown only in the manual mode
+        // camera-scanner.ts contains another quantity dialog (it's slightly
+        // different, it's not the same dialog)
+        let alert = this.alertCtrl.create({
           title: 'Enter quantity value', // message: 'Inse',
           enableBackdropDismiss: false,
           inputs: [{ name: 'quantity', type: quantityType || 'number', placeholder: 'Eg. 5' }],
@@ -447,7 +451,12 @@ export class ScanSessionPage {
               this.navCtrl.pop();
             }
           }]
-        }).present();
+        });
+        this.isQuantityDialogOpen = true;
+        alert.onDidDismiss(() => {
+          this.isQuantityDialogOpen = false;
+        })
+        alert.present();
       } else {
         done();
       }
