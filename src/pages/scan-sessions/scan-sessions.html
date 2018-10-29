@@ -13,7 +13,7 @@
 		</ion-buttons>
 
 		<ion-buttons end *ngIf="selectedScanSessions.length != 0">
-			
+
 			<button ion-button icon-only (click)="onArchiveSelectedClick()">
 				<ion-icon name="archive"></ion-icon>
 			</button>
@@ -34,10 +34,10 @@
 </ion-header>
 
 <ion-content>
-	<ion-list>
-		<ion-item-sliding *ngFor="let scanSession of scanSessions; let i = index;">
+	<ion-list [virtualScroll]="scanSessions">
+		<ion-item-sliding *virtualItem="let scanSession; let i = index;" approxItemHeight="'86px'" #slidingItem>
 			<ion-item-options side="right">
-				<button color="danger" ion-button (click)="onDeleteClick(scanSession, i)">
+				<button color="danger" ion-button (click)="onDeleteClick(scanSession, i, slidingItem)">
 					<ion-icon name="trash"></ion-icon>
 					Delete
 				</button>

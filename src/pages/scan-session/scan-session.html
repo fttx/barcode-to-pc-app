@@ -35,9 +35,9 @@
 </ion-header>
 
 <ion-content>
-	<ion-list>
-		<button ion-item *ngFor="let scan of scanSession.scannings; let i = index" (click)="onItemClicked(scan, i)" (press)="onItemPressed(scan, i)"
-		 [color]="scan.repeated ? 'light' : 'default'">
+	<ion-list [virtualScroll]="scanSession.scannings">
+		<button ion-item *virtualItem="let scan; let i = index" (click)="onItemClicked(scan, i)" (press)="onItemPressed(scan, i)"
+		 [color]="scan.repeated ? 'light' : 'default'" approxItemHeight="'47px'">
 			<ion-grid no-padding>
 				<ion-row>
 					<ion-col align-self-start col-1>
@@ -60,7 +60,8 @@
 
 <ion-footer ion-fixed>
 	<ion-toolbar>
-		<ion-input clearInput [(ngModel)]="keyboardBuffer" placeholder="Keyboard input" type="text" #keyboardInput (blur)="keyboardInputFocussed = false" (focus)="keyboardInputFocussed = true"></ion-input>
+		<ion-input clearInput [(ngModel)]="keyboardBuffer" placeholder="Keyboard input" type="text" #keyboardInput (blur)="keyboardInputFocussed = false"
+		 (focus)="keyboardInputFocussed = true"></ion-input>
 		<ion-buttons end>
 			<button ion-button strong (touchstart)="$event.preventDefault();$event.stopPropagation();" (touchend)="onEnterClick($event);">
 				<ion-icon name="send" icon-only color="primary"></ion-icon>

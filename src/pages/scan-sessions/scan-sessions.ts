@@ -3,7 +3,7 @@ import { Device } from '@ionic-native/device';
 import { GoogleAnalytics } from '@ionic-native/google-analytics';
 import { LaunchReview } from '@ionic-native/launch-review';
 import * as Promise from 'bluebird';
-import { AlertController, NavController, PopoverController } from 'ionic-angular';
+import { AlertController, NavController, PopoverController, ItemSliding } from 'ionic-angular';
 
 import { requestModelDeleteScanSessions } from '../../models/request.model';
 import { ScanSessionModel } from '../../models/scan-session.model';
@@ -172,7 +172,8 @@ export class ScanSessionsPage {
     this.unselectAll();
   }
 
-  onDeleteClick(scanSession: ScanSessionModel, index: number) {
+  onDeleteClick(scanSession: ScanSessionModel, index: number, slidingItem: ItemSliding) {
+    slidingItem.close();
     this.alertCtrl.create({
       title: 'Confirm delete',
       message: 'Do you really want to delete ' + scanSession.name + '?',
