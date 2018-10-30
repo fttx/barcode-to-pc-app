@@ -34,8 +34,8 @@
 </ion-header>
 
 <ion-content>
-	<ion-list [virtualScroll]="scanSessions">
-		<ion-item-sliding *virtualItem="let scanSession; let i = index;" approxItemHeight="'86px'" #slidingItem>
+	<ion-list [virtualScroll]="scanSessions" approxItemHeight="'86px'" bufferRatio="10">
+		<ion-item-sliding *virtualItem="let scanSession; let i = index;" #slidingItem>
 			<ion-item-options side="right">
 				<button color="danger" ion-button (click)="onDeleteClick(scanSession, i, slidingItem)">
 					<ion-icon name="trash"></ion-icon>
