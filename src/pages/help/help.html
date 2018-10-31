@@ -19,15 +19,15 @@
     <li>Download Barcode to PC server from barcodetopc.com</li>
     <li>Install and start the server on your computer</li>
     <li>Open the Select server page from the app menu and choose your computer from the list</li>
-    <li>Once the app is connected open your spreadsheet or another software of your choice in which you want to scan in,
-      and position the cursor wherever you want to scan</li>
+    <li>Once the app is connected open your spreadsheet or another software of your choice in which you want to scan
+      in, and position the cursor wherever you want to scan</li>
     <li>Scan your barcodes by tapping the camera icon on the main page of the app</li>
     <li>Thanks to the <i>keyboard emulation</i>, the barcodes will be typed in the cursor position</li>
   </ol>
 
   <h1>Connection problem/Unable to connect error</h1>
-  If it's the first time that you connect the app to the server your firewall or your antivirus may block the server, consult
-  the <a [href]="faqUrl">Frequently Asked Questions</a>.
+  If it's the first time that you connect the app to the server your firewall or your antivirus may block the server,
+  consult the <a [href]="faqUrl">Frequently Asked Questions</a>.
 
 
   <h1>Icons and buttons lengend</h1>
@@ -55,7 +55,8 @@
         <ion-icon name="checkmark-circle" [style.color]="'green'"></ion-icon>
       </ion-col>
       <ion-col>
-        This icon means that the computer has received and typed (if enabled) the barcode at least one time since it has been scanned.
+        This icon means that the computer has received and typed (if enabled) the barcode at least one time since it
+        has been scanned.
       </ion-col>
     </ion-row>
     <ion-row>
@@ -95,6 +96,7 @@
 
 
   <h1>Other problems</h1>
-  See the <a [href]="faqUrl">Frequently Asked Questions</a>.<br> If you're still unable to fix your problem, or for other
-  enquiries, <a (click)="contactMe()">contact me</a>
+  See the <a [href]="faqUrl">Frequently Asked Questions</a>.<br> If you're still unable to fix your problem, or for
+  other
+  enquiries contact <a (click)="contactSupportClick()">{{ getSupportEmail() }}</a>
 </ion-content>

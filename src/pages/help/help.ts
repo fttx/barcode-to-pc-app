@@ -15,7 +15,7 @@ import { Config } from '../../providers/config';
 })
 export class HelpPage {
   public faqUrl = Config.URL_FAQ;
-  
+
 
   constructor(public navCtrl: NavController, public navParams: NavParams) {
   }
@@ -24,8 +24,12 @@ export class HelpPage {
     console.log('ionViewDidLoad HelpPage');
   }
 
-  contactMe() {
+  contactSupportClick() {
     window.open('mailto:' + Config.EMAIL_SUPPORT, '_system');
+  }
+
+  getSupportEmail() {
+    return Config.EMAIL_SUPPORT;
   }
 
 }
