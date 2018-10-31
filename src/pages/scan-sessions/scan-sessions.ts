@@ -15,6 +15,7 @@ import { ScanSessionPage } from '../scan-session/scan-session';
 import { SelectServerPage } from '../select-server/select-server';
 import { Settings } from './../../providers/settings';
 import { Utils } from '../../providers/utils';
+import { ScanModel } from '../../models/scan.model';
 
 @Component({
   selector: 'page-scannings',
@@ -48,6 +49,33 @@ export class ScanSessionsPage {
 
     this.scanSessionsStorage.getScanSessions().then(data => {
       this.scanSessions = data;
+      if (Config.DEBUG && this.scanSessions.length == 0) {
+        let scanSessionDate = new Date().getTime();
+        for (let i = 0; i < 50; i++) {
+          let scannings = [];
+          scanSessionDate += Math.floor(Math.random() * 9999999) + 9999999;
+          let scanDate = scanSessionDate;
+          for (let j = 0; j < 1000; j++) {
+            let scan = new ScanModel();
+            scan.cancelled = false;
+            scan.id = scanDate;
+            scan.date = scanDate;
+            scan.repeated = false;
+            scan.text = Math.floor(Math.random() * 99999999999) + ''
+            scannings.push(scan);
+            scanDate += Math.floor(Math.random() * 2000) + 1500;
+          }
+          let newScanSession: ScanSessionModel = {
+            id: scanSessionDate,
+            name: 'Scan session ' + i,
+            date: scanSessionDate,
+            scannings: scannings,
+            selected: false,
+          };
+          this.scanSessions.push(newScanSession);
+        }
+        this.scanSessionsStorage.setScanSessions(this.scanSessions)
+      }
     });
 
     console.log('ionViewDidEnter');
