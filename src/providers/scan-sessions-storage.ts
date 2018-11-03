@@ -63,7 +63,7 @@ export class ScanSessionsStorage {
 
 
 
-  
+
   // Archived scan sessions
 
   setArchivedScanSessions(scanSessions: ScanSessionModel[]) {
@@ -93,18 +93,18 @@ export class ScanSessionsStorage {
     });
   }
 
-  pushArchivedScanSessions(scanSessions: ScanSessionModel[]) {
-    scanSessions.forEach(x => this.pushArchivedScanSession(x));
+  pushArchivedScanSessions(newSessions: ScanSessionModel[]) {
+    return this.getArchivedScanSessions().then(sessions => {
+      if (!sessions) sessions = [];
+      sessions = newSessions.concat(sessions)
+      this.setArchivedScanSessions(sessions);
+    })
   }
 
-  pushArchivedScanSession(scanSession: ScanSessionModel) {
+  pushArchivedScanSession(newSession: ScanSessionModel) {
     return this.getArchivedScanSessions().then(sessions => {
-      let existingSessionIndex = sessions.findIndex((x) => x.id == scanSession.id);
-      if (existingSessionIndex == -1) {
-        sessions.unshift(scanSession); // insert at the beginning of the array
-      } else {
-        sessions[existingSessionIndex] = scanSession;
-      }
+      if (!sessions) sessions = [];
+      sessions.unshift(newSession);
       this.setArchivedScanSessions(sessions);
     })
   }
