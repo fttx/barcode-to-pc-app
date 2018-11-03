@@ -3,19 +3,19 @@ import { Device } from '@ionic-native/device';
 import { GoogleAnalytics } from '@ionic-native/google-analytics';
 import { LaunchReview } from '@ionic-native/launch-review';
 import * as Promise from 'bluebird';
-import { AlertController, NavController, PopoverController, ItemSliding } from 'ionic-angular';
+import { AlertController, ItemSliding, NavController, PopoverController } from 'ionic-angular';
 
 import { requestModelDeleteScanSessions } from '../../models/request.model';
 import { ScanSessionModel } from '../../models/scan-session.model';
+import { ScanModel } from '../../models/scan.model';
 import { wsEvent } from '../../models/ws-event.model';
 import { Config } from '../../providers/config';
 import { ScanSessionsStorage } from '../../providers/scan-sessions-storage';
 import { ServerProvider } from '../../providers/server';
+import { Utils } from '../../providers/utils';
 import { ScanSessionPage } from '../scan-session/scan-session';
 import { SelectServerPage } from '../select-server/select-server';
 import { Settings } from './../../providers/settings';
-import { Utils } from '../../providers/utils';
-import { ScanModel } from '../../models/scan.model';
 
 @Component({
   selector: 'page-scannings',
@@ -49,13 +49,13 @@ export class ScanSessionsPage {
 
     this.scanSessionsStorage.getScanSessions().then(data => {
       this.scanSessions = data;
-      if (Config.DEBUG && this.scanSessions.length == 0) {
+      if (Config.DEBUG && this.scanSessions && this.scanSessions.length == 0) {
         let scanSessionDate = new Date().getTime();
         for (let i = 0; i < 50; i++) {
           let scannings = [];
           scanSessionDate += Math.floor(Math.random() * 9999999) + 9999999;
           let scanDate = scanSessionDate;
-          for (let j = 0; j < 1000; j++) {
+          for (let j = 0; j < 500; j++) {
             let scan = new ScanModel();
             scan.cancelled = false;
             scan.id = scanDate;
