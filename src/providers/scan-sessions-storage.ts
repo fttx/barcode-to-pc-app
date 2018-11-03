@@ -1,33 +1,43 @@
 import { Injectable } from '@angular/core';
 import { Storage } from '@ionic/storage';
+import { resolve } from 'bluebird';
+import { Subject } from 'rxjs';
 
 import { ScanSessionModel } from '../models/scan-session.model';
 
-/*
-  Generated class for the Settings provider.
-
-  See https://angular.io/docs/ts/latest/guide/dependency-injection.html
-  for more info on providers and Angular 2 DI.
-*/
+/**
+ * Provides methods to store and get data from the storage
+ * It implements a memory cache for the main scanSessions
+ */
 @Injectable()
 export class ScanSessionsStorage {
-  private static SCAN_SESSIONS = "scan_sessions";
+  private static SCAN_SESSIONS = "scan_sessions"; // beware of editing this item. The scan sessions should be accessed only through get and set functions implemented here in order to keep the cache consistent
   private static ARCHIVED_SCAN_SESSIONS = 'archived_scan_sessions';
-  private static LAST_SCAN_DATE = 'last_modified';
+
+  private scanSessionsCache: ScanSessionModel[] = null;
+  private onScanSessionSetObservable = new Subject<ScanSessionModel[]>();
 
   constructor(
     public storage: Storage,
-  ) { }
-
-  // Scan sessions
-
-  setScanSessions(scanSessions: ScanSessionModel[]) {
-    return this.storage.set(ScanSessionsStorage.SCAN_SESSIONS, JSON.stringify(scanSessions));
+  ) {
+    this.onScanSessionSetObservable.debounceTime(1500).subscribe((scanSessions: ScanSessionModel[]) => {
+      let r = this.storage.set(ScanSessionsStorage.SCAN_SESSIONS, JSON.stringify(scanSessions));
+    })
   }
 
-  // TODO verificare se ionic/storage implementa cache altrimenti farla qui
+  // Scan sessions
+  setScanSessions(scanSessions: ScanSessionModel[]) {
+    this.scanSessionsCache = scanSessions; // this is here in case the 'get' function gets called, so that it can return updated values
+    this.onScanSessionSetObservable.next(scanSessions)
+  }
+
   getScanSessions(): Promise<ScanSessionModel[]> {
     return new Promise((resolve, reject) => {
+      if (this.scanSessionsCache != null) {
+        resolve(this.scanSessionsCache);
+        return;
+      }
+
       this.storage.get(ScanSessionsStorage.SCAN_SESSIONS).then((data) => {
         if (data != null) {
           let json = JSON.parse(data);
@@ -41,6 +51,7 @@ export class ScanSessionsStorage {
             }
             return scanSession;
           });
+          this.scanSessionsCache = result;
           resolve(result)
         } else {
           resolve([])
@@ -51,7 +62,7 @@ export class ScanSessionsStorage {
 
   pushScanSession(scanSession: ScanSessionModel) {
     return this.getScanSessions().then(sessions => {
-      let existingSessionIndex = sessions.findIndex((x) => x.id == scanSession.id);
+      let existingSessionIndex = sessions.findIndex((x) => x.id == scanSession.id); // TODO: is this check really needed?
       if (existingSessionIndex == -1) {
         sessions.unshift(scanSession); // insert at the beginning of the array
       } else {
@@ -63,9 +74,8 @@ export class ScanSessionsStorage {
 
 
 
-
+  // =======================================================================================
   // Archived scan sessions
-
   setArchivedScanSessions(scanSessions: ScanSessionModel[]) {
     return this.storage.set(ScanSessionsStorage.ARCHIVED_SCAN_SESSIONS, JSON.stringify(scanSessions));
   }
