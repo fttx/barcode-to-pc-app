@@ -380,7 +380,7 @@ export class ScanSessionPage {
           this.skipAlreadySent = (data == 'skipAlreadySent')
 
           this.settings.getRepeatInterval().then(repeatInterval => {
-            if (repeatInterval && repeatInterval != null) {
+            if (repeatInterval != null) {
               this.repeatInterval = repeatInterval;
             }
 

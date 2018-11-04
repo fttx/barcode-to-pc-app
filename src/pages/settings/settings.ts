@@ -4,7 +4,6 @@ import { NavController, ViewController } from 'ionic-angular';
 
 import { barcodeFormatModel } from '../../models/barcode-format.model';
 import { requestModelHelo } from '../../models/request.model';
-import { ScanSessionsStorage } from '../../providers/scan-sessions-storage';
 import { ServerProvider } from '../../providers/server';
 import { SelectScanningModePage } from '../scan-session/select-scanning-mode/select-scanning-mode';
 import { Config } from './../../providers/config';
@@ -31,8 +30,6 @@ export class SettingsPage {
   private changesSaved = false;
   public quantityType: string = 'number';
 
-  private lastScanDate = 0;
-
   public barcodeFormats: barcodeFormatModel[] = barcodeFormatModel.supportedBarcodeFormats
   public enableLimitBarcodeFormats: boolean = false;
 
@@ -42,7 +39,6 @@ export class SettingsPage {
     public settings: Settings,
     private serverProvider: ServerProvider,
     private device: Device,
-    private scanSessionsStorage: ScanSessionsStorage,
   ) {
     for (let i = 0; i <= 15000; i += 250) {
       this.availableRepeatIntervals.push(i);
@@ -67,7 +63,7 @@ export class SettingsPage {
     })
 
     this.settings.getRepeatInterval().then(repeatInterval => {
-      if (repeatInterval && repeatInterval != null) {
+      if (repeatInterval != null) {
         this.repeatInterval = repeatInterval;
       }
     })
