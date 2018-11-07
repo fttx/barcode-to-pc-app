@@ -5,7 +5,6 @@ import { BarcodeScanner } from '@fttx/barcode-scanner';
 import { AppVersion } from '@ionic-native/app-version';
 import { Device } from '@ionic-native/device';
 import { GoogleAnalytics } from '@ionic-native/google-analytics';
-import { InAppPurchase2 } from '@ionic-native/in-app-purchase-2';
 import { LaunchReview } from '@ionic-native/launch-review';
 import { NativeAudio } from '@ionic-native/native-audio';
 import { Network } from '@ionic-native/network';
@@ -98,7 +97,6 @@ import { MyApp } from './app.component';
     Zeroconf,
     Network,
     NativeAudio,
-    InAppPurchase2,
     { provide: ErrorHandler, useClass: IonicErrorHandler },
     LastToastProvider,
   ]
