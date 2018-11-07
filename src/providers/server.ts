@@ -46,6 +46,8 @@ export class ServerProvider {
   private continuoslyWatchForServers: boolean; // if true it still watches for new servers after a successfully connection, and if it finds a new server with the same name of the defaultServer it re-connects (this happens when the server has a new ip address)
   private kickedOut = false;
 
+  private lastOnResumeSubscription = null;
+
   constructor(
     private settings: Settings,
     private NgZone: NgZone,
@@ -242,6 +244,24 @@ export class ServerProvider {
           this.scheduleNewWsConnection(server); // se il timeout non è stato fermato prima da una risposta, allora schedulo una nuova connessione
         }, 1000 * 5);
       }, 1000 * 60); // ogni 60 secondi invio ping
+
+
+      /** Since we are inside onopen it means that we're connected to a server
+       * and we can try to reconnect to it up until another onopen event will
+       * occour.
+       * When the next onopen will occour it'll use a new 'server' variable, and
+       * it'll try to reconnect to it on every resume event */
+      if (this.lastOnResumeSubscription != null) {
+        this.lastOnResumeSubscription.unsubscribe();
+        this.lastOnResumeSubscription = null;
+      }
+      this.lastOnResumeSubscription = this.platform.resume.subscribe(next => {
+        console.log('resume()')
+        if (!this.connected) {
+          console.log('onResume: not connected -> scheduling new connection immediately')
+          this.scheduleNewWsConnection(server);
+        }
+      });
 
 
       this.settings.getDeviceName().then(deviceName => {
