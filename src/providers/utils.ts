@@ -56,7 +56,6 @@ export class Utils {
   // not my stuff :O=
   public static convertCode39ToCode32(code39) {
     var result = '';
-    var checkDigit = '';
     var XP = code39
     if (XP.length != "6") {
       console.log('Invalid code32, fallback to code39')
@@ -253,7 +252,6 @@ export class Utils {
     if (P8.length == 1) {
       result = "0"
     }
-    checkDigit = "0"
     code39 = XP
     if (result.length == 7) {
       result = "0" + result

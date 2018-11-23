@@ -1,17 +1,15 @@
 import { Component } from '@angular/core';
 import { BarcodeScanner } from '@fttx/barcode-scanner';
-import { Device } from '@ionic-native/device';
 import { GoogleAnalytics } from '@ionic-native/google-analytics';
 import { Promise } from 'bluebird';
 import { AlertController, NavController, ViewController } from 'ionic-angular';
-
 import { ScanModel } from '../../models/scan.model';
 import { wsEvent } from '../../models/ws-event.model';
 import { Config } from '../../providers/config';
-import { ScanSessionsStorage } from '../../providers/scan-sessions-storage';
 import { ServerProvider } from '../../providers/server';
 import { Settings } from '../../providers/settings';
 import { ServerModel } from './../../models/server.model';
+
 
 /*
   Generated class for the SelectServer page.
@@ -41,8 +39,6 @@ export class SelectServerPage {
     private settings: Settings,
     private ga: GoogleAnalytics,
     private barcodeScanner: BarcodeScanner,
-    private scanSessionsStorage: ScanSessionsStorage,
-    private device: Device,
   ) { }
 
   public isVisible = false;

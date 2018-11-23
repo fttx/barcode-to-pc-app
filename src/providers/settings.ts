@@ -1,10 +1,9 @@
 import { Injectable } from '@angular/core';
 import { Device } from '@ionic-native/device';
 import { Storage } from '@ionic/storage';
-import { resolve } from 'bluebird';
-
 import { barcodeFormatModel } from '../models/barcode-format.model';
 import { ServerModel } from '../models/server.model';
+
 
 /*
   Generated class for the Settings provider.

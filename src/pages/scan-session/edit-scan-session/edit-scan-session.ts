@@ -1,8 +1,6 @@
 import { Component } from '@angular/core';
 import { NavController, ViewController } from 'ionic-angular';
-import { ScanSessionModel } from '../../../models/scan-session.model'
-import { requestModelUpdateScanSession } from '../../../models/request.model';
-import { ServerProvider } from '../../../providers/server';
+import { ScanSessionModel } from '../../../models/scan-session.model';
 
 /*
   Generated class for the EditScanSession page.
@@ -22,7 +20,6 @@ export class EditScanSessionPage {
   constructor(
     public viewCtrl: ViewController,
     public navCtrl: NavController,
-    private serverProvider: ServerProvider,
   ) {
     this.scanSession = viewCtrl.getNavParams().data;
     this.date = (new Date(this.scanSession.date - EditScanSessionPage.timezoneOffset)).toISOString().slice(0, -1);

@@ -1,8 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Storage } from '@ionic/storage';
-import { resolve } from 'bluebird';
 import { Subject } from 'rxjs';
-
 import { ScanSessionModel } from '../models/scan-session.model';
 
 /**
@@ -21,7 +19,8 @@ export class ScanSessionsStorage {
     public storage: Storage,
   ) {
     this.onScanSessionSetObservable.debounceTime(1500).subscribe((scanSessions: ScanSessionModel[]) => {
-      let r = this.storage.set(ScanSessionsStorage.SCAN_SESSIONS, JSON.stringify(scanSessions));
+      console.log('saving:', scanSessions)
+      this.storage.set(ScanSessionsStorage.SCAN_SESSIONS, JSON.stringify(scanSessions));
     })
   }
 
