@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Storage } from '@ionic/storage';
+import { Storage, StorageConfigToken } from '@ionic/storage';
 import { ServerModel } from '../models/server.model'
 import { Device } from "@ionic-native/device";
 
@@ -22,11 +22,31 @@ export class Settings {
   private static DEVICE_NAME = 'device_name';
   private static REPEAT_INTERVAL = 'repeat_interval';
   private static PREFER_FRONT_CAMERA = 'prefer_front_camera';
+  private static UPGRADED_TO_SQLITE = 'upgraded_to_sqlite';
+
+  private sqliteStorage: Storage;
 
   constructor(
     public storage: Storage,
     public device: Device
-  ) { }
+  ) {
+
+    // migrate to SQLite
+    this.sqliteStorage = new Storage({ driverOrder: ['sqlite'] });
+    this.sqliteStorage.ready().then(localForage => {
+      this.sqliteStorage.get(Settings.UPGRADED_TO_SQLITE).then(result => {
+        if (!result) {
+          this.storage.keys().then(keys => {
+            keys.forEach(key => {
+              this.sqliteStorage.set(key, this.storage.get(key));
+            })
+          })
+        }
+        this.sqliteStorage.set(Settings.UPGRADED_TO_SQLITE, true);
+        this.storage = this.sqliteStorage;
+      })
+    });
+  }
 
   setDefaultServer(server: ServerModel) {
     if (!server) {
