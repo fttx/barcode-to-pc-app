@@ -62,7 +62,9 @@ import { MyApp } from './app.component';
     BrowserModule,
     HttpModule,
     MomentModule,
-    IonicStorageModule.forRoot(),
+    IonicStorageModule.forRoot({
+      driverOrder: ['sqlite', 'indexeddb', 'websql']
+    }),
     IonicModule.forRoot(MyApp),
     MarkdownModule.forRoot(),
   ],
