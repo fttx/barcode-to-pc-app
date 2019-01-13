@@ -1,7 +1,7 @@
 {
   "name": "barcode-to-pc-app",
   "author": "Filippo Tortomasi",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "homepage": "https://barcodetopc.com/",
   "private": true,
   "scripts": {
@@ -27,12 +27,12 @@
     "@ionic-native/google-analytics": "^3.14.0",
     "@ionic-native/header-color": "^4.1.0",
     "@ionic-native/in-app-browser": "^3.6.1",
-    "@ionic-native/market": "^4.4.2",
-    "@ionic-native/native-audio": "^4.1.0",
+    "@ionic-native/market": "^3.14.0",
+    "@ionic-native/native-audio": "^3.14.0",
     "@ionic-native/social-sharing": "^3.6.1",
     "@ionic-native/splash-screen": "3.12.1",
     "@ionic-native/status-bar": "3.12.1",
-    "@ionic-native/zeroconf": "^4.1.0",
+    "@ionic-native/zeroconf": "^3.14.0",
     "@ionic/storage": "2.0.1",
     "angular2-moment": "^1.0.0",
     "bluebird": "^3.4.7",
@@ -105,7 +105,6 @@
       "cordova-plugin-headercolor": {},
       "cordova-plugin-nativeaudio": {},
       "cordova-plugin-market": {},
-      
       "cordova-sqlite-storage": {}
     },
     "platforms": [
