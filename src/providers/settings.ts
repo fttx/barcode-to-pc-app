@@ -23,6 +23,7 @@ export class Settings {
   private static REPEAT_INTERVAL = 'repeat_interval';
   private static PREFER_FRONT_CAMERA = 'prefer_front_camera';
   private static UPGRADED_TO_SQLITE = 'upgraded_to_sqlite';
+  private static LAST_MONTH = 'last_month';
 
   private sqliteStorage: Storage;
 
@@ -192,5 +193,12 @@ export class Settings {
   }
   getPreferFrontCamera(): Promise<boolean> {
     return this.storage.get(Settings.PREFER_FRONT_CAMERA);
+  }
+
+  setLastMonth(lastMonth: number) {
+    return this.storage.set(Settings.LAST_MONTH, lastMonth);
+  }
+  getLastMonth(): Promise<number> {
+    return this.storage.get(Settings.LAST_MONTH);
   }
 }

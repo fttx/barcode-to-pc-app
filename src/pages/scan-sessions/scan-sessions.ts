@@ -38,11 +38,54 @@ export class ScanSessionsPage {
   ) { }
 
   ionViewDidEnter() {
-    this.ga.trackView('ScanSessionsPage');
 
     this.scanSessionsStorage.getScanSessions().then(data => {
       this.scanSessions = data;
-    });
+
+
+      // Compute the scans per month
+      let currentMonth = new Date().getMonth();
+      let previusMonth;
+      let tmp = new Date();
+      tmp.setDate(1);
+      tmp.setMonth(tmp.getMonth() - 1);
+      previusMonth = tmp.getMonth();
+
+      this.settings.getLastMonth().then(lastMonth => { // if lastMonth == null the promise won't be resolved
+        console.log('[GA] lastMonth is ' + lastMonth);
+
+        if (lastMonth != null && lastMonth != currentMonth) { // if the month has changed
+          console.log('[GA] lastMonth !=  currentMonth (' + lastMonth + ' !=  ' + currentMonth + ')');
+
+          let tot = 0;
+          for (let session of this.scanSessions) {
+            if (session.date.getMonth() != previusMonth) break;
+
+            if (session.scannings) {
+              tot += session.scannings.length;
+            }
+          }
+
+          let metricName = '1';
+          if (tot > 10000) {
+            metricName = '5';
+          } else if (tot > 5000) {
+            metricName = '4';
+          } else if (tot > 1000) {
+            metricName = '3';
+          } else if (tot > 100) {
+            metricName = '2';
+          }
+
+          console.log('[GA] tot = ' + tot, '  metricName = ' + metricName + ' trackMetric()');
+          this.ga.addCustomDimension(1, this.device.platform);
+          this.ga.trackMetric(metricName, 1)
+        }
+        console.log('[GA] save lastMonth = ' + currentMonth);
+        this.settings.setLastMonth(currentMonth);
+        this.ga.trackView('ScanSessionsPage');
+      })
+    }); // getScanSessions
 
     console.log('ionViewDidEnter');
 
