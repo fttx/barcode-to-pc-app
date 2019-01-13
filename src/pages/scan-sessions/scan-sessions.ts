@@ -52,10 +52,10 @@ export class ScanSessionsPage {
       previusMonth = tmp.getMonth();
 
       this.settings.getLastMonth().then(lastMonth => { // if lastMonth == null the promise won't be resolved
-        console.log('[GA] lastMonth is ' + lastMonth);
+        // console.log('[GA] lastMonth is ' + lastMonth);
 
         if (lastMonth != null && lastMonth != currentMonth) { // if the month has changed
-          console.log('[GA] lastMonth !=  currentMonth (' + lastMonth + ' !=  ' + currentMonth + ')');
+          // console.log('[GA] lastMonth !=  currentMonth (' + lastMonth + ' !=  ' + currentMonth + ')');
 
           let tot = 0;
           for (let session of this.scanSessions) {
@@ -77,11 +77,11 @@ export class ScanSessionsPage {
             metricName = '2';
           }
 
-          console.log('[GA] tot = ' + tot, '  metricName = ' + metricName + ' trackMetric()');
+          // console.log('[GA] tot = ' + tot, '  metricName = ' + metricName + ' trackMetric()');
           this.ga.addCustomDimension(1, this.device.platform);
           this.ga.trackMetric(metricName, 1)
         }
-        console.log('[GA] save lastMonth = ' + currentMonth);
+        // console.log('[GA] save lastMonth = ' + currentMonth);
         this.settings.setLastMonth(currentMonth);
         this.ga.trackView('ScanSessionsPage');
       })
