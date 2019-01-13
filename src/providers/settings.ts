@@ -35,16 +35,18 @@ export class Settings {
     // migrate to SQLite
     this.sqliteStorage = new Storage({ driverOrder: ['sqlite'] });
     this.sqliteStorage.ready().then(localForage => {
-      this.sqliteStorage.get(Settings.UPGRADED_TO_SQLITE).then(result => {
-        if (!result) {
+      this.sqliteStorage.get(Settings.UPGRADED_TO_SQLITE).then(upgradedToSqlite => {
+        if (!upgradedToSqlite) {
           this.storage.keys().then(keys => {
-            keys.forEach(key => {
+            for (let key of keys) {
               this.sqliteStorage.set(key, this.storage.get(key));
-            })
-          })
+            }
+            this.sqliteStorage.set(Settings.UPGRADED_TO_SQLITE, true);
+            this.storage = this.sqliteStorage; // set the storage to sqlite only after the upgrade is completed
+          }) // keys()
+        } else {// if the upgrade has already been done, there isn't the need to wait
+          this.storage = this.sqliteStorage;
         }
-        this.sqliteStorage.set(Settings.UPGRADED_TO_SQLITE, true);
-        this.storage = this.sqliteStorage;
       })
     });
   }
