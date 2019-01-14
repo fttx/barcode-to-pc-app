@@ -38,7 +38,7 @@
     "bluebird": "^3.4.7",
     "cordova-android": "7.1.4",
     "cordova-ios": "4.5.4",
-    "cordova-plugin-add-swift-support": "^1.7.0",
+    "cordova-plugin-add-swift-support": "1.7.2",
     "cordova-plugin-app-version": "^0.1.9",
     "cordova-plugin-compat": "^1.2.0",
     "cordova-plugin-console": "^1.1.0",
@@ -52,7 +52,7 @@
     "cordova-plugin-statusbar": "^2.2.3",
     "cordova-plugin-whitelist": "^1.3.2",
     "cordova-plugin-x-socialsharing": "^5.2.1",
-    "cordova-plugin-zeroconf": "^1.2.8",
+    "cordova-plugin-zeroconf": "1.3.2",
     "cordova-sqlite-storage": "2.6.0",
     "es6-promise-plugin": "^4.1.0",
     "ionic-angular": "3.5.3",
@@ -100,12 +100,12 @@
         "CAMERA_USAGE_DESCRIPTION": "To scan barcodes",
         "ANDROID_SUPPORT_V4_VERSION": "27.+"
       },
-      "cordova-plugin-zeroconf": {},
       "cordova-plugin-statusbar": {},
       "cordova-plugin-headercolor": {},
       "cordova-plugin-nativeaudio": {},
       "cordova-plugin-market": {},
-      "cordova-sqlite-storage": {}
+      "cordova-sqlite-storage": {},
+      "cordova-plugin-zeroconf": {}
     },
     "platforms": [
       "ios",
