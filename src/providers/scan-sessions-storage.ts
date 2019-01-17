@@ -20,7 +20,7 @@ export class ScanSessionsStorage {
   ) {
     this.onScanSessionSetObservable.debounceTime(1500).subscribe((scanSessions: ScanSessionModel[]) => {
       console.log('saving:', scanSessions)
-      this.storage.set(ScanSessionsStorage.SCAN_SESSIONS, JSON.stringify(scanSessions));
+      this.storage.set(ScanSessionsStorage.SCAN_SESSIONS, JSON.stringify(scanSessions)); // why rewrite the enteire database? This is stupid. Use a different storage item for each session at least
     })
   }
 
@@ -59,12 +59,13 @@ export class ScanSessionsStorage {
     });
   }
 
-  pushScanSession(scanSession: ScanSessionModel) {
+  // Takes care of saving the scanSession data.
+  updateScanSession(scanSession: ScanSessionModel) {
     return this.getScanSessions().then(sessions => {
-      let existingSessionIndex = sessions.findIndex((x) => x.id == scanSession.id); // TODO: is this check really needed?
-      if (existingSessionIndex == -1) {
+      let existingSessionIndex = sessions.findIndex((x) => x.id == scanSession.id);
+      if (existingSessionIndex == -1) { // if the scanSession doesn't exists yet => add it
         sessions.unshift(scanSession); // insert at the beginning of the array
-      } else {
+      } else { // otherwise override it
         sessions[existingSessionIndex] = scanSession;
       }
       this.setScanSessions(sessions);

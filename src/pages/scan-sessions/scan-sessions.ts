@@ -73,6 +73,7 @@ export class ScanSessionsPage {
             selected: false,
           };
           this.scanSessions.push(newScanSession);
+          // Looking for scanSessions.push? See: scanSessionsStorage.updateScanSession
         }
         this.scanSessionsStorage.setScanSessions(this.scanSessions)
       }

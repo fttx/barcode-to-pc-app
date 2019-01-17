@@ -79,7 +79,7 @@ export class ArchivedPage {
             });
             this.serverProvider.send(wsRequest);
 
-            this.scanSessionsStorage.pushScanSession(scanSession);
+            this.scanSessionsStorage.updateScanSession(scanSession);
             this.archivedScanSessions = this.archivedScanSessions.filter(x => x != scanSession);
             this.scanSessionsStorage.setArchivedScanSessions(this.archivedScanSessions);
           }

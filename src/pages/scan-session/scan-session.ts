@@ -302,7 +302,7 @@ export class ScanSessionPage {
     if (this.isPristine()) {
       return;
     }
-    this.scanSessionsStorage.pushScanSession(this.scanSession);
+    this.scanSessionsStorage.updateScanSession(this.scanSession);
   }
 
   sendPutScan(scan: ScanModel, sendKeystrokes = true) {
