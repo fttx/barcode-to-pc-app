@@ -51,7 +51,7 @@ ionic cordova build ios --prod --release
 # Android
 # Increase version code in config.xml
 ionic cordova build android --prod --release
-APK_PATH=""
+APK_PATH="platforms/android/app/build/outputs/apk/release/app-release-unsigned.apk"
 JKS_PATH="barcode-to-pc-keystore.jks"
 jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore $JKS_PATH $APK_PATH keystore
 zipalign -v 4 $APK_PATH out.apk
