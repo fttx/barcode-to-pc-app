@@ -50,7 +50,7 @@ import { NativeAudio } from '@ionic-native/native-audio';
     BrowserModule,
     HttpModule,
     IonicStorageModule.forRoot({
-      driverOrder: ['indexeddb', 'sqlite', 'websql']
+      driverOrder: ['sqlite', 'indexeddb', 'websql']
     }),
     IonicModule.forRoot(MyApp),
     MomentModule,

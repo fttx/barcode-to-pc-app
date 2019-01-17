@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 import { Storage, StorageConfigToken } from '@ionic/storage';
 import { ServerModel } from '../models/server.model'
 import { Device } from "@ionic-native/device";
+import { ScanSessionsStorage } from './scan-sessions-storage';
+import { NavController, App } from 'ionic-angular';
 
 /*
   Generated class for the Settings provider.
@@ -22,30 +24,38 @@ export class Settings {
   private static DEVICE_NAME = 'device_name';
   private static REPEAT_INTERVAL = 'repeat_interval';
   private static PREFER_FRONT_CAMERA = 'prefer_front_camera';
-  private static UPGRADED_TO_SQLITE = 'upgraded_to_sqlite';
+  private static UPGRADED_TO_SQLITE = 'upgraded_to_sqlite_2x';
   private static LAST_MONTH = 'last_month';
 
-  private sqliteStorage: Storage;
 
   constructor(
     public storage: Storage,
-    public device: Device
+    public device: Device,
+    public app: App,
   ) {
+    let indexeddb = new Storage({ driverOrder: ['indexeddb'] });
 
-    // migrate to SQLite
-    this.sqliteStorage = new Storage({ driverOrder: ['sqlite'] });
-    this.sqliteStorage.ready().then(localForage => {
-      this.sqliteStorage.get(Settings.UPGRADED_TO_SQLITE).then(upgradedToSqlite => {
+    Promise.all([this.storage.ready(), indexeddb.ready()]).then(result => {
+      this.storage.get(Settings.UPGRADED_TO_SQLITE).then(upgradedToSqlite => {
+        console.log('[STORAGE]  storage.get(upgraded) = ' + upgradedToSqlite)
         if (!upgradedToSqlite) {
-          this.storage.keys().then(keys => {
-            for (let key of keys) {
-              this.sqliteStorage.set(key, this.storage.get(key));
+          console.log('[STORAGE]  checking indexeddb...')
+          indexeddb.keys().then(keys => {
+            console.log('[STORAGE]  indexeddb.keys.length != 0 => merging scan_sessions')
+            if (keys.length != 0) {
+              Promise.all([indexeddb.get("scan_sessions"), this.storage.get("scan_sessions")]).then(result => {
+                console.log('[STORAGE] merging', result[1], ' with ', result[0]);
+                this.storage.set("scan_sessions", result[1].concat(result[0])).then(() => {
+                  console.log('[STORAGE] scan_sessions merged. Refreshing...')
+                  this.storage.set(Settings.UPGRADED_TO_SQLITE, true);
+                  this.app.getActiveNav().setRoot(this.app.getRootNav()); 
+                })
+              })
+            } else {
+              console.log('[STORAGE]  indexeddb is empty, nothing to do => upgraded = true')
+              this.storage.set(Settings.UPGRADED_TO_SQLITE, true);
             }
-            this.sqliteStorage.set(Settings.UPGRADED_TO_SQLITE, true);
-            this.storage = this.sqliteStorage; // set the storage to sqlite only after the upgrade is completed
-          }) // keys()
-        } else {// if the upgrade has already been done, there isn't the need to wait
-          this.storage = this.sqliteStorage;
+          })
         }
       })
     });
