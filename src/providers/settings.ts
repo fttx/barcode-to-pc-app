@@ -41,58 +41,54 @@ export class Settings {
     Promise.all([this.storage.ready(), indexeddb.ready()]).then(result => {
       this.storage.get(Settings.UPGRADED_TO_SQLITE).then(upgradedToSqlite => {
         // alert('[STORAGE]  storage.get(upgraded) = ' + upgradedToSqlite)
-        
-        let doUpgrade = () => {
-          if (!upgradedToSqlite) {
-            indexeddb.get("scan_sessions").then(oldScanSessions => {
-              // // this function is required to keep both old and new scan sessions
-              let doMerge = (newScanSessions = null) => {
-                // alert('typeof oldScanSessions = ' + typeof (oldScanSessions) + ' ' + oldScanSessions)
-                // alert('typeof newScanSessions = ' + typeof (newScanSessions) + ' ' + newScanSessions)
-  
-                let resultArray = [];
-                let resultStr = '';
-                if (oldScanSessions) {
-                  resultArray = JSON.parse(oldScanSessions)
-                }
-                if (newScanSessions) {
-                  resultArray.push(JSON.parse(newScanSessions))
-                }
-                resultStr = JSON.stringify(resultArray);
-                // alert('resultStr = ' + resultStr);
-  
-                // JSON PARSE, [].PUSH(ARRAY1), [].PUSH(ARRAY2)
-                // Dopo di che provare v2.0.1 -> v2.0.3 -> v3.0.0
-                // O meglio ancora vedere se se riesce a skippare la v2.0.3 su android
-                Promise.all([
-                  this.storage.set("scan_sessions", resultStr),
-                  this.storage.set(Settings.UPGRADED_TO_SQLITE, true),
-                ]).then(() => {
-                  alert('Upgrading, tap OK to continue')
-                  setTimeout(() => {
-                    this.ngZone.run(() => {
-                      this.splashScreen.show();
-                      window.location.reload();
-                    });
-                  }, 1000)
-                })
+
+        if (!upgradedToSqlite) {
+          indexeddb.get("scan_sessions").then(oldScanSessions => {
+            // // this function is required to keep both old and new scan sessions
+            let doMerge = (newScanSessions = null) => {
+              // alert('typeof oldScanSessions = ' + typeof (oldScanSessions) + ' ' + oldScanSessions)
+              // alert('typeof newScanSessions = ' + typeof (newScanSessions) + ' ' + newScanSessions)
+
+              let resultArray = [];
+              let resultStr = '';
+              if (oldScanSessions) {
+                resultArray.push(...JSON.parse(oldScanSessions))
               }
+              if (newScanSessions) {
+                resultArray.push(...JSON.parse(newScanSessions))
+              }
+              resultStr = JSON.stringify(resultArray);
+              // alert('resultStr = ' + resultStr);
+
+              // JSON PARSE, [].PUSH(ARRAY1), [].PUSH(ARRAY2)
+              // Dopo di che provare v2.0.1 -> v2.0.3 -> v3.0.0
+              // O meglio ancora vedere se se riesce a skippare la v2.0.3 su android
+              Promise.all([
+                this.storage.set("scan_sessions", resultStr),
+                this.storage.set(Settings.UPGRADED_TO_SQLITE, true),
+              ]).then(() => {
+                alert('Upgrading, tap OK to continue')
+                setTimeout(() => {
+                  this.ngZone.run(() => {
+                    this.splashScreen.show();
+                    window.location.reload();
+                  });
+                }, 1000)
+              })
+            }
+
+            if (oldScanSessions) {
               this.storage.get("scan_sessions").then(newScanSessions => {
                 doMerge(newScanSessions);
-              }).catch(err => {
-                doMerge();
               })
-  
-            })
-          }
-        };
+            } else {
+              // alert('no need to upgrade')
+              this.storage.set(Settings.UPGRADED_TO_SQLITE, true);
+            }
+          })
+        }
 
 
-        this.storage.get(Settings.NO_RUNNINGS).then(noRunnings => {
-          if (noRunnings && noRunnings > 1) {
-            doUpgrade();
-          }
-        })
 
       })
     });
