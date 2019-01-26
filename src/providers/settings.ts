@@ -44,7 +44,9 @@ export class Settings {
 
         if (!upgradedToSqlite) {
           indexeddb.get("scan_sessions").then(oldScanSessions => {
-            // // this function is required to keep both old and new scan sessions
+            // alert('[STORAGE]  indexeddb.get(upgraded) = ' + oldScanSessions)
+
+            // this function is required to keep both old and new scan sessions
             let doMerge = (newScanSessions = null) => {
               // alert('typeof oldScanSessions = ' + typeof (oldScanSessions) + ' ' + oldScanSessions)
               // alert('typeof newScanSessions = ' + typeof (newScanSessions) + ' ' + newScanSessions)
@@ -79,6 +81,9 @@ export class Settings {
 
             if (oldScanSessions) {
               this.storage.get("scan_sessions").then(newScanSessions => {
+                if (newScanSessions && typeof (newScanSessions) != 'string') {
+                  newScanSessions = '[]';
+                }
                 doMerge(newScanSessions);
               })
             } else {
