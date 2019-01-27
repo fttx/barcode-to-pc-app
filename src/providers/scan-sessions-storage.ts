@@ -5,7 +5,10 @@ import { ScanSessionModel } from '../models/scan-session.model';
 
 /**
  * Provides methods to store and get data from the storage
- * It implements a memory cache for the main scanSessions
+ * It implements a memory cache for the main scanSessions.
+ * TODO: 
+ *  - Remove JSON.stringify/parse, this job should be done with Storage by passing the type inside <>
+ *  - Save the scan sessions in separate storage items instead of putting everything in the same object
  */
 @Injectable()
 export class ScanSessionsStorage {
@@ -18,7 +21,7 @@ export class ScanSessionsStorage {
   constructor(
     public storage: Storage,
   ) {
-    this.onScanSessionSetObservable.debounceTime(1500).subscribe((scanSessions: ScanSessionModel[]) => {
+    this.onScanSessionSetObservable.debounceTime(500).subscribe((scanSessions: ScanSessionModel[]) => {
       console.log('saving:', scanSessions)
       this.storage.set(ScanSessionsStorage.SCAN_SESSIONS, JSON.stringify(scanSessions)); // why rewrite the enteire database? This is stupid. Use a different storage item for each session at least
     })
