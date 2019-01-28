@@ -1,22 +1,21 @@
-✔ Gathering environment info - done!
 
 Ionic:
 
-   ionic (Ionic CLI)  : 4.2.1 (/Users/filippo/Desktop/PROJECTS/node_modules/ionic)
+   ionic (Ionic CLI)  : 4.8.0 (/usr/local/lib/node_modules/ionic)
    Ionic Framework    : ionic-angular 3.9.2
    @ionic/app-scripts : 3.2.1
 
 Cordova:
 
    cordova (Cordova CLI) : 8.1.2 (cordova-lib@8.1.1)
-   Cordova Platforms     : android 7.1.4, ios 4.5.4
-   Cordova Plugins       : cordova-plugin-ionic-keyboard 2.1.3, cordova-plugin-ionic-webview 2.3.1, (and 15 other plugins)
+   Cordova Platforms     : android 7.1.4
+   Cordova Plugins       : cordova-plugin-ionic-keyboard 2.1.3, cordova-plugin-ionic-webview 2.3.2, (and 15 other plugins)
 
 System:
 
    Android SDK Tools : 26.1.1 (/Users/filippo/Library/Android/sdk/)
    NodeJS            : v10.13.0 (/usr/local/bin/node)
    npm               : 6.4.1
-   OS                : macOS
+   OS                : macOS Mojave
    Xcode             : Xcode 10.1 Build version 10B61
 
