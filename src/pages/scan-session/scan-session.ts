@@ -453,11 +453,13 @@ export class ScanSessionPage {
         let alert = this.alertCtrl.create({
           title: 'Enter quantity value', // message: 'Inse',
           enableBackdropDismiss: false,
-          inputs: [{ name: 'quantity', type: quantityType || 'number', placeholder: 'Eg. 5' }],
+          inputs: [{ name: 'quantity', type: quantityType, placeholder: quantityType == 'number' ? '(Default is 1, press Ok to insert it)' : 'Eg. ten' }],
           buttons: [{
             text: 'Ok', handler: data => {
               if (data.quantity) {
                 scan.quantity = data.quantity;
+              } else if (quantityType == 'number') {
+                scan.quantity = '1';
               }
               done();
             }

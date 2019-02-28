@@ -49,7 +49,7 @@ export class CameraScannerProvider {
           let quantyEnabled = result[3];
           let quantityType = result[4];
           let continueModeTimeout = result[5];
-          
+
           if (preferFrontCamera == null || !preferFrontCamera) preferFrontCamera = false;
 
           let pluginContinuousMode = continuousMode; // if there is a quantity, the continuos mode is disabled to allow the webview to insert a value
@@ -103,16 +103,21 @@ export class CameraScannerProvider {
       scan.date = now;
 
       if (this.quantyEnabled) {
+        let quantityType = this.quantityType || 'number';
+        // There is also a slightly different version of this dialog in the scan-sessions.ts file
+        // that is used for the manual mode, if you edit this dialog you should also edit the former.
         let alert = this.alertCtrl.create({
           title: 'Enter quantity value',
           // message: 'Inse',
           enableBackdropDismiss: false,
-          inputs: [{ name: 'quantity', type: this.quantityType || 'number', placeholder: 'Eg. 5' }],
+          inputs: [{ name: 'quantity', type: quantityType, placeholder: quantityType == 'number' ? '(Default is 1, press Ok to insert it)' : 'Eg. ten' }],
           buttons: [{
             text: 'Ok',
             handler: data => {
               if (data.quantity) { // && isNumber(data.quantity)
                 scan.quantity = data.quantity;
+              } else if (quantityType == 'number') {
+                scan.quantity = '1';
               }
               this.nextScan(scan)
             }
