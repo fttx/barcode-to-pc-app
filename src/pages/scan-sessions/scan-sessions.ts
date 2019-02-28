@@ -79,15 +79,13 @@ export class ScanSessionsPage {
       }
     });
 
-    console.log('ionViewDidEnter');
-
     // if (this.connected == false) {
     this.settings.getDefaultServer().then(server => {
       // console.log('SERVER: ', server)
 
       if (!this.wsEventSubscription) {
         this.wsEventSubscription = this.serverProvider.onWsEvent().subscribe((event: wsEvent) => {
-          console.log('[S-SESSIONS]: ' + event.name)
+          // console.log('[S-SESSIONS]: ' + event.name)
           this.connected = this.serverProvider.isConnected();
           if (event.name == wsEvent.EVENT_OPEN) {
             this.onConnect();
@@ -102,7 +100,7 @@ export class ScanSessionsPage {
       //   });
       // }
 
-      console.log('[S-SESSIONS]: connect()')
+      // console.log('[S-SESSIONS]: connect()')
       this.serverProvider.connect(server);
     }, err => { })
     // }
@@ -130,7 +128,7 @@ export class ScanSessionsPage {
 
   private onConnect() {
     Promise.join(this.settings.getNoRunnings(), this.settings.getRated(), (runnings, rated) => {
-      console.log('promise join: getNoRunnings getRated ')
+      // console.log('promise join: getNoRunnings getRated ')
       if (runnings >= Config.NO_RUNNINGS_BEFORE_SHOW_RATING && !rated) {
         let os = this.device.platform || 'unknown';
         let isAndroid = os.toLowerCase().indexOf('android') != -1;

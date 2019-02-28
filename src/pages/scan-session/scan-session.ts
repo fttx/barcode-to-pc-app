@@ -80,7 +80,6 @@ export class ScanSessionPage {
     }
 
     this.ngZone.run(() => {
-      // console.log(event)
       if (event.keyCode == 13) {
         this.onEnterClick();
         this.keyboardInput.setFocus();
@@ -117,7 +116,6 @@ export class ScanSessionPage {
     } else {
       // It will be shown only once because ioViewDidLoad is always called only once
       Promise.join(this.settings.getNoRunnings(), this.settings.getSoundFeedbackOrDialogShown(), (runnings, soundFeedbackOrDialogShown) => {
-        console.log(runnings, soundFeedbackOrDialogShown)
         if (!soundFeedbackOrDialogShown && runnings >= Config.NO_RUNNINGS_BEFORE_SHOW_SOUND_FEEDBACK_OR_DIALOG) {
           this.alertCtrl.create({
             title: 'Beep sound',
@@ -325,7 +323,6 @@ export class ScanSessionPage {
   }
 
   sendPutScan(scan: ScanModel, sendKeystrokes = true) {
-    // console.log('sendPutScan, scan.date=', scan.date);
     let scanSession = { ...this.scanSession }; // do a shallow copy (copy only the properties of the object first level)
     scanSession.scannings = [scan];
 
@@ -381,7 +378,6 @@ export class ScanSessionPage {
   private skipAlreadySent = false;
 
   onRepeatAllClick() {
-    console.log('@@repeatall')
     this.alertCtrl.create({
       title: 'Send all barcodes again',
       inputs: [{

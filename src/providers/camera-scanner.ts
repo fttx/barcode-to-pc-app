@@ -132,7 +132,6 @@ export class CameraScannerProvider {
         this.nextScan(scan)
       }
     }, (err) => {
-      console.log('@plugin err: ', err)
       this.observer.error(err)
     });
   }
