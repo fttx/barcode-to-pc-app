@@ -118,9 +118,7 @@ export class Settings {
   getDefaultServer(): Promise<ServerModel> {
     return new Promise((resolve, reject) => {
       this.storage.get(Settings.DEFAULT_SERVER).then((data) => {
-        console.log('getDefaultServer()', data)
         if (data && data != '' && data != 'null') {
-          console.log('resolve')
           data = JSON.parse(data);
           let server = new ServerModel(data.address, data.name);
           resolve(server);
@@ -194,7 +192,6 @@ export class Settings {
   getSavedServers(): Promise<ServerModel[]> {
     return new Promise((resolve, reject) => {
       return this.storage.get(Settings.MANUALLY_ADDED).then(data => {
-        console.log("DATA", data);
         if (data) {
           let servers = JSON.parse(data).map(x => new ServerModel(x.address, x.name));
           resolve(servers)
