@@ -13,6 +13,8 @@ import { ServerModel } from './../models/server.model';
 import { Config } from './config';
 import { LastToastProvider } from './last-toast/last-toast';
 import { HelpPage } from '../pages/help/help';
+import { SemVer } from 'semver';
+import { AppVersion } from '@ionic-native/app-version';
 
 /*
   Generated class for the Server provider.
@@ -57,6 +59,7 @@ export class ServerProvider {
     public platform: Platform,
     public device: Device,
     public events: Events,
+    private appVersion: AppVersion,
   ) {
 
   }
@@ -165,10 +168,21 @@ export class ServerProvider {
         if (this.fallBackTimeout) clearTimeout(this.fallBackTimeout);
         // fallBack for old server versions        
 
+        // Given a version number MAJOR.MINOR.PATCH, increment the:
+        // MAJOR version when you make incompatible API changes,
+        // MINOR version when you add functionality in a backwards-compatible manner
+        // PATCH version when you make backwards-compatible bug fixes.
+        // See: https://semver.org/
         let heloResponse: responseModelHelo = messageData;
-        if (heloResponse.version != Config.REQUIRED_SERVER_VERSION) {
-          this.onVersionMismatch();
-        }
+
+        this.appVersion.getVersionNumber().then(appVersionString => {
+          let appVersion = new SemVer(appVersionString);
+          let serverVersion = new SemVer(heloResponse.version);
+          if (appVersion.major != serverVersion.major) {
+            this.onVersionMismatch();
+          }
+        });
+
         this.settings.setQuantityEnabled(heloResponse.quantityEnabled);
       } else if (messageData.action == responseModel.ACTION_PONG) {
         //console.log('[S]: WS: pong received, stop waiting 5 secs')
