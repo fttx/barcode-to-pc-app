@@ -27,6 +27,7 @@ export class CameraScannerProvider {
   private barcodeFormats;
   private quantyEnabled: boolean;
   private quantityType;
+  private continueModeTimeout: number;
 
   constructor(
     private alertCtrl: AlertController,
@@ -41,12 +42,12 @@ export class CameraScannerProvider {
     this.continuousMode = continuousMode;
     return new Observable(observer => {
       this.observer = observer;
-      Promise.join(this.settings.getPreferFrontCamera(), this.settings.getEnableLimitBarcodeFormats(), this.settings.getBarcodeFormats(), this.settings.getQuantityEnabled(), this.settings.getQuantityType(),
-        (preferFrontCamera, enableLimitBarcodeFormats, barcodeFormats, quantyEnabled, quantityType) => {
+      Promise.join(this.settings.getPreferFrontCamera(), this.settings.getEnableLimitBarcodeFormats(), this.settings.getBarcodeFormats(), this.settings.getQuantityEnabled(), this.settings.getQuantityType(), this.settings.getContinueModeTimeout(),
+        (preferFrontCamera, enableLimitBarcodeFormats, barcodeFormats, quantyEnabled, quantityType, continueModeTimeout) => {
           if (preferFrontCamera == null || !preferFrontCamera) preferFrontCamera = false;
 
           let pluginContinuousMode = continuousMode; // if there is a quantity, the continuos mode is disabled to allow the webview to insert a value
-          if (quantyEnabled || !this.platform.is('android')) {
+          if (quantyEnabled || !this.platform.is('android') || continueModeTimeout) { // this condition must be reflected inside this.nextScan() method in order to reopen the camera when it's in continuos mode+dialog
             pluginContinuousMode = false;
           }
 
@@ -66,11 +67,11 @@ export class CameraScannerProvider {
                 .join(',');
           }
 
-          console.log('scanning with formats: ', pluginOptions.formats)
           this.barcodeFormats = barcodeFormats;
           this.quantyEnabled = quantyEnabled;
           this.quantityType = quantityType;
           this.pluginOptions = pluginOptions;
+          this.continueModeTimeout = continueModeTimeout;
           this.pluginScan();
         });
     });
@@ -130,6 +131,7 @@ export class CameraScannerProvider {
     });
   }
 
+  // this function can be shorter, but this way is more readable
   private nextScan(scan) {
     this.observer.next(scan);
 
@@ -142,7 +144,9 @@ export class CameraScannerProvider {
       }
     } else {
       if (this.platform.is('android')) {
-        if (!this.continuousMode) {
+        if (this.continuousMode && this.continueModeTimeout) {
+          this.showAddMoreDialog();
+        } else if (!this.continuousMode) {
           this.observer.complete();
         }
       } else {
@@ -153,8 +157,6 @@ export class CameraScannerProvider {
         }
       }
     }
-
-    // this function can be shorter, but this way is more readable
   }
 
   showAddMoreDialog() {

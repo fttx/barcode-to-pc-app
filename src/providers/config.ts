@@ -21,7 +21,7 @@ export class Config {
   public static EMAIL_ORDERS = 'orders@fastspring.com';
   public static DEFAULT_CONTINUE_MODE_TIMEOUT = 0;
   public static NO_RUNNINGS_BEFORE_SHOW_RATING = 5;
-  public static NO_RUNNINGS_BEFORE_SHOW_VOLUME = 2;
+  public static NO_RUNNINGS_BEFORE_SHOW_SOUND_FEEDBACK_OR_DIALOG = 2;
   public static SHOW_CANNOT_FIND_DIALOG_TIMEOUT = 90 * 1000;
   public static DEFAULT_REPEAT_INVERVAL = 500;
   public static GOOGLE_ANALYTICS_ID = 'UA-87867313-1';

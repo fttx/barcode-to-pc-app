@@ -31,6 +31,7 @@ export class Settings {
   private static ENABLE_LIMIT_BARCODE_FORMATS = 'enable_limit_barcode_formats';
   private static QUANTITY_ENABLED = 'quantity_enabled';
   private static QUANTITY_TYPE = 'quantity_type';
+  private static SOUND_FEEDBACK_OR_DIALOG_SHOWN = 'sound_feedback_or_dialog_shown';
 
   constructor(
     public storage: Storage,
@@ -176,6 +177,14 @@ export class Settings {
 
   getRated(): Promise<boolean> {
     return this.storage.get(Settings.RATED);
+  }
+
+  setSoundFeedbackOrDialogShown(soundFeedbackOrDialogShown: boolean) {
+    return this.storage.set(Settings.SOUND_FEEDBACK_OR_DIALOG_SHOWN, soundFeedbackOrDialogShown);
+  }
+
+  getSoundFeedbackOrDialogShown(): Promise<boolean> {
+    return this.storage.get(Settings.SOUND_FEEDBACK_OR_DIALOG_SHOWN);
   }
 
   setSavedServers(servers: ServerModel[]) {
