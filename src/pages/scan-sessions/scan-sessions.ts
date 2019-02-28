@@ -109,7 +109,7 @@ export class ScanSessionsPage {
   }
 
   ionViewDidLoad() {
-
+    this.utils.showEnableWifiDialog();
   }
 
   ionViewDidLeave() {

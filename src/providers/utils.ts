@@ -4,6 +4,7 @@ import { Injectable } from '@angular/core';
 import { AlertController } from 'ionic-angular';
 
 import { barcodeFormatModel } from '../models/barcode-format.model';
+import { Network } from '@ionic-native/network';
 
 /*
   Generated class for the Utils provider.
@@ -13,7 +14,10 @@ import { barcodeFormatModel } from '../models/barcode-format.model';
 */
 @Injectable()
 export class Utils {
+  private enableWifiShown = false;
+
   constructor(
+    private network: Network,
     private alertCtrl: AlertController,
   ) { }
 
@@ -295,5 +299,21 @@ export class Utils {
         text: 'Ok', role: 'cancel'
       }]
     }).present();
+  }
+
+  showEnableWifiDialog() {
+    if (this.network.type != 'ethernet' && this.network.type != 'wifi' && !this.enableWifiShown) {
+      this.alertCtrl.create({
+        title: 'Wi-Fi is disabled',
+        message: 'Please connect your smartphone to a Wi-Fi network (or ethernet)',
+        buttons: [
+          {
+            text: 'Ok',
+            handler: () => { }
+          }
+        ]
+      }).present();
+      this.enableWifiShown = true;
+    }
   }
 }

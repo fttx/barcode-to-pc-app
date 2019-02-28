@@ -1,7 +1,6 @@
 import { ServerModel } from './../../models/server.model';
 import { ScanModel } from './../../models/scan.model';
 import { Component } from '@angular/core';
-import { Network } from '@ionic-native/network';
 import { NavController, Slides, ViewController, AlertController } from 'ionic-angular';
 import { ViewChild, NgZone } from '@angular/core';
 import { ScanSessionsPage } from '../scan-sessions/scan-sessions';
@@ -11,6 +10,7 @@ import { Settings } from '../../providers/settings'
 import { GoogleAnalytics } from '@ionic-native/google-analytics';
 import { BarcodeScanner } from '@fttx/barcode-scanner';
 import { wsEvent } from '../../models/ws-event.model';
+import { Utils } from '../../providers/utils';
 
 /*
   Generated class for the Welcome page.
@@ -28,7 +28,6 @@ export class WelcomePage {
   public connecting = true;
   public connected = false;
 
-  private enableWifiShown = false;
   private troubleshootingDialogTimeout = null;
   public lastServerAttempted: ServerModel;
 
@@ -41,7 +40,7 @@ export class WelcomePage {
     private ngZone: NgZone,
     private ga: GoogleAnalytics,
     private barcodeScanner: BarcodeScanner,
-    private network: Network,
+    private utils: Utils,
   ) { }
 
   ionViewDidEnter() {
@@ -118,20 +117,7 @@ export class WelcomePage {
     this.showNext = !this.slider.isEnd();
     if (this.slider.isEnd()) {
       this.scheduleShowTroubleshootingDialog(40);
-
-      if (this.network.type != 'ethernet' && this.network.type != 'wifi' && !this.enableWifiShown) {
-        this.alertCtrl.create({
-          title: 'Wi-Fi is disabled',
-          message: 'Please connect your smartphone to a Wi-Fi network (or ethernet)',
-          buttons: [
-            {
-              text: 'Ok',
-              handler: () => { }
-            }
-          ]
-        }).present();
-        this.enableWifiShown = true;
-      }
+      this.utils.showEnableWifiDialog();
     }
   }
 

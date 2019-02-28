@@ -9,6 +9,7 @@ import { Config } from '../../providers/config';
 import { ServerProvider } from '../../providers/server';
 import { Settings } from '../../providers/settings';
 import { ServerModel } from './../../models/server.model';
+import { Utils } from '../../providers/utils';
 
 
 /*
@@ -39,6 +40,7 @@ export class SelectServerPage {
     private settings: Settings,
     private ga: GoogleAnalytics,
     private barcodeScanner: BarcodeScanner,
+    private utils: Utils,
   ) { }
 
   public isVisible = false;
@@ -57,6 +59,8 @@ export class SelectServerPage {
       console.log("SELSER: default server present in localstorage: " + defaultServer.address + " connecting...")
       // this.connect(defaultServer);
     });
+
+    this.utils.showEnableWifiDialog();
   }
 
   ionViewDidLeave() {
