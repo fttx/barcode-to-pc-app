@@ -114,6 +114,17 @@ export class ScanSessionPage {
     if (this.isNewSession) { // se ho premuto + su scan-sessions allora posso già iniziare la scansione
       this.scan();
     }
+
+    // It will be shown only once because ioViewDidLoad is always called only once
+    this.settings.getNoRunnings().then(runnings => {
+      if (runnings == Config.NO_RUNNINGS_BEFORE_SHOW_VOLUME) {
+        this.alertCtrl.create({
+          title: 'Adjust your volume',
+          message: 'If you want to hear a beep sound after the scan, raise your Media volume and also make you sure that the Ringer volume is not 0.',
+          buttons: [{ text: 'Ok', role: 'Ok', handler: () => { } }]
+        }).present();
+      }
+    })
   }
 
   ionViewDidLeave() {
