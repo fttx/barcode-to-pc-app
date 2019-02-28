@@ -46,12 +46,9 @@ export class ArchivedPage {
     this.scanSessionsStorage.getArchivedScanSessions().then(data => {
       this.archivedScanSessions = data;
     });
-
-    console.log('ionViewDidEnter');
   }
 
   ionViewDidLoad() {
-    console.log('ionViewDidLoad ArchivedPage');
   }
 
   onScanSessionClick(scanSession, index: number) {
