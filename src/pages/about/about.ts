@@ -11,7 +11,6 @@ export class AboutPage {
 
   public websiteUrl = Config.URL_WEBSITE;
   public websiteName = Config.WEBSITE_NAME;
-  public requiredServerVersion = Config.REQUIRED_SERVER_VERSION;
   public version = "";
 
 
@@ -28,6 +27,11 @@ export class AboutPage {
     this.appVersion.getVersionNumber().then(version => this.version = version);
   }
 
+  onSupportClick() {
+    window.open('mailto:' + Config.EMAIL_SUPPORT, '_system');
+  }
 
-
+  getSupportEmail() {
+    return Config.EMAIL_SUPPORT;
+  }
 }
