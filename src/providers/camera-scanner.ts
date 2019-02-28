@@ -1,7 +1,6 @@
 import { Injectable, NgZone } from '@angular/core';
 import { BarcodeScanner, BarcodeScannerOptions } from '@fttx/barcode-scanner';
 import { GoogleAnalytics } from '@ionic-native/google-analytics';
-import { Promise } from 'bluebird';
 import { AlertController, Platform } from 'ionic-angular';
 import { Subscriber } from 'rxjs';
 import { Observable } from 'rxjs/Observable';
@@ -42,8 +41,15 @@ export class CameraScannerProvider {
     this.continuousMode = continuousMode;
     return new Observable(observer => {
       this.observer = observer;
-      Promise.join(this.settings.getPreferFrontCamera(), this.settings.getEnableLimitBarcodeFormats(), this.settings.getBarcodeFormats(), this.settings.getQuantityEnabled(), this.settings.getQuantityType(), this.settings.getContinueModeTimeout(),
-        (preferFrontCamera, enableLimitBarcodeFormats, barcodeFormats, quantyEnabled, quantityType, continueModeTimeout) => {
+      Promise.all([this.settings.getPreferFrontCamera(), this.settings.getEnableLimitBarcodeFormats(), this.settings.getBarcodeFormats(), this.settings.getQuantityEnabled(), this.settings.getQuantityType(), this.settings.getContinueModeTimeout()]).then(
+        result => {
+          let preferFrontCamera = result[0];
+          let enableLimitBarcodeFormats = result[1];
+          let barcodeFormats = result[2];
+          let quantyEnabled = result[3];
+          let quantityType = result[4];
+          let continueModeTimeout = result[5];
+          
           if (preferFrontCamera == null || !preferFrontCamera) preferFrontCamera = false;
 
           let pluginContinuousMode = continuousMode; // if there is a quantity, the continuos mode is disabled to allow the webview to insert a value

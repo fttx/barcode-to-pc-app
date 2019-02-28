@@ -21,6 +21,7 @@ import { Config } from './../../providers/config';
 import { Settings } from './../../providers/settings';
 import { EditScanSessionPage } from './edit-scan-session/edit-scan-session';
 import { SelectScanningModePage } from './select-scanning-mode/select-scanning-mode';
+import { SettingsPage } from '../settings/settings';
 
 /*
   Generated class for the Scan page.
@@ -113,18 +114,25 @@ export class ScanSessionPage {
   ionViewDidLoad() {
     if (this.isNewSession) { // se ho premuto + su scan-sessions allora posso già iniziare la scansione
       this.scan();
-    }
+    } else {
+      // It will be shown only once because ioViewDidLoad is always called only once
+      Promise.join(this.settings.getNoRunnings(), this.settings.getSoundFeedbackOrDialogShown(), (runnings, soundFeedbackOrDialogShown) => {
+        console.log(runnings, soundFeedbackOrDialogShown)
+        if (!soundFeedbackOrDialogShown && runnings >= Config.NO_RUNNINGS_BEFORE_SHOW_SOUND_FEEDBACK_OR_DIALOG) {
+          this.alertCtrl.create({
+            title: 'Beep sound',
+            message: 'If you want to hear a beep sound after the scan, raise your Media volume <b>and</b> also make you sure that the Ringer volume is not 0. <br><br>If you want to wait a certain amount of time between a scan and another you can set a <b>timeout</b> in the Settings page',
+            buttons: [
+              { text: 'Open Settings', handler: () => { this.navCtrl.push(SettingsPage) } },
+              { text: 'Show later', role: 'cancel', handler: () => { } },
+              {
+                text: 'Ok, I understand', role: 'cancel', handler: () => { this.settings.setSoundFeedbackOrDialogShown(true); }
+              }]
+          }).present();
 
-    // It will be shown only once because ioViewDidLoad is always called only once
-    this.settings.getNoRunnings().then(runnings => {
-      if (runnings == Config.NO_RUNNINGS_BEFORE_SHOW_VOLUME) {
-        this.alertCtrl.create({
-          title: 'Adjust your volume',
-          message: 'If you want to hear a beep sound after the scan, raise your Media volume and also make you sure that the Ringer volume is not 0.',
-          buttons: [{ text: 'Ok', role: 'Ok', handler: () => { } }]
-        }).present();
-      }
-    })
+        }
+      })
+    }
   }
 
   ionViewDidLeave() {
