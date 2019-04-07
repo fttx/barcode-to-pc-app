@@ -5,23 +5,21 @@ import { NativeAudio } from '@ionic-native/native-audio';
 import { SocialSharing } from '@ionic-native/social-sharing';
 import { Promise } from 'bluebird';
 import { ActionSheetController, AlertController, ModalController, NavController, NavParams } from 'ionic-angular';
-
-import {
-  requestModelDeleteScan,
-  requestModelPutScanSessions,
-  requestModelUpdateScanSession,
-} from '../../models/request.model';
+import { OutputProfileModel } from '../../models/output-profile.model';
+import { requestModelDeleteScan, requestModelPutScanSessions, requestModelUpdateScanSession } from '../../models/request.model';
 import { responseModel, responseModelPutScanAck } from '../../models/response.model';
 import { ScanSessionModel } from '../../models/scan-session.model';
 import { ScanModel } from '../../models/scan.model';
-import { CameraScannerProvider } from '../../providers/camera-scanner';
+import { ScanProvider } from '../../providers/scan';
 import { ScanSessionsStorage } from '../../providers/scan-sessions-storage';
 import { ServerProvider } from '../../providers/server';
+import { SettingsPage } from '../settings/settings';
 import { Config } from './../../providers/config';
 import { Settings } from './../../providers/settings';
 import { EditScanSessionPage } from './edit-scan-session/edit-scan-session';
 import { SelectScanningModePage } from './select-scanning-mode/select-scanning-mode';
-import { SettingsPage } from '../settings/settings';
+import { Observable, Subscriber } from 'rxjs';
+
 
 /*
   Generated class for the Scan page.
@@ -48,7 +46,7 @@ export class ScanSessionPage {
   public keyboardBuffer = '';
   public keyboardInputFocussed = false;
   private isSetNameDialogOpen = false;
-  private isQuantityDialogOpen = false;
+  private manualInputSubscriber: Subscriber<string>;
 
   constructor(
     navParams: NavParams,
@@ -61,10 +59,10 @@ export class ScanSessionPage {
     private ga: GoogleAnalytics,
     private settings: Settings,
     private socialSharing: SocialSharing,
-    private cameraScannerProvider: CameraScannerProvider,
     private nativeAudio: NativeAudio,
     private ngZone: NgZone,
     private device: Device,
+    private scanProvider: ScanProvider,
   ) {
     this.scanSession = navParams.get('scanSession');
     this.isNewSession = navParams.get('isNewSession');
@@ -75,7 +73,7 @@ export class ScanSessionPage {
 
   @HostListener('window:keyup', ['$event'])
   keyEvent(event: KeyboardEvent) {
-    if (this.isSetNameDialogOpen || this.isQuantityDialogOpen || this.cameraScannerProvider.isQuantityDialogOpen) {
+    if (this.isSetNameDialogOpen || this.scanProvider.isQuantityDialogOpen) {
       return;
     }
 
@@ -107,6 +105,12 @@ export class ScanSessionPage {
           }
         }
       });
+    })
+
+    this.scanProvider.start(SelectScanningModePage.SCAN_MODE_ENTER_MAUALLY, new Observable<string>(subscriber => {
+      this.manualInputSubscriber = subscriber;
+    })).subscribe(scan => {
+      this.saveAndSendScan(scan);
     })
   }
 
@@ -154,22 +158,8 @@ export class ScanSessionPage {
         return;
       }
 
-      let isContinueMode = (mode == SelectScanningModePage.SCAN_MODE_CONTINUE);
-      let isSingleMode = (mode == SelectScanningModePage.SCAN_MODE_SINGLE);
-      if (isSingleMode || isContinueMode) {
-        this.cameraScannerProvider.scan(isContinueMode).subscribe(
-          (scan: ScanModel) => {
-            this.saveAndSendScan(scan);
-          },
-          err => { },
-          () => { // on complete
-            if (this.isNewSession && this.scanSession.scannings.length != 0) {
-              this.setName();
-            } else if (this.scanSession.scannings.length == 0) {
-              this.navCtrl.pop();
-            }
-          });
-      } else if (mode == SelectScanningModePage.SCAN_MODE_ENTER_MAUALLY) {
+      // the manual mode is alway starterted in the ionViewDidEnter event, so we just need to focus the input box
+      if (mode == SelectScanningModePage.SCAN_MODE_ENTER_MAUALLY) {
         if (this.isNewSession) {
           this.setName().then(() => {
             this.keyboardInput.setFocus();
@@ -177,7 +167,21 @@ export class ScanSessionPage {
         } else {
           setTimeout(() => this.keyboardInput.setFocus(), 500)
         }
+        return;
       }
+
+      // what happens if the user inserts a manual input text without initializating a scan procedure?
+      this.scanProvider.start(mode).subscribe(
+        scan => this.saveAndSendScan(scan),
+        err => this.navCtrl.pop(),
+        () => { // onComplete
+          if (this.isNewSession && this.scanSession.scannings.length != 0) {
+            this.setName();
+          } else if (this.scanSession.scannings.length == 0) {
+            this.navCtrl.pop();
+          }
+        }
+      )
     });
     selectScanningModeModal.present();
   }
@@ -433,51 +437,8 @@ export class ScanSessionPage {
       return;
     }
 
-    let scan = new ScanModel();
-    let now = new Date().getTime();
-    scan.cancelled = false;
-    scan.id = now;
-    scan.date = now;
-    scan.repeated = false;
-    scan.text = this.keyboardBuffer;
+    this.manualInputSubscriber.next(this.keyboardBuffer);
     this.keyboardBuffer = '';
-
-    Promise.join(this.settings.getQuantityEnabled(), this.settings.getQuantityType(), (quantyEnabled, quantityType) => {
-      let done = () => {
-        this.saveAndSendScan(scan);
-      }
-      if (quantyEnabled) {
-        // This dialog is shown only in the manual mode
-        // camera-scanner.ts contains another quantity dialog (it's slightly
-        // different, it's not the same dialog)
-        let alert = this.alertCtrl.create({
-          title: 'Enter quantity value', // message: 'Inse',
-          enableBackdropDismiss: false,
-          inputs: [{ name: 'quantity', type: quantityType, placeholder: quantityType == 'number' ? '(Default is 1, press Ok to insert it)' : 'Eg. ten' }],
-          buttons: [{
-            text: 'Ok', handler: data => {
-              if (data.quantity) {
-                scan.quantity = data.quantity;
-              } else if (quantityType == 'number') {
-                scan.quantity = '1';
-              }
-              done();
-            }
-          }, {
-            role: 'cancel', text: ' Cancel', handler: () => {
-              this.navCtrl.pop();
-            }
-          }]
-        });
-        this.isQuantityDialogOpen = true;
-        alert.onDidDismiss(() => {
-          this.isQuantityDialogOpen = false;
-        })
-        alert.present();
-      } else {
-        done();
-      }
-    })
   }
 
   private repeatAll(startFrom = -1) {
@@ -507,5 +468,9 @@ export class ScanSessionPage {
     let neverScanned = !this.scanSession || (this.scanSession.scannings.length == 0 && this.isNewSession);
     let hasBeenRenamed = this.lastScanSessionName && this.lastScanSessionName != this.scanSession.name;
     return neverScanned && !hasBeenRenamed;
+  }
+
+  getScanText(scan) {
+    return ScanModel.ToString(scan);
   }
 }

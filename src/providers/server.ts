@@ -1,20 +1,20 @@
 import { Injectable, NgZone } from '@angular/core';
+import { AppVersion } from '@ionic-native/app-version';
 import { Device } from '@ionic-native/device';
 import { Zeroconf } from '@ionic-native/zeroconf';
-import { Alert, AlertController, Platform, Events, } from 'ionic-angular';
+import { Alert, AlertController, Events, Platform } from 'ionic-angular';
 import { Observable, Subject, Subscription } from 'rxjs';
-
+import { SemVer } from 'semver';
 import { discoveryResultModel } from '../models/discovery-result';
 import { requestModel, requestModelGetVersion, requestModelHelo, requestModelPing } from '../models/request.model';
-import { responseModel, responseModelEnableQuantity, responseModelHelo, responseModelPopup, responseModelKick } from '../models/response.model';
+import { responseModel, responseModelHelo, responseModelKick, responseModelPopup, responseModelUpdateOutputProfiles } from '../models/response.model';
 import { wsEvent } from '../models/ws-event.model';
+import { HelpPage } from '../pages/help/help';
 import { Settings } from '../providers/settings';
 import { ServerModel } from './../models/server.model';
 import { Config } from './config';
 import { LastToastProvider } from './last-toast/last-toast';
-import { HelpPage } from '../pages/help/help';
-import { SemVer } from 'semver';
-import { AppVersion } from '@ionic-native/app-version';
+
 
 /*
   Generated class for the Server provider.
@@ -183,7 +183,7 @@ export class ServerProvider {
           }
         });
 
-        this.settings.setQuantityEnabled(heloResponse.quantityEnabled);
+        this.settings.setOutputProfiles(heloResponse.outputProfiles);
       } else if (messageData.action == responseModel.ACTION_PONG) {
         //console.log('[S]: WS: pong received, stop waiting 5 secs')
         if (this.pongTimeout) clearTimeout(this.pongTimeout);
@@ -198,9 +198,9 @@ export class ServerProvider {
           buttons: ['Ok']
         });
         this.popup.present();
-      } else if (messageData.action == responseModel.ACTION_ENABLE_QUANTITY) {
-        let responseModelEnableQuantity: responseModelEnableQuantity = messageData;
-        this.settings.setQuantityEnabled(responseModelEnableQuantity.enable);
+      } else if (messageData.action == responseModel.UPDATE_OUTPUT_PROFILES) {
+        let responseModelUpdateOutputProfiles: responseModelUpdateOutputProfiles = messageData;
+        this.settings.setOutputProfiles(responseModelUpdateOutputProfiles.outputProfiles);
       } else if (messageData.action == responseModel.ACTION_GET_VERSION) {
         // fallBack for old server versions
         console.log('FallBack: old getVersion received, showing version mismatch');

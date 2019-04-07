@@ -1,9 +1,10 @@
 import { Injectable, NgZone } from '@angular/core';
 import { Device } from '@ionic-native/device';
+import { SplashScreen } from '@ionic-native/splash-screen';
 import { Storage } from '@ionic/storage';
 import { barcodeFormatModel } from '../models/barcode-format.model';
+import { OutputProfileModel } from '../models/output-profile.model';
 import { ServerModel } from '../models/server.model';
-import { SplashScreen } from '@ionic-native/splash-screen';
 
 
 /*
@@ -29,7 +30,7 @@ export class Settings {
   private static LAST_VERSION = 'last_version';
   private static BARCODE_FORMATS = 'barcode_formats';
   private static ENABLE_LIMIT_BARCODE_FORMATS = 'enable_limit_barcode_formats';
-  private static QUANTITY_ENABLED = 'quantity_enabled';
+  private static OUTPUT_PROFILES = 'output_profiles';
   private static QUANTITY_TYPE = 'quantity_type';
   private static SOUND_FEEDBACK_OR_DIALOG_SHOWN = 'sound_feedback_or_dialog_shown';
 
@@ -293,12 +294,23 @@ export class Settings {
     });
   }
 
-  setQuantityEnabled(enabled: boolean) {
-    return this.storage.set(Settings.QUANTITY_ENABLED, enabled);
+  setOutputProfiles(outputProfiles: OutputProfileModel[]) {
+    return this.storage.set(Settings.OUTPUT_PROFILES, outputProfiles);
   }
 
-  getQuantityEnabled(): Promise<boolean> {
-    return this.storage.get(Settings.QUANTITY_ENABLED);
+  getOutputProfiles(): Promise<OutputProfileModel[]> {
+    return this.storage.get(Settings.OUTPUT_PROFILES).then(outputProfile => {
+      if (!outputProfile) {
+        let defaultOutputProfile = [
+          {
+            name: "Profile 1",
+            outputBlocks: [{ name: 'BARCODE', value: 'barcode', type: 'barcode' }, { name: 'ENTER', value: 'enter', type: 'key' }]
+          },
+        ];
+        return defaultOutputProfile;
+      }
+      return outputProfile;
+    });
   }
 
   setQuantityType(type: string) {

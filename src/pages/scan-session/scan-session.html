@@ -44,7 +44,7 @@
 						<ion-icon [name]="scan.ack ? 'checkmark-circle' : 'alert'" [style.color]="scan.ack ? 'green' : 'red'"></ion-icon>
 					</ion-col>
 					<ion-col>
-						{{ scan.text }}
+						{{ getScanText(scan) }}
 					</ion-col>
 				</ion-row>
 			</ion-grid>

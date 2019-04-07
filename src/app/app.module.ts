@@ -28,8 +28,8 @@ import { ScanSessionsPage } from '../pages/scan-sessions/scan-sessions';
 import { SelectServerPage } from '../pages/select-server/select-server';
 import { SettingsPage } from '../pages/settings/settings';
 import { WelcomePage } from '../pages/welcome/welcome';
-import { CameraScannerProvider } from '../providers/camera-scanner';
 import { LastToastProvider } from '../providers/last-toast/last-toast';
+import { ScanProvider } from '../providers/scan';
 import { ScanSessionsStorage } from '../providers/scan-sessions-storage';
 import { ServerProvider } from '../providers/server';
 import { Settings } from '../providers/settings';
@@ -84,7 +84,7 @@ import { MyApp } from './app.component';
   ],
   providers: [
     ServerProvider,
-    CameraScannerProvider,
+    ScanProvider,
     Utils,
     Settings,
     ScanSessionsStorage,
