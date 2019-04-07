@@ -279,7 +279,7 @@ export class ScanProvider {
 
     private async getOutputProfile(): Promise<OutputProfileModel> {
         let profiles = await this.settings.getOutputProfiles();
-        return new Promise((resolve, reject) => {
+        return new Promise<OutputProfileModel>((resolve, reject) => {
             // Let the user chose through the UI
             resolve(profiles[0]);
         });
