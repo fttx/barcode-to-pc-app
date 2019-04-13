@@ -42,11 +42,11 @@ export class ScanProvider {
      * This function takes care to collect the data required from the native barcode-scanner plugin,
      * or from the user.
      * 
-     * It returns an Observable that will spit out a ScanModel everytime an OutputProfile is completed.
+     * It returns an Observable that will output a ScanModel everytime an OutputProfile is completed.
      * 
      * Whenever for whatever reason the scan process ends or is interrupted, it will send an "complete" event
      * 
-     * @param mode CONTINUE, SINGLE, MANUAL
+     * @param mode CONTINUE, SINGLE or MANUAL
      * @param manualInputObservable 
      */
     start(mode, manualInputObservable: Observable<string> = null): Observable<ScanModel> {

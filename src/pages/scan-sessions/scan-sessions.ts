@@ -61,7 +61,11 @@ export class ScanSessionsPage {
             scan.id = scanDate;
             scan.date = scanDate;
             scan.repeated = false;
-            scan.text = Math.floor(Math.random() * 99999999999) + ''
+            scan.outputBlocks = [
+              { name: 'BARCODE', value: j + ' - ' + Math.floor(Math.random() * 99999999999) + '', type: 'barcode' }, 
+              { name: 'ENTER', value: 'tab', type: 'key' },
+              { name: 'QUANTITY', value: '5', type: 'variable' },
+              { name: 'ENTER', value: 'enter', type: 'key' }],
             scannings.push(scan);
             scanDate += Math.floor(Math.random() * 2000) + 1500;
           }
