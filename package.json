@@ -1,7 +1,7 @@
 {
   "name": "barcode-to-pc-app",
   "author": "Filippo Tortomasi",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "homepage": "https://barcodetopc.com/",
   "private": true,
   "scripts": {
@@ -65,7 +65,7 @@
     "marked": "^0.5.0",
     "ngx-markdown": "^6.1.0",
     "rxjs": "5.5.11",
-    "semver": "^5.6.0",
+    "semver": "^5.7.0",
     "sw-toolbox": "3.6.0",
     "zone.js": "0.8.26"
   },

@@ -31,6 +31,7 @@ export class Settings {
   private static BARCODE_FORMATS = 'barcode_formats';
   private static ENABLE_LIMIT_BARCODE_FORMATS = 'enable_limit_barcode_formats';
   private static OUTPUT_PROFILES = 'output_profiles';
+  private static QUANTITY_ENABLED = 'quantity_enabled';
   private static QUANTITY_TYPE = 'quantity_type';
   private static SOUND_FEEDBACK_OR_DIALOG_SHOWN = 'sound_feedback_or_dialog_shown';
 
@@ -40,73 +41,6 @@ export class Settings {
     public ngZone: NgZone,
     public splashScreen: SplashScreen,
   ) {
-    let indexeddb = new Storage({ driverOrder: ['indexeddb'] });
-
-    Promise.all([this.storage.ready(), indexeddb.ready()]).then(result => {
-      this.storage.get(Settings.UPGRADED_TO_SQLITE).then(upgradedToSqlite => {
-        // alert('[STORAGE]  storage.get(upgraded) = ' + upgradedToSqlite)
-        upgradedToSqlite = false;
-        if (!upgradedToSqlite) {
-          indexeddb.get("scan_sessions").then(oldScanSessions => {
-            // alert('[STORAGE]  indexeddb.get(upgraded) = ' + oldScanSessions)
-
-            // this function is required to keep both old and new scan sessions
-            let doMerge = (newScanSessions = null) => {
-              // alert('typeof oldScanSessions = ' + typeof (oldScanSessions) + ' ' + oldScanSessions)
-              // alert('typeof newScanSessions = ' + typeof (newScanSessions) + ' ' + newScanSessions)
-
-              let resultArray = [];
-              let resultStr = '';
-              if (oldScanSessions) {
-                resultArray.push(...JSON.parse(oldScanSessions))
-              }
-              if (newScanSessions) {
-                resultArray.push(...JSON.parse(newScanSessions))
-              }
-              resultStr = JSON.stringify(resultArray);
-              // alert('resultStr = ' + resultStr);
-
-              // JSON PARSE, [].PUSH(ARRAY1), [].PUSH(ARRAY2)
-              // Dopo di che provare v2.0.1 -> v2.0.3 -> v3.0.0
-              Promise.all([
-                this.storage.set("scan_sessions", resultStr),
-                this.storage.set(Settings.UPGRADED_TO_SQLITE, true),
-              ]).then(() => {
-                alert('Upgrading, tap OK to continue')
-                setTimeout(() => {
-                  this.ngZone.run(() => {
-                    this.splashScreen.show();
-                    window.location.reload();
-                  });
-                }, 1000)
-              })
-            }
-
-
-            this.storage.get("scan_sessions").then(newScanSessions => {
-              // alert('checking for corruption...');
-
-              let corrupted = newScanSessions && typeof (newScanSessions) != 'string';
-              if (corrupted) {
-                newScanSessions = '[]';
-                // alert('newScanSessions are corrupted, resetting. newScanSessions=[]')
-              }
-
-              if (oldScanSessions || corrupted) {
-                // alert('upgrading...');
-                doMerge(newScanSessions);
-              } else {
-                // alert('no need to upgrade');
-                this.storage.set(Settings.UPGRADED_TO_SQLITE, true);
-              }
-            })
-
-          })
-        }
-
-
-      })
-    });
   }
 
   setDefaultServer(server: ServerModel) {
@@ -159,7 +93,7 @@ export class Settings {
   }
 
   getLastVersion(): Promise<string> {
-    return this.storage.get(Settings.LAST_VERSION);
+    return this.storage.get(Settings.LAST_VERSION).then(version => version || '0.0.0');
   }
 
   setContinueModeTimeout(seconds: number) {
@@ -301,13 +235,7 @@ export class Settings {
   getOutputProfiles(): Promise<OutputProfileModel[]> {
     return this.storage.get(Settings.OUTPUT_PROFILES).then(outputProfile => {
       if (!outputProfile) {
-        let defaultOutputProfile = [
-          {
-            name: "Profile 1",
-            outputBlocks: [{ name: 'BARCODE', value: 'barcode', type: 'barcode' }, { name: 'ENTER', value: 'enter', type: 'key' }]
-          },
-        ];
-        return defaultOutputProfile;
+        return this.generateDefaultOutputProfiles();
       }
       return outputProfile;
     });
@@ -319,5 +247,61 @@ export class Settings {
 
   getQuantityType(): Promise<string> {
     return this.storage.get(Settings.QUANTITY_TYPE);
+  }
+
+  /**
+   * Generates the default OuputProfile based on the QuantityEnabled settings,
+   * TODO: In the future versions it should return only a BARCODE + ENTER value,
+   * remove the getQuantityEnabled part.
+   */
+  private generateDefaultOutputProfiles(): Promise<OutputProfileModel[]> {
+    return new Promise((resolve, reject) => {
+      /**
+       * @deprecated
+       */
+      this.getQuantityEnabled().then(quantityEnabled => {
+        if (quantityEnabled) {
+          resolve([{
+            name: "Profile 1",
+            outputBlocks: [
+              { name: 'BARCODE', value: 'barcode', type: 'barcode' },
+              { name: 'TAB', value: 'tab', type: 'key' },
+              { name: 'QUANTITY', value: 'quantity', type: 'variable' },
+              { name: 'ENTER', value: 'enter', type: 'key' },
+            ]
+          }]);
+        } else {
+          // keep only this
+          resolve([{
+            name: "Profile 1",
+            outputBlocks: [{ name: 'BARCODE', value: 'barcode', type: 'barcode' }, { name: 'ENTER', value: 'enter', type: 'key' }]
+          }]);
+        }
+      })
+    })
+  }
+
+  /**
+   * @deprecated Use OutputProfiles
+   * This method is called from the HELO response and whenever a 
+   * new enableQuantity response is received
+   */
+  setQuantityEnabled(enabled: boolean) {
+    return new Promise((resolve, reject) => {
+      this.storage.set(Settings.QUANTITY_ENABLED, enabled).then(async () => { // store QUANTITY_ENABLED anyways
+        // update the OutputProfiles accordinghly
+        let defaultOutputProfiles = await this.generateDefaultOutputProfiles();
+        this.setOutputProfiles(defaultOutputProfiles).then(() =>
+          resolve()
+        );
+      });
+    });
+  }
+
+  /**
+   * @deprecated Use OutputProfiles
+   */
+  getQuantityEnabled(): Promise<boolean> {
+    return this.storage.get(Settings.QUANTITY_ENABLED);
   }
 }

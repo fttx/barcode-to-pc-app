@@ -15,7 +15,7 @@ import { Utils } from './utils';
  * barcode scanner plugin and/or by asking the user the required data to fill
  * the data of the selected OutputProfile.
  * 
- * The only public function is start()
+ * The only public method is start()
  */
 @Injectable()
 export class ScanProvider {
@@ -44,7 +44,7 @@ export class ScanProvider {
      * 
      * It returns an Observable that will output a ScanModel everytime an OutputProfile is completed.
      * 
-     * Whenever for whatever reason the scan process ends or is interrupted, it will send an "complete" event
+     * Whenever the scan process ends or is interrupted, it will send an "complete" event
      * 
      * @param mode CONTINUE, SINGLE or MANUAL
      * @param manualInputObservable 
@@ -209,7 +209,12 @@ export class ScanProvider {
                         case 'date': outputBlock.value = new Date(scan.date).toLocaleDateString(); break;
                         case 'time': outputBlock.value = new Date(scan.date).toLocaleTimeString(); break;
                         case 'date_time': new Date(scan.date).toLocaleTimeString() + ' ' + new Date(scan.date).toLocaleDateString(); break;
-                        case 'quantity': outputBlock.value = await this.showQuantityDialog(); break; // throws cancelled
+                        case 'quantity': {
+                            outputBlock.value = await this.showQuantityDialog();  // throws (rejects) 'cancelled'
+                            // backwards compatibility
+                            scan.quantity = outputBlock.value;
+                            break;
+                        }
                     }
                     break;
                 }
@@ -274,6 +279,17 @@ export class ScanProvider {
                 case 'delay': break;
             }
         }
+
+        /**
+        * @deprecated backwards compatibility
+        */
+        scan.text = scan.outputBlocks.map(outputBlock => {
+            if (outputBlock.type == 'barcode') {
+                return outputBlock.value;
+            } else {
+                return '';
+            }
+        }).join(' ');
         return scan;
     }
 

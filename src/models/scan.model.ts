@@ -13,11 +13,12 @@ export class ScanModel {
     outputBlocks: OutputBlockModel[];
     ack: boolean;
     id: number;
+    date: number;
 
     /**
      * @deprecated use the OutputBlock instead
      */
-    date: number;
+    quantity: string;
 
     /**
      * This is static because most of the times the ScanModel object is parsed 

@@ -17,6 +17,9 @@ import { Http } from '@angular/http';
 import { Utils } from '../providers/utils';
 import { ArchivedPage } from '../pages/archived/archived';
 import { MarkdownService } from 'ngx-markdown';
+import { gt, SemVer } from 'semver';
+import { ScanSessionsStorage } from '../providers/scan-sessions-storage';
+import { ScanSessionModel } from '../models/scan-session.model';
 
 @Component({
   templateUrl: 'app.html',
@@ -27,10 +30,10 @@ export class MyApp {
   public rootPage;
 
   constructor(
-    platform: Platform,
-    splashScreen: SplashScreen,
-    statusBar: StatusBar,
-    appVersion: AppVersion,
+    public platform: Platform,
+    public splashScreen: SplashScreen,
+    public statusBar: StatusBar,
+    public appVersion: AppVersion,
     private alertCtrl: AlertController,
     private settings: Settings,
     public menuCtrl: MenuController,
@@ -39,7 +42,8 @@ export class MyApp {
     private http: Http,
     private utils: Utils,
     private markdownService: MarkdownService,
-    public events: Events
+    private scanSessionsStorage: ScanSessionsStorage,
+    public events: Events,
   ) {
     platform.ready().then(() => {
 
@@ -51,14 +55,12 @@ export class MyApp {
         }
       })
 
-      Promise.all([this.settings.getNoRunnings(), this.settings.getEverConnected(), this.settings.getAlwaysSkipWelcomePage(), this.settings.getLastVersion(), appVersion.getVersionNumber(), this.settings.getBarcodeFormats()]).then((results: any[]) => {
+      Promise.all([this.settings.getNoRunnings(), this.settings.getEverConnected(), this.settings.getAlwaysSkipWelcomePage(), this.upgrade()]).then((results: any[]) => {
         let runnings = results[0];
         let everConnected = results[1];
         let alwaysSkipWelcomePage = results[2];
-        let lastVersion = results[3];
-        let currentVersion = results[4];
-        let savedBarcodeFormats = results[5];
-
+        // results[3] => upgrade
+        
         if ((!runnings || !everConnected) && !alwaysSkipWelcomePage) {
           this.rootPage = WelcomePage;
         } else {
@@ -67,22 +69,6 @@ export class MyApp {
 
         let newRunnings = runnings || 0;
         this.settings.setNoRunnings(newRunnings + 1);
-
-        if (lastVersion != currentVersion && newRunnings > 1) {
-          this.settings.setBarcodeFormats(this.utils.updateBarcodeFormats(savedBarcodeFormats));
-
-          this.http.get(Config.URL_GITHUB_CHANGELOG).subscribe(res => {
-            let changelog = '<div style="font-size: .1em">' + this.markdownService.compile(res.text()) + '</div>';
-
-            this.alertCtrl.create({
-              title: 'The app has been updated',
-              message: changelog,
-              buttons: ['Ok'],
-              cssClass: 'changelog'
-            }).present();
-          });
-        }
-        this.settings.setLastVersion(currentVersion);
 
         splashScreen.hide();
         if (platform.is('ios')) {
@@ -132,5 +118,73 @@ export class MyApp {
     } else {
       this.menuCtrl.close();
     }
+  }
+
+  upgrade() {
+    return new Promise((resolve, reject) => {
+      Promise.all([this.settings.getLastVersion(), this.appVersion.getVersionNumber(), this.settings.getBarcodeFormats()]).then(async (results: any[]) => {
+        let lastVersion = new SemVer(results[0]);
+        let currentVersion = new SemVer(results[1]);
+        let savedBarcodeFormats = results[2];
+
+        // Given a version number MAJOR.MINOR.PATCH, increment the:
+        // MAJOR version when you make incompatible API changes,
+        // MINOR version when you add functionality in a backwards-compatible manner, and
+        // PATCH version when you make backwards-compatible bug fixes.
+        // see: https://semver.org/
+        console.log('gt(currentVersion, lastVersion)= ', gt(currentVersion, lastVersion), currentVersion, lastVersion)
+        if (gt(currentVersion, lastVersion) && lastVersion.compare('0.0.0') != 0) { // update detected (the second proposition is to exclude the first start)
+          await this.settings.setBarcodeFormats(this.utils.updateBarcodeFormats(savedBarcodeFormats));
+
+          // Changelog alert
+          let httpRes = await this.http.get(Config.URL_GITHUB_CHANGELOG).toPromise();
+          let changelog = '<div style="font-size: .1em">' + this.markdownService.compile(httpRes.text()) + '</div>';
+          this.alertCtrl.create({
+            title: 'The app has been updated',
+            message: changelog,
+            buttons: ['Ok'],
+            cssClass: 'changelog'
+          }).present();
+
+          // Upgrade output profiles
+          if (currentVersion.compare('3.1.0') == 0) {
+            let scanSessions = await this.scanSessionsStorage.getScanSessions();
+            console.log('updating... old = ', scanSessions)
+            for (let scanSession of scanSessions) {
+              for (let scan of scanSession.scannings) {
+                scan.outputBlocks = [];
+  
+                scan.outputBlocks.push({
+                  editable: false,
+                  name: 'BARCODE',
+                  value: scan.text,
+                  type: 'barcode'
+                });
+  
+                if (scan.quantity) {
+                  scan.outputBlocks.push({
+                    editable: false,
+                    name: 'QUANTITY',
+                    value: scan.quantity,
+                    type: 'variable'
+                  });
+                }
+  
+                scan.outputBlocks.push({
+                  editable: false,
+                  name: 'ENTER',
+                  value: 'enter',
+                  type: 'key'
+                });
+              }
+            }
+            console.log('updating... new = ', scanSessions)
+            await this.scanSessionsStorage.setScanSessions(scanSessions);
+          }
+        }
+        await this.settings.setLastVersion(currentVersion.version);
+        resolve(); // always resolve at the end (note the awaits!)
+      })
+    })
   }
 }

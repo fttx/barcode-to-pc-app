@@ -225,22 +225,23 @@ export class ScanSessionPage {
       }
     });
 
+    let scanString = ScanModel.ToString(scan);
     buttons.push({
       text: 'Share',
       icon: 'share',
       handler: () => {
         this.ga.trackEvent('scannings', 'share');
-        this.socialSharing.share(scan.text, "", "", "")
+        this.socialSharing.share(scanString, "", "", "")
       }
     });
 
-    if (scan.text.indexOf('http') == 0) {
+    if (scanString.indexOf('http') == 0) {
       buttons.push({
         text: 'Open in browser',
         icon: 'open',
         handler: () => {
           this.ga.trackEvent('scannings', 'open_browser');
-          window.open(scan.text, '_blank');
+          window.open(scanString, '_blank');
         }
       });
     }

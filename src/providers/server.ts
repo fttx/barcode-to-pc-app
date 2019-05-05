@@ -7,7 +7,7 @@ import { Observable, Subject, Subscription } from 'rxjs';
 import { SemVer } from 'semver';
 import { discoveryResultModel } from '../models/discovery-result';
 import { requestModel, requestModelGetVersion, requestModelHelo, requestModelPing } from '../models/request.model';
-import { responseModel, responseModelHelo, responseModelKick, responseModelPopup, responseModelUpdateOutputProfiles } from '../models/response.model';
+import { responseModel, responseModelHelo, responseModelKick, responseModelPopup, responseModelUpdateOutputProfiles, responseModelEnableQuantity } from '../models/response.model';
 import { wsEvent } from '../models/ws-event.model';
 import { HelpPage } from '../pages/help/help';
 import { Settings } from '../providers/settings';
@@ -182,6 +182,9 @@ export class ServerProvider {
             this.onVersionMismatch();
           }
         });
+        
+        // deprecated
+        this.settings.setQuantityEnabled(heloResponse.quantityEnabled);
 
         this.settings.setOutputProfiles(heloResponse.outputProfiles);
       } else if (messageData.action == responseModel.ACTION_PONG) {
@@ -206,6 +209,11 @@ export class ServerProvider {
         console.log('FallBack: old getVersion received, showing version mismatch');
         this.onVersionMismatch();
         // fallBack for old server versions                
+      } else if (messageData.action == responseModel.ACTION_ENABLE_QUANTITY) {
+        // deprecated
+        let responseModelEnableQuantity: responseModelEnableQuantity = messageData;
+        this.settings.setQuantityEnabled(responseModelEnableQuantity.enable);
+        // deprecated
       } else if (messageData.action == responseModel.ACTION_KICK) {
         let responseModelKick: responseModelKick = messageData;
         this.kickedOut = true;
