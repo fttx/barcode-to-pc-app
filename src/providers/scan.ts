@@ -14,7 +14,7 @@ import { Utils } from './utils';
  * The job of this class is to generate a ScanModel by talking with the native
  * barcode scanner plugin and/or by asking the user the required data to fill
  * the data of the selected OutputProfile.
- * 
+ *
  * The only public method is start()
  */
 @Injectable()
@@ -41,13 +41,13 @@ export class ScanProvider {
     /**
      * This function takes care to collect the data required from the native barcode-scanner plugin,
      * or from the user.
-     * 
+     *
      * It returns an Observable that will output a ScanModel everytime an OutputProfile is completed.
-     * 
+     *
      * Whenever the scan process ends or is interrupted, it will send an "complete" event
-     * 
+     *
      * @param mode CONTINUE, SINGLE or MANUAL
-     * @param manualInputObservable 
+     * @param manualInputObservable
      */
     start(mode, manualInputObservable: Observable<string> = null): Observable<ScanModel> {
         return new Observable(observer => {
@@ -56,7 +56,7 @@ export class ScanProvider {
                 this.settings.getEnableLimitBarcodeFormats(), // 1
                 this.settings.getBarcodeFormats(), // 2
                 this.settings.getQuantityType(), // 3
-                this.settings.getContinueModeTimeout(), // 4 
+                this.settings.getContinueModeTimeout(), // 4
                 this.getOutputProfile() //5
             ]).then(result => {
                 let preferFrontCamera = result[0];
@@ -100,7 +100,7 @@ export class ScanProvider {
 
                     case SelectScanningModePage.SCAN_MODE_CONTINUE:
                         // MIXED SCAN_MODE_CONTINUE
-                        // if for some reason we weren't able to start the pure mode, 
+                        // if for some reason we weren't able to start the pure mode,
                         // we must call runOutputProfile() indefinitely.
                         if (this.pluginOptions.continuousMode == false) {
                             let again = () => {
@@ -180,8 +180,8 @@ export class ScanProvider {
     }
 
     /**
-     * 
-     * @param barcodesStack contains n barcodes received from the scan plugin, 
+     *
+     * @param barcodesStack contains n barcodes received from the scan plugin,
      * where n is the number of barcodes required from the selected outputProfile
      */
     private async runOutputProfile(barcodesStack = null): Promise<ScanModel> {
@@ -241,13 +241,13 @@ export class ScanProvider {
                     delete window[scan.id];
                     // Note:
                     //     The previous solution: stringComponent.value.replace('barcode', '"' + barcode + '"');
-                    //     didn't always work because the **barcode** value is treated as a string immediately. 
+                    //     didn't always work because the **barcode** value is treated as a string immediately.
                     //
                     //  ie:
                     //
                     //     "this is
                     //        as test".replace(...)
-                    // 
+                    //
                     //     doesn't work because the first line doesn't have the ending \ character.
                     break;
                 }
@@ -268,7 +268,7 @@ export class ScanProvider {
                         barcode = barcodeScanResult.text;
                         barcodes.push(barcodeScanResult.text);
                         outputBlock.value = barcodeScanResult.text;
-                        // Otherwise it means that we are in a **PURE** SCAN_MODE_CONTINUE, 
+                        // Otherwise it means that we are in a **PURE** SCAN_MODE_CONTINUE,
                         // and we'll receive all required barcodes inside a barcodesStack, all at once.
                     } else {
                         barcode = barcodesStack.pop();

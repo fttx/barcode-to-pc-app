@@ -5,6 +5,7 @@ import { Storage } from '@ionic/storage';
 import { barcodeFormatModel } from '../models/barcode-format.model';
 import { OutputProfileModel } from '../models/output-profile.model';
 import { ServerModel } from '../models/server.model';
+import { resolve } from 'bluebird';
 
 
 /*
@@ -232,13 +233,12 @@ export class Settings {
     return this.storage.set(Settings.OUTPUT_PROFILES, outputProfiles);
   }
 
-  getOutputProfiles(): Promise<OutputProfileModel[]> {
-    return this.storage.get(Settings.OUTPUT_PROFILES).then(outputProfile => {
-      if (!outputProfile) {
-        return this.generateDefaultOutputProfiles();
-      }
-      return outputProfile;
-    });
+  async getOutputProfiles(): Promise<OutputProfileModel[]> {
+    let outputProfiles = await this.storage.get(Settings.OUTPUT_PROFILES);
+    if (!outputProfiles) {
+      return this.generateDefaultOutputProfiles();
+    }
+    return outputProfiles;
   }
 
   setQuantityType(type: string) {
@@ -283,7 +283,7 @@ export class Settings {
 
   /**
    * @deprecated Use OutputProfiles
-   * This method is called from the HELO response and whenever a 
+   * This method is called from the HELO response and whenever a
    * new enableQuantity response is received
    */
   setQuantityEnabled(enabled: boolean) {

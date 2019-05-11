@@ -43,6 +43,7 @@ export class ScanSessionsStorage {
       this.storage.get(ScanSessionsStorage.SCAN_SESSIONS).then((data) => {
         if (data != null) {
           let json = JSON.parse(data);
+          // why is this done with map instead of stringify?
           let result = json.map(x => {
             let scanSession: ScanSessionModel = {
               id: x.id,
@@ -89,6 +90,7 @@ export class ScanSessionsStorage {
         if (data != null) {
           let json = JSON.parse(data);
           let result = json.map(x => {
+          // why is this done with map instead of stringify?
             let scanSession: ScanSessionModel = {
               id: x.id,
               name: x.name,

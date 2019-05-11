@@ -8,6 +8,7 @@ import { ServerProvider } from '../../providers/server';
 import { SelectScanningModePage } from '../scan-session/select-scanning-mode/select-scanning-mode';
 import { Config } from './../../providers/config';
 import { Settings } from './../../providers/settings';
+import { AppVersion } from '@ionic-native/app-version';
 
 /*
   Generated class for the Settings page.
@@ -38,6 +39,7 @@ export class SettingsPage {
     public navCtrl: NavController,
     public settings: Settings,
     private serverProvider: ServerProvider,
+    public appVersion: AppVersion,
     private device: Device,
   ) {
     for (let i = 0; i <= 15000; i += 250) {
@@ -99,7 +101,7 @@ export class SettingsPage {
     this.viewCtrl.dismiss();
   }
 
-  saveChanges() {
+  async saveChanges() {
     this.settings.setContinueModeTimeout(this.continueModeTimeout);
     this.settings.setRepeatInterval(this.repeatInterval);
     this.settings.setDefaultMode(this.scanMode);
@@ -110,6 +112,7 @@ export class SettingsPage {
     this.settings.setQuantityType(this.quantityType);
 
     this.serverProvider.send(new requestModelHelo().fromObject({
+      version: await this.appVersion.getVersionNumber(),
       deviceName: this.deviceName,
       deviceId: this.device.uuid
     }));

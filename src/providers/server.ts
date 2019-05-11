@@ -1,4 +1,4 @@
-import { Injectable, NgZone } from '@angular/core';
+import { Injectable, NgZone, ComponentFactoryResolver } from '@angular/core';
 import { AppVersion } from '@ionic-native/app-version';
 import { Device } from '@ionic-native/device';
 import { Zeroconf } from '@ionic-native/zeroconf';
@@ -162,11 +162,12 @@ export class ServerProvider {
         messageData = JSON.parse(message.data);
       }
 
+      console.log('responseModel action = ', messageData.action)
       if (messageData.action == responseModel.ACTION_HELO) {
-        // fallBack for old server versions                
+        // fallBack for old server versions
         console.log('FallBack: new HELO request received, aborting fallback')
         if (this.fallBackTimeout) clearTimeout(this.fallBackTimeout);
-        // fallBack for old server versions        
+        // fallBack for old server versions
 
         // Given a version number MAJOR.MINOR.PATCH, increment the:
         // MAJOR version when you make incompatible API changes,
@@ -179,14 +180,16 @@ export class ServerProvider {
           let appVersion = new SemVer(appVersionString);
           let serverVersion = new SemVer(heloResponse.version);
           if (appVersion.major != serverVersion.major) {
-            this.onVersionMismatch();
+            this.showVersionMismatch();
           }
         });
-        
-        // deprecated
-        this.settings.setQuantityEnabled(heloResponse.quantityEnabled);
 
-        this.settings.setOutputProfiles(heloResponse.outputProfiles);
+        if (heloResponse.outputProfiles) {
+          this.settings.setOutputProfiles(heloResponse.outputProfiles);
+        } else {
+          // deprecated
+          this.settings.setQuantityEnabled(heloResponse.quantityEnabled);
+        }
       } else if (messageData.action == responseModel.ACTION_PONG) {
         //console.log('[S]: WS: pong received, stop waiting 5 secs')
         if (this.pongTimeout) clearTimeout(this.pongTimeout);
@@ -207,8 +210,8 @@ export class ServerProvider {
       } else if (messageData.action == responseModel.ACTION_GET_VERSION) {
         // fallBack for old server versions
         console.log('FallBack: old getVersion received, showing version mismatch');
-        this.onVersionMismatch();
-        // fallBack for old server versions                
+        this.showVersionMismatch();
+        // fallBack for old server versions
       } else if (messageData.action == responseModel.ACTION_ENABLE_QUANTITY) {
         // deprecated
         let responseModelEnableQuantity: responseModelEnableQuantity = messageData;
@@ -286,9 +289,10 @@ export class ServerProvider {
       });
 
 
-      this.settings.getDeviceName().then(deviceName => {
+      this.settings.getDeviceName().then(async deviceName => {
         console.log('promise join: getDeviceName getRated getLastScanDate ')
         let request = new requestModelHelo().fromObject({
+          version: await this.appVersion.getVersionNumber(),
           deviceName: deviceName,
           deviceId: this.device.uuid,
         });
@@ -336,7 +340,7 @@ export class ServerProvider {
       if (!this.watchForServersObserver) {
         this.watchForServersObserver = this.watchForServers().subscribe((discoveryResult: discoveryResultModel) => {
           this.settings.getDefaultServer().then(defaultServer => {
-            if (defaultServer.name == discoveryResult.server.name && discoveryResult.server.name.length && defaultServer.address != discoveryResult.server.address) { // if the server has the same name, but a different ip => ask to reconnect 
+            if (defaultServer.name == discoveryResult.server.name && discoveryResult.server.name.length && defaultServer.address != discoveryResult.server.address) { // if the server has the same name, but a different ip => ask to reconnect
               let alert = this.alertCtrl.create({
                 title: "Reconnect",
                 message: "It seems that the computer " + defaultServer.name + " changed ip address from \
@@ -482,7 +486,7 @@ export class ServerProvider {
   }
 
   private isVersionMismatchDialogVisible = false;
-  private onVersionMismatch() {
+  private showVersionMismatch() {
     if (!this.isVersionMismatchDialogVisible) {
       let dialog = this.alertCtrl.create({
         title: 'Server/app version mismatch',
