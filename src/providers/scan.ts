@@ -35,7 +35,6 @@ export class ScanProvider {
         private ga: GoogleAnalytics,
         private settings: Settings,
     ) {
-        this.settings.getDeviceName().then(deviceName => this.deviceName = deviceName);
     }
 
     /**
@@ -57,14 +56,16 @@ export class ScanProvider {
                 this.settings.getBarcodeFormats(), // 2
                 this.settings.getQuantityType(), // 3
                 this.settings.getContinueModeTimeout(), // 4
-                this.getOutputProfile() //5
+                this.settings.getDeviceName(), // 5
+                this.getOutputProfile(), //6
             ]).then(result => {
                 let preferFrontCamera = result[0];
                 let enableLimitBarcodeFormats = result[1];
                 this.barcodeFormats = result[2];
                 let quantityType = result[3];
                 let continueModeTimeout = result[4];
-                this.outputProfile = result[5];
+                this.deviceName = result[5];
+                this.outputProfile = result[6];
                 let quantityEnabled = OutputProfileModel.HasQuantityBlocks(this.outputProfile);
 
                 this.quantityType = quantityType || 'number';
