@@ -17,5 +17,5 @@ System:
    NodeJS            : v10.15.1 (/usr/local/bin/node)
    npm               : 6.4.1
    OS                : macOS Mojave
-   Xcode             : Xcode 10.1 Build version 10B61
+   Xcode             : Xcode 10.2.1 Build version 10E1001
 
