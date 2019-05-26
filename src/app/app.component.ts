@@ -147,20 +147,20 @@ export class MyApp {
           }).present();
 
           // Upgrade output profiles
-          if (currentVersion.compare('3.1.0') == 0) {
+          if (currentVersion.compare('3.1.0') == 0 || (currentVersion.compare('3.1.1') == 0 && lastVersion.compare('3.1.0') != 0)) {
             let scanSessions = await this.scanSessionsStorage.getScanSessions();
             console.log('updating... old = ', scanSessions)
             for (let scanSession of scanSessions) {
               for (let scan of scanSession.scannings) {
                 scan.outputBlocks = [];
-  
+
                 scan.outputBlocks.push({
                   editable: false,
                   name: 'BARCODE',
                   value: scan.text,
                   type: 'barcode'
                 });
-  
+
                 if (scan.quantity) {
                   scan.outputBlocks.push({
                     editable: false,
@@ -169,7 +169,7 @@ export class MyApp {
                     type: 'variable'
                   });
                 }
-  
+
                 scan.outputBlocks.push({
                   editable: false,
                   name: 'ENTER',

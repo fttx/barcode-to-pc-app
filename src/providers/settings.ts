@@ -200,7 +200,7 @@ export class Settings {
     return this.storage.set(Settings.PREFER_FRONT_CAMERA, preferFrontCamera);
   }
   getPreferFrontCamera(): Promise<boolean> {
-    return this.storage.get(Settings.PREFER_FRONT_CAMERA);
+    return this.storage.get(Settings.PREFER_FRONT_CAMERA).then(result => { return result || false });
   }
 
   setEnableLimitBarcodeFormats(enableLimitBarcodeFormats: boolean) {
