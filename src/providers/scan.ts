@@ -141,6 +141,8 @@ export class ScanProvider {
                             break;
                         }
                         case 'barcode': {
+                            // @@@ permit to use the true-continue mode only if
+                            // there aren't contiguos barcode blocks
                             if (!barcodesStack) {
                                 let barcodeScanResult: BarcodeScanResult = await this.barcodeScanner.scan(this.pluginOptions).first().toPromise();
                                 if (!barcodeScanResult || barcodeScanResult.cancelled) {
@@ -199,10 +201,7 @@ export class ScanProvider {
         })
     }
 
-    private  getBarcode(): Promise<ScanModel> {
-        // @@@ return observable instead of promise?
-
-
+    private  getBarcode(): Observable<ScanModel> {
         switch (mode) {
             case SelectScanningModePage.SCAN_MODE_SINGLE:
                 console.log('SCAN_MODE_SINGLE')
@@ -294,6 +293,8 @@ export class ScanProvider {
                 });
                 break;
         }
+
+        return observable;
     }
 
     private async getOutputProfile(): Promise<OutputProfileModel> {
