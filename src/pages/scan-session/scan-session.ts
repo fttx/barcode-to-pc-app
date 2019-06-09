@@ -107,7 +107,7 @@ export class ScanSessionPage {
       });
     })
 
-    this.scanProvider.start(SelectScanningModePage.SCAN_MODE_ENTER_MAUALLY, new Observable<string>(subscriber => {
+    this.scanProvider.scan(SelectScanningModePage.SCAN_MODE_ENTER_MAUALLY, new Observable<string>(subscriber => {
       this.manualInputSubscriber = subscriber;
     })).subscribe(scan => {
       this.saveAndSendScan(scan);
@@ -171,7 +171,7 @@ export class ScanSessionPage {
       }
 
       // what happens if the user inserts a manual input text without initializating a scan procedure?
-      this.scanProvider.start(mode).subscribe(
+      this.scanProvider.scan(mode).subscribe(
         scan => this.saveAndSendScan(scan),
         err => this.navCtrl.pop(),
         () => { // onComplete

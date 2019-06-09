@@ -49,7 +49,7 @@ export class ScanProvider {
      * @param mode SCAN_MODE_CONTINUE, SCAN_MODE_SINGLE or SCAN_MODE_MANUAL
      * @param manualInputElObservable
      */
-    acquireScan(mode, manualInputElObservable: Observable<string> = null): Observable<ScanModel> {
+    scan(mode, manualInputElObservable: Observable<string> = null): Observable<ScanModel> {
         return new Observable(observer => {
             Promise.all([
                 this.settings.getPreferFrontCamera(), // 0
@@ -127,7 +127,7 @@ export class ScanProvider {
                                 case 'time': outputBlock.value = new Date(scan.date).toLocaleTimeString(); break;
                                 case 'date_time': new Date(scan.date).toLocaleTimeString() + ' ' + new Date(scan.date).toLocaleDateString(); break;
                                 case 'quantity': {
-                                    outputBlock.value = await this.showQuantityDialog();  // throws (rejects) 'cancelled'
+                                    outputBlock.value = await this.getQuantity();  // throws (rejects) 'cancelled'
                                     variables.quantity = outputBlock.value; // TODO: limit license
                                     // backwards compatibility
                                     scan.quantity = outputBlock.value;
@@ -141,29 +141,18 @@ export class ScanProvider {
                             break;
                         }
                         case 'barcode': {
-                            // @@@ permit to use the true-continue mode only if
-                            // there aren't contiguos barcode blocks
-                            if (!barcodesStack) {
-                                let barcodeScanResult: BarcodeScanResult = await this.barcodeScanner.scan(this.pluginOptions).first().toPromise();
-                                if (!barcodeScanResult || barcodeScanResult.cancelled) {
-                                    throw new Error('cancelled');
-                                }
-                                // CODE_39 fix (there is a copy of this fix in the CONTINUE mode part, if you change this then you have to change also the other one )
-                                if (barcodeScanResult.text && barcodeScanResult.format == 'CODE_39' && this.barcodeFormats.findIndex(x => x.enabled && x.name == 'CODE_32') != -1) {
-                                    barcodeScanResult.text = Utils.convertCode39ToCode32(barcodeScanResult.text);
-                                }
-                                // END CODE_39 fix
-
-                                variables.barcode = barcodeScanResult.text;
-                                variables.barcodes.push(barcodeScanResult.text);
-                                outputBlock.value = barcodeScanResult.text;
-                                // Otherwise it means that we are in a **PURE** SCAN_MODE_CONTINUE,
-                                // and we'll receive all required barcodes inside a barcodesStack, all at once.
-                            } else {
-                                variables.barcode = barcodesStack.pop();
-                                variables.barcodes.push(variables.barcode);
-                                outputBlock.value = variables.barcode;
-                            }
+                            let barcode = await this.getBarcode();
+                            // if (!barcodesStack) {                
+                            variables.barcode = barcode;
+                            variables.barcodes.push(barcode);
+                            outputBlock.value = barcode;
+                            //     // Otherwise it means that we are in a **PURE** SCAN_MODE_CONTINUE,
+                            //     // and we'll receive all required barcodes inside a barcodesStack, all at once.
+                            // } else {
+                            //     variables.barcode = barcodesStack.pop();
+                            //     variables.barcodes.push(variables.barcode);
+                            //     outputBlock.value = variables.barcode;
+                            // }
                         }
                         case 'delay': break;
                         case 'if': {
@@ -201,100 +190,96 @@ export class ScanProvider {
         })
     }
 
-    private  getBarcode(): Observable<ScanModel> {
-        switch (mode) {
-            case SelectScanningModePage.SCAN_MODE_SINGLE:
-                console.log('SCAN_MODE_SINGLE')
-                this.runOutputProfile().then(scan => {
-                    console.log('   run result=', scan)
-                    observer.next(scan);
-                    observer.complete();
-                }).catch(error => {
-                    console.log('   run error')
-                    observer.complete()
-                })
-                break;
 
-            case SelectScanningModePage.SCAN_MODE_CONTINUE:
-                // MIXED SCAN_MODE_CONTINUE
-                // if for some reason we weren't able to start the pure mode,
-                // we must call runOutputProfile() indefinitely.
-                if (this.pluginOptions.continuousMode == false) {
-                    let again = () => {
-                        this.runOutputProfile().then(scan => {
-                            observer.next(scan);
-                            if (!continueModeTimeout) {
-                                again(); // loop
-                            } else {
-                                this.showAddMoreDialog(continueModeTimeout).then((addMore) => {
-                                    if (addMore) {
-                                        again();// if the user clicks yes => loop
-                                    } else {
-                                        observer.complete();
-                                    }
-                                })
-                            }
-                        }).catch(error => observer.complete()) // if the user clicks the back button
-                    };
-                    again(); // call the first time
-                    break;
-                }
 
-                // PURE SCAN_MODE_CONTINUE
-                // barcode accumulator
-                let barcodes = [];
+    private mode: string;
+    private continuosScanSubscription = null;
+    private lastResolve; // conta sul fatto che non ci sarà mai una sovrapposizione di due chiamate a getBarcode(), per tanto la promise da risolvere sarà sempre l'ultima
 
-                let scanSubscription = this.barcodeScanner.scan(this.pluginOptions).subscribe(barcodeScanResult => {
+    private getBarcode(): Promise<string> {
+        return new Promise<string>(async (resolve, reject) => {
+            // @@@ permit to use the true-continue mode only if mode = continue and if
+            // there aren't contiguos barcode blocks
+
+            // once the native plugin continuos mode is enabled it will
+            // continuosly store values into a buffer, so that when a new
+            // barcode is requested to the getBarcode function it will returned
+            // immidiatelly
+
+            console.log('mode=', this.mode);
+
+            switch (this.mode) {
+                // It resolves the promise once the barcode is available
+                case SelectScanningModePage.SCAN_MODE_SINGLE:
+                    let barcodeScanResult: BarcodeScanResult = await this.barcodeScanner.scan(this.pluginOptions).first().toPromise();
                     if (!barcodeScanResult || barcodeScanResult.cancelled) {
-                        scanSubscription.unsubscribe();
-                        observer.complete();
+                        //  @@@ check
+                        throw new Error('cancelled');
                     }
-
-                    // CODE_39 fix (there is a copy of this fix in the SINGLE mode part, if you change this then you have to change also the other one )
+                    // CODE_39 fix (there is a copy of this fix in the CONTINUE mode part, if you change this then you have to change also the other one )
                     if (barcodeScanResult.text && barcodeScanResult.format == 'CODE_39' && this.barcodeFormats.findIndex(x => x.enabled && x.name == 'CODE_32') != -1) {
                         barcodeScanResult.text = Utils.convertCode39ToCode32(barcodeScanResult.text);
                     }
                     // END CODE_39 fix
+                    resolve(barcodeScanResult.text);
+                    break;
 
-                    barcodes.unshift(barcodeScanResult.text);
+                // It is used only if there is no quantity and the user selected
+                // the continuos mode. The only way to exit is to press cancel.
+                // 
+                // Practically getBarcodes is called indefinitelly until it
+                // doesn't reject() the returned promise (cancel press).
+                // 
+                // Since the exit condition is inside this method, we just
+                // accumulate barcodes indefinitely, they will always be
+                // consumed from the caller.
+                // 
+                // 
 
-                    // Once there are enough barcodes i can "run" the OutputProfile
-                    if (barcodes.length == numberOfBarcodes) {
-                        let barcodesStack = barcodes.slice(0); // copy the array
-                        barcodes = [];
-                        this.runOutputProfile(barcodesStack).then(scan => {
-                            observer.next(scan); // I pass the ScanModel to the upper level
-                        });
+                case SelectScanningModePage.SCAN_MODE_CONTINUE: {
+                    if (this.pluginOptions.continuousMode == false) {
+                        // this.showAddMoreDialog(continueModeTimeout).then((addMore) => {
+                        //     if (addMore) {
+                        //         again();// if the user clicks yes => loop
+                        //     } else {
+                        //         observer.complete();
+                        //     }
+                        // })
+                        break;
                     }
-                })
-                break;
 
-            case SelectScanningModePage.SCAN_MODE_ENTER_MAUALLY:
-                console.log('SCAN_MODE_ENTER_MAUALLY')
-                if (!manualInputElObservable) {
-                    observer.complete();
+                    this.lastResolve = resolve;
+
+                    if (this.continuosScanSubscription == null) {
+                        this.continuosScanSubscription = this.barcodeScanner.scan(this.pluginOptions).subscribe(barcodeScanResult => {
+                            if (!barcodeScanResult || barcodeScanResult.cancelled) {
+                                //  @@@ check
+                            }
+
+                            // CODE_39 fix (there is a copy of this fix in the SINGLE mode part, if you change this then you have to change also the other one )
+                            if (barcodeScanResult.text && barcodeScanResult.format == 'CODE_39' && this.barcodeFormats.findIndex(x => x.enabled && x.name == 'CODE_32') != -1) {
+                                barcodeScanResult.text = Utils.convertCode39ToCode32(barcodeScanResult.text);
+                            }
+                            // END CODE_39 fix
+
+                            this.lastResolve();
+                        })
+                    } 
+
+
                     break;
                 }
 
-                // barcode accumulator
-                barcodes = [];
+                case SelectScanningModePage.SCAN_MODE_ENTER_MAUALLY:
+                    // if (!manualInputElObservable) {
+                    //     resolve('');
+                    //     break;
+                    // }
+                    // resolve(await manualInputElObservable.subscribe().first().toPromise());
+                    break;
+            }
 
-                manualInputElObservable.subscribe(barcode => {
-                    barcodes.unshift(barcode);
-
-                    // Once there are enough barcodes i can "run" the OutputProfile
-                    if (barcodes.length == numberOfBarcodes) {
-                        let barcodesStack = barcodes.slice(0); // copy the array
-                        barcodes = [];
-                        this.runOutputProfile(barcodesStack).then(scan => {
-                            observer.next(scan); // I pass the ScanModel to the upper level
-                        });
-                    }
-                });
-                break;
-        }
-
-        return observable;
+        });
     }
 
     private async getOutputProfile(): Promise<OutputProfileModel> {
@@ -305,7 +290,7 @@ export class ScanProvider {
         });
     }
 
-    private showQuantityDialog(): Promise<string> { // doesn't need to be async becouse doesn't contain awaits
+    private getQuantity(): Promise<string> { // doesn't need to be async becouse doesn't contain awaits
         return new Promise((resolve, reject) => {
             let alert = this.alertCtrl.create({
                 title: 'Enter quantity value',
@@ -383,7 +368,7 @@ export class ScanProvider {
         // When eval() gets called it doesn't find the **barcode** variable and throws a syntax error.
         // To prevent that i store the barcode inside the variable **window** which doesn't change.
         // I use the randomInt as index insted of a fixed string to enforce mutual exclusion
-        window[randomInt] = {};
+        Object.assign(window[randomInt], {});
         Object.keys(variables).forEach(key => {
             // console.log('key: ', key);
             window[randomInt]['_' + key] = variables[key]; // i put the index like a literal, since randomInt can be transpiled too
