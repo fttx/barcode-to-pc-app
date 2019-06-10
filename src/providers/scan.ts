@@ -183,8 +183,7 @@ export class ScanProvider {
                         } else {
                             return '';
                         }
-                    }).join(' ');
-
+                    }).filter(x => x != "").join(' ');
 
                     observer.next(scan);
                     if (this.mode == SelectScanningModePage.SCAN_MODE_CONTINUE) {
