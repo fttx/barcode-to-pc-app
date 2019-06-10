@@ -50,6 +50,7 @@ export class ScanProvider {
      * @param manualInputElObservable
      */
     scan(mode, manualInputElObservable: Observable<string> = null): Observable<ScanModel> {
+        this.mode = mode;
         return new Observable(observer => {
             Promise.all([
                 this.settings.getPreferFrontCamera(), // 0
@@ -93,99 +94,104 @@ export class ScanProvider {
                 this.pluginOptions = pluginOptions;
 
 
-                // scan result
-                let scan = new ScanModel();
-                let now = new Date().getTime();
-                scan.outputBlocks = JSON.parse(JSON.stringify(this.outputProfile.outputBlocks)) // copy object
-                scan.id = now;
-                scan.repeated = false;
-                scan.date = now;
+                // again() encapsulates the part that need to be repeated when
+                // the continuos mode is active
+                let again = async () => {
 
+                    // scan result
+                    let scan = new ScanModel();
+                    let now = new Date().getTime();
+                    scan.outputBlocks = JSON.parse(JSON.stringify(this.outputProfile.outputBlocks)) // copy object
+                    scan.id = now;
+                    scan.repeated = false;
+                    scan.date = now;
 
-                // variables that can be used in the 'function' and 'if' OutputBlocks
-                let variables = {
-                    barcode: '',
-                    barcodes: [],
-                    quantity: null,
-                    // date: '',
-                    // device_name: '',
-                }
+                    // variables that can be used in the 'function' and 'if' OutputBlocks
+                    let variables = {
+                        barcode: '',
+                        barcodes: [],
+                        quantity: null,
+                        // date: '',
+                        // device_name: '',
+                    }
 
-
-                // run the OutputProfile
-                for (let i = 0; i < scan.outputBlocks.length; i++) {
-                    let outputBlock = scan.outputBlocks[i];
-                    console.log('   current block = ', outputBlock)
-                    switch (outputBlock.type) {
-                        case 'key': break;
-                        case 'text': break;
-                        case 'variable': {
-                            switch (outputBlock.value) {
-                                case 'deviceName': outputBlock.value = this.deviceName; break;
-                                case 'timestamp': outputBlock.value = (scan.date * 1000) + ''; break;
-                                case 'date': outputBlock.value = new Date(scan.date).toLocaleDateString(); break;
-                                case 'time': outputBlock.value = new Date(scan.date).toLocaleTimeString(); break;
-                                case 'date_time': new Date(scan.date).toLocaleTimeString() + ' ' + new Date(scan.date).toLocaleDateString(); break;
-                                case 'quantity': {
-                                    outputBlock.value = await this.getQuantity();  // throws (rejects) 'cancelled'
-                                    variables.quantity = outputBlock.value; // TODO: limit license
-                                    // backwards compatibility
-                                    scan.quantity = outputBlock.value;
-                                    break;
+                    // run the OutputProfile
+                    for (let i = 0; i < scan.outputBlocks.length; i++) {
+                        let outputBlock = scan.outputBlocks[i];
+                        console.log('   current block = ', outputBlock)
+                        switch (outputBlock.type) {
+                            case 'key': break;
+                            case 'text': break;
+                            case 'variable': {
+                                switch (outputBlock.value) {
+                                    case 'deviceName': outputBlock.value = this.deviceName; break;
+                                    case 'timestamp': outputBlock.value = (scan.date * 1000) + ''; break;
+                                    case 'date': outputBlock.value = new Date(scan.date).toLocaleDateString(); break;
+                                    case 'time': outputBlock.value = new Date(scan.date).toLocaleTimeString(); break;
+                                    case 'date_time': new Date(scan.date).toLocaleTimeString() + ' ' + new Date(scan.date).toLocaleDateString(); break;
+                                    case 'quantity': {
+                                        try {
+                                            outputBlock.value = await this.getQuantity();
+                                        } catch (err) {
+                                            observer.complete();
+                                            return; // returns the again() function
+                                        }
+                                        variables.quantity = outputBlock.value; // @@ TODO: limit license
+                                        scan.quantity = outputBlock.value; // backwards compatibility
+                                        break;
+                                    }
+                                } // switch
+                                break;
+                            }
+                            case 'function': {
+                                outputBlock.value = this.evalCode(outputBlock.value, variables);
+                                break;
+                            }
+                            case 'barcode': {
+                                try {
+                                    let barcode = await this.getBarcode();
+                                    variables.barcode = barcode;
+                                    variables.barcodes.push(barcode);
+                                    outputBlock.value = barcode;
+                                } catch (err) {
+                                    observer.complete();
+                                    return; // returns the again() function
                                 }
                             }
-                            break;
-                        }
-                        case 'function': {
-                            outputBlock.value = this.evalCode(outputBlock.value, variables);
-                            break;
-                        }
-                        case 'barcode': {
-                            let barcode = await this.getBarcode();
-                            // if (!barcodesStack) {                
-                            variables.barcode = barcode;
-                            variables.barcodes.push(barcode);
-                            outputBlock.value = barcode;
-                            //     // Otherwise it means that we are in a **PURE** SCAN_MODE_CONTINUE,
-                            //     // and we'll receive all required barcodes inside a barcodesStack, all at once.
-                            // } else {
-                            //     variables.barcode = barcodesStack.pop();
-                            //     variables.barcodes.push(variables.barcode);
-                            //     outputBlock.value = variables.barcode;
-                            // }
-                        }
-                        case 'delay': break;
-                        case 'if': {
-                            let condition = this.evalCode(outputBlock.value, variables);
-                            console.log('condition=', condition);
-                            if (condition === false) { // the if condition is false => branch
-                                // the current i value is pointing to 'if' => start searching from the next block i + 1
-                                let endIfIndex = OutputBlockModel.FindEndIfIndex(scan.outputBlocks, i + 1);
+                            case 'delay': break;
+                            case 'if': {
+                                let condition = this.evalCode(outputBlock.value, variables);
+                                if (condition === false) { // the if condition is false => branch
+                                    // the current i value is pointing to 'if' => start searching from the next block i + 1
+                                    let endIfIndex = OutputBlockModel.FindEndIfIndex(scan.outputBlocks, i + 1);
 
-                                // remove the blocks inside the if (including the current block that is an if, and the endif)
-                                // splice(startFrom (included), noElementsToRemove (included))
-                                scan.outputBlocks.splice(i, endIfIndex);
+                                    // remove the blocks inside the if (including the current block that is an if, and the endif)
+                                    // splice(startFrom (included), noElementsToRemove (included))
+                                    scan.outputBlocks.splice(i, endIfIndex);
+                                }
+                                break;
                             }
-                            break;
                         }
+                    }
+
+                    /**
+                    * @deprecated backwards compatibility
+                    */
+                    scan.text = scan.outputBlocks.map(outputBlock => {
+                        if (outputBlock.type == 'barcode') {
+                            return outputBlock.value;
+                        } else {
+                            return '';
+                        }
+                    }).join(' ');
+
+
+                    observer.next(scan);
+                    if (this.mode == SelectScanningModePage.SCAN_MODE_CONTINUE) {
+                        again();
                     }
                 }
-
-                /**
-                * @deprecated backwards compatibility
-                */
-                scan.text = scan.outputBlocks.map(outputBlock => {
-                    if (outputBlock.type == 'barcode') {
-                        return outputBlock.value;
-                    } else {
-                        return '';
-                    }
-                }).join(' ');
-
-                observer.next(scan);
-
-
-
+                again();
             });
         })
     }
@@ -194,27 +200,31 @@ export class ScanProvider {
 
     private mode: string;
     private continuosScanSubscription = null;
-    private lastResolve; // conta sul fatto che non ci sarà mai una sovrapposizione di due chiamate a getBarcode(), per tanto la promise da risolvere sarà sempre l'ultima
+
+    // lastReject and lastResolve relay on the fact that it will never be
+    // simultanius calls to getBarcode() method, it will always be called
+    // sequencially. The explaination is that the loop contained in the start()
+    // method isn't allowed to go haed until the previus getBarcode doesn't get
+    // resolved.
+    private lastResolve;
+    private lastReject;
 
     private getBarcode(): Promise<string> {
+        console.log('getBarcode()')
         return new Promise<string>(async (resolve, reject) => {
-            // @@@ permit to use the true-continue mode only if mode = continue and if
+            // TODO: @@@ permit to use the true-continue mode only if mode = continue and if
             // there aren't contiguos barcode blocks
 
-            // once the native plugin continuos mode is enabled it will
-            // continuosly store values into a buffer, so that when a new
-            // barcode is requested to the getBarcode function it will returned
-            // immidiatelly
-
-            console.log('mode=', this.mode);
-
             switch (this.mode) {
-                // It resolves the promise once the barcode is available
                 case SelectScanningModePage.SCAN_MODE_SINGLE:
                     let barcodeScanResult: BarcodeScanResult = await this.barcodeScanner.scan(this.pluginOptions).first().toPromise();
                     if (!barcodeScanResult || barcodeScanResult.cancelled) {
                         //  @@@ check
-                        throw new Error('cancelled');
+                        reject();
+                        return;
+
+                        // it should be equivalent to reject + return
+                        //throw new Error('cancelled');
                     }
                     // CODE_39 fix (there is a copy of this fix in the CONTINUE mode part, if you change this then you have to change also the other one )
                     if (barcodeScanResult.text && barcodeScanResult.format == 'CODE_39' && this.barcodeFormats.findIndex(x => x.enabled && x.name == 'CODE_32') != -1) {
@@ -226,18 +236,16 @@ export class ScanProvider {
 
                 // It is used only if there is no quantity and the user selected
                 // the continuos mode. The only way to exit is to press cancel.
-                // 
+                //
                 // Practically getBarcodes is called indefinitelly until it
                 // doesn't reject() the returned promise (cancel press).
-                // 
+                //
                 // Since the exit condition is inside this method, we just
                 // accumulate barcodes indefinitely, they will always be
                 // consumed from the caller.
-                // 
-                // 
-
                 case SelectScanningModePage.SCAN_MODE_CONTINUE: {
                     if (this.pluginOptions.continuousMode == false) {
+                        console.log('@@ ERROR true-continuos mode is FALSE!', this.pluginOptions)
                         // this.showAddMoreDialog(continueModeTimeout).then((addMore) => {
                         //     if (addMore) {
                         //         again();// if the user clicks yes => loop
@@ -245,15 +253,20 @@ export class ScanProvider {
                         //         observer.complete();
                         //     }
                         // })
-                        break;
+                        // break;
                     }
 
                     this.lastResolve = resolve;
+                    this.lastReject = reject;
 
                     if (this.continuosScanSubscription == null) {
                         this.continuosScanSubscription = this.barcodeScanner.scan(this.pluginOptions).subscribe(barcodeScanResult => {
                             if (!barcodeScanResult || barcodeScanResult.cancelled) {
                                 //  @@@ check
+                                console.log('@@AAA complete')
+                                this.continuosScanSubscription = null;
+                                this.lastReject();
+                                return; // returns the promise executor function
                             }
 
                             // CODE_39 fix (there is a copy of this fix in the SINGLE mode part, if you change this then you have to change also the other one )
@@ -261,12 +274,20 @@ export class ScanProvider {
                                 barcodeScanResult.text = Utils.convertCode39ToCode32(barcodeScanResult.text);
                             }
                             // END CODE_39 fix
+                            console.log(' continuosly scanned: ', barcodeScanResult.text)
+                            this.lastResolve(barcodeScanResult.text);
+                        }
 
-                            this.lastResolve();
-                        })
-                    } 
+                            , error => {
+                                // this should never be called
+                                console.log('@@AAA TODO: this should never be called', error)
+                            }, () => {
+                                // this should never be called
+                                console.log('@@AAA TODO: this should never be called ')
+                            }
 
-
+                        )
+                    }
                     break;
                 }
 
