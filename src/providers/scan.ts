@@ -23,6 +23,16 @@ export class ScanProvider {
     public isQuantityDialogOpen = false;
 
     private pluginOptions: BarcodeScannerOptions
+
+    // This parameter is different from SelectScanningModePage.SCAN_MODE_* but
+    // it kinds of extends it.
+    // The scanMode is more related to the UI, so what the user is able to
+    // choose, while the acquisitionMode is how actually the barcode acquisition
+    // is performed.
+    // This separation is required in order to allow the mixed_continue when
+    // there is a quantity parameter or when the native plugin doesn't support
+    // the continue mode.
+    public acqusitionMode: 'manual' | 'single' | 'mixed_continue' | 'continue' = 'manual';
     private barcodeFormats;
     private outputProfile: OutputProfileModel;
     private deviceName: string;
@@ -46,11 +56,10 @@ export class ScanProvider {
      *
      * TODO: @@@ check the cancel event propagation (native and manual)
      *
-     * @param mode SCAN_MODE_CONTINUE, SCAN_MODE_SINGLE or SCAN_MODE_MANUAL
+     * @param scanMode SCAN_MODE_CONTINUE, SCAN_MODE_SINGLE or SCAN_MODE_MANUAL
      * @param manualInputElObservable
      */
-    scan(mode, manualInputElObservable: Observable<string> = null): Observable<ScanModel> {
-        this.mode = mode;
+    scan(scanMode, manualInputElObservable: Observable<string> = null): Observable<ScanModel> {
         return new Observable(observer => {
             Promise.all([
                 this.settings.getPreferFrontCamera(), // 0
@@ -74,11 +83,17 @@ export class ScanProvider {
 
                 // other computed parameters
                 this.quantityType = quantityType || 'number';
-                let pluginContinuousMode = mode == SelectScanningModePage.SCAN_MODE_CONTINUE;
-                if (quantityEnabled || !this.platform.is('android') || continueModeTimeout) {
-                    pluginContinuousMode = false;
+                switch (scanMode) {
+                    case SelectScanningModePage.SCAN_MODE_ENTER_MAUALLY: this.acqusitionMode = 'manual'; break;
+                    case SelectScanningModePage.SCAN_MODE_SINGLE: this.acqusitionMode = 'single'; break;
+                    case SelectScanningModePage.SCAN_MODE_CONTINUE: {
+                        this.acqusitionMode = 'continue';
+                        if (quantityEnabled || !this.platform.is('android') || continueModeTimeout) {
+                            this.acqusitionMode = 'mixed_continue';
+                        }
+                        break;
+                    }
                 }
-
 
                 // native plugin options
                 let pluginOptions: BarcodeScannerOptions = {
@@ -86,7 +101,7 @@ export class ScanProvider {
                     prompt: "Place a barcode inside the scan area.\nPress the back button to exit.", // supported on Android only
                     showTorchButton: true,
                     preferFrontCamera: preferFrontCamera,
-                    continuousMode: pluginContinuousMode,
+                    continuousMode: this.acqusitionMode == 'continue',
                 };
                 if (enableLimitBarcodeFormats) {
                     pluginOptions.formats = this.barcodeFormats.filter(barcodeFormat => barcodeFormat.enabled).map(barcodeFormat => barcodeFormat.name).join(',');
@@ -97,7 +112,6 @@ export class ScanProvider {
                 // again() encapsulates the part that need to be repeated when
                 // the continuos mode is active
                 let again = async () => {
-
                     // scan result
                     let scan = new ScanModel();
                     let now = new Date().getTime();
@@ -183,22 +197,33 @@ export class ScanProvider {
                         } else {
                             return '';
                         }
-                    }).filter(x => x != "").join(' ');
+                    }).filter(x => x != '').join(' ');
 
                     observer.next(scan);
-                    if (this.mode == SelectScanningModePage.SCAN_MODE_CONTINUE) {
+
+                    // decide how and if repeat the outputBlock
+                    if (this.acqusitionMode == 'continue') {
                         again();
+                    } else if (this.acqusitionMode == 'mixed_continue') {
+                        this.showAddMoreDialog(continueModeTimeout).then((addMore) => {
+                            if (addMore) {
+                                again(); // if the user clicks yes => loop
+                            } else {
+                                observer.complete();
+                            }
+                        })
+                    } else { // single or manual mode
+                        observer.complete();
                     }
+
                 }
-                again();
+                again(); // starts the loop
             });
         })
     }
 
 
 
-    private mode: string;
-    private continuosScanSubscription = null;
 
     // lastReject and lastResolve relay on the fact that it will never be
     // simultanius calls to getBarcode() method, it will always be called
@@ -208,22 +233,20 @@ export class ScanProvider {
     private lastResolve;
     private lastReject;
 
+    private continuosScanSubscription = null;
+
     private getBarcode(): Promise<string> {
         console.log('getBarcode()')
         return new Promise<string>(async (resolve, reject) => {
-            // TODO: @@@ permit to use the true-continue mode only if mode = continue and if
-            // there aren't contiguos barcode blocks
-
-            switch (this.mode) {
-                case SelectScanningModePage.SCAN_MODE_SINGLE:
+            switch (this.acqusitionMode) {
+                // TODO: @@@ permit to use the true-continue mode only if mode = continue and if
+                // there aren't contiguos barcode blocks
+                case 'single':
+                case 'mixed_continue': {
                     let barcodeScanResult: BarcodeScanResult = await this.barcodeScanner.scan(this.pluginOptions).first().toPromise();
                     if (!barcodeScanResult || barcodeScanResult.cancelled) {
-                        //  @@@ check
-                        reject();
-                        return;
-
-                        // it should be equivalent to reject + return
-                        //throw new Error('cancelled');
+                        // it should be equivalent to reject() + return
+                        throw new Error('cancelled');
                     }
                     // CODE_39 fix (there is a copy of this fix in the CONTINUE mode part, if you change this then you have to change also the other one )
                     if (barcodeScanResult.text && barcodeScanResult.format == 'CODE_39' && this.barcodeFormats.findIndex(x => x.enabled && x.name == 'CODE_32') != -1) {
@@ -232,7 +255,7 @@ export class ScanProvider {
                     // END CODE_39 fix
                     resolve(barcodeScanResult.text);
                     break;
-
+                }
                 // It is used only if there is no quantity and the user selected
                 // the continuos mode. The only way to exit is to press cancel.
                 //
@@ -242,19 +265,7 @@ export class ScanProvider {
                 // Since the exit condition is inside this method, we just
                 // accumulate barcodes indefinitely, they will always be
                 // consumed from the caller.
-                case SelectScanningModePage.SCAN_MODE_CONTINUE: {
-                    if (this.pluginOptions.continuousMode == false) {
-                        console.log('@@ ERROR true-continuos mode is FALSE!', this.pluginOptions)
-                        // this.showAddMoreDialog(continueModeTimeout).then((addMore) => {
-                        //     if (addMore) {
-                        //         again();// if the user clicks yes => loop
-                        //     } else {
-                        //         observer.complete();
-                        //     }
-                        // })
-                        // break;
-                    }
-
+                case 'continue': {
                     this.lastResolve = resolve;
                     this.lastReject = reject;
 
@@ -263,6 +274,8 @@ export class ScanProvider {
                             if (!barcodeScanResult || barcodeScanResult.cancelled) {
                                 //  @@@ check
                                 console.log('@@AAA complete')
+                                // @@ TODO reset continuosScanSubscription on
+                                // start() call
                                 this.continuosScanSubscription = null;
                                 this.lastReject();
                                 return; // returns the promise executor function
@@ -290,13 +303,14 @@ export class ScanProvider {
                     break;
                 }
 
-                case SelectScanningModePage.SCAN_MODE_ENTER_MAUALLY:
+                case 'manual': {
                     // if (!manualInputElObservable) {
                     //     resolve('');
                     //     break;
                     // }
                     // resolve(await manualInputElObservable.subscribe().first().toPromise());
                     break;
+                }
             }
 
         });
