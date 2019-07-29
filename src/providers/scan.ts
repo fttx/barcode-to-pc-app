@@ -1,32 +1,33 @@
 import { Injectable, NgZone } from '@angular/core';
-import { Observable } from 'rxjs';
+import { BarcodeScanner, BarcodeScannerOptions, BarcodeScanResult } from '@fttx/barcode-scanner';
+import { GoogleAnalytics } from '@ionic-native/google-analytics';
+import { AlertController, Platform } from 'ionic-angular';
+import { Observable, Subscription } from 'rxjs';
+import { KeyboardInputComponent } from '../components/keyboard-input/keyboard-input';
+import { OutputBlockModel } from '../models/output-block.model';
+import { OutputProfileModel } from '../models/output-profile.model';
 import { ScanModel } from '../models/scan.model';
 import { SelectScanningModePage } from '../pages/scan-session/select-scanning-mode/select-scanning-mode';
 import { Settings } from './settings';
-import { GoogleAnalytics } from '@ionic-native/google-analytics';
-import { Platform, AlertController } from 'ionic-angular';
-import { BarcodeScanner, BarcodeScannerOptions, BarcodeScanResult } from '@fttx/barcode-scanner';
-import { OutputProfileModel } from '../models/output-profile.model';
-import { OutputBlockModel } from '../models/output-block.model';
 import { Utils } from './utils';
-import { resolve } from 'bluebird';
 
 /**
- * The job of this class is to generate a ScanModel by   talking with the native
+ * The job of this class is to generate a ScanModel by talking with the native
  * barcode scanner plugin and/or by asking the user the required data to fill
  * the data of the selected OutputProfile.
  *
- * The only public method is
+ * The only public method is scan
  */
 @Injectable()
 export class ScanProvider {
     public isQuantityDialogOpen = false;
+    public awaitingForBarcode: boolean;
 
     private pluginOptions: BarcodeScannerOptions
 
     // This parameter is different from SelectScanningModePage.SCAN_MODE_* but
     // it kinds of extends it.
-    // The scanMode is more related to the UI, so what the user is able to
+    // The SCAN_MODE_* is more related to the UI, so what the user is able to
     // choose, while the acquisitionMode is how actually the barcode acquisition
     // is performed.
     // This separation is required in order to allow the mixed_continue when
@@ -37,6 +38,7 @@ export class ScanProvider {
     private outputProfile: OutputProfileModel;
     private deviceName: string;
     private quantityType: string;
+    private keyboardInput: KeyboardInputComponent;
 
     constructor(
         private alertCtrl: AlertController,
@@ -49,17 +51,17 @@ export class ScanProvider {
     }
 
     /**
-     * It returns an Observable that will output a ScanModel everytime the current OutputProfile is completed.
+     * It returns an Observable that will output a ScanModel everytime the
+     * current OutputProfile is completed.
      *
      * Whenever the scan process ends or is interrupted, it will send
      * an "complete" event
      *
-     * TODO: @@@ check the cancel event propagation (native and manual)
-     *
      * @param scanMode SCAN_MODE_CONTINUE, SCAN_MODE_SINGLE or SCAN_MODE_MANUAL
-     * @param manualInputElObservable
      */
-    scan(scanMode, manualInputElObservable: Observable<string> = null): Observable<ScanModel> {
+    scan(scanMode, keyboardInput: KeyboardInputComponent): Observable<ScanModel> {
+        this.keyboardInput = keyboardInput;
+
         return new Observable(observer => {
             Promise.all([
                 this.settings.getPreferFrontCamera(), // 0
@@ -125,17 +127,20 @@ export class ScanProvider {
                         barcode: '',
                         barcodes: [],
                         quantity: null,
-                        // date: '',
-                        // device_name: '',
+                        timestamp: (scan.date * 1000),
+                        device_name: this.deviceName,
                     }
 
                     // run the OutputProfile
                     for (let i = 0; i < scan.outputBlocks.length; i++) {
                         let outputBlock = scan.outputBlocks[i];
-                        console.log('   current block = ', outputBlock)
                         switch (outputBlock.type) {
+                            // some componets like 'key' and 'text', do not need any processing from the
+                            // app side, so we just skip them
                             case 'key': break;
                             case 'text': break;
+                            // while other components like 'variable' need to be filled with data, that is
+                            // acquired from the smartphone
                             case 'variable': {
                                 switch (outputBlock.value) {
                                     case 'deviceName': outputBlock.value = this.deviceName; break;
@@ -147,10 +152,12 @@ export class ScanProvider {
                                         try {
                                             outputBlock.value = await this.getQuantity();
                                         } catch (err) {
+                                            // this code fragment is duplicated for the 'barcode' block
                                             observer.complete();
                                             return; // returns the again() function
                                         }
-                                        variables.quantity = outputBlock.value; // @@ TODO: limit license
+                                        // TODO remove this variable on the server side, if the user doesn't have purchased the license
+                                        variables.quantity = outputBlock.value;
                                         scan.quantity = outputBlock.value; // backwards compatibility
                                         break;
                                     }
@@ -168,6 +175,7 @@ export class ScanProvider {
                                     variables.barcodes.push(barcode);
                                     outputBlock.value = barcode;
                                 } catch (err) {
+                                    // this code fragment is duplicated for the 'quantity' block
                                     observer.complete();
                                     return; // returns the again() function
                                 }
@@ -175,8 +183,10 @@ export class ScanProvider {
                             case 'delay': break;
                             case 'if': {
                                 let condition = this.evalCode(outputBlock.value, variables);
-                                if (condition === false) { // the if condition is false => branch
-                                    // the current i value is pointing to 'if' => start searching from the next block i + 1
+                                if (condition === false) {
+                                    // the if condition is false, we must branch
+                                    // the current i value is pointing to the 'if' block, we start searching from
+                                    // the next block, that is the (i + 1)th
                                     let endIfIndex = OutputBlockModel.FindEndIfIndex(scan.outputBlocks, i + 1);
 
                                     // remove the blocks inside the if (including the current block that is an if, and the endif)
@@ -198,33 +208,43 @@ export class ScanProvider {
                             return '';
                         }
                     }).filter(x => x != '').join(' ');
+                    // end backwards compatibility
 
                     observer.next(scan);
 
                     // decide how and if repeat the outputBlock
-                    if (this.acqusitionMode == 'continue') {
-                        again();
-                    } else if (this.acqusitionMode == 'mixed_continue') {
-                        this.showAddMoreDialog(continueModeTimeout).then((addMore) => {
-                            if (addMore) {
-                                again(); // if the user clicks yes => loop
-                            } else {
-                                observer.complete();
-                            }
-                        })
-                    } else { // single or manual mode
-                        observer.complete();
-                    }
-
-                }
-                again(); // starts the loop
+                    switch (this.acqusitionMode) {
+                        case 'continue':
+                            again();
+                            break;
+                        case 'mixed_continue':
+                            this.showAddMoreDialog(continueModeTimeout).then((addMore) => {
+                                if (addMore) {
+                                    again(); // if the user clicks yes => loop
+                                } else {
+                                    observer.complete();
+                                }
+                            })
+                            break;
+                        case 'manual':
+                            again();
+                            break;
+                        case 'single':
+                            observer.complete();
+                            break;
+                        default:
+                            observer.complete();
+                            break;
+                    } // switch
+                } // again function
+                again(); // starts the loop for the first time
             });
         })
     }
 
-
-
-
+    // We need to store lastResolve and lastReject because when the continuos
+    // mode is in use, we have to forward the resulting barcode of the
+    /// subscription to the last getBarcode promise.
     // lastReject and lastResolve relay on the fact that it will never be
     // simultanius calls to getBarcode() method, it will always be called
     // sequencially. The explaination is that the loop contained in the start()
@@ -232,15 +252,13 @@ export class ScanProvider {
     // resolved.
     private lastResolve;
     private lastReject;
-
-    private continuosScanSubscription = null;
+    private continuosScanSubscription: Subscription = null;
 
     private getBarcode(): Promise<string> {
-        console.log('getBarcode()')
-        return new Promise<string>(async (resolve, reject) => {
+        this.awaitingForBarcode = true;
+
+        let promise = new Promise<string>(async (resolve, reject) => {
             switch (this.acqusitionMode) {
-                // TODO: @@@ permit to use the true-continue mode only if mode = continue and if
-                // there aren't contiguos barcode blocks
                 case 'single':
                 case 'mixed_continue': {
                     let barcodeScanResult: BarcodeScanResult = await this.barcodeScanner.scan(this.pluginOptions).first().toPromise();
@@ -272,10 +290,7 @@ export class ScanProvider {
                     if (this.continuosScanSubscription == null) {
                         this.continuosScanSubscription = this.barcodeScanner.scan(this.pluginOptions).subscribe(barcodeScanResult => {
                             if (!barcodeScanResult || barcodeScanResult.cancelled) {
-                                //  @@@ check
-                                console.log('@@AAA complete')
-                                // @@ TODO reset continuosScanSubscription on
-                                // start() call
+                                this.continuosScanSubscription.unsubscribe();
                                 this.continuosScanSubscription = null;
                                 this.lastReject();
                                 return; // returns the promise executor function
@@ -286,34 +301,30 @@ export class ScanProvider {
                                 barcodeScanResult.text = Utils.convertCode39ToCode32(barcodeScanResult.text);
                             }
                             // END CODE_39 fix
-                            console.log(' continuosly scanned: ', barcodeScanResult.text)
                             this.lastResolve(barcodeScanResult.text);
-                        }
-
-                            , error => {
-                                // this should never be called
-                                console.log('@@AAA TODO: this should never be called', error)
-                            }, () => {
-                                // this should never be called
-                                console.log('@@AAA TODO: this should never be called ')
-                            }
-
-                        )
+                        }, error => {
+                            // this should never be called
+                        }, () => {
+                            // this should never be called
+                        })
                     }
                     break;
                 }
 
                 case 'manual': {
-                    // if (!manualInputElObservable) {
-                    //     resolve('');
-                    //     break;
-                    // }
-                    // resolve(await manualInputElObservable.subscribe().first().toPromise());
+                    this.keyboardInput.focus(800);
+                    // here we don't wrap the promise inside a try/catch statement because there
+                    // isn't a way to cancel a manual barcode acquisition
+                    resolve(await this.keyboardInput.onSubmit.first().toPromise());
                     break;
                 }
-            }
+            } // switch acqusitionMode
+        }); // promise
 
-        });
+        promise
+            .then(value => { this.awaitingForBarcode = false;; })
+            .catch(err => { this.awaitingForBarcode = false; })
+        return promise;
     }
 
     private async getOutputProfile(): Promise<OutputProfileModel> {
@@ -348,6 +359,7 @@ export class ScanProvider {
                 }]
             });
             this.isQuantityDialogOpen = true;
+            alert.setLeavingOpts({ keyboardClose: false });
             alert.onDidDismiss(() => {
                 this.isQuantityDialogOpen = false;
             })
@@ -380,7 +392,7 @@ export class ScanProvider {
                 this.ngZone.run(() => {
                     alert.setSubTitle('Timeout: ' + timeoutSeconds);
                 })
-                if (timeoutSeconds == 0) {
+                if (!timeoutSeconds || timeoutSeconds <= 0) {
                     if (interval) clearInterval(interval);
                     alert.dismiss();
                     resolve(true);
@@ -395,7 +407,6 @@ export class ScanProvider {
      * the string parameter
      */
     private evalCode(code: string, variables: any) {
-
         // Inject variables
         let randomInt = this.getRandomInt();
         // Typescript transpiles local variables such **barcode** and changes their name.
@@ -409,18 +420,20 @@ export class ScanProvider {
             code = code.replace(new RegExp(key, 'g'), 'window[' + randomInt + ']["_' + key + '"]');
         });
 
-
         // Run code
         try {
             return eval(code);
         } catch (error) {
-            console.log('Custom function error: ', error) // TODO show error dialog
+            this.alertCtrl.create({
+                title: 'Error',
+                message: 'An error occurred while executing your Output template: ' + error,
+                buttons: [{ text: 'Ok', role: 'cancel', }]
+            }).present();
             return '';
         } finally {
             // executed in each case before return
             delete window[randomInt];
         }
-
 
         // Note:
         //     The previous solution: stringComponent.value.replace('barcode', '"' + barcode + '"');

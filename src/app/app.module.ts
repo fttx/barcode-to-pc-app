@@ -16,8 +16,8 @@ import { IonicStorageModule } from '@ionic/storage';
 import { MomentModule } from 'angular2-moment';
 import { IonicApp, IonicErrorHandler, IonicModule } from 'ionic-angular';
 import { MarkdownModule } from 'ngx-markdown';
-
-import { CircleTextComponent } from '../components/circle-text';
+import { CircleTextComponent } from '../components/circle-text/circle-text';
+import { KeyboardInputComponent } from '../components/keyboard-input/keyboard-input';
 import { AboutPage } from '../pages/about/about';
 import { ArchivedPage } from '../pages/archived/archived';
 import { HelpPage } from '../pages/help/help';
@@ -35,6 +35,7 @@ import { ServerProvider } from '../providers/server';
 import { Settings } from '../providers/settings';
 import { Utils } from '../providers/utils';
 import { MyApp } from './app.component';
+
 
 // Modules
 // Ionic-native
@@ -55,6 +56,7 @@ import { MyApp } from './app.component';
     ScanSessionPage,
     SelectServerPage,
     CircleTextComponent,
+    KeyboardInputComponent,
     SettingsPage,
     HelpPage,
   ],

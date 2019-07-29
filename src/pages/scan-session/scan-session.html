@@ -44,7 +44,7 @@
 						<ion-icon [name]="scan.ack ? 'checkmark-circle' : 'alert'" [style.color]="scan.ack ? 'green' : 'red'"></ion-icon>
 					</ion-col>
 					<ion-col>
-						{{ getScanText(scan) }}
+						{{ scanToString(scan) }}
 					</ion-col>
 				</ion-row>
 			</ion-grid>
@@ -60,10 +60,10 @@
 
 <ion-footer ion-fixed>
 	<ion-toolbar>
-		<ion-input clearInput [(ngModel)]="keyboardBuffer" placeholder="Keyboard input" type="text" #keyboardInput (blur)="keyboardInputFocussed = false"
-		 (focus)="keyboardInputFocussed = true"></ion-input>
+		<keyboard-input (touchstart)="keyboardInputTouchStart($event)" #keyboardInput></keyboard-input>
 		<ion-buttons end>
-			<button ion-button strong (touchstart)="$event.preventDefault();$event.stopPropagation();" (touchend)="onEnterClick($event);">
+			<button ion-button strong (touchstart)="$event.preventDefault(); $event.stopPropagation();"
+				(touchend)="onEnterClick($event);">
 				<ion-icon name="send" icon-only color="primary"></ion-icon>
 			</button>
 		</ion-buttons>

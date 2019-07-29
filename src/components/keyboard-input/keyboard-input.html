@@ -1,0 +1,6 @@
+<ion-input placeholder="Keyboard input" type="text"
+    (ionFocus)="focussed = true"
+    (ionBlur)="focussed = false"
+    [(ngModel)]="value"
+    clearInput
+    #ionInput></ion-input>

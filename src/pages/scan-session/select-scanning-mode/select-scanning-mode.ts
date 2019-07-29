@@ -3,12 +3,6 @@ import { ViewController } from 'ionic-angular';
 
 import { Settings } from './../../../providers/settings';
 
-/*
-  Generated class for the SelectScanningModePage page.
-
-  See http://ionicframework.com/docs/v2/components/#navigation for more info on
-  Ionic pages and navigation.
-*/
 @Component({
   selector: 'page-select-scanning-mode',
   templateUrl: 'select-scanning-mode.html'
