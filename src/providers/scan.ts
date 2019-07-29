@@ -408,16 +408,16 @@ export class ScanProvider {
      */
     private evalCode(code: string, variables: any) {
         // Inject variables
-        let randomInt = this.getRandomInt();
+        let randomInt = this.getRandomInt() + '';
         // Typescript transpiles local variables such **barcode** and changes their name.
         // When eval() gets called it doesn't find the **barcode** variable and throws a syntax error.
         // To prevent that i store the barcode inside the variable **window** which doesn't change.
         // I use the randomInt as index insted of a fixed string to enforce mutual exclusion
-        Object.assign(window[randomInt], {});
+        Object.defineProperty(window, randomInt, { value: {}, writable: true });
         Object.keys(variables).forEach(key => {
             // console.log('key: ', key);
             window[randomInt]['_' + key] = variables[key]; // i put the index like a literal, since randomInt can be transpiled too
-            code = code.replace(new RegExp(key, 'g'), 'window[' + randomInt + ']["_' + key + '"]');
+            code = code.replace(new RegExp(key, 'g'), 'window["' + randomInt + '"]["_' + key + '"]');
         });
 
         // Run code
