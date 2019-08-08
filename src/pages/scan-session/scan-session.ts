@@ -1,11 +1,12 @@
-import { Component, HostListener, NgZone, ViewChild } from '@angular/core';
+import { Component, NgZone, ViewChild } from '@angular/core';
 import { Device } from '@ionic-native/device';
 import { GoogleAnalytics } from '@ionic-native/google-analytics';
 import { NativeAudio } from '@ionic-native/native-audio';
 import { SocialSharing } from '@ionic-native/social-sharing';
 import { Promise } from 'bluebird';
 import { ActionSheetController, AlertController, ModalController, NavController, NavParams } from 'ionic-angular';
-import { OutputProfileModel } from '../../models/output-profile.model';
+import { Subscription } from 'rxjs';
+import { KeyboardInputComponent } from '../../components/keyboard-input/keyboard-input';
 import { requestModelDeleteScan, requestModelPutScanSessions, requestModelUpdateScanSession } from '../../models/request.model';
 import { responseModel, responseModelPutScanAck } from '../../models/response.model';
 import { ScanSessionModel } from '../../models/scan-session.model';
@@ -18,76 +19,55 @@ import { Config } from './../../providers/config';
 import { Settings } from './../../providers/settings';
 import { EditScanSessionPage } from './edit-scan-session/edit-scan-session';
 import { SelectScanningModePage } from './select-scanning-mode/select-scanning-mode';
-import { Observable, Subscriber } from 'rxjs';
 
 
-/*
-  Generated class for the Scan page.
-
-  See http://ionicframework.com/docs/v2/components/#navigation for more info on
-  Ionic pages and navigation.
-*/
+/**
+ * This page is used to display the list of the barcodes of a specific
+ * ScanSession.
+ * It also intereacts with the ScanProvider to allow adding more barcodes.
+ * In addition it contains a keyboard-input component to provide a way to enter
+ * barcodes with the keyboard (both native and OTG)
+ */
 @Component({
   selector: 'page-scan-session',
   templateUrl: 'scan-session.html'
 })
 export class ScanSessionPage {
-  @ViewChild('keyboardInput') keyboardInput;
+  @ViewChild(KeyboardInputComponent) keyboardInput: KeyboardInputComponent;
 
   public scanSession: ScanSessionModel;
-  private isNewSession = false;
-  private lastScanSessionName: string = null;
-
-  public repeatInterval = Config.DEFAULT_REPEAT_INVERVAL;
-  public repeatAllTimeout = null;
-  public next = -1;
   public repeatingStatus: 'paused' | 'repeating' | 'stopped' = 'stopped';
 
-  public keyboardBuffer = '';
-  public keyboardInputFocussed = false;
-  private isSetNameDialogOpen = false;
-  private manualInputSubscriber: Subscriber<string>;
+  private isNewSession = false;
+  private lastScanSessionName: string = null;
+  private repeatInterval = Config.DEFAULT_REPEAT_INVERVAL;
+  private repeatAllTimeout = null;
+  private next = -1;
+  private responseSubscription: Subscription = null;
+  private scanProviderSubscription: Subscription = null;
+  private skipAlreadySent = false;
 
   constructor(
-    navParams: NavParams,
+    public navParams: NavParams,
     public actionSheetCtrl: ActionSheetController,
-    private alertCtrl: AlertController,
-    private serverProvider: ServerProvider,
+    public alertCtrl: AlertController,
+    public serverProvider: ServerProvider,
     public navCtrl: NavController,
-    private scanSessionsStorage: ScanSessionsStorage,
+    public scanSessionsStorage: ScanSessionsStorage,
     public modalCtrl: ModalController,
-    private ga: GoogleAnalytics,
-    private settings: Settings,
-    private socialSharing: SocialSharing,
-    private nativeAudio: NativeAudio,
-    private ngZone: NgZone,
-    private device: Device,
-    private scanProvider: ScanProvider,
+    public ga: GoogleAnalytics,
+    public settings: Settings,
+    public socialSharing: SocialSharing,
+    public nativeAudio: NativeAudio,
+    public ngZone: NgZone,
+    public device: Device,
+    public scanProvider: ScanProvider,
   ) {
     this.scanSession = navParams.get('scanSession');
     this.isNewSession = navParams.get('isNewSession');
     this.nativeAudio.preloadSimple('beep', 'assets/audio/beep.ogg');
-
-  }
-  public test = '';
-
-  @HostListener('window:keyup', ['$event'])
-  keyEvent(event: KeyboardEvent) {
-    if (this.isSetNameDialogOpen || this.scanProvider.isQuantityDialogOpen) {
-      return;
-    }
-
-    this.ngZone.run(() => {
-      if (event.keyCode == 13) {
-        this.onEnterClick();
-        this.keyboardInput.setFocus();
-      } else if (event.key && event.key.length === 1 && !this.keyboardInputFocussed) {
-        this.keyboardBuffer += event.key;
-      }
-    })
   }
 
-  private responseSubscription = null;
   ionViewDidEnter() {
     this.ga.trackView("ScanSessionPage");
     this.responseSubscription = this.serverProvider.onResponse().subscribe(message => {
@@ -105,12 +85,6 @@ export class ScanSessionPage {
           }
         }
       });
-    })
-
-    this.scanProvider.start(SelectScanningModePage.SCAN_MODE_ENTER_MAUALLY, new Observable<string>(subscriber => {
-      this.manualInputSubscriber = subscriber;
-    })).subscribe(scan => {
-      this.saveAndSendScan(scan);
     })
   }
 
@@ -142,13 +116,17 @@ export class ScanSessionPage {
     if (this.responseSubscription != null && this.responseSubscription) {
       this.responseSubscription.unsubscribe();
     }
+
+    if (this.scanProviderSubscription && this.scanProviderSubscription != null) {
+      this.scanProviderSubscription.unsubscribe();
+    }
   }
 
   ionViewWillLeave() {
     this.save();
   }
 
-  scan() { // Called when the user want to scan (except for retake scan)
+  scan() { // Called when the user want to scan
     let selectScanningModeModal = this.modalCtrl.create(SelectScanningModePage, { showCreateEmptyScanSession: this.isNewSession });
     selectScanningModeModal.onDidDismiss(mode => {
 
@@ -158,32 +136,74 @@ export class ScanSessionPage {
         return;
       }
 
-      // the manual mode is alway starterted in the ionViewDidEnter event, so we just need to focus the input box
-      if (mode == SelectScanningModePage.SCAN_MODE_ENTER_MAUALLY) {
-        if (this.isNewSession) {
-          this.setName().then(() => {
-            this.keyboardInput.setFocus();
-          });
-        } else {
-          setTimeout(() => this.keyboardInput.setFocus(), 500)
-        }
-        return;
+      if (this.scanProviderSubscription != null) {
+        this.scanProviderSubscription.unsubscribe();
       }
-
-      // what happens if the user inserts a manual input text without initializating a scan procedure?
-      this.scanProvider.start(mode).subscribe(
+      this.scanProviderSubscription = this.scanProviderSubscription = this.scanProvider.scan(mode, this.keyboardInput).subscribe(
         scan => this.saveAndSendScan(scan),
-        err => this.navCtrl.pop(),
+        err => {
+          console.log('err')
+          // if the user clicks cancel without acquiring not even a single barcode
+          if (!this.isNewSession && this.scanSession.scannings.length == 0) {
+            this.navCtrl.pop()
+          }
+        },
         () => { // onComplete
-          if (this.isNewSession && this.scanSession.scannings.length != 0) {
-            this.setName();
-          } else if (this.scanSession.scannings.length == 0) {
-            this.navCtrl.pop();
+          if (this.isNewSession) {
+            this.isNewSession = false;
+            if (this.scanSession.scannings.length != 0) {
+              if (mode == 'continue') {
+                this.setName();
+              }
+            } else {
+              this.navCtrl.pop();
+            }
           }
         }
       )
-    });
+    }); // onDidDismiss
     selectScanningModeModal.present();
+  }
+
+  // this method can't be moved inside scan.ts because there is no way to tell
+  // wether the subscription is still active from inside that file
+  keyboardInputTouchStart(event) {
+    // we always prevent default, because the input element will be focussed by
+    // the scanProvider.scan() as it runs the outputProfile
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (this.scanProviderSubscription && this.scanProviderSubscription != null) {
+      if (this.scanProvider.acqusitionMode == 'manual') {
+        // it may happen that for some reason the focus is lost, eg. the user
+        // accidentally taps outside the input element while typing it, and he
+        // may want to continue typing the barcode, without loosing the
+        // outputProfile progress. To resume from that scenario we check if the
+        // scanProvider is still waiting for the user to submit the barcode and
+        // then restore the focus to the input element
+        if (this.scanProvider.awaitingForBarcode) {
+          this.keyboardInput.focus();
+        }
+
+        // the subscription is already ok, so we don't touch it
+        return;
+      } else {
+        // in this case it means that there was another type of scan going on,
+        // so we need to clean up the subscription before creating another
+        this.scanProviderSubscription.unsubscribe();
+      }
+    }
+
+    this.scanProviderSubscription = this.scanProvider.scan(SelectScanningModePage.SCAN_MODE_ENTER_MAUALLY, this.keyboardInput).subscribe(
+      scan => this.saveAndSendScan(scan),
+      err => {
+        // if the user clicks cancel without acquiring not even a single barcode
+        if (!this.isNewSession && this.scanSession.scannings.length == 0) {
+          this.navCtrl.pop()
+        }
+      }
+      // the manual mode can't a have a complete() event
+    )
   }
 
   saveAndSendScan(scan: ScanModel) {
@@ -211,10 +231,7 @@ export class ScanSessionPage {
     let buttons = [];
 
     buttons.push({
-      text: 'Delete',
-      icon: 'trash',
-      role: 'destructive',
-      handler: () => {
+      text: 'Delete', icon: 'trash', role: 'destructive', handler: () => {
         this.ga.trackEvent('scannings', 'delete');
         this.scanSession.scannings.splice(scanIndex, 1);
         this.save();
@@ -227,9 +244,7 @@ export class ScanSessionPage {
 
     let scanString = ScanModel.ToString(scan);
     buttons.push({
-      text: 'Share',
-      icon: 'share',
-      handler: () => {
+      text: 'Share', icon: 'share', handler: () => {
         this.ga.trackEvent('scannings', 'share');
         this.socialSharing.share(scanString, "", "", "")
       }
@@ -237,9 +252,7 @@ export class ScanSessionPage {
 
     if (scanString.indexOf('http') == 0) {
       buttons.push({
-        text: 'Open in browser',
-        icon: 'open',
-        handler: () => {
+        text: 'Open in browser', icon: 'open', handler: () => {
           this.ga.trackEvent('scannings', 'open_browser');
           window.open(scanString, '_blank');
         }
@@ -247,8 +260,7 @@ export class ScanSessionPage {
     }
 
     buttons.push({
-      text: 'Repeat from here',
-      icon: 'refresh',
+      text: 'Repeat from here', icon: 'refresh',
       handler: () => {
         this.ga.trackEvent('scannings', 'repeatAll');
         if (this.repeatingStatus == 'stopped') {
@@ -257,14 +269,9 @@ export class ScanSessionPage {
       }
     });
 
-    buttons.push({
-      text: 'Cancel',
-      role: 'cancel'
-    });
+    buttons.push({ text: 'Cancel', role: 'cancel' });
 
-    let actionSheet = this.actionSheetCtrl.create({
-      buttons: buttons
-    });
+    let actionSheet = this.actionSheetCtrl.create({ buttons: buttons });
     actionSheet.present();
   } // onItemClick
 
@@ -291,7 +298,6 @@ export class ScanSessionPage {
   }
 
   setName() {
-    this.isNewSession = false;
     return new Promise((resolve, reject) => {
       let alert = this.alertCtrl.create({
         title: 'Name', message: 'Insert a name for this scan session',
@@ -307,9 +313,7 @@ export class ScanSessionPage {
           }
         }]
       });
-      this.isSetNameDialogOpen = true;
       alert.onDidDismiss(() => {
-        this.isSetNameDialogOpen = false;
         resolve();
       })
       alert.present();
@@ -379,9 +383,6 @@ export class ScanSessionPage {
     this.nativeAudio.play('beep');
   }
 
-
-  private skipAlreadySent = false;
-
   onRepeatAllClick() {
     this.alertCtrl.create({
       title: 'Send all barcodes again',
@@ -434,12 +435,11 @@ export class ScanSessionPage {
   }
 
   onEnterClick(event = null) {
-    if (this.keyboardBuffer == '') {
-      return;
-    }
+    this.keyboardInput.submit();
+  }
 
-    this.manualInputSubscriber.next(this.keyboardBuffer);
-    this.keyboardBuffer = '';
+  scanToString(scan) {
+    return ScanModel.ToString(scan);
   }
 
   private repeatAll(startFrom = -1) {
@@ -469,9 +469,5 @@ export class ScanSessionPage {
     let neverScanned = !this.scanSession || (this.scanSession.scannings.length == 0 && this.isNewSession);
     let hasBeenRenamed = this.lastScanSessionName && this.lastScanSessionName != this.scanSession.name;
     return neverScanned && !hasBeenRenamed;
-  }
-
-  getScanText(scan) {
-    return ScanModel.ToString(scan);
   }
 }
