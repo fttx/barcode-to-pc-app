@@ -156,12 +156,13 @@ export class ScanProvider {
                                             observer.complete();
                                             return; // returns the again() function
                                         }
-                                        // TODO remove this variable on the server side, if the user doesn't have purchased the license
+                                        // it's ok to always include the quantity variable, since even if the user
+                                        // doesn't have the license he won't be able to create the output profile
                                         variables.quantity = outputBlock.value;
                                         scan.quantity = outputBlock.value; // backwards compatibility
                                         break;
                                     }
-                                } // switch
+                                } // switch outputBlock.value
                                 break;
                             }
                             case 'function': {
