@@ -147,7 +147,7 @@ export class ScanProvider {
                                     case 'timestamp': outputBlock.value = (scan.date * 1000) + ''; break;
                                     case 'date': outputBlock.value = new Date(scan.date).toLocaleDateString(); break;
                                     case 'time': outputBlock.value = new Date(scan.date).toLocaleTimeString(); break;
-                                    case 'date_time': new Date(scan.date).toLocaleTimeString() + ' ' + new Date(scan.date).toLocaleDateString(); break;
+                                    case 'date_time': outputBlock.value = new Date(scan.date).toLocaleTimeString() + ' ' + new Date(scan.date).toLocaleDateString(); break;
                                     case 'quantity': {
                                         try {
                                             outputBlock.value = await this.getQuantity();
