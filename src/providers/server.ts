@@ -14,6 +14,7 @@ import { Settings } from '../providers/settings';
 import { ServerModel } from './../models/server.model';
 import { Config } from './config';
 import { LastToastProvider } from './last-toast/last-toast';
+import { ScanProvider } from './scan';
 
 
 /*
@@ -52,6 +53,7 @@ export class ServerProvider {
 
   constructor(
     private settings: Settings,
+    private scanProvider: ScanProvider,
     private NgZone: NgZone,
     private lastToast: LastToastProvider,
     private zeroconf: Zeroconf,
@@ -207,6 +209,7 @@ export class ServerProvider {
       } else if (messageData.action == responseModel.UPDATE_OUTPUT_PROFILES) {
         let responseModelUpdateOutputProfiles: responseModelUpdateOutputProfiles = messageData;
         this.settings.setOutputProfiles(responseModelUpdateOutputProfiles.outputProfiles);
+        this.scanProvider.updateOutputProfile();
       } else if (messageData.action == responseModel.ACTION_GET_VERSION) {
         // fallBack for old server versions
         console.log('FallBack: old getVersion received, showing version mismatch');

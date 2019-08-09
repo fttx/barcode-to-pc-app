@@ -328,6 +328,10 @@ export class ScanProvider {
         return promise;
     }
 
+    public async updateOutputProfile() {
+        this.outputProfile = await this.getOutputProfile();
+    }
+
     private async getOutputProfile(): Promise<OutputProfileModel> {
         let profiles = await this.settings.getOutputProfiles();
         return new Promise<OutputProfileModel>((resolve, reject) => {
