@@ -116,7 +116,7 @@
       },
       "cordova-launch-review": {},
       "cordova-sqlite-storage": {},
-      "phonegap-plugin-barcodescanner": {
+      "@fttx/phonegap-plugin-barcodescanner": {
         "ANDROID_SUPPORT_V4_VERSION": "27.1.1"
       }
     },
