@@ -117,7 +117,9 @@ export class ScanProvider {
                     // scan result
                     let scan = new ScanModel();
                     let now = new Date().getTime();
-                    scan.outputBlocks = JSON.parse(JSON.stringify(this.outputProfile.outputBlocks)) // copy object
+                    // cloning the the outputProfile object is important since the if/endif
+                    // blocks may remove elements
+                    scan.outputBlocks = JSON.parse(JSON.stringify(this.outputProfile.outputBlocks))
                     scan.id = now;
                     scan.repeated = false;
                     scan.date = now;
@@ -198,7 +200,7 @@ export class ScanProvider {
                                     // to remove the 'endif'
                                     scan.outputBlocks.splice(endIfIndex - 1, 1);
                                 } else {
-                                    // if condition is false, we must branch, so we remove the blocks
+                                    // if the condition is false, we must branch, so we remove the blocks
                                     // inside the 'if' (including the current block that is an 'if') and the 'endif'
                                     // splice(startFrom (included), noElementsToRemove (included))
                                     let count = endIfIndex - i + 1;
