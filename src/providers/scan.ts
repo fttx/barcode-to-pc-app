@@ -184,16 +184,31 @@ export class ScanProvider {
                             case 'delay': break;
                             case 'if': {
                                 let condition = this.evalCode(outputBlock.value, variables);
-                                if (condition === false) {
-                                    // the if condition is false, we must branch
-                                    // the current i value is pointing to the 'if' block, we start searching from
-                                    // the next block, that is the (i + 1)th
-                                    let endIfIndex = OutputBlockModel.FindEndIfIndex(scan.outputBlocks, i + 1);
+                                // the current i value is pointing to the 'if' block, we start searching from
+                                // the next block, that is the (i + 1)th
+                                let endIfIndex = OutputBlockModel.FindEndIfIndex(scan.outputBlocks, i + 1);
+                                if (condition == true) {
+                                    // if the condition is true we remove only the 'if' and 'endif' bloks
 
-                                    // remove the blocks inside the if (including the current block that is an if, and the endif)
+                                    // remove 'if'
+                                    scan.outputBlocks.splice(i, 1);
+
+                                    // remove 'endif'
+                                    // since we removed 1 block, now we have to add -1 offset in order
+                                    // to remove the 'endif'
+                                    scan.outputBlocks.splice(endIfIndex - 1, 1);
+                                } else {
+                                    // if condition is false, we must branch, so we remove the blocks
+                                    // inside the 'if' (including the current block that is an 'if') and the 'endif'
                                     // splice(startFrom (included), noElementsToRemove (included))
-                                    scan.outputBlocks.splice(i, endIfIndex);
+                                    let count = endIfIndex - i + 1;
+                                    scan.outputBlocks.splice(i, count);
                                 }
+                                // since we always remove the 'if' block, we won't need to point to the next
+                                // block, because the latter will take the place of the current 'if' block.
+                                // To do that we just decrease i, in order to compensate the increment performed
+                                // by the for cycle
+                                i--;
                                 break;
                             }
                         }
@@ -323,7 +338,7 @@ export class ScanProvider {
         }); // promise
 
         promise
-            .then(value => { this.awaitingForBarcode = false;; })
+            .then(value => { this.awaitingForBarcode = false; })
             .catch(err => { this.awaitingForBarcode = false; })
         return promise;
     }

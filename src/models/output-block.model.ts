@@ -37,7 +37,7 @@ export class OutputBlockModel {
                 skip++;
             } else if (outputBlocks[i].type == 'endif') {
                 if (skip == 0) {
-                    return i - 1;
+                    return i;
                 } else {
                     skip--;
                 }
