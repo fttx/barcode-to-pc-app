@@ -64,16 +64,17 @@
     "ionicons": "3.0.0",
     "marked": "^0.5.0",
     "ngx-markdown": "^6.1.0",
+    "papaparse": "^4.4.0",
     "rxjs": "5.5.11",
     "semver": "^5.7.0",
     "sw-toolbox": "3.6.0",
     "zone.js": "0.8.26"
   },
   "devDependencies": {
-    "@ionic/app-scripts": "3.2.1",
-    "@types/bluebird": "^3.5.21",
+    "@ionic/app-scripts": "3.2.3",
+    "@types/bluebird": "3.5.21",
+    "@types/papaparse": "^5.0.1",
     "@types/semver": "^5.5.0",
-    "ionic": "^4.8.0",
     "typescript": "~2.6.2"
   },
   "cordovaPlugins": [
