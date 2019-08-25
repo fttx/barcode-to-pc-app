@@ -115,7 +115,7 @@ export class ScanProvider {
                 let againCount = 0;
 
                 // again() encapsulates the part that need to be repeated when
-                // the continuos mode is active
+                // the continuos mode or manual mode are active
                 let again = async () => {
 
                     // infinite loop detetion
@@ -250,8 +250,18 @@ export class ScanProvider {
                                 i--;
                                 break;
                             }
+
+                        } // switch outputBlock.type
+
+                        // when the outputBlock is marked as 'skipOutput' we don't send it to the server
+                        // but we still process it in the outputProfile in order to set the variables
+                        // so that they can be used by the next outputBloks of the outputTemplate.
+                        if (outputBlock.skipOutput) {
+                            scan.outputBlocks.splice(i, 1);
+                            i--;
                         }
-                    }
+                    } // for
+
 
                     // prevent infinite loops
                     againCount++;
@@ -304,7 +314,7 @@ export class ScanProvider {
 
     // We need to store lastResolve and lastReject because when the continuos
     // mode is in use, we have to forward the resulting barcode of the
-    /// subscription to the last getBarcode promise.
+    // subscription to the last getBarcode promise.
     // lastReject and lastResolve relay on the fact that it will never be
     // simultanius calls to getBarcode() method, it will always be called
     // sequencially. The explaination is that the loop contained in the start()
