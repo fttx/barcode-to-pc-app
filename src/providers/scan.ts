@@ -110,10 +110,33 @@ export class ScanProvider {
                 }
                 this.pluginOptions = pluginOptions;
 
+                // used to prevent infinite loops.
+                let resetIfCountTimer;
+                let againCount = 0;
 
                 // again() encapsulates the part that need to be repeated when
                 // the continuos mode is active
                 let again = async () => {
+
+                    // infinite loop detetion
+                    if (againCount > 30) {
+                        // Example of infinite loop:
+                        //
+                        // Output template = [IF(false)] [BARCODE] [ENDIF]
+                        // In this case it would repeat  the outputProfile
+                        // indefinitelly without prompting the user because there
+                        // isn't a blocking component that can give the opportunity
+                        // to press back and cancel the scan.
+                        // It may happen also when there is no BARCODE component or
+                        // when the if contains a syntax error.
+                        let wantToContinue = await this.showPreventInfiniteLoopDialog();
+                        if (!wantToContinue) {
+                            // this code fragment is duplicated for the 'quantity', 'if' and 'barcode' blocks and in the againCount condition
+                            observer.complete();
+                            return; // returns the again() function
+                        }
+                    }
+
                     // scan result
                     let scan = new ScanModel();
                     let now = new Date().getTime();
@@ -154,7 +177,7 @@ export class ScanProvider {
                                         try {
                                             outputBlock.value = await this.getQuantity();
                                         } catch (err) {
-                                            // this code fragment is duplicated for the 'barcode' block
+                                            // this code fragment is duplicated for the 'quantity', 'if' and 'barcode' blocks and in the againCount condition
                                             observer.complete();
                                             return; // returns the again() function
                                         }
@@ -168,7 +191,11 @@ export class ScanProvider {
                                 break;
                             }
                             case 'function': {
-                                outputBlock.value = this.evalCode(outputBlock.value, variables);
+                                try {
+                                    outputBlock.value = this.evalCode(outputBlock.value, variables);
+                                } catch (error) {
+                                    outputBlock.value = '';
+                                }
                                 break;
                             }
                             case 'barcode': {
@@ -178,14 +205,24 @@ export class ScanProvider {
                                     variables.barcodes.push(barcode);
                                     outputBlock.value = barcode;
                                 } catch (err) {
-                                    // this code fragment is duplicated for the 'quantity' block
+                                    // this code fragment is duplicated for the 'quantity', 'if' and 'barcode' blocks and in the againCount condition
                                     observer.complete();
                                     return; // returns the again() function
                                 }
                             }
                             case 'delay': break;
                             case 'if': {
-                                let condition = this.evalCode(outputBlock.value, variables);
+                                let condition = false;
+                                try {
+                                    condition = this.evalCode(outputBlock.value, variables);
+                                } catch (error) {
+                                    // if the condition cannot be evaluated we must stop
+                                    // TODO stop only if the acusitionMode is manual? Or pop-back?
+
+                                    // this code fragment is duplicated for the 'quantity', 'if' and 'barcode' blocks and in the againCount condition
+                                    observer.complete();
+                                    return; // returns the again() function
+                                }
                                 // the current i value is pointing to the 'if' block, we start searching from
                                 // the next block, that is the (i + 1)th
                                 let endIfIndex = OutputBlockModel.FindEndIfIndex(scan.outputBlocks, i + 1);
@@ -215,6 +252,11 @@ export class ScanProvider {
                             }
                         }
                     }
+
+                    // prevent infinite loops
+                    againCount++;
+                    if (resetIfCountTimer) clearTimeout(resetIfCountTimer);
+                    resetIfCountTimer = setTimeout(() => againCount = 0, 500);
 
                     /**
                     * @deprecated backwards compatibility
@@ -424,6 +466,25 @@ export class ScanProvider {
         });
     }
 
+    private showPreventInfiniteLoopDialog(): Promise<boolean> {
+        return new Promise((resolve, reject) => {
+            this.alertCtrl.create({
+                title: 'Infinite loop detected',
+                message: 'Perhaps you forgot to put the BARCODE componet, or you have a condition that is always false. Check your Output template. Do you want to continue?',
+                buttons: [{
+                    text: 'Stop', role: 'cancel',
+                    handler: () => {
+                        resolve(false);
+                    }
+                }, {
+                    text: 'Continue', handler: () => {
+                        resolve(true);
+                    }
+                }]
+            }).present();
+        });
+    }
+
     /**
      * Injects variables like barcode, device_name, date and evaluates
      * the string parameter
@@ -451,7 +512,7 @@ export class ScanProvider {
                 message: 'An error occurred while executing your Output template: ' + error,
                 buttons: [{ text: 'Ok', role: 'cancel', }]
             }).present();
-            return '';
+            throw new Error(error);
         } finally {
             // executed in each case before return
             delete window[randomInt];
