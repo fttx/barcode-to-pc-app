@@ -280,6 +280,19 @@ export class Utils {
     }
 
     result = 'A' + result;
+
+
+    // compute the 9th character (check digit)
+    // https://www.free-barcode-generator.net/code-32/
+    let z1 = 2 * parseInt(result[2]);
+    let z2 = 2 * parseInt(result[4]);
+    let z3 = 2 * parseInt(result[6]);
+    let z4 = 2 * parseInt(result[8]);
+    let S1 = Math.trunc(z1 / 10) + Math.trunc(z2 / 10) + Math.trunc(z3 / 10) + Math.trunc(z4 / 10) + z1 % 10 + z2 % 10 + z3 % 10 + z4 % 10;
+    let S2 = parseInt(result[1]) + parseInt(result[3]) + parseInt(result[5]) + parseInt(result[7]);
+    let S = S1 + S2;
+    result += ("" + S % 10);
+
     // checksum:
     // XP2 = XP
     // base32()
