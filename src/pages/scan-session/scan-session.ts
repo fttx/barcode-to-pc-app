@@ -438,10 +438,6 @@ export class ScanSessionPage {
     this.keyboardInput.submit();
   }
 
-  scanToString(scan) {
-    return ScanModel.ToString(scan);
-  }
-
   private repeatAll(startFrom = -1) {
     if (startFrom < 0 || startFrom >= this.scanSession.scannings.length) {
       this.stopRepeatingClick();

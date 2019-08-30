@@ -62,10 +62,11 @@ export class ScanSessionsPage {
             scan.date = scanDate;
             scan.repeated = false;
             scan.outputBlocks = [
-              { name: 'BARCODE', value: j + ' - ' + Math.floor(Math.random() * 99999999999) + '', type: 'barcode' }, 
+              { name: 'BARCODE', value: j + ' - ' + Math.floor(Math.random() * 99999999999) + '', type: 'barcode' },
               { name: 'ENTER', value: 'tab', type: 'key' },
               { name: 'QUANTITY', value: '5', type: 'variable' },
-              { name: 'ENTER', value: 'enter', type: 'key' }],
+              { name: 'ENTER', value: 'enter', type: 'key' }];
+            scan.displayValue = ScanModel.ToString(scan);
             scannings.push(scan);
             scanDate += Math.floor(Math.random() * 2000) + 1500;
           }

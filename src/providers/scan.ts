@@ -280,6 +280,7 @@ export class ScanProvider {
                     }).filter(x => x != '').join(' ');
                     // end backwards compatibility
 
+                    scan.displayValue = ScanModel.ToString(scan);
                     observer.next(scan);
 
                     // decide how and if repeat the outputBlock
