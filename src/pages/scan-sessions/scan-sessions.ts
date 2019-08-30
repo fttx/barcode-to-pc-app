@@ -139,7 +139,7 @@ export class ScanSessionsPage {
         let store = isAndroid ? 'PlayStore' : 'Appstore';
         this.alertCtrl.create({
           title: 'Rate Barcode to PC',
-          message: 'Are you enjoying Barcode to PC?<br><br>Please, rate it on the ' + store + ', it would be appreciated!',
+          message: 'Is Barcode to PC helping you transfer barcodes?<br><br>Let the world know by rating it on the ' + store + ', it would be appreciated!',
           buttons: [{
             text: 'Remind me later',
             role: 'cancel'
@@ -330,6 +330,7 @@ export class ScanSessionsPage {
   }
 
   private save() {
+    console.log('[storage] setScanSessions() 1')
     this.scanSessionsStorage.setScanSessions(this.scanSessions);
   }
 
