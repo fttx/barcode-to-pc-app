@@ -211,6 +211,7 @@ export class ScanProvider {
                                 }
                             }
                             case 'delay': break;
+                            case 'http': break;
                             case 'if': {
                                 let condition = false;
                                 try {
