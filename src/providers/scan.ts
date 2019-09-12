@@ -525,7 +525,7 @@ export class ScanProvider {
             }).present();
             throw new Error(error);
         } finally {
-            // executed in each case before return
+            // executed in either case before returning
             delete window[randomInt];
         }
 
