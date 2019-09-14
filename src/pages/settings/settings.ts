@@ -22,6 +22,7 @@ import { AppVersion } from '@ionic-native/app-version';
 })
 export class SettingsPage {
   public deviceName: string;
+  public scanSessionName: string;
   public continueModeTimeout = Config.DEFAULT_CONTINUE_MODE_TIMEOUT;
   public repeatInterval = Config.DEFAULT_REPEAT_INVERVAL;
   public availableContinueModeTimeouts = Array.from(Array(30).keys());
@@ -62,6 +63,10 @@ export class SettingsPage {
 
     this.settings.getDeviceName().then(deviceName => {
       this.deviceName = deviceName;
+    })
+
+    this.settings.getScanSessionName().then(scanSessionName => {
+      this.scanSessionName = scanSessionName;
     })
 
     this.settings.getRepeatInterval().then(repeatInterval => {
@@ -106,6 +111,7 @@ export class SettingsPage {
     this.settings.setRepeatInterval(this.repeatInterval);
     this.settings.setDefaultMode(this.scanMode);
     this.settings.setDeviceName(this.deviceName);
+    this.settings.setScanSessionName(this.scanSessionName);
     this.settings.setPreferFrontCamera(this.preferFrontCamera);
     this.settings.setBarcodeFormats(this.barcodeFormats);
     this.settings.setEnableLimitBarcodeFormats(this.enableLimitBarcodeFormats);

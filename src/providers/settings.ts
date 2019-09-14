@@ -35,6 +35,7 @@ export class Settings {
   private static QUANTITY_ENABLED = 'quantity_enabled';
   private static QUANTITY_TYPE = 'quantity_type';
   private static SOUND_FEEDBACK_OR_DIALOG_SHOWN = 'sound_feedback_or_dialog_shown';
+  private static SCAN_SESSION_NAME = 'scan_session_name';
 
   constructor(
     public storage: Storage,
@@ -184,6 +185,21 @@ export class Settings {
           resolve(this.device.model);
         } else {
           resolve(deviceName)
+        }
+      });
+    });
+  }
+
+  setScanSessionName(scanSessionName: string) {
+    return this.storage.set(Settings.SCAN_SESSION_NAME, scanSessionName);
+  }
+  getScanSessionName(): Promise<string> {
+    return new Promise(resolve => {
+      this.storage.get(Settings.SCAN_SESSION_NAME).then(scanSessionName => {
+        if (!scanSessionName) {
+          resolve("Scan session {{ scan_session_number }}");
+        } else {
+          resolve(scanSessionName)
         }
       });
     });

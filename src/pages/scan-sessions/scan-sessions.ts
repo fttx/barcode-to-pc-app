@@ -4,7 +4,7 @@ import { GoogleAnalytics } from '@ionic-native/google-analytics';
 import { LaunchReview } from '@ionic-native/launch-review';
 import * as Promise from 'bluebird';
 import { AlertController, ItemSliding, NavController, PopoverController } from 'ionic-angular';
-
+import * as Supplant from 'supplant';
 import { requestModelDeleteScanSessions } from '../../models/request.model';
 import { ScanSessionModel } from '../../models/scan-session.model';
 import { ScanModel } from '../../models/scan.model';
@@ -16,6 +16,7 @@ import { Utils } from '../../providers/utils';
 import { ScanSessionPage } from '../scan-session/scan-session';
 import { SelectServerPage } from '../select-server/select-server';
 import { Settings } from './../../providers/settings';
+
 
 @Component({
   selector: 'page-scannings',
@@ -244,11 +245,17 @@ export class ScanSessionsPage {
     }
   }
 
-  onAddClick() {
+  async onAddClick() {
     let date: number = new Date().getTime();
+    let name = await this.settings.getScanSessionName();
+    name = new Supplant().text(name, {
+      scan_session_number: this.scanSessions.length + 1,
+      device_name: await this.settings.getDeviceName(),
+      date: new Date().toISOString().slice(0, 10).replace(/-/g, "")
+    });
     let newScanSession: ScanSessionModel = {
       id: date,
-      name: 'Scan session ' + (this.scanSessions.length + 1),
+      name: name,
       date: date,
       scannings: [],
       selected: false,

@@ -37,8 +37,25 @@
     <ion-item>
       <ion-label color="dark">Scan mode</ion-label>
       <ion-select [(ngModel)]="scanMode">
-        <ion-option *ngFor="let scanMode of getScanModeList()" [value]="scanMode">{{ getScanModeName(scanMode) }}</ion-option>
+        <ion-option *ngFor="let scanMode of getScanModeList()" [value]="scanMode">{{ getScanModeName(scanMode) }}
+        </ion-option>
       </ion-select>
+    </ion-item>
+
+    <ion-item no-lines>
+      <ion-label color="dark">Scan session name</ion-label>
+
+      <ion-input [(ngModel)]="scanSessionName" placeholder="Scan session name" text-right>
+        {{ scanSessionName }}</ion-input>
+    </ion-item>
+
+    <ion-item text-wrap>
+      <p>
+        You can use the following variables:
+        <code>device_name, scan_session_number, date.</code><br><br>
+
+        Example: <code ngNonBindable>{{ date }}_acquisitions</code><br>
+      </p>
     </ion-item>
 
     <ion-item>
@@ -50,7 +67,7 @@
       <ion-label color="dark">Prefer front camera</ion-label>
       <ion-toggle [(ngModel)]="preferFrontCamera"></ion-toggle>
     </ion-item>
-    
+
     <ion-item>
       <ion-label color="dark">Quantity type</ion-label>
       <ion-select [(ngModel)]="quantityType">
@@ -63,7 +80,7 @@
       <ion-label>
         <h2 color="dark">Limit barcode formats</h2>
         <p>
-          Use this setting to keep enabled only the barcode formats that you scan. 
+          Use this setting to keep enabled only the barcode formats that you scan.
           It may improve the scanning speed and the overall reliability.
         </p>
       </ion-label>
