@@ -10,6 +10,7 @@ import { ScanModel } from '../models/scan.model';
 import { SelectScanningModePage } from '../pages/scan-session/select-scanning-mode/select-scanning-mode';
 import { Settings } from './settings';
 import { Utils } from './utils';
+import * as Supplant from 'supplant';
 
 /**
  * The job of this class is to generate a ScanModel by talking with the native
@@ -211,7 +212,13 @@ export class ScanProvider {
                                 }
                             }
                             case 'delay': break;
-                            case 'http': break;
+                            case 'http': {
+                                // injects variables (interpolation)
+                                // Example:
+                                // 'http://localhost/?a={{ barcode }}' becomes 'http://localhost/?a=123456789'
+                                outputBlock.value = new Supplant().text(outputBlock.value, variables);
+                                break;
+                            }
                             case 'if': {
                                 let condition = false;
                                 try {
