@@ -39,7 +39,6 @@ export class ScanSessionPage {
   public repeatingStatus: 'paused' | 'repeating' | 'stopped' = 'stopped';
 
   private isNewSession = false;
-  private lastScanSessionName: string = null;
   private repeatInterval = Config.DEFAULT_REPEAT_INVERVAL;
   private repeatAllTimeout = null;
   private next = -1;
@@ -123,7 +122,7 @@ export class ScanSessionPage {
   }
 
   ionViewWillLeave() {
-    this.save();
+
   }
 
   scan() { // Called when the user want to scan
@@ -305,7 +304,6 @@ export class ScanSessionPage {
         buttons: [{
           text: 'Ok', handler: data => {
             if (this.scanSession.name != data.name && data.name != "") {
-              this.lastScanSessionName = this.scanSession.name;
               this.scanSession.name = data.name;
               this.sendUpdateScanSession(this.scanSession);
               this.save();
@@ -325,9 +323,6 @@ export class ScanSessionPage {
   }
 
   save() {
-    if (this.isPristine()) {
-      return;
-    }
     this.scanSessionsStorage.updateScanSession(this.scanSession);
   }
 
@@ -461,9 +456,4 @@ export class ScanSessionPage {
     }, this.repeatInterval);
   }
 
-  private isPristine() {
-    let neverScanned = !this.scanSession || (this.scanSession.scannings.length == 0 && this.isNewSession);
-    let hasBeenRenamed = this.lastScanSessionName && this.lastScanSessionName != this.scanSession.name;
-    return neverScanned && !hasBeenRenamed;
-  }
 }
