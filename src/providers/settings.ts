@@ -5,7 +5,6 @@ import { Storage } from '@ionic/storage';
 import { barcodeFormatModel } from '../models/barcode-format.model';
 import { OutputProfileModel } from '../models/output-profile.model';
 import { ServerModel } from '../models/server.model';
-import { resolve } from 'bluebird';
 
 
 /*

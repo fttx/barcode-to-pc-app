@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { Device } from '@ionic-native/device';
 import { GoogleAnalytics } from '@ionic-native/google-analytics';
 import { LaunchReview } from '@ionic-native/launch-review';
-import * as Promise from 'bluebird';
+import * as BluebirdPromise from 'bluebird';
 import { AlertController, ItemSliding, NavController, PopoverController } from 'ionic-angular';
 import * as Supplant from 'supplant';
 import { requestModelDeleteScanSessions } from '../../models/request.model';
@@ -133,7 +133,7 @@ export class ScanSessionsPage {
   }
 
   private onConnect() {
-    Promise.join(this.settings.getNoRunnings(), this.settings.getRated(), (runnings, rated) => {
+    BluebirdPromise.join(this.settings.getNoRunnings(), this.settings.getRated(), (runnings, rated) => {
       if (runnings >= Config.NO_RUNNINGS_BEFORE_SHOW_RATING && !rated) {
         let os = this.device.platform || 'unknown';
         let isAndroid = os.toLowerCase().indexOf('android') != -1;
