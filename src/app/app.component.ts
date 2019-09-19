@@ -1,25 +1,25 @@
 import { Component, ViewChild } from '@angular/core';
-import { Platform, MenuController, NavController, ModalController, AlertController, Events } from 'ionic-angular';
-import { SplashScreen } from '@ionic-native/splash-screen';
-
-import { ScanSessionsPage } from '../pages/scan-sessions/scan-sessions';
-import { WelcomePage } from '../pages/welcome/welcome';
-import { SelectServerPage } from './../pages/select-server/select-server';
-import { AboutPage } from '../pages/about/about';
-import { Settings } from '../providers/settings';
-import { SettingsPage } from '../pages/settings/settings';
-import { StatusBar } from '@ionic-native/status-bar';
-import { HelpPage } from '../pages/help/help';
-import { GoogleAnalytics } from '@ionic-native/google-analytics';
-import { Config } from '../providers/config';
-import { AppVersion } from '@ionic-native/app-version';
 import { Http } from '@angular/http';
-import { Utils } from '../providers/utils';
-import { ArchivedPage } from '../pages/archived/archived';
+import { AppVersion } from '@ionic-native/app-version';
+import { GoogleAnalytics } from '@ionic-native/google-analytics';
+import { SplashScreen } from '@ionic-native/splash-screen';
+import { StatusBar } from '@ionic-native/status-bar';
+import { AlertController, Events, MenuController, ModalController, NavController, Platform } from 'ionic-angular';
 import { MarkdownService } from 'ngx-markdown';
 import { gt, SemVer } from 'semver';
+import { ScanModel } from '../models/scan.model';
+import { AboutPage } from '../pages/about/about';
+import { ArchivedPage } from '../pages/archived/archived';
+import { HelpPage } from '../pages/help/help';
+import { ScanSessionsPage } from '../pages/scan-sessions/scan-sessions';
+import { SettingsPage } from '../pages/settings/settings';
+import { WelcomePage } from '../pages/welcome/welcome';
+import { Config } from '../providers/config';
 import { ScanSessionsStorage } from '../providers/scan-sessions-storage';
-import { ScanSessionModel } from '../models/scan-session.model';
+import { Settings } from '../providers/settings';
+import { Utils } from '../providers/utils';
+import { SelectServerPage } from './../pages/select-server/select-server';
+
 
 @Component({
   templateUrl: 'app.html',
@@ -60,7 +60,7 @@ export class MyApp {
         let everConnected = results[1];
         let alwaysSkipWelcomePage = results[2];
         // results[3] => upgrade
-        
+
         if ((!runnings || !everConnected) && !alwaysSkipWelcomePage) {
           this.rootPage = WelcomePage;
         } else {
@@ -182,6 +182,43 @@ export class MyApp {
             await this.scanSessionsStorage.setScanSessions(scanSessions);
           }
         }
+        // Upgrade output profiles end
+
+
+        // Upgrade displayValue
+        let displayValue = await this.settings.getUpgradedDisplayValue();
+        if (
+          // if it's upgrading from an older version, and the upgrade was never started (null)
+          (lastVersion.compare('3.1.5') == -1 && displayValue == null)
+          || // or
+          // if the update has been started, but not completed (null)
+          displayValue === false) {
+
+          // mark the update as "started"
+          await this.settings.setUpgradedDisplayValue(false);
+
+          let alert = this.alertCtrl.create({
+            title: 'Updating database',
+            message: 'The app database is updating, <b>do not close</b> it.<br><br>It may take few minutes, please wait...',
+            enableBackdropDismiss: false,
+          });
+
+          // upgrade db
+          alert.present();
+          let scanSessions = await this.scanSessionsStorage.getScanSessions();
+          for (let scanSession of scanSessions) {
+            for (let scan of scanSession.scannings) {
+              scan.displayValue = ScanModel.ToString(scan);
+            }
+          }
+          await this.scanSessionsStorage.setScanSessions(scanSessions);
+          alert.dismiss();
+
+          // mark the update as "finished" (true)
+          await this.settings.setUpgradedDisplayValue(true);
+        } // Upgrade displayName end
+
+
         await this.settings.setLastVersion(currentVersion.version);
         resolve(); // always resolve at the end (note the awaits!)
       })

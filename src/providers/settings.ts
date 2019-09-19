@@ -35,6 +35,7 @@ export class Settings {
   private static QUANTITY_TYPE = 'quantity_type';
   private static SOUND_FEEDBACK_OR_DIALOG_SHOWN = 'sound_feedback_or_dialog_shown';
   private static SCAN_SESSION_NAME = 'scan_session_name';
+  private static UPGRADED_DISPLAYVALUE = 'upgraded_displayvalue';
 
   constructor(
     public storage: Storage,
@@ -95,6 +96,14 @@ export class Settings {
 
   getLastVersion(): Promise<string> {
     return this.storage.get(Settings.LAST_VERSION).then(version => version || '0.0.0');
+  }
+
+  setUpgradedDisplayValue(upgradedDisplayValue: boolean) {
+    return this.storage.set(Settings.UPGRADED_DISPLAYVALUE, upgradedDisplayValue);
+  }
+
+  getUpgradedDisplayValue(): Promise<boolean> {
+    return this.storage.get(Settings.UPGRADED_DISPLAYVALUE).then(displayValue => displayValue || null);
   }
 
   setContinueModeTimeout(seconds: number) {
