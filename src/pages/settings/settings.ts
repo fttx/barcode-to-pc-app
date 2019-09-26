@@ -9,6 +9,7 @@ import { SelectScanningModePage } from '../scan-session/select-scanning-mode/sel
 import { Config } from './../../providers/config';
 import { Settings } from './../../providers/settings';
 import { AppVersion } from '@ionic-native/app-version';
+import { Insomnia } from '@ionic-native/insomnia';
 
 /*
   Generated class for the Settings page.
@@ -29,6 +30,7 @@ export class SettingsPage {
   public availableRepeatIntervals = [];
   public scanMode = '';
   public preferFrontCamera = false;
+  public keepDisplayOn = false;
   private changesSaved = false;
   public quantityType: string = 'number';
 
@@ -42,6 +44,7 @@ export class SettingsPage {
     private serverProvider: ServerProvider,
     public appVersion: AppVersion,
     private device: Device,
+    private insomnia: Insomnia,
   ) {
     for (let i = 0; i <= 15000; i += 250) {
       this.availableRepeatIntervals.push(i);
@@ -87,6 +90,10 @@ export class SettingsPage {
       this.preferFrontCamera = preferFrontCamera;
     });
 
+    this.settings.getKeepDisplayOn().then(keepDisplayOn => {
+      this.keepDisplayOn = keepDisplayOn;
+    });
+    
     this.settings.getQuantityType().then(quantityType => {
       if (quantityType) {
         this.quantityType = quantityType;
@@ -113,6 +120,7 @@ export class SettingsPage {
     this.settings.setDeviceName(this.deviceName);
     this.settings.setScanSessionName(this.scanSessionName);
     this.settings.setPreferFrontCamera(this.preferFrontCamera);
+    this.settings.setKeepDisplayOn(this.keepDisplayOn);
     this.settings.setBarcodeFormats(this.barcodeFormats);
     this.settings.setEnableLimitBarcodeFormats(this.enableLimitBarcodeFormats);
     this.settings.setQuantityType(this.quantityType);
@@ -122,6 +130,12 @@ export class SettingsPage {
       deviceName: this.deviceName,
       deviceId: this.device.uuid
     }));
+
+    if (this.keepDisplayOn) {
+      this.insomnia.keepAwake();
+    } else {
+      this.insomnia.allowSleepAgain()
+    }
 
     // let toast = this.toastCtrl.create({
     //   message: 'Settings saved',

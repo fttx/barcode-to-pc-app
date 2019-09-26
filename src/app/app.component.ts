@@ -19,7 +19,7 @@ import { ScanSessionsStorage } from '../providers/scan-sessions-storage';
 import { Settings } from '../providers/settings';
 import { Utils } from '../providers/utils';
 import { SelectServerPage } from './../pages/select-server/select-server';
-
+import { Insomnia } from '@ionic-native/insomnia';
 
 @Component({
   templateUrl: 'app.html',
@@ -44,6 +44,7 @@ export class MyApp {
     private markdownService: MarkdownService,
     private scanSessionsStorage: ScanSessionsStorage,
     public events: Events,
+    private insomnia: Insomnia,
   ) {
     platform.ready().then(() => {
 
@@ -55,11 +56,12 @@ export class MyApp {
         }
       })
 
-      Promise.all([this.settings.getNoRunnings(), this.settings.getEverConnected(), this.settings.getAlwaysSkipWelcomePage(), this.upgrade()]).then((results: any[]) => {
+      Promise.all([this.settings.getNoRunnings(), this.settings.getEverConnected(), this.settings.getAlwaysSkipWelcomePage(), this.upgrade(), this.settings.getKeepDisplayOn()]).then((results: any[]) => {
         let runnings = results[0];
         let everConnected = results[1];
         let alwaysSkipWelcomePage = results[2];
         // results[3] => upgrade
+        let keepDisplayOn = results[4];
 
         if ((!runnings || !everConnected) && !alwaysSkipWelcomePage) {
           this.rootPage = WelcomePage;
@@ -69,6 +71,10 @@ export class MyApp {
 
         let newRunnings = runnings || 0;
         this.settings.setNoRunnings(newRunnings + 1);
+
+        if (keepDisplayOn) {
+          this.insomnia.keepAwake();
+        }
 
         splashScreen.hide();
         if (platform.is('ios')) {

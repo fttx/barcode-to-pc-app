@@ -26,6 +26,7 @@ export class Settings {
   private static DEVICE_NAME = 'device_name';
   private static REPEAT_INTERVAL = 'repeat_interval';
   private static PREFER_FRONT_CAMERA = 'prefer_front_camera';
+  private static KEEP_DISPLAY_ON = 'keep_display_on';
   private static UPGRADED_TO_SQLITE = 'upgraded_to_sqlite_5x';
   private static LAST_VERSION = 'last_version';
   private static BARCODE_FORMATS = 'barcode_formats';
@@ -225,6 +226,13 @@ export class Settings {
   }
   getPreferFrontCamera(): Promise<boolean> {
     return this.storage.get(Settings.PREFER_FRONT_CAMERA).then(result => { return result || false });
+  }
+
+  setKeepDisplayOn(keepDisplayOn: boolean) {
+    return this.storage.set(Settings.KEEP_DISPLAY_ON, keepDisplayOn);
+  }
+  getKeepDisplayOn(): Promise<boolean> {
+    return this.storage.get(Settings.KEEP_DISPLAY_ON).then(result => { return result || false });
   }
 
   setEnableLimitBarcodeFormats(enableLimitBarcodeFormats: boolean) {
