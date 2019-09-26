@@ -93,7 +93,7 @@ export class SettingsPage {
     this.settings.getKeepDisplayOn().then(keepDisplayOn => {
       this.keepDisplayOn = keepDisplayOn;
     });
-    
+
     this.settings.getQuantityType().then(quantityType => {
       if (quantityType) {
         this.quantityType = quantityType;
@@ -125,17 +125,17 @@ export class SettingsPage {
     this.settings.setEnableLimitBarcodeFormats(this.enableLimitBarcodeFormats);
     this.settings.setQuantityType(this.quantityType);
 
-    this.serverProvider.send(new requestModelHelo().fromObject({
-      version: await this.appVersion.getVersionNumber(),
-      deviceName: this.deviceName,
-      deviceId: this.device.uuid
-    }));
-
     if (this.keepDisplayOn) {
       this.insomnia.keepAwake();
     } else {
       this.insomnia.allowSleepAgain()
     }
+
+    this.serverProvider.send(new requestModelHelo().fromObject({
+      version: await this.appVersion.getVersionNumber(),
+      deviceName: this.deviceName,
+      deviceId: this.device.uuid
+    }));
 
     // let toast = this.toastCtrl.create({
     //   message: 'Settings saved',
