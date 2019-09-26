@@ -2,6 +2,7 @@ import { Component, ViewChild } from '@angular/core';
 import { Http } from '@angular/http';
 import { AppVersion } from '@ionic-native/app-version';
 import { GoogleAnalytics } from '@ionic-native/google-analytics';
+import { Insomnia } from '@ionic-native/insomnia';
 import { SplashScreen } from '@ionic-native/splash-screen';
 import { StatusBar } from '@ionic-native/status-bar';
 import { AlertController, Events, MenuController, ModalController, NavController, Platform } from 'ionic-angular';
@@ -19,7 +20,6 @@ import { ScanSessionsStorage } from '../providers/scan-sessions-storage';
 import { Settings } from '../providers/settings';
 import { Utils } from '../providers/utils';
 import { SelectServerPage } from './../pages/select-server/select-server';
-import { Insomnia } from '@ionic-native/insomnia';
 
 @Component({
   templateUrl: 'app.html',

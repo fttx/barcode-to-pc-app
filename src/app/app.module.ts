@@ -5,6 +5,7 @@ import { BarcodeScanner } from '@fttx/barcode-scanner';
 import { AppVersion } from '@ionic-native/app-version';
 import { Device } from '@ionic-native/device';
 import { GoogleAnalytics } from '@ionic-native/google-analytics';
+import { Insomnia } from '@ionic-native/insomnia';
 import { LaunchReview } from '@ionic-native/launch-review';
 import { NativeAudio } from '@ionic-native/native-audio';
 import { Network } from '@ionic-native/network';
@@ -97,6 +98,7 @@ import { MyApp } from './app.component';
     Device,
     SocialSharing,
     AppVersion,
+    Insomnia,
     BarcodeScanner,
     Zeroconf,
     Network,
