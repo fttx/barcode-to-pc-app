@@ -11,6 +11,7 @@ import { SelectScanningModePage } from '../pages/scan-session/select-scanning-mo
 import { Settings } from './settings';
 import { Utils } from './utils';
 import * as Supplant from 'supplant';
+import { Config } from './config';
 
 /**
  * The job of this class is to generate a ScanModel by talking with the native
@@ -101,7 +102,7 @@ export class ScanProvider {
                 // native plugin options
                 let pluginOptions: BarcodeScannerOptions = {
                     showFlipCameraButton: true,
-                    prompt: "Place a barcode inside the scan area.\nPress the back button to exit.", // supported on Android only
+                    prompt: Config.DEFAULT_ACQUISITION_LABEL, // supported on Android only
                     showTorchButton: true,
                     preferFrontCamera: preferFrontCamera,
                     continuousMode: this.acqusitionMode == 'continue',
@@ -160,6 +161,15 @@ export class ScanProvider {
                     // run the OutputProfile
                     for (let i = 0; i < scan.outputBlocks.length; i++) {
                         let outputBlock = scan.outputBlocks[i];
+
+                        // Prepare the label for an eventual barcode acqusition
+                        if (outputBlock.label) {
+                            pluginOptions.prompt = outputBlock.label
+                        } else {
+                            // Always clear the label for the next acquisition
+                            pluginOptions.prompt = Config.DEFAULT_ACQUISITION_LABEL;
+                        }
+
                         switch (outputBlock.type) {
                             // some componets like 'key' and 'text', do not need any processing from the
                             // app side, so we just skip them
@@ -176,7 +186,7 @@ export class ScanProvider {
                                     case 'date_time': outputBlock.value = new Date(scan.date).toLocaleTimeString() + ' ' + new Date(scan.date).toLocaleDateString(); break;
                                     case 'quantity': {
                                         try {
-                                            outputBlock.value = await this.getQuantity();
+                                            outputBlock.value = await this.getQuantity(outputBlock.label);
                                         } catch (err) {
                                             // this code fragment is duplicated for the 'quantity', 'if' and 'barcode' blocks and in the againCount condition
                                             observer.complete();
@@ -201,7 +211,7 @@ export class ScanProvider {
                             }
                             case 'barcode': {
                                 try {
-                                    let barcode = await this.getBarcode();
+                                    let barcode = await this.getBarcode(outputBlock.label);
                                     variables.barcode = barcode;
                                     variables.barcodes.push(barcode);
                                     outputBlock.value = barcode;
@@ -333,7 +343,7 @@ export class ScanProvider {
     private lastReject;
     private continuosScanSubscription: Subscription = null;
 
-    private getBarcode(): Promise<string> {
+    private getBarcode(label = null): Promise<string> {
         this.awaitingForBarcode = true;
 
         let promise = new Promise<string>(async (resolve, reject) => {
@@ -391,7 +401,8 @@ export class ScanProvider {
                 }
 
                 case 'manual': {
-                    this.keyboardInput.focus(800);
+                    this.keyboardInput.focus(500);
+                    this.keyboardInput.setPlaceholder(label);
                     // here we don't wrap the promise inside a try/catch statement because there
                     // isn't a way to cancel a manual barcode acquisition
                     resolve(await this.keyboardInput.onSubmit.first().toPromise());
@@ -418,10 +429,10 @@ export class ScanProvider {
         });
     }
 
-    private getQuantity(): Promise<string> { // doesn't need to be async becouse doesn't contain awaits
+    private getQuantity(label = null): Promise<string> { // doesn't need to be async becouse doesn't contain awaits
         return new Promise((resolve, reject) => {
             let alert = this.alertCtrl.create({
-                title: 'Enter quantity value',
+                title: label ? label : 'Enter quantity value',
                 // message: 'Inse',
                 enableBackdropDismiss: false,
                 inputs: [{ name: 'quantity', type: this.quantityType, placeholder: this.quantityType == 'number' ? '(Default is 1, press Ok to insert it)' : 'Eg. ten' }],

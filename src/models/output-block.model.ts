@@ -49,6 +49,21 @@ export class OutputBlockModel {
      */
     modifiers?: string[];
 
+    /**
+     * Used to describe the content of the component, so that when the user is
+     * scanning can understand what data insert.
+     *
+     * For exaple if the OutputPorfile contains two barcodes component, it might
+     * be useful to set a label such as "Tracking number" for the first
+     * component and "Product ID" for the second one.
+     */
+    label?: string;
+
+    /**
+     * HTTP request method
+     */
+    method?: 'get' | 'post';
+
     static FindEndIfIndex(outputBlocks: OutputBlockModel[], startFrom = 0): number {
         let skip = 0;
         for (let i = startFrom; i < outputBlocks.length; i++) {

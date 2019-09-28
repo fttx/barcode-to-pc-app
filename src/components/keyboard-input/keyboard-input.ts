@@ -12,6 +12,7 @@ export class KeyboardInputComponent {
   public onSubmit = new Subject<string>();
   public focussed = false;
   public value = '';
+  public placeholder = 'Keyboard input';
 
   constructor(
   ) {
@@ -32,5 +33,13 @@ export class KeyboardInputComponent {
 
     this.onSubmit.next(this.value);
     this.value = '';
+  }
+
+  public setPlaceholder(placeholder = null) {
+    if (placeholder) {
+      this.placeholder = placeholder;
+    } else {
+      this.placeholder = 'Keyboard input';
+    }
   }
 }
