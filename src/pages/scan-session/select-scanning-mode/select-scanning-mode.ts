@@ -32,8 +32,8 @@ export class SelectScanningModePage {
     })
 
     this.settings.getOutputProfiles().then((outputProfiles: OutputProfileModel[]) => {
-      // this.outputProfiles = outputProfiles;
-      this.outputProfiles = [{ name: 'Profile 1', outputBlocks: [] }, { name: 'Profile 2', outputBlocks: [] }, { name: 'Profile 3', outputBlocks: [] },]
+      this.outputProfiles = outputProfiles;
+      // this.outputProfiles = [{ name: 'Profile 1', outputBlocks: [] }, { name: 'Profile 2', outputBlocks: [] }, { name: 'Profile 3', outputBlocks: [] },]
       this.content.resize(); // refresh the ion-content height, since the ion-footer has been hidden/shown
     })
   }
