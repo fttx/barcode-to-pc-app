@@ -1,19 +1,69 @@
 page-select-scanning-mode {
-    .half-button {
+
+    // horizontal
+    .btn-scan-mode-horizontal img {
+        max-height: 100%;
+        width: auto;
+        display: block;
+        margin: 0 auto;
+    }
+
+    .btn-scan-mode-horizontal {
+        min-width: 31%;
+    }
+
+    .btn-scan-mode-horizontal * {
+        text-align: center
+    }
+
+    .btn-mode {
+        min-height: 5rem;
+    }
+
+    .btn-mode * {
+        display: block !important;
+    }
+
+    .btn-line-container {
+        height: 11rem;
+        line-height: 8rem;
+        vertical-align: middle;
+    }
+
+    .btn-description {
+        line-height: 1rem;
+    }
+    // end horizontal
+
+    // vertical
+    .btn-scan-mode-vertical {
+        // 33*3 = 100vh
+        // ion-navbar = 56px, ion-footer = 56px => 56*2/3 = 38px
+        height: calc(32vh - 38px);
+        min-height: 12rem;
         text-align: center;
     }
 
-    .half-button img {
-        width: 55%;
-        max-width: 100%;
-        height: auto;
+    .btn-scan-mode-vertical img {
+        height: calc(100% - 8rem) !important;
+        margin: 0 auto;
+        min-height: 8rem;
     }
 
-    .half-button p {
-        font-size: 1.6em;
+    .btn-scan-mode-vertical p {
+        font-size: 2rem;
+        color: color($colors, dark)
     }
 
-    .modes-grid, .modes-grid ion-row {
-        height: 100%;
+    @media (orientation: landscape)
+    {
+        .btn-scan-mode-vertical {
+            margin-top: 7rem;
+        }
+    }
+
+    .set-default-fix {
+        padding: 0 1rem 0 1.3rem !important;
+        margin: .1rem 0;
     }
 }

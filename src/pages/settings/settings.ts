@@ -145,7 +145,17 @@ export class SettingsPage {
     // toast.present();
   }
 
+  public GetScanModeList() {
+    return
+  }
 
-  public getScanModeName = SelectScanningModePage.GetScanModeName;
-  public getScanModeList = SelectScanningModePage.GetScanModeList;
+  public GetScanModeName(scanMode: string) {
+    switch (scanMode) {
+      case SelectScanningModePage.SCAN_MODE_ASK: return 'Ask everytime'
+      case SelectScanningModePage.SCAN_MODE_CONTINUE: return 'Continue mode'
+      case SelectScanningModePage.SCAN_MODE_SINGLE: return 'Single mode'
+      case SelectScanningModePage.SCAN_MODE_ENTER_MAUALLY: return 'Enter manually'
+      default: break;
+    }
+  }
 }

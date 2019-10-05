@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
-import { ViewController } from 'ionic-angular';
-
+import { Component, ViewChild } from '@angular/core';
+import { Content, ViewController } from 'ionic-angular';
+import { OutputProfileModel } from '../../../models/output-profile.model';
 import { Settings } from './../../../providers/settings';
+
 
 @Component({
   selector: 'page-select-scanning-mode',
@@ -13,30 +14,14 @@ export class SelectScanningModePage {
   public static SCAN_MODE_SINGLE = 'single';
   public static SCAN_MODE_ENTER_MAUALLY = 'keyboard';
 
-  public static GetScanModeList() {
-    return [
-      SelectScanningModePage.SCAN_MODE_ASK,
-      SelectScanningModePage.SCAN_MODE_CONTINUE,
-      SelectScanningModePage.SCAN_MODE_SINGLE,
-      SelectScanningModePage.SCAN_MODE_ENTER_MAUALLY,
-    ]
-  }
-
-  public static GetScanModeName(scanMode: string) {
-    switch (scanMode) {
-      case SelectScanningModePage.SCAN_MODE_ASK: return 'Ask everytime'
-      case SelectScanningModePage.SCAN_MODE_CONTINUE: return 'Continue mode'
-      case SelectScanningModePage.SCAN_MODE_SINGLE: return 'Single mode'
-      case SelectScanningModePage.SCAN_MODE_ENTER_MAUALLY: return 'Enter manually'
-      default: break;
-    }
-  }
-
   public isDefault = false;
+  public outputProfiles: OutputProfileModel[] = [];
 
+  @ViewChild(Content) content: Content;
   constructor(
     public viewCtrl: ViewController,
     private settings: Settings,
+    // public ngZone: NgZone,
   ) { }
 
   ionViewWillEnter() {
@@ -45,6 +30,12 @@ export class SelectScanningModePage {
         this.viewCtrl.dismiss(savedScanMode);
       }
     })
+
+    this.settings.getOutputProfiles().then((outputProfiles: OutputProfileModel[]) => {
+      // this.outputProfiles = outputProfiles;
+      this.outputProfiles = [{ name: 'Profile 1', outputBlocks: [] }, { name: 'Profile 2', outputBlocks: [] }, { name: 'Profile 3', outputBlocks: [] },]
+      this.content.resize(); // refresh the ion-content height, since the ion-footer has been hidden/shown
+    })
   }
 
   dismiss(scanMode) {
@@ -52,10 +43,5 @@ export class SelectScanningModePage {
       this.settings.setDefaultMode(scanMode);
     }
     this.viewCtrl.dismiss(scanMode);
-  }
-
-  public getScanModeName = SelectScanningModePage.GetScanModeName;
-  public getScanModeList() {
-    return SelectScanningModePage.GetScanModeList().filter(x => x != SelectScanningModePage.SCAN_MODE_ASK);
   }
 }

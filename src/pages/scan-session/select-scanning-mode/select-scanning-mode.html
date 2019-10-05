@@ -1,12 +1,7 @@
-<!--
-  Generated template for the EditScanSession page.
-
-  See http://ionicframework.com/docs/v2/components/#navigation for more info on
-  Ionic pages and navigation.
--->
 <ion-header>
   <ion-navbar color="primary">
-    <ion-title>Select scanning mode</ion-title>
+    <ion-title [hidden]="outputProfiles.length == 1">Select an Output Profile</ion-title>
+    <ion-title [hidden]="outputProfiles.length != 1">Select scanning mode</ion-title>
     <ion-buttons end>
       <button ion-button icon-right color="royal" (click)="dismiss()">
         Cancel
@@ -16,23 +11,75 @@
 </ion-header>
 
 <ion-content>
-  <ion-grid class="modes-grid">
-    <ion-row>
-      <ion-col col-12 col-sm align-self-center *ngFor="let scanMode of getScanModeList()">
-        <div padding-vertical ion-item no-lines color="text" full class="half-button" (click)="dismiss(scanMode)">
-          <img [src]="'assets/select-scanning-mode/' + scanMode + '.png'">
-          <p>{{ getScanModeName(scanMode) }}</p>
-        </div>
-      </ion-col>
-    </ion-row>
-  </ion-grid>
+  <ion-list radio-group [(ngModel)]="relationship" [hidden]="outputProfiles.length == 1">
+    <ion-item *ngFor="let outputProfile of outputProfiles;">
+      <ion-label>{{ outputProfile.name }}</ion-label>
+      <ion-radio [value]="outputProfile" [checked]="outputProfile == 3"></ion-radio>
+    </ion-item>
+  </ion-list>
+
+  <div [hidden]="outputProfiles.length != 1">
+    <div text-center>
+      <button ion-button clear class="btn-mode btn-mode-keyboard btn-scan-mode-vertical" (click)="dismiss('keyboard')">
+        <img src="assets/select-scanning-mode/keyboard.png" alt="keyboard" />
+        <p class="btn-description">
+          Manual input
+        </p>
+      </button>
+
+      <button ion-button clear class="btn-mode btn-mode-single btn-scan-mode-vertical" (click)="dismiss('single')">
+        <img src="assets/select-scanning-mode/single.png" alt="single" />
+        <p class="btn-description">
+          Single scan
+        </p>
+      </button>
+
+      <button ion-button clear class="btn-mode  btn-mode-continue btn-scan-mode-vertical" (click)="dismiss('continue')">
+        <img src="assets/select-scanning-mode/continue.png" alt="continue" />
+        <p class="btn-description">
+          Multiple scans
+        </p>
+      </button>
+    </div>
+  </div>
 </ion-content>
 
-<ion-footer>
-  <ion-toolbar>
+
+
+<ion-footer ion-fixed>
+
+  <ion-toolbar [hidden]="outputProfiles.length == 1">
+    <ion-buttons align-self-center>
+      <div text-center class="btn-line-container">
+        <button ion-button class="btn-mode btn-mode-keyboard btn-scan-mode-horizontal" (click)="dismiss('keyboard')">
+          <img src="assets/select-scanning-mode/keyboard.png" alt="keyboard" />
+          <p class="btn-description">
+            Manual input
+          </p>
+        </button>
+
+        <button ion-button class="btn-mode btn-mode-single btn-scan-mode-horizontal" (click)="dismiss('single')">
+          <img src="assets/select-scanning-mode/single.png" alt="single" />
+          <p class="btn-description">
+            Single scan
+          </p>
+        </button>
+
+        <button ion-button class="btn-mode  btn-mode-continue btn-scan-mode-horizontal" (click)="dismiss('continue')">
+          <img src="assets/select-scanning-mode/continue.png" alt="continue" />
+          <p class="btn-description">
+            Multiple scans
+          </p>
+        </button>
+      </div>
+    </ion-buttons>
+  </ion-toolbar>
+
+  <ion-toolbar [class.set-default-fix]="outputProfiles.length != 1">
     <ion-title>Set as default mode</ion-title>
     <ion-buttons right>
       <ion-checkbox margin-right [(ngModel)]="isDefault"></ion-checkbox>
     </ion-buttons>
   </ion-toolbar>
+
 </ion-footer>
