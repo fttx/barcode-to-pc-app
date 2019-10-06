@@ -19,6 +19,7 @@ import { Config } from './../../providers/config';
 import { Settings } from './../../providers/settings';
 import { EditScanSessionPage } from './edit-scan-session/edit-scan-session';
 import { SelectScanningModePage } from './select-scanning-mode/select-scanning-mode';
+import { OutputProfileModel } from '../../models/output-profile.model';
 
 
 /**
@@ -45,6 +46,7 @@ export class ScanSessionPage {
   private responseSubscription: Subscription = null;
   private scanProviderSubscription: Subscription = null;
   private skipAlreadySent = false;
+  private selectedOutputProfile: OutputProfileModel;
 
   constructor(
     public navParams: NavParams,
@@ -126,11 +128,14 @@ export class ScanSessionPage {
   }
 
   scan() { // Called when the user want to scan
-    let selectScanningModeModal = this.modalCtrl.create(SelectScanningModePage, { showCreateEmptyScanSession: this.isNewSession });
-    selectScanningModeModal.onDidDismiss(mode => {
+    let selectScanningModeModal = this.modalCtrl.create(SelectScanningModePage, { scanSessionName: this.scanSession.name });
+    selectScanningModeModal.onDidDismiss(data => {
+      let scanMode = data.scanMode;
+      this.scanSession.name = data.scanSessionName;
+      this.selectedOutputProfile = data.selectedOutputProfile;
 
       // if the user doesn't choose the mode (clicks cancel) and didn't enter the scan-session page
-      if (!mode && this.isNewSession && this.scanSession.scannings.length == 0) {
+      if (!scanMode && this.isNewSession && this.scanSession.scannings.length == 0) {
         this.navCtrl.pop();
         return;
       }
@@ -138,7 +143,7 @@ export class ScanSessionPage {
       if (this.scanProviderSubscription != null) {
         this.scanProviderSubscription.unsubscribe();
       }
-      this.scanProviderSubscription = this.scanProviderSubscription = this.scanProvider.scan(mode, this.keyboardInput).subscribe(
+      this.scanProviderSubscription = this.scanProviderSubscription = this.scanProvider.scan(scanMode, this.selectedOutputProfile, this.keyboardInput).subscribe(
         scan => this.saveAndSendScan(scan),
         err => {
           console.log('err')
@@ -150,11 +155,7 @@ export class ScanSessionPage {
         () => { // onComplete
           if (this.isNewSession) {
             this.isNewSession = false;
-            if (this.scanSession.scannings.length != 0) {
-              if (mode == 'continue') {
-                this.setName();
-              }
-            } else {
+            if (this.scanSession.scannings.length == 0) {
               this.navCtrl.pop();
             }
           }
@@ -193,7 +194,7 @@ export class ScanSessionPage {
       }
     }
 
-    this.scanProviderSubscription = this.scanProvider.scan(SelectScanningModePage.SCAN_MODE_ENTER_MAUALLY, this.keyboardInput).subscribe(
+    this.scanProviderSubscription = this.scanProvider.scan(SelectScanningModePage.SCAN_MODE_ENTER_MAUALLY, this.selectedOutputProfile, this.keyboardInput).subscribe(
       scan => this.saveAndSendScan(scan),
       err => {
         // if the user clicks cancel without acquiring not even a single barcode
@@ -294,28 +295,6 @@ export class ScanSessionPage {
       this.save();
     });
     editModal.present();
-  }
-
-  setName() {
-    return new Promise((resolve, reject) => {
-      let alert = this.alertCtrl.create({
-        title: 'Name', message: 'Insert a name for this scan session',
-        inputs: [{ name: 'name', placeholder: this.scanSession.name }],
-        buttons: [{
-          text: 'Ok', handler: data => {
-            if (this.scanSession.name != data.name && data.name != "") {
-              this.scanSession.name = data.name;
-              this.sendUpdateScanSession(this.scanSession);
-              this.save();
-            }
-          }
-        }]
-      });
-      alert.onDidDismiss(() => {
-        resolve();
-      })
-      alert.present();
-    });
   }
 
   onAddClicked() {

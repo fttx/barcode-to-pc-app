@@ -11,10 +11,10 @@
 </ion-header>
 
 <ion-content>
-  <ion-list radio-group [(ngModel)]="relationship" [hidden]="outputProfiles.length == 1">
-    <ion-item *ngFor="let outputProfile of outputProfiles;">
+  <ion-list radio-group [(ngModel)]="selectedOutputProfile" [hidden]="outputProfiles.length == 1">
+    <ion-item *ngFor="let outputProfile of outputProfiles; let i = index;">
       <ion-label>{{ outputProfile.name }}</ion-label>
-      <ion-radio [value]="outputProfile" [checked]="outputProfile == 3"></ion-radio>
+      <ion-radio [value]="outputProfile" [checked]="i == selectedOutputProfile"></ion-radio>
     </ion-item>
   </ion-list>
 

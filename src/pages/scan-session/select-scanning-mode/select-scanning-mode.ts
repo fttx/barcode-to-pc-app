@@ -1,5 +1,5 @@
 import { Component, ViewChild } from '@angular/core';
-import { Content, ViewController } from 'ionic-angular';
+import { Content, ViewController, AlertController, NavParams } from 'ionic-angular';
 import { OutputProfileModel } from '../../../models/output-profile.model';
 import { Settings } from './../../../providers/settings';
 
@@ -16,32 +16,69 @@ export class SelectScanningModePage {
 
   public isDefault = false;
   public outputProfiles: OutputProfileModel[] = [];
+  public selectedOutputProfile: OutputProfileModel; // use for ngModel
+  public selectedOutputProfileIndex = 0; // used for set [checked] the radios
+  public scanSessionName: string;
 
   @ViewChild(Content) content: Content;
   constructor(
     public viewCtrl: ViewController,
+    public alertCtrl: AlertController,
     private settings: Settings,
+    public navParams: NavParams,
     // public ngZone: NgZone,
-  ) { }
+  ) {
+    this.scanSessionName = navParams.get('scanSessionName');
+  }
 
-  ionViewWillEnter() {
+  async ionViewWillEnter() {
+    this.outputProfiles = await this.settings.getOutputProfiles();
+    this.selectedOutputProfileIndex = await this.settings.getSelectedOutputProfile();
+    this.selectedOutputProfile = this.outputProfiles[this.selectedOutputProfileIndex];
+
+    console.log( this.selectedOutputProfileIndex, this.selectedOutputProfile)
     this.settings.getDefaultMode().then(savedScanMode => {
       if (savedScanMode && savedScanMode.length > 0) {
-        this.viewCtrl.dismiss(savedScanMode);
+        this.viewCtrl.dismiss({
+          scanMode: savedScanMode,
+          selectedOutputProfile: this.selectedOutputProfileIndex,
+          scanSessionName: this.scanSessionName
+        });
       }
     })
 
-    this.settings.getOutputProfiles().then((outputProfiles: OutputProfileModel[]) => {
-      this.outputProfiles = outputProfiles;
-      // this.outputProfiles = [{ name: 'Profile 1', outputBlocks: [] }, { name: 'Profile 2', outputBlocks: [] }, { name: 'Profile 3', outputBlocks: [] },]
-      this.content.resize(); // refresh the ion-content height, since the ion-footer has been hidden/shown
-    })
+    // this.outputProfiles = [{ name: 'Profile 1', outputBlocks: [] }, { name: 'Profile 2', outputBlocks: [] }, { name: 'Profile 3', outputBlocks: [] },]
+    this.content.resize(); // refresh the ion-content height, since the ion-footer has been hidden/shown
   }
 
-  dismiss(scanMode) {
+  async dismiss(scanMode) {
     if (this.isDefault) {
       this.settings.setDefaultMode(scanMode);
     }
-    this.viewCtrl.dismiss(scanMode);
+    let selectedOutputProfileIndex = this.outputProfiles.indexOf(this.selectedOutputProfile);
+    this.settings.setSelectedOutputProfile(selectedOutputProfileIndex);
+    this.viewCtrl.dismiss({
+      scanMode: scanMode,
+      selectedOutputProfile: selectedOutputProfileIndex,
+      scanSessionName: await this.getScanSessionName()
+    });
   }
+
+  getScanSessionName(): Promise<string> {
+    return new Promise((resolve, reject) => {
+      let alert = this.alertCtrl.create({
+        title: 'Name', message: 'Insert a name for this scan session',
+        inputs: [{ name: 'name', placeholder: this.scanSessionName }],
+        buttons: [{ text: 'Ok', handler: data => { } }]
+      });
+      alert.onDidDismiss((data) => {
+        if (data.name != "") {
+          this.scanSessionName = data.name;
+        }
+        resolve(this.scanSessionName)
+      })
+      alert.present();
+    });
+  }
+
 }

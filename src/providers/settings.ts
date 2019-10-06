@@ -32,6 +32,7 @@ export class Settings {
   private static BARCODE_FORMATS = 'barcode_formats';
   private static ENABLE_LIMIT_BARCODE_FORMATS = 'enable_limit_barcode_formats';
   private static OUTPUT_PROFILES = 'output_profiles';
+  private static SELECTED_OUTPUT_PROFILE = 'selected_output_profile';
   private static QUANTITY_ENABLED = 'quantity_enabled';
   private static QUANTITY_TYPE = 'quantity_type';
   private static SOUND_FEEDBACK_OR_DIALOG_SHOWN = 'sound_feedback_or_dialog_shown';
@@ -273,6 +274,14 @@ export class Settings {
     return outputProfiles;
   }
 
+  setSelectedOutputProfile(selectedOutputProfile: number) {
+    return this.storage.set(Settings.SELECTED_OUTPUT_PROFILE, selectedOutputProfile);
+  }
+
+  async getSelectedOutputProfile(): Promise<number> {
+    return await this.storage.get(Settings.SELECTED_OUTPUT_PROFILE) || 0;
+  }
+
   setQuantityType(type: string) {
     return this.storage.set(Settings.QUANTITY_TYPE, type);
   }
@@ -285,6 +294,8 @@ export class Settings {
    * Generates the default OuputProfile based on the QuantityEnabled settings,
    * TODO: In the future versions it should return only a BARCODE + ENTER value,
    * remove the getQuantityEnabled part.
+   *
+   * It should be keep in sync with the server SettingsModel class.
    */
   private generateDefaultOutputProfiles(): Promise<OutputProfileModel[]> {
     return new Promise((resolve, reject) => {

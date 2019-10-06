@@ -245,6 +245,7 @@ export class ScanSessionsPage {
     }
   }
 
+  // ScanSessions.OnAddClick() -> ScanSession.GetScanMode()
   async onAddClick() {
     let date: number = new Date().getTime();
     let name = await this.settings.getScanSessionName();

@@ -145,11 +145,16 @@ export class SettingsPage {
     // toast.present();
   }
 
-  public GetScanModeList() {
-    return
+  public getScanModeList() {
+    return [
+      SelectScanningModePage.SCAN_MODE_ASK,
+      SelectScanningModePage.SCAN_MODE_CONTINUE,
+      SelectScanningModePage.SCAN_MODE_SINGLE,
+      SelectScanningModePage.SCAN_MODE_ENTER_MAUALLY,
+    ]
   }
 
-  public GetScanModeName(scanMode: string) {
+  public getScanModeName(scanMode: string) {
     switch (scanMode) {
       case SelectScanningModePage.SCAN_MODE_ASK: return 'Ask everytime'
       case SelectScanningModePage.SCAN_MODE_CONTINUE: return 'Continue mode'

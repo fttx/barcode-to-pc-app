@@ -209,7 +209,7 @@ export class ServerProvider {
       } else if (messageData.action == responseModel.UPDATE_OUTPUT_PROFILES) {
         let responseModelUpdateOutputProfiles: responseModelUpdateOutputProfiles = messageData;
         this.settings.setOutputProfiles(responseModelUpdateOutputProfiles.outputProfiles);
-        this.scanProvider.updateOutputProfile();
+        this.scanProvider.updateCurrentOutputProfile();
       } else if (messageData.action == responseModel.ACTION_GET_VERSION) {
         // fallBack for old server versions
         console.log('FallBack: old getVersion received, showing version mismatch');

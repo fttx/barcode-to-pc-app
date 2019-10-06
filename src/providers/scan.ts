@@ -38,6 +38,7 @@ export class ScanProvider {
     public acqusitionMode: 'manual' | 'single' | 'mixed_continue' | 'continue' = 'manual';
     private barcodeFormats;
     private outputProfile: OutputProfileModel;
+    private outputProfileIndex: number;
     private deviceName: string;
     private quantityType: string;
     private keyboardInput: KeyboardInputComponent;
@@ -61,8 +62,9 @@ export class ScanProvider {
      *
      * @param scanMode SCAN_MODE_CONTINUE, SCAN_MODE_SINGLE or SCAN_MODE_MANUAL
      */
-    scan(scanMode, keyboardInput: KeyboardInputComponent): Observable<ScanModel> {
+    scan(scanMode, outputProfileIndex, keyboardInput: KeyboardInputComponent): Observable<ScanModel> {
         this.keyboardInput = keyboardInput;
+        this.outputProfileIndex = outputProfileIndex;
 
         return new Observable(observer => {
             Promise.all([
@@ -72,7 +74,7 @@ export class ScanProvider {
                 this.settings.getQuantityType(), // 3
                 this.settings.getContinueModeTimeout(), // 4
                 this.settings.getDeviceName(), // 5
-                this.getOutputProfile(), //6
+                this.getOutputProfile(outputProfileIndex), //6
             ]).then(async result => {
                 // parameters
                 let preferFrontCamera = result[0];
@@ -417,15 +419,16 @@ export class ScanProvider {
         return promise;
     }
 
-    public async updateOutputProfile() {
-        this.outputProfile = await this.getOutputProfile();
+    public async updateCurrentOutputProfile() {
+        this.outputProfile = await this.getOutputProfile(this.outputProfileIndex);
     }
 
-    private async getOutputProfile(): Promise<OutputProfileModel> {
+    // getOutputProfile() is called in two separated places, that's why is
+    // separated from the updateOutputProfile() method.
+    private async getOutputProfile(i): Promise<OutputProfileModel> {
         let profiles = await this.settings.getOutputProfiles();
         return new Promise<OutputProfileModel>((resolve, reject) => {
-            // Let the user chose through the UI
-            resolve(profiles[0]);
+            resolve(profiles[i]);
         });
     }
 
