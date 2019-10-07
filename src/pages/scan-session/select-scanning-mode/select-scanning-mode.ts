@@ -41,7 +41,7 @@ export class SelectScanningModePage {
       if (savedScanMode && savedScanMode.length > 0) {
         this.viewCtrl.dismiss({
           scanMode: savedScanMode,
-          selectedOutputProfile: this.selectedOutputProfileIndex,
+          selectedOutputProfileIndex: this.selectedOutputProfileIndex,
           scanSessionName: this.scanSessionName
         });
       }
@@ -59,7 +59,7 @@ export class SelectScanningModePage {
     this.settings.setSelectedOutputProfile(selectedOutputProfileIndex);
     this.viewCtrl.dismiss({
       scanMode: scanMode,
-      selectedOutputProfile: selectedOutputProfileIndex,
+      selectedOutputProfileIndex: selectedOutputProfileIndex,
       scanSessionName: await this.getScanSessionName()
     });
   }

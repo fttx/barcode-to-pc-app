@@ -46,7 +46,7 @@ export class ScanSessionPage {
   private responseSubscription: Subscription = null;
   private scanProviderSubscription: Subscription = null;
   private skipAlreadySent = false;
-  private selectedOutputProfile: OutputProfileModel;
+  private selectedOutputProfileIndex: number;
 
   constructor(
     public navParams: NavParams,
@@ -132,7 +132,7 @@ export class ScanSessionPage {
     selectScanningModeModal.onDidDismiss(data => {
       let scanMode = data.scanMode;
       this.scanSession.name = data.scanSessionName;
-      this.selectedOutputProfile = data.selectedOutputProfile;
+      this.selectedOutputProfileIndex = data.selectedOutputProfileIndex;
 
       // if the user doesn't choose the mode (clicks cancel) and didn't enter the scan-session page
       if (!scanMode && this.isNewSession && this.scanSession.scannings.length == 0) {
@@ -143,7 +143,7 @@ export class ScanSessionPage {
       if (this.scanProviderSubscription != null) {
         this.scanProviderSubscription.unsubscribe();
       }
-      this.scanProviderSubscription = this.scanProviderSubscription = this.scanProvider.scan(scanMode, this.selectedOutputProfile, this.keyboardInput).subscribe(
+      this.scanProviderSubscription = this.scanProviderSubscription = this.scanProvider.scan(scanMode, this.selectedOutputProfileIndex, this.keyboardInput).subscribe(
         scan => this.saveAndSendScan(scan),
         err => {
           console.log('err')
@@ -194,7 +194,7 @@ export class ScanSessionPage {
       }
     }
 
-    this.scanProviderSubscription = this.scanProvider.scan(SelectScanningModePage.SCAN_MODE_ENTER_MAUALLY, this.selectedOutputProfile, this.keyboardInput).subscribe(
+    this.scanProviderSubscription = this.scanProvider.scan(SelectScanningModePage.SCAN_MODE_ENTER_MAUALLY, this.selectedOutputProfileIndex, this.keyboardInput).subscribe(
       scan => this.saveAndSendScan(scan),
       err => {
         // if the user clicks cancel without acquiring not even a single barcode

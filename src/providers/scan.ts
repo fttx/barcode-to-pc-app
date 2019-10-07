@@ -61,6 +61,7 @@ export class ScanProvider {
      * an "complete" event
      *
      * @param scanMode SCAN_MODE_CONTINUE, SCAN_MODE_SINGLE or SCAN_MODE_MANUAL
+     * @param outputProfileIndex by default there is only one OutputProfile
      */
     scan(scanMode, outputProfileIndex, keyboardInput: KeyboardInputComponent): Observable<ScanModel> {
         this.keyboardInput = keyboardInput;
