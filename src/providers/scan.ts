@@ -62,8 +62,10 @@ export class ScanProvider {
      *
      * @param scanMode SCAN_MODE_CONTINUE, SCAN_MODE_SINGLE or SCAN_MODE_MANUAL
      * @param outputProfileIndex by default there is only one OutputProfile
+     * @param scanSession is required to inject the scanSession.name as variable
+     * @param keyboardInput element for manual acquisition
      */
-    scan(scanMode, outputProfileIndex, keyboardInput: KeyboardInputComponent): Observable<ScanModel> {
+    scan(scanMode, outputProfileIndex, scanSession, keyboardInput: KeyboardInputComponent): Observable<ScanModel> {
         this.keyboardInput = keyboardInput;
         this.outputProfileIndex = outputProfileIndex;
 
@@ -187,6 +189,7 @@ export class ScanProvider {
                                     case 'date': outputBlock.value = new Date(scan.date).toLocaleDateString(); break;
                                     case 'time': outputBlock.value = new Date(scan.date).toLocaleTimeString(); break;
                                     case 'date_time': outputBlock.value = new Date(scan.date).toLocaleTimeString() + ' ' + new Date(scan.date).toLocaleDateString(); break;
+                                    case 'scan_session_name': outputBlock.value = scanSession.name; break;
                                     case 'quantity': {
                                         try {
                                             outputBlock.value = await this.getQuantity(outputBlock.label);

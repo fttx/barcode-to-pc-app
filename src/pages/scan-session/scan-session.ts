@@ -143,7 +143,7 @@ export class ScanSessionPage {
       if (this.scanProviderSubscription != null) {
         this.scanProviderSubscription.unsubscribe();
       }
-      this.scanProviderSubscription = this.scanProviderSubscription = this.scanProvider.scan(scanMode, this.selectedOutputProfileIndex, this.keyboardInput).subscribe(
+      this.scanProviderSubscription = this.scanProviderSubscription = this.scanProvider.scan(scanMode, this.selectedOutputProfileIndex, this.scanSession, this.keyboardInput).subscribe(
         scan => this.saveAndSendScan(scan),
         err => {
           console.log('err')
@@ -194,7 +194,7 @@ export class ScanSessionPage {
       }
     }
 
-    this.scanProviderSubscription = this.scanProvider.scan(SelectScanningModePage.SCAN_MODE_ENTER_MAUALLY, this.selectedOutputProfileIndex, this.keyboardInput).subscribe(
+    this.scanProviderSubscription = this.scanProvider.scan(SelectScanningModePage.SCAN_MODE_ENTER_MAUALLY, this.selectedOutputProfileIndex, this.scanSession, this.keyboardInput).subscribe(
       scan => this.saveAndSendScan(scan),
       err => {
         // if the user clicks cancel without acquiring not even a single barcode
