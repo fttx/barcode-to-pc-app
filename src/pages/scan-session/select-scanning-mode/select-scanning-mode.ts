@@ -32,11 +32,16 @@ export class SelectScanningModePage {
   }
 
   async ionViewWillEnter() {
+    // Get the output profile
     this.outputProfiles = await this.settings.getOutputProfiles();
     this.selectedOutputProfileIndex = await this.settings.getSelectedOutputProfile();
+    if (this.selectedOutputProfileIndex >= this.outputProfiles.length) {
+      // Prevent OutOfBounds.
+      // The same logic is duplciated in the ScanProvider/getOutputProfile() method
+      this.selectedOutputProfileIndex = this.outputProfiles.length - 1;
+    }
     this.selectedOutputProfile = this.outputProfiles[this.selectedOutputProfileIndex];
 
-    console.log( this.selectedOutputProfileIndex, this.selectedOutputProfile)
     this.settings.getDefaultMode().then(savedScanMode => {
       if (savedScanMode && savedScanMode.length > 0) {
         this.viewCtrl.dismiss({

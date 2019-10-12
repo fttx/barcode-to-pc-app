@@ -432,6 +432,8 @@ export class ScanProvider {
     private async getOutputProfile(i): Promise<OutputProfileModel> {
         let profiles = await this.settings.getOutputProfiles();
         return new Promise<OutputProfileModel>((resolve, reject) => {
+            // Prevent OutOfBounds. The same logic is duplciated in the SelectScanningModePage/ionViewWillEnter() method
+            if (i >= profiles.length) i = profiles.length - 1;
             resolve(profiles[i]);
         });
     }
