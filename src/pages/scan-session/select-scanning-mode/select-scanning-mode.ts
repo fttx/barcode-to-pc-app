@@ -14,7 +14,7 @@ export class SelectScanningModePage {
   public static SCAN_MODE_SINGLE = 'single';
   public static SCAN_MODE_ENTER_MAUALLY = 'keyboard';
 
-  public isDefault = false;
+  public setAsDefaultMode = false;
   public outputProfiles: OutputProfileModel[] = [];
   public selectedOutputProfile: OutputProfileModel; // use for ngModel
   public selectedOutputProfileIndex = 0; // used for set [checked] the radios
@@ -42,24 +42,28 @@ export class SelectScanningModePage {
     }
     this.selectedOutputProfile = this.outputProfiles[this.selectedOutputProfileIndex];
 
-    this.settings.getDefaultMode().then(savedScanMode => {
-      if (savedScanMode && savedScanMode.length > 0) {
-        this.viewCtrl.dismiss({
-          scanMode: savedScanMode,
-          selectedOutputProfileIndex: this.selectedOutputProfileIndex,
-          scanSessionName: this.scanSessionName
-        });
-      }
-    })
+    // If there is a default scan mode  => Dismiss immediately
+    let defaultMode = await this.settings.getDefaultMode();
+    if (defaultMode && defaultMode.length > 0) {
+      this.viewCtrl.dismiss({
+        scanMode: defaultMode,
+        selectedOutputProfileIndex: this.selectedOutputProfileIndex,
+        scanSessionName: this.scanSessionName
+      });
+    }
 
+    // Refresh the ion-content height, since the ion-footer has been hidden/shown
     // this.outputProfiles = [{ name: 'Profile 1', outputBlocks: [] }, { name: 'Profile 2', outputBlocks: [] }, { name: 'Profile 3', outputBlocks: [] },]
-    this.content.resize(); // refresh the ion-content height, since the ion-footer has been hidden/shown
+    this.content.resize();
   }
 
+  // Called when a mode button is tapped
   async dismiss(scanMode) {
-    if (this.isDefault) {
+    // If the user checked the option to save the mode
+    if (this.setAsDefaultMode) {
       this.settings.setDefaultMode(scanMode);
     }
+
     let selectedOutputProfileIndex = this.outputProfiles.indexOf(this.selectedOutputProfile);
     this.settings.setSelectedOutputProfile(selectedOutputProfileIndex);
     this.viewCtrl.dismiss({
