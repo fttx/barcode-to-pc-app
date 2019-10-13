@@ -19,6 +19,7 @@ export class SelectScanningModePage {
   public selectedOutputProfile: OutputProfileModel; // use for ngModel
   public selectedOutputProfileIndex = 0; // used for set [checked] the radios
   public scanSessionName: string;
+  public isNewSession = true;
 
   @ViewChild(Content) content: Content;
   constructor(
@@ -29,6 +30,7 @@ export class SelectScanningModePage {
     // public ngZone: NgZone,
   ) {
     this.scanSessionName = navParams.get('scanSessionName');
+    this.isNewSession = navParams.get('isNewSession');
   }
 
   async ionViewWillEnter() {
@@ -75,6 +77,11 @@ export class SelectScanningModePage {
 
   getScanSessionName(): Promise<string> {
     return new Promise((resolve, reject) => {
+      if (!this.isNewSession) {
+        resolve(this.scanSessionName);
+        return;
+      }
+
       let alert = this.alertCtrl.create({
         title: 'Name', message: 'Insert a name for this scan session',
         inputs: [{ name: 'name', placeholder: this.scanSessionName }],

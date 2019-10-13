@@ -123,12 +123,12 @@ export class ScanSessionPage {
     }
   }
 
-  ionViewWillLeave() {
-
+  async ionViewWillEnter() {
+    this.selectedOutputProfileIndex = await this.settings.getSelectedOutputProfile();
   }
 
   scan() { // Called when the user want to scan
-    let selectScanningModeModal = this.modalCtrl.create(SelectScanningModePage, { scanSessionName: this.scanSession.name });
+    let selectScanningModeModal = this.modalCtrl.create(SelectScanningModePage, { scanSessionName: this.scanSession.name, isNewSession: this.isNewSession });
     selectScanningModeModal.onDidDismiss(data => {
       let scanMode = data.scanMode;
       this.scanSession.name = data.scanSessionName;
@@ -144,7 +144,10 @@ export class ScanSessionPage {
         this.scanProviderSubscription.unsubscribe();
       }
       this.scanProviderSubscription = this.scanProviderSubscription = this.scanProvider.scan(scanMode, this.selectedOutputProfileIndex, this.scanSession, this.keyboardInput).subscribe(
-        scan => this.saveAndSendScan(scan),
+        scan => {
+          this.saveAndSendScan(scan);
+          this.isNewSession = false;
+        },
         err => {
           console.log('err')
           // if the user clicks cancel without acquiring not even a single barcode
@@ -154,7 +157,6 @@ export class ScanSessionPage {
         },
         () => { // onComplete
           if (this.isNewSession) {
-            this.isNewSession = false;
             if (this.scanSession.scannings.length == 0) {
               this.navCtrl.pop();
             }

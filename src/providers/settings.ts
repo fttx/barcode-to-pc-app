@@ -266,12 +266,14 @@ export class Settings {
     return this.storage.set(Settings.OUTPUT_PROFILES, outputProfiles);
   }
 
-  async getOutputProfiles(): Promise<OutputProfileModel[]> {
+   async getOutputProfiles(): Promise<OutputProfileModel[]> {
     let outputProfiles = await this.storage.get(Settings.OUTPUT_PROFILES);
-    if (!outputProfiles) {
-      return this.generateDefaultOutputProfiles();
-    }
-    return outputProfiles;
+    return new Promise<OutputProfileModel[]>((resolve, reject) => {
+      if (!outputProfiles) {
+        resolve(this.generateDefaultOutputProfiles());
+      }
+      return resolve(outputProfiles);
+    })
   }
 
   setSelectedOutputProfile(selectedOutputProfile: number) {
