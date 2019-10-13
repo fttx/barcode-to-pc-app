@@ -19,11 +19,14 @@ export class KeyboardInputComponent {
   }
 
   public focus(delay = 0) {
-    // for some reason after that a dialog has been dismissed ionic changes the
+    // For some reason after that a dialog has been dismissed ionic changes the
     // focus to some other element, so we need to send again the focus command again
-    setTimeout(() => {
-      this.ionInput.setFocus();
-    }, delay)
+    // And we do it twice just in case the first time was too early.
+    //
+    // When delay is 0 it means that we're sure that the element can be focused
+    // rightaway so we skip the first setFocus and only do the second immediatelly
+    if (delay != 0) setTimeout(() => this.ionInput.setFocus(), delay / 2)
+    setTimeout(() => this.ionInput.setFocus(), delay)
   }
 
   public submit() {
