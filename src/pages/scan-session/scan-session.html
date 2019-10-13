@@ -62,7 +62,7 @@
 	<ion-toolbar>
 		<keyboard-input (touchstart)="keyboardInputTouchStart($event)" #keyboardInput></keyboard-input>
 		<ion-buttons end>
-			<button ion-button strong (touchstart)="$event.preventDefault(); $event.stopPropagation();"
+			<button class="btn-send-manual-input" ion-button strong (touchstart)="$event.preventDefault(); $event.stopPropagation();"
 				(touchend)="onEnterClick($event);">
 				<ion-icon name="send" icon-only color="primary"></ion-icon>
 			</button>
