@@ -3,7 +3,7 @@ import { Device } from '@ionic-native/device';
 import { GoogleAnalytics } from '@ionic-native/google-analytics';
 import { NativeAudio } from '@ionic-native/native-audio';
 import { SocialSharing } from '@ionic-native/social-sharing';
-import { Promise } from 'bluebird';
+import { Promise as BluebirdPromise } from 'bluebird';
 import { ActionSheetController, AlertController, ModalController, NavController, NavParams } from 'ionic-angular';
 import { Subscription } from 'rxjs';
 import { KeyboardInputComponent } from '../../components/keyboard-input/keyboard-input';
@@ -94,7 +94,7 @@ export class ScanSessionPage {
       this.scan();
     } else {
       // It will be shown only once because ioViewDidLoad is always called only once
-      Promise.join(this.settings.getNoRunnings(), this.settings.getSoundFeedbackOrDialogShown(), (runnings, soundFeedbackOrDialogShown) => {
+      BluebirdPromise.join(this.settings.getNoRunnings(), this.settings.getSoundFeedbackOrDialogShown(), (runnings, soundFeedbackOrDialogShown) => {
         if (!soundFeedbackOrDialogShown && runnings >= Config.NO_RUNNINGS_BEFORE_SHOW_SOUND_FEEDBACK_OR_DIALOG) {
           this.alertCtrl.create({
             title: 'Beep sound',
