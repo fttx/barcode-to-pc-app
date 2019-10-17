@@ -266,13 +266,17 @@ export class Settings {
     return this.storage.set(Settings.OUTPUT_PROFILES, outputProfiles);
   }
 
-   async getOutputProfiles(): Promise<OutputProfileModel[]> {
-    let outputProfiles = await this.storage.get(Settings.OUTPUT_PROFILES);
-    return new Promise<OutputProfileModel[]>((resolve, reject) => {
+  getOutputProfiles(): Promise<OutputProfileModel[]> {
+    return new Promise<OutputProfileModel[]>(async (resolve, reject) => {
+      let outputProfiles = await this.storage.get(Settings.OUTPUT_PROFILES);
+      console.log(' @@@ saved output profiles: ', outputProfiles)
       if (!outputProfiles) {
-        resolve(this.generateDefaultOutputProfiles());
+        let defaultOutputProfile = this.generateDefaultOutputProfiles();
+        console.log(' @@@   null => generating defautl one  ', defaultOutputProfile)
+        resolve(defaultOutputProfile);
+      } else {
+        resolve(outputProfiles);
       }
-      return resolve(outputProfiles);
     })
   }
 
@@ -307,19 +311,19 @@ export class Settings {
       this.getQuantityEnabled().then(quantityEnabled => {
         if (quantityEnabled) {
           resolve([{
-            name: "Profile 1",
+            name: "Output template 1",
             outputBlocks: [
-              { name: 'BARCODE', value: 'barcode', type: 'barcode' },
-              { name: 'TAB', value: 'tab', type: 'key' },
-              { name: 'QUANTITY', value: 'quantity', type: 'variable' },
-              { name: 'ENTER', value: 'enter', type: 'key' },
+              { name: 'BARCODE', value: 'BARCODE', type: 'barcode', editable: true, skipOutput: false },
+              { name: 'TAB', value: 'tab', type: 'key', modifiers: [] },
+              { name: 'QUANTITY', value: 'quantity', type: 'variable', editable: true, skipOutput: false, label: null },
+              { name: 'ENTER', value: 'enter', type: 'key', modifiers: [] },
             ]
           }]);
         } else {
           // keep only this
           resolve([{
-            name: "Profile 1",
-            outputBlocks: [{ name: 'BARCODE', value: 'barcode', type: 'barcode' }, { name: 'ENTER', value: 'enter', type: 'key' }]
+            name: "Output template 1",
+            outputBlocks: [{ name: 'BARCODE', value: 'BARCODE', type: 'barcode', editable: true, skipOutput: false }, { name: 'ENTER', value: 'enter', type: 'key', modifiers: [] }]
           }]);
         }
       })
