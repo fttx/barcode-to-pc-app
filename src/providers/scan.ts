@@ -276,14 +276,6 @@ export class ScanProvider {
                             }
 
                         } // switch outputBlock.type
-
-                        // when the outputBlock is marked as 'skipOutput' we don't send it to the server
-                        // but we still process it in the outputProfile in order to set the variables
-                        // so that they can be used by the next outputBloks of the outputTemplate.
-                        if (outputBlock.skipOutput) {
-                            scan.outputBlocks.splice(i, 1);
-                            i--;
-                        }
                     } // for
 
 
