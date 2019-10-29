@@ -18,7 +18,12 @@ page-select-scanning-mode {
     }
 
     .btn-mode {
-        min-height: 5rem;
+        min-height: 8rem;
+    }
+
+    .btn-mode p {
+        padding: 0;
+        margin-top: 1.5rem;
     }
 
     .btn-mode * {
@@ -26,13 +31,26 @@ page-select-scanning-mode {
     }
 
     .btn-line-container {
-        height: 11rem;
+        height: 10rem;
         line-height: 8rem;
         vertical-align: middle;
     }
 
     .btn-description {
         line-height: 1rem;
+    }
+
+    @media (orientation: landscape)
+    {
+        .btn-line-container {
+            height: 4rem;
+            line-height: 4rem;
+            vertical-align: middle;
+        }
+
+        .btn-mode {
+            min-height: 4rem;
+        }
     }
     // end horizontal
 
