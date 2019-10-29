@@ -20,21 +20,21 @@
 
   <div [hidden]="outputProfiles.length != 1">
     <div text-center>
-      <button ion-button clear class="btn-mode btn-mode-keyboard btn-scan-mode-vertical" (click)="dismiss('keyboard')">
+      <button ion-button clear class="btn-mode btn-scan-mode-vertical" (click)="dismiss('keyboard')">
         <img src="assets/select-scanning-mode/keyboard.png" alt="keyboard" />
         <p class="btn-description">
           Manual input
         </p>
       </button>
 
-      <button ion-button clear class="btn-mode btn-mode-single btn-scan-mode-vertical" (click)="dismiss('single')">
+      <button ion-button clear class="btn-mode btn-scan-mode-vertical" (click)="dismiss('single')">
         <img src="assets/select-scanning-mode/single.png" alt="single" />
         <p class="btn-description">
           Single scan
         </p>
       </button>
 
-      <button ion-button clear class="btn-mode  btn-mode-continue btn-scan-mode-vertical" (click)="dismiss('continue')">
+      <button ion-button clear class="btn-mode  btn-scan-mode-vertical" (click)="dismiss('continue')">
         <img src="assets/select-scanning-mode/continue.png" alt="continue" />
         <p class="btn-description">
           Multiple scans
@@ -51,21 +51,21 @@
   <ion-toolbar [hidden]="outputProfiles.length == 1">
     <ion-buttons align-self-center>
       <div text-center class="btn-line-container">
-        <button ion-button class="btn-mode btn-mode-keyboard btn-scan-mode-horizontal" (click)="dismiss('keyboard')">
+        <button ion-button class="btn-mode btn-scan-mode-horizontal" (click)="dismiss('keyboard')">
           <img src="assets/select-scanning-mode/keyboard.png" alt="keyboard" />
           <p class="btn-description">
             Manual input
           </p>
         </button>
 
-        <button ion-button class="btn-mode btn-mode-single btn-scan-mode-horizontal" (click)="dismiss('single')">
+        <button ion-button class="btn-mode btn-scan-mode-horizontal" (click)="dismiss('single')">
           <img src="assets/select-scanning-mode/single.png" alt="single" />
           <p class="btn-description">
             Single scan
           </p>
         </button>
 
-        <button ion-button class="btn-mode  btn-mode-continue btn-scan-mode-horizontal" (click)="dismiss('continue')">
+        <button ion-button class="btn-mode  btn-scan-mode-horizontal" (click)="dismiss('continue')">
           <img src="assets/select-scanning-mode/continue.png" alt="continue" />
           <p class="btn-description">
             Multiple scans
