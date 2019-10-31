@@ -228,6 +228,7 @@ export class ScanProvider {
                                 }
                             }
                             case 'delay': break;
+                            case 'run':
                             case 'http': {
                                 // injects variables (interpolation)
                                 // Example:
