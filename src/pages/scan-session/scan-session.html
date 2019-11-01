@@ -7,7 +7,7 @@
 <ion-header>
 
 	<ion-navbar color="primary">
-		<ion-title>{{ scanSession.name }}</ion-title>
+		<ion-title>{{ scanSession && scanSession.name }}</ion-title>
 
 		<ion-buttons end>
 			<button [hidden]="!(repeatingStatus == 'stopped')" ion-button icon-only (click)="onRepeatAllClick()">
@@ -35,7 +35,7 @@
 </ion-header>
 
 <ion-content>
-	<ion-list [virtualScroll]="scanSession.scannings" [approxItemHeight]="'47px'" [bufferRatio]="5">
+	<ion-list [virtualScroll]="scanSession && scanSession.scannings" [approxItemHeight]="'47px'" [bufferRatio]="5">
 		<button ion-item *virtualItem="let scan; let i = index" (click)="onItemClicked(scan, i)" (press)="onItemPressed(scan, i)"
 		 [color]="scan.repeated ? 'light' : 'default'">
 			<ion-grid no-padding>

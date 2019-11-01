@@ -4,7 +4,6 @@ import { GoogleAnalytics } from '@ionic-native/google-analytics';
 import { LaunchReview } from '@ionic-native/launch-review';
 import * as BluebirdPromise from 'bluebird';
 import { AlertController, ItemSliding, NavController, PopoverController } from 'ionic-angular';
-import * as Supplant from 'supplant';
 import { requestModelDeleteScanSessions } from '../../models/request.model';
 import { ScanSessionModel } from '../../models/scan-session.model';
 import { ScanModel } from '../../models/scan.model';
@@ -179,7 +178,7 @@ export class ScanSessionsPage {
 
     if (this.selectedScanSessions.length == 0) {
       // this.cancelSelection();
-      this.navCtrl.push(ScanSessionPage, { scanSession: scanSession, isNewSession: false });
+      this.navCtrl.push(ScanSessionPage, { scanSession: scanSession });
     } else {
       this.select(scanSession, index);
     }
@@ -246,22 +245,8 @@ export class ScanSessionsPage {
   }
 
   // ScanSessions.OnAddClick() -> ScanSession.GetScanMode()
-  async onAddClick() {
-    let date: number = new Date().getTime();
-    let name = await this.settings.getScanSessionName();
-    name = new Supplant().text(name, {
-      scan_session_number: this.scanSessions.length + 1,
-      device_name: await this.settings.getDeviceName(),
-      date: new Date().toISOString().slice(0, 10).replace(/-/g, "")
-    });
-    let newScanSession: ScanSessionModel = {
-      id: date,
-      name: name,
-      date: date,
-      scannings: [],
-      selected: false,
-    };
-    this.navCtrl.push(ScanSessionPage, { scanSession: newScanSession, isNewSession: true });
+  onAddClick() {
+    this.navCtrl.push(ScanSessionPage);
   }
 
   onArchiveSelectedClick() {

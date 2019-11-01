@@ -6,7 +6,7 @@ import { ScanSessionModel } from '../models/scan-session.model';
 /**
  * Provides methods to store and get data from the storage
  * It implements a memory cache for the main scanSessions.
- * TODO: 
+ * TODO:
  *  - Remove JSON.stringify/parse, this job should be done with Storage by passing the type inside <>
  *  - Save the scan sessions in separate storage items instead of putting everything in the same object
  */
@@ -63,6 +63,10 @@ export class ScanSessionsStorage {
     });
   }
 
+  getNextScanSessionNumber(): Promise<number> {
+    return this.getScanSessions().then(scanSessions => scanSessions.length + 1)
+  }
+
   // Takes care of saving the scanSession data.
   updateScanSession(scanSession: ScanSessionModel) {
     return this.getScanSessions().then(sessions => {
@@ -90,7 +94,7 @@ export class ScanSessionsStorage {
         if (data != null) {
           let json = JSON.parse(data);
           let result = json.map(x => {
-          // why is this done with map instead of stringify?
+            // why is this done with map instead of stringify?
             let scanSession: ScanSessionModel = {
               id: x.id,
               name: x.name,

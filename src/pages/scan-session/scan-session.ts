@@ -19,7 +19,6 @@ import { Config } from './../../providers/config';
 import { Settings } from './../../providers/settings';
 import { EditScanSessionPage } from './edit-scan-session/edit-scan-session';
 import { SelectScanningModePage } from './select-scanning-mode/select-scanning-mode';
-import { OutputProfileModel } from '../../models/output-profile.model';
 
 
 /**
@@ -65,7 +64,9 @@ export class ScanSessionPage {
     public scanProvider: ScanProvider,
   ) {
     this.scanSession = navParams.get('scanSession');
-    this.isNewSession = navParams.get('isNewSession');
+    if (!this.scanSession) {
+      this.isNewSession = true;
+    }
     this.nativeAudio.preloadSimple('beep', 'assets/audio/beep.ogg');
   }
 
@@ -128,10 +129,10 @@ export class ScanSessionPage {
   }
 
   scan() { // Called when the user want to scan
-    let selectScanningModeModal = this.modalCtrl.create(SelectScanningModePage, { scanSessionName: this.scanSession.name, isNewSession: this.isNewSession });
+    let selectScanningModeModal = this.modalCtrl.create(SelectScanningModePage, { scanSession: this.scanSession });
     selectScanningModeModal.onDidDismiss(data => {
       let scanMode = data.scanMode;
-      this.scanSession.name = data.scanSessionName;
+      this.scanSession = data.scanSession;
       this.selectedOutputProfileIndex = data.selectedOutputProfileIndex;
 
       // if the user doesn't choose the mode (clicks cancel) and didn't enter the scan-session page
