@@ -58,15 +58,14 @@ page-select-scanning-mode {
     .btn-scan-mode-vertical {
         // 33*3 = 100vh
         // ion-navbar = 56px, ion-footer = 56px => 56*2/3 = 38px
-        height: calc(32vh - 38px);
-        min-height: 12rem;
+        min-height: calc(32vh - 38px);
         text-align: center;
+        width: 100%;
     }
 
     .btn-scan-mode-vertical img {
-        height: calc(100% - 8rem) !important;
         margin: 0 auto;
-        min-height: 8rem;
+        height: 10rem;
     }
 
     .btn-scan-mode-vertical p {
@@ -78,6 +77,12 @@ page-select-scanning-mode {
     {
         .btn-scan-mode-vertical {
             margin-top: 7rem;
+            width: 31%;
+            height: 100%;
+        }
+        .btn-scan-mode-vertical img {
+            width: 100%;
+            height: auto;
         }
     }
 

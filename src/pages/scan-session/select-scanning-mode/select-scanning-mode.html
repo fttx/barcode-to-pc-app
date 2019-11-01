@@ -18,7 +18,7 @@
     </ion-item>
   </ion-list>
 
-  <div [hidden]="outputProfiles.length != 1">
+  <div [hidden]="outputProfiles.length != 1" class="test">
     <div text-center>
       <button ion-button clear class="btn-mode btn-scan-mode-vertical" (click)="dismiss('keyboard')">
         <img src="assets/select-scanning-mode/keyboard.png" alt="keyboard" />
@@ -34,7 +34,7 @@
         </p>
       </button>
 
-      <button ion-button clear class="btn-mode  btn-scan-mode-vertical" (click)="dismiss('continue')">
+      <button ion-button clear class="btn-mode btn-scan-mode-vertical" (click)="dismiss('continue')">
         <img src="assets/select-scanning-mode/continue.png" alt="continue" />
         <p class="btn-description">
           Multiple scans
