@@ -84,35 +84,26 @@ export class ScanSessionsPage {
       }
     });
 
-    // if (this.connected == false) {
     this.settings.getDefaultServer().then(server => {
-      // console.log('SERVER: ', server)
-
       if (!this.wsEventSubscription) {
         this.wsEventSubscription = this.serverProvider.onWsEvent().subscribe((event: wsEvent) => {
-          // console.log('[S-SESSIONS]: ' + event.name)
           this.connected = this.serverProvider.isConnected();
           if (event.name == wsEvent.EVENT_OPEN) {
             this.onConnect();
           }
         });
       }
-
-
-      // if (!this.responseSubscription) {
-      //   this.responseSubscription = this.serverProvider.onResponse().subscribe((response: any) => {
-
-      //   });
-      // }
-
-      // console.log('[S-SESSIONS]: connect()')
       this.serverProvider.connect(server);
     }, err => { })
-    // }
   }
 
   ionViewDidLoad() {
     this.utils.showEnableWifiDialog();
+    this.settings.getOpenScanOnStart().then(openScanOnStart => {
+      if (openScanOnStart) {
+        this.navCtrl.push(ScanSessionPage);
+      }
+    })
   }
 
   ionViewDidLeave() {

@@ -38,6 +38,7 @@ export class Settings {
   private static SOUND_FEEDBACK_OR_DIALOG_SHOWN = 'sound_feedback_or_dialog_shown';
   private static SCAN_SESSION_NAME = 'scan_session_name';
   private static UPGRADED_DISPLAYVALUE = 'upgraded_displayvalue';
+  private static OPEN_SCAN_ON_START = 'open_scan_on_start';
 
   constructor(
     public storage: Storage,
@@ -82,6 +83,14 @@ export class Settings {
 
   getAlwaysSkipWelcomePage(): Promise<boolean> {
     return this.storage.get(Settings.ALWAYS_SKIP_WELCOME_PAGE);
+  }
+
+  setOpenScanOnStart(openscanOnStart: boolean) {
+    return this.storage.set(Settings.OPEN_SCAN_ON_START, openscanOnStart);
+  }
+
+  getOpenScanOnStart(): Promise<boolean> {
+    return this.storage.get(Settings.OPEN_SCAN_ON_START).then(openscanOnStart => openscanOnStart || false);
   }
 
   setNoRunnings(noRunnings: number) {

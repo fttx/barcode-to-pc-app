@@ -31,6 +31,7 @@ export class SettingsPage {
   public scanMode = '';
   public preferFrontCamera = false;
   public keepDisplayOn = false;
+  public openScanOnStart = false;
   private changesSaved = false;
   public quantityType: string = 'number';
 
@@ -94,6 +95,10 @@ export class SettingsPage {
       this.keepDisplayOn = keepDisplayOn;
     });
 
+    this.settings.getOpenScanOnStart().then(openScanOnStart => {
+      this.openScanOnStart = openScanOnStart;
+    });
+
     this.settings.getQuantityType().then(quantityType => {
       if (quantityType) {
         this.quantityType = quantityType;
@@ -121,6 +126,7 @@ export class SettingsPage {
     this.settings.setScanSessionName(this.scanSessionName);
     this.settings.setPreferFrontCamera(this.preferFrontCamera);
     this.settings.setKeepDisplayOn(this.keepDisplayOn);
+    this.settings.setOpenScanOnStart(this.openScanOnStart);
     this.settings.setBarcodeFormats(this.barcodeFormats);
     this.settings.setEnableLimitBarcodeFormats(this.enableLimitBarcodeFormats);
     this.settings.setQuantityType(this.quantityType);
