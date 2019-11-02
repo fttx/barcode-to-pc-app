@@ -40,7 +40,7 @@ page-select-scanning-mode {
         line-height: 1rem;
     }
 
-    @media (orientation: landscape)
+    @media (min-width: 414px) and (orientation: landscape)
     {
         .btn-line-container {
             height: 4rem;
@@ -56,9 +56,7 @@ page-select-scanning-mode {
 
     // vertical
     .btn-scan-mode-vertical {
-        // 33*3 = 100vh
-        // ion-navbar = 56px, ion-footer = 56px => 56*2/3 = 38px
-        min-height: calc(32vh - 38px);
+        min-height: 16rem;
         text-align: center;
         width: 100%;
     }
@@ -73,7 +71,7 @@ page-select-scanning-mode {
         color: color($colors, dark)
     }
 
-    @media (orientation: landscape)
+    @media (min-width: 414px) and (orientation: landscape)
     {
         .btn-scan-mode-vertical {
             margin-top: 7rem;
