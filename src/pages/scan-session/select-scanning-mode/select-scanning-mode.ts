@@ -63,6 +63,11 @@ export class SelectScanningModePage {
 
   // Called when a mode button is tapped
   async dismiss(scanMode) {
+    if (!scanMode) {
+      this.viewCtrl.dismiss({cancelled: true});
+      return;
+    }
+
     // If the user checked the option to save the mode
     if (this.setAsDefaultMode) {
       this.settings.setDefaultMode(scanMode);

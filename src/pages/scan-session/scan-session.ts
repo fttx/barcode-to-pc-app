@@ -131,15 +131,15 @@ export class ScanSessionPage {
   scan() { // Called when the user want to scan
     let selectScanningModeModal = this.modalCtrl.create(SelectScanningModePage, { scanSession: this.scanSession });
     selectScanningModeModal.onDidDismiss(data => {
-      let scanMode = data.scanMode;
-      this.scanSession = data.scanSession;
-      this.selectedOutputProfileIndex = data.selectedOutputProfileIndex;
-
       // if the user doesn't choose the mode (clicks cancel) and didn't enter the scan-session page
-      if (!scanMode && this.isNewSession && this.scanSession.scannings.length == 0) {
+      if (data.cancelled && this.isNewSession) {
         this.navCtrl.pop();
         return;
       }
+
+      let scanMode = data.scanMode;
+      this.scanSession = data.scanSession;
+      this.selectedOutputProfileIndex = data.selectedOutputProfileIndex;
 
       if (this.scanProviderSubscription != null) {
         this.scanProviderSubscription.unsubscribe();
