@@ -1,10 +1,11 @@
-import 'rxjs/add/operator/map';
-
 import { Injectable } from '@angular/core';
-import { AlertController } from 'ionic-angular';
-
-import { barcodeFormatModel } from '../models/barcode-format.model';
+import { Device } from '@ionic-native/device';
 import { Network } from '@ionic-native/network';
+import { AlertController } from 'ionic-angular';
+import 'rxjs/add/operator/map';
+import { barcodeFormatModel } from '../models/barcode-format.model';
+
+
 
 /*
   Generated class for the Utils provider.
@@ -19,6 +20,7 @@ export class Utils {
   constructor(
     private network: Network,
     private alertCtrl: AlertController,
+    private device: Device,
   ) { }
 
   public static getUrlParameterValue(url, parameterName) {
@@ -54,6 +56,10 @@ export class Utils {
     // console.log('old:', savedBarcodeFormats);
     // console.log('new:', savedBarcodeFormats.filter(x => removedBarcodeFormats.findIndex(y => x.equals(y)) == -1).concat(addedBarcodeFormats))
     return savedBarcodeFormats.filter(x => removedBarcodeFormats.findIndex(y => x.equals(y)) == -1).concat(addedBarcodeFormats)
+  }
+
+  public isAndroid() {
+    return (this.device.platform || 'unknown').toLowerCase().indexOf('android') != -1;
   }
 
   // view-source:http://www.reminformatica.it/joomla/code32.html

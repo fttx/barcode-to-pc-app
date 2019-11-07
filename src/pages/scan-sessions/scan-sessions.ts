@@ -1,5 +1,4 @@
 import { Component } from '@angular/core';
-import { Device } from '@ionic-native/device';
 import { GoogleAnalytics } from '@ionic-native/google-analytics';
 import { LaunchReview } from '@ionic-native/launch-review';
 import * as BluebirdPromise from 'bluebird';
@@ -40,7 +39,6 @@ export class ScanSessionsPage {
     private ga: GoogleAnalytics,
     private settings: Settings,
     private launchReview: LaunchReview,
-    private device: Device,
     private utils: Utils
   ) { }
 
@@ -125,9 +123,7 @@ export class ScanSessionsPage {
   private onConnect() {
     BluebirdPromise.join(this.settings.getNoRunnings(), this.settings.getRated(), (runnings, rated) => {
       if (runnings >= Config.NO_RUNNINGS_BEFORE_SHOW_RATING && !rated) {
-        let os = this.device.platform || 'unknown';
-        let isAndroid = os.toLowerCase().indexOf('android') != -1;
-        let store = isAndroid ? 'PlayStore' : 'Appstore';
+        let store = this.utils.isAndroid() ? 'PlayStore' : 'Appstore';
         this.alertCtrl.create({
           title: 'Rate Barcode to PC',
           message: 'Is Barcode to PC helping you transfer barcodes?<br><br>Let the world know by rating it on the ' + store + ', it would be appreciated!',

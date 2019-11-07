@@ -19,6 +19,7 @@ import { Config } from './../../providers/config';
 import { Settings } from './../../providers/settings';
 import { EditScanSessionPage } from './edit-scan-session/edit-scan-session';
 import { SelectScanningModePage } from './select-scanning-mode/select-scanning-mode';
+import { Utils } from '../../providers/utils';
 
 
 /**
@@ -61,6 +62,7 @@ export class ScanSessionPage {
     public nativeAudio: NativeAudio,
     public ngZone: NgZone,
     public device: Device,
+    private utils: Utils,
     public scanProvider: ScanProvider,
   ) {
     this.scanSession = navParams.get('scanSession');
@@ -441,9 +443,11 @@ export class ScanSessionPage {
   onShareClick() {
     let csv = ScanModel.ToCSV(this.scanSession.scannings, true, false, ",", null);
     let data = btoa(csv);
-    // iOS
-    // see: https://github.com/EddyVerbruggen/SocialSharing-PhoneGap-Plugin/issues/778
-    // this.socialSharing.share(null, this.scanSession.name, "data:text/csv;df:" + this.scanSession.name + ".csv;base64," + data, null)
-    this.socialSharing.share(null, this.scanSession.name, "data:text/csv;base64," + data, null)
+    if (this.utils.isAndroid()) {
+      this.socialSharing.share(null, this.scanSession.name, "data:text/csv;base64," + data, null)
+    } else {
+      // iOS Quirk: https://github.com/EddyVerbruggen/SocialSharing-PhoneGap-Plugin/issues/778
+      this.socialSharing.share(null, this.scanSession.name, "data:text/csv;df:" + this.scanSession.name + ".csv;base64," + data, null)
+    }
   }
 }
