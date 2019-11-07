@@ -438,4 +438,12 @@ export class ScanSessionPage {
     }, this.repeatInterval);
   }
 
+  onShareClick() {
+    let csv = ScanModel.ToCSV(this.scanSession.scannings, true, false, ",", null);
+    let data = btoa(csv);
+    // iOS
+    // see: https://github.com/EddyVerbruggen/SocialSharing-PhoneGap-Plugin/issues/778
+    // this.socialSharing.share(null, this.scanSession.name, "data:text/csv;df:" + this.scanSession.name + ".csv;base64," + data, null)
+    this.socialSharing.share(null, this.scanSession.name, "data:text/csv;base64," + data, null)
+  }
 }
