@@ -12,6 +12,7 @@ import { Settings } from './settings';
 import { Utils } from './utils';
 import * as Supplant from 'supplant';
 import { Config } from './config';
+import { AlertInputOptions } from 'ionic-angular/components/alert/alert-options';
 
 /**
  * The job of this class is to generate a ScanModel by talking with the native
@@ -205,6 +206,11 @@ export class ScanProvider {
                                         break;
                                     }
                                 } // switch outputBlock.value
+                                break;
+                            }
+                            case 'select_option': {
+                                outputBlock.value = new Supplant().text(outputBlock.value, variables);
+                                outputBlock.value = await this.showSelectOption(outputBlock.value);
                                 break;
                             }
                             case 'function': {
@@ -428,6 +434,31 @@ export class ScanProvider {
             // Prevent OutOfBounds. The same logic is duplciated in the SelectScanningModePage/ionViewWillEnter() method
             if (i >= profiles.length) i = profiles.length - 1;
             resolve(profiles[i]);
+        });
+    }
+
+    private showSelectOption(csvSelectOptions: string): Promise<string> {
+        return new Promise((resolve, reject) => {
+            let options = csvSelectOptions.split(',');
+            let inputs: AlertInputOptions[] = options.map(option => {
+                return {
+                    type: 'radio',
+                    label: option,
+                    value: option,
+                }
+            });
+
+            this.alertCtrl.create({
+                title: 'Select an option',
+                inputs: inputs,
+                enableBackdropDismiss: false,
+                buttons: [{
+                    text: 'Ok',
+                    handler: (data: any) => {
+                        resolve(data);
+                    }
+                }]
+            }).present();
         });
     }
 
