@@ -88,8 +88,7 @@ export class ScanProvider {
                 let continueModeTimeout = result[4];
                 this.deviceName = result[5];
                 this.outputProfile = result[6];
-                let quantityEnabled = OutputProfileModel.HasQuantityBlocks(this.outputProfile);
-
+                let blockingOutputComponents = OutputProfileModel.HasBlockingOutputComponents(this.outputProfile);
 
                 // other computed parameters
                 this.quantityType = quantityType || 'number';
@@ -98,7 +97,7 @@ export class ScanProvider {
                     case SelectScanningModePage.SCAN_MODE_SINGLE: this.acqusitionMode = 'single'; break;
                     case SelectScanningModePage.SCAN_MODE_CONTINUE: {
                         this.acqusitionMode = 'continue';
-                        if (quantityEnabled || !this.platform.is('android') || continueModeTimeout) {
+                        if (blockingOutputComponents || !this.platform.is('android') || continueModeTimeout) {
                             this.acqusitionMode = 'mixed_continue';
                         }
                         break;
@@ -406,7 +405,7 @@ export class ScanProvider {
                 }
 
                 case 'manual': {
-                    this.keyboardInput.focus(500);
+                    this.keyboardInput.focus(1100);
                     this.keyboardInput.setPlaceholder(label);
                     // here we don't wrap the promise inside a try/catch statement because there
                     // isn't a way to cancel a manual barcode acquisition

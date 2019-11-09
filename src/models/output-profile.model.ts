@@ -7,7 +7,10 @@ export class OutputProfileModel {
     public name: string;
     public outputBlocks: OutputBlockModel[] = [];
 
-    static HasQuantityBlocks(outputProfile: OutputProfileModel) {
-        return outputProfile.outputBlocks.findIndex(x => x.value == 'quantity') != -1;
+    /**
+     * @returns true when there is a block that requires the interaction with the UI
+     */
+    static HasBlockingOutputComponents(outputProfile: OutputProfileModel) {
+        return outputProfile.outputBlocks.findIndex(x => x.value == 'quantity' || x.type == 'select_option') != -1;
     }
 }
