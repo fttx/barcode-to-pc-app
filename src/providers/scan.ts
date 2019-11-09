@@ -440,12 +440,18 @@ export class ScanProvider {
     private showSelectOption(csvSelectOptions: string): Promise<string> {
         return new Promise((resolve, reject) => {
             let options = csvSelectOptions.split(',');
+            let optionIndex = 0;
             let inputs: AlertInputOptions[] = options.map(option => {
-                return {
+                let input: AlertInputOptions = {
                     type: 'radio',
                     label: option,
                     value: option,
+                };
+                if (optionIndex == 0) {
+                    input.checked = true;
                 }
+                optionIndex++;
+                return input;
             });
 
             this.alertCtrl.create({
