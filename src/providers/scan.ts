@@ -377,7 +377,7 @@ export class ScanProvider {
   // subscription to the last getBarcode promise.
   // lastReject and lastResolve relay on the fact that it will never be
   // simultanius calls to getBarcode() method, it will always be called
-  // sequencially. The explaination is that the loop contained in the start()
+  // sequencially. The explaination is that the loop contained in the scan()
   // method isn't allowed to go haed until the previus getBarcode doesn't get
   // resolved.
   private lastResolve;
