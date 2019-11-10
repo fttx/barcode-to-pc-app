@@ -514,6 +514,11 @@ export class ScanProvider {
         enableBackdropDismiss: false,
         inputs: [{ name: 'quantity', type: this.quantityType, placeholder: this.quantityType == 'number' ? '(Default is 1, press Ok to insert it)' : 'Eg. ten' }],
         buttons: [{
+          role: 'cancel', text: 'Cancel',
+          handler: () => {
+            reject('cancelled');
+          }
+        }, {
           text: 'Ok',
           handler: data => {
             if (data.quantity) { // && isNumber(data.quantity)
@@ -521,11 +526,6 @@ export class ScanProvider {
             } else if (this.quantityType == 'number') {
               resolve('1')
             }
-          }
-        }, {
-          role: 'cancel', text: 'Cancel',
-          handler: () => {
-            reject('cancelled');
           }
         }]
       });
