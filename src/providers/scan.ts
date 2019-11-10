@@ -2,7 +2,7 @@ import { Injectable, NgZone } from '@angular/core';
 import { BarcodeScanner, BarcodeScannerOptions, BarcodeScanResult } from '@fttx/barcode-scanner';
 import { GoogleAnalytics } from '@ionic-native/google-analytics';
 import { AlertController, Platform } from 'ionic-angular';
-import { Observable, Subscription } from 'rxjs';
+import { Observable, Subscription, Subscriber } from 'rxjs';
 import { KeyboardInputComponent } from '../components/keyboard-input/keyboard-input';
 import { OutputBlockModel } from '../models/output-block.model';
 import { OutputProfileModel } from '../models/output-profile.model';
@@ -53,6 +53,9 @@ export class ScanProvider {
   ) {
   }
 
+  private lastObserver: Subscriber<ScanModel> = null;
+  private _scanCallId: number = null; // used to prevent scan(), and thus again() calls overlaps
+
   /**
    * It returns an Observable that will output a ScanModel everytime the
    * current OutputProfile is completed.
@@ -66,10 +69,17 @@ export class ScanProvider {
    * @param keyboardInput element for manual acquisition
    */
   scan(scanMode, outputProfileIndex, scanSession, keyboardInput: KeyboardInputComponent): Observable<ScanModel> {
+    // prevent memory leak
+    if (this.lastObserver) {
+      this.lastObserver.complete();
+    }
+    this._scanCallId = new Date().getTime();
+
     this.keyboardInput = keyboardInput;
     this.outputProfileIndex = outputProfileIndex;
 
     return new Observable(observer => {
+      this.lastObserver = observer;
       Promise.all([
         this.settings.getPreferFrontCamera(), // 0
         this.settings.getEnableLimitBarcodeFormats(), // 1
@@ -120,9 +130,18 @@ export class ScanProvider {
         let resetIfCountTimer;
         let againCount = 0;
 
+        // used to prevent scan(), and thus again() calls overlaps
+        let _scanCallId = this._scanCallId;
+
         // again() encapsulates the part that need to be repeated when
         // the continuos mode or manual mode are active
         let again = async () => {
+
+          // cancel the previus outputProfile exection. (needed for continue mode?)
+          if (_scanCallId != this._scanCallId) {
+            observer.complete()
+            return;
+          }
 
           // infinite loop detetion
           if (againCount > 30) {
@@ -222,6 +241,25 @@ export class ScanProvider {
               case 'barcode': {
                 try {
                   let barcode = await this.getBarcode(outputBlock.label);
+
+                  // Context:
+                  //
+                  // Since we don't know if the user wants to start a new scan() or if he/she wants
+                  // to add more scannings, we always call again() wich will get stuck in the Promise 
+                  // of the line above that waits for a text input (or camera acquisition).
+                  //
+                  // If the user starts a new scan() and this an new OutputProfile executuion
+                  // (by clicking the FAB), we have to drop the barcode that will acquired from
+                  // the stuck again(), and also call return; to prevent other components to be exceuted.
+                  //
+                  // The same thing could happen with await getQuantity() and await getSelectOption()
+                  // but since there isn't a way to press the FAB button and create a new scan() without
+                  // closing the alert, they won't never get stuck.
+                  if (_scanCallId != this._scanCallId) {
+                    observer.complete()
+                    return;
+                  }
+
                   variables.barcode = barcode;
                   variables.barcodes.push(barcode);
                   outputBlock.value = barcode;
