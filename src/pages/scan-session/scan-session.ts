@@ -134,8 +134,10 @@ export class ScanSessionPage {
     let selectScanningModeModal = this.modalCtrl.create(SelectScanningModePage, { scanSession: this.scanSession });
     selectScanningModeModal.onDidDismiss(data => {
       // if the user doesn't choose the mode (clicks cancel) and didn't enter the scan-session page
-      if (data.cancelled && this.isNewSession) {
-        this.navCtrl.pop();
+      if (data.cancelled) {
+        if (this.isNewSession) {
+          this.navCtrl.pop();
+        }
         return;
       }
 
