@@ -42,6 +42,7 @@ export class LastToastProvider {
 
     if (!this.paused) {
       this.toastCtrl.create({ message: message, duration: duartion, showCloseButton: true, closeButtonText: 'DISMISS' }).present();
+      this.lastToastMessage = null;
     } else {
       this.lastToastMessage = message;
     }
