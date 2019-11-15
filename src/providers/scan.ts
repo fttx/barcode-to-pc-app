@@ -194,7 +194,7 @@ export class ScanProvider {
             }
 
             switch (outputBlock.type) {
-              // some componets like 'key' and 'text', do not need any processing from the
+              // some components like 'key' and 'text', do not need any processing from the
               // app side, so we just skip them
               case 'key': break;
               case 'text': break;
@@ -245,7 +245,7 @@ export class ScanProvider {
                   // Context:
                   //
                   // Since we don't know if the user wants to start a new scan() or if he/she wants
-                  // to add more scannings, we always call again() wich will get stuck in the Promise 
+                  // to add more scannings, we always call again() wich will get stuck in the Promise
                   // of the line above that waits for a text input (or camera acquisition).
                   //
                   // If the user starts a new scan() and this an new OutputProfile executuion
@@ -573,7 +573,7 @@ export class ScanProvider {
     return new Promise((resolve, reject) => {
       this.alertCtrl.create({
         title: 'Infinite loop detected',
-        message: 'Perhaps you forgot to put the BARCODE componet, or you have a condition that is always false. Check your Output template. Do you want to continue?',
+        message: 'Perhaps you forgot to put the BARCODE component, or you have a condition that is always false. Check your Output template. Do you want to continue?',
         buttons: [{
           text: 'Stop', role: 'cancel',
           handler: () => {
