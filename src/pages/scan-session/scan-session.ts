@@ -133,8 +133,9 @@ export class ScanSessionPage {
   scan() { // Called when the user want to scan
     let selectScanningModeModal = this.modalCtrl.create(SelectScanningModePage, { scanSession: this.scanSession });
     selectScanningModeModal.onDidDismiss(data => {
-      // if the user doesn't choose the mode (clicks cancel) and didn't enter the scan-session page
-      if (data.cancelled) {
+      // if the user doesn't choose the mode (clicks cancel)
+      if (!data || data.cancelled) {
+        // if the user clicked the add FAB outside the scanSession page
         if (this.isNewSession) {
           this.navCtrl.pop();
         }
