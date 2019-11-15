@@ -393,8 +393,8 @@ export class ScanProvider {
         case 'mixed_continue': {
           let barcodeScanResult: BarcodeScanResult = await this.barcodeScanner.scan(this.pluginOptions).first().toPromise();
           if (!barcodeScanResult || barcodeScanResult.cancelled) {
-            // it should be equivalent to reject() + return
-            throw new Error('cancelled');
+            reject('cancelled');
+            return;
           }
           // CODE_39 fix (there is a copy of this fix in the CONTINUE mode part, if you change this then you have to change also the other one )
           if (barcodeScanResult.text && barcodeScanResult.format == 'CODE_39' && this.barcodeFormats.findIndex(x => x.enabled && x.name == 'CODE_32') != -1) {
