@@ -30,7 +30,7 @@
 
     ```bash
     npm install
-    ionic cordova platform add android
+    ionic cordova platform add android@8.1.0
     ionic cordova platform add ios
     ionic cordova resources
     ```

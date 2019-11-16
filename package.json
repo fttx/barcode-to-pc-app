@@ -24,7 +24,7 @@
     "@ionic-native/app-version": "4.5.0",
     "@ionic-native/core": "~4.18.0",
     "@ionic-native/device": "4.5.0",
-    "@ionic-native/google-analytics": "4.5.0",
+    "@ionic-native/google-analytics": "^4.20.0",
     "@ionic-native/header-color": "4.5.0",
     "@ionic-native/in-app-browser": "4.5.0",
     "@ionic-native/insomnia": "^4.20.0",
@@ -38,7 +38,7 @@
     "@ionic/storage": "^2.2.0",
     "angular2-moment": "^1.7.0",
     "bluebird": "^3.5.1",
-    "cordova-android": "8.0.0",
+    "cordova-android": "8.1.0",
     "cordova-ios": "5.0.1",
     "cordova-launch-review": "^3.1.1",
     "cordova-plugin-add-swift-support": "2.0.1",
@@ -98,9 +98,6 @@
     "plugins": {
       "cordova-plugin-app-version": {},
       "cordova-plugin-device": {},
-      "cordova-plugin-google-analytics": {
-        "GMS_VERSION": "11.0.1"
-      },
       "cordova-plugin-inappbrowser": {},
       "cordova-plugin-splashscreen": {},
       "cordova-plugin-whitelist": {},
@@ -126,8 +123,8 @@
       "cordova-plugin-insomnia": {}
     },
     "platforms": [
-      "android",
-      "ios"
+      "ios",
+      "android"
     ]
   }
 }
