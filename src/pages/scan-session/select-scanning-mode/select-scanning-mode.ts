@@ -21,7 +21,7 @@ export class SelectScanningModePage {
   public outputProfiles: OutputProfileModel[] = [];
   public selectedOutputProfile: OutputProfileModel; // use for ngModel
   public selectedOutputProfileIndex = 0; // used for set [checked] the radios
-  public scanSession: ScanSessionModel;
+  public scanSession: ScanSessionModel; // stores the scanSession passed by the parent view
 
   @ViewChild(Content) content: Content;
   constructor(
@@ -52,7 +52,7 @@ export class SelectScanningModePage {
       this.viewCtrl.dismiss({
         scanMode: defaultMode,
         selectedOutputProfileIndex: this.selectedOutputProfileIndex,
-        scanSession: this.scanSession
+        scanSession: await this.getScanSession()
       });
     }
 
@@ -64,7 +64,7 @@ export class SelectScanningModePage {
   // Called when a mode button is tapped
   async dismiss(scanMode) {
     if (!scanMode) {
-      this.viewCtrl.dismiss({cancelled: true});
+      this.viewCtrl.dismiss({ cancelled: true });
       return;
     }
 
@@ -76,32 +76,11 @@ export class SelectScanningModePage {
     let selectedOutputProfileIndex = this.outputProfiles.indexOf(this.selectedOutputProfile);
     this.settings.setSelectedOutputProfile(selectedOutputProfileIndex);
 
-    // Create the scanSession if not exists
-    if (!this.scanSession) {
-      let date: number = new Date().getTime();
-
-      let scanSessionName;
-      try {
-        scanSessionName = await this.getScanSessionName();
-      } catch (e) { // onCancel
-        return;
-      }
-
-      let newScanSession: ScanSessionModel = {
-        id: date,
-        name: scanSessionName,
-        date: date,
-        scannings: [],
-        selected: false,
-      };
-      this.scanSession = newScanSession;
-    }
-
     // Return the data to the caller view
     this.viewCtrl.dismiss({
       scanMode: scanMode,
       selectedOutputProfileIndex: selectedOutputProfileIndex,
-      scanSession: this.scanSession
+      scanSession: await this.getScanSession()
     });
   }
 
@@ -133,6 +112,36 @@ export class SelectScanningModePage {
       })
 
       alert.present();
+    });
+  }
+
+  /**
+   * Creates the scanSession if not exists
+   */
+  getScanSession() {
+    return new Promise(async (resolve, reject) => {
+      if (!this.scanSession) {
+        let date: number = new Date().getTime();
+
+        let scanSessionName;
+        try {
+          scanSessionName = await this.getScanSessionName();
+        } catch (e) { // onCancel
+          reject();
+          return;
+        }
+
+        let newScanSession: ScanSessionModel = {
+          id: date,
+          name: scanSessionName,
+          date: date,
+          scannings: [],
+          selected: false,
+        };
+        resolve(newScanSession)
+      } else {
+        resolve(this.scanSession);
+      }
     });
   }
 }
