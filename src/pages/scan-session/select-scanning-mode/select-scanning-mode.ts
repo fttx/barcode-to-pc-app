@@ -93,25 +93,31 @@ export class SelectScanningModePage {
         date: new Date().toISOString().slice(0, 10).replace(/-/g, "")
       });
 
-      let alert = this.alertCtrl.create({
-        title: 'Name', message: 'Insert a name for this scan session',
-        inputs: [{ name: 'name', placeholder: defaultName }],
-        buttons: [
-          { text: 'Cancel', handler: () => { reject() } },
-          { text: 'Ok', handler: data => { } }
-        ],
-        enableBackdropDismiss: false,
-      });
+      let alwaysUseDefaultScanSessionName = await this.settings.getAlwaysUseDefaultScanSessionName();
 
-      alert.onDidDismiss((data) => {
-        if (data.name != "") {
-          resolve(data.name)
-        } else {
-          resolve(defaultName)
-        }
-      })
+      if (alwaysUseDefaultScanSessionName) {
+        resolve(defaultName);
+      } else {
+        let alert = this.alertCtrl.create({
+          title: 'Name', message: 'Insert a name for this scan session',
+          inputs: [{ name: 'name', placeholder: defaultName }],
+          buttons: [
+            { text: 'Cancel', handler: () => { reject() } },
+            { text: 'Ok', handler: data => { } }
+          ],
+          enableBackdropDismiss: false,
+        });
 
-      alert.present();
+        alert.onDidDismiss((data) => {
+          if (data.name != "") {
+            resolve(data.name)
+          } else {
+            resolve(defaultName)
+          }
+        })
+
+        alert.present();
+      }
     });
   }
 

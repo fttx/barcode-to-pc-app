@@ -29,6 +29,7 @@ export class SettingsPage {
   public availableContinueModeTimeouts = Array.from(Array(30).keys());
   public availableRepeatIntervals = [];
   public scanMode = '';
+  public alwaysUseDefaultScanSessionName = false;
   public preferFrontCamera = false;
   public keepDisplayOn = false;
   public openScanOnStart = false;
@@ -87,6 +88,10 @@ export class SettingsPage {
       this.enableLimitBarcodeFormats = enableLimitBarcodeFormats;
     })
 
+    this.settings.getAlwaysUseDefaultScanSessionName().then(alwaysUseDefaultScanSessionName => {
+      this.alwaysUseDefaultScanSessionName = alwaysUseDefaultScanSessionName;
+    });
+
     this.settings.getPreferFrontCamera().then(preferFrontCamera => {
       this.preferFrontCamera = preferFrontCamera;
     });
@@ -124,6 +129,7 @@ export class SettingsPage {
     this.settings.setDefaultMode(this.scanMode);
     this.settings.setDeviceName(this.deviceName);
     this.settings.setScanSessionName(this.scanSessionName);
+    this.settings.setAlwaysUseDefaultScanSessionName(this.alwaysUseDefaultScanSessionName);
     this.settings.setPreferFrontCamera(this.preferFrontCamera);
     this.settings.setKeepDisplayOn(this.keepDisplayOn);
     this.settings.setOpenScanOnStart(this.openScanOnStart);

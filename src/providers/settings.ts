@@ -25,6 +25,7 @@ export class Settings {
   private static SCAN_MODE = 'scan_mode';
   private static DEVICE_NAME = 'device_name';
   private static REPEAT_INTERVAL = 'repeat_interval';
+  private static ALWAYS_USE_DEFAULT_SCAN_SESSION_NAME = 'always_use_default_scan_session_name';
   private static PREFER_FRONT_CAMERA = 'prefer_front_camera';
   private static KEEP_DISPLAY_ON = 'keep_display_on';
   private static UPGRADED_TO_SQLITE = 'upgraded_to_sqlite_5x';
@@ -229,6 +230,13 @@ export class Settings {
   }
   getRepeatInterval(): Promise<number> {
     return this.storage.get(Settings.REPEAT_INTERVAL);
+  }
+
+  setAlwaysUseDefaultScanSessionName(alwaysUseDefaultScanSessionName: boolean) {
+    return this.storage.set(Settings.ALWAYS_USE_DEFAULT_SCAN_SESSION_NAME, alwaysUseDefaultScanSessionName);
+  }
+  getAlwaysUseDefaultScanSessionName(): Promise<boolean> {
+    return this.storage.get(Settings.ALWAYS_USE_DEFAULT_SCAN_SESSION_NAME).then(result => { return result || false });
   }
 
   setPreferFrontCamera(preferFrontCamera: boolean) {
