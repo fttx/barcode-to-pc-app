@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>592044361640-eau9mv355vs54na9u67kn0c1gkt4nb0s.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.592044361640-eau9mv355vs54na9u67kn0c1gkt4nb0s</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>592044361640-5s131q8deb9vb0q6ovsh7rhuj2cb6gii.apps.googleusercontent.com</string>
+	<key>API_KEY</key>
+	<string>AIzaSyBPa_WFs2JIxsDjdu0QWRlo8FCXvdXiqaw</string>
+	<key>GCM_SENDER_ID</key>
+	<string>592044361640</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.barcodetopc</string>
+	<key>PROJECT_ID</key>
+	<string>barcode-to-pc</string>
+	<key>STORAGE_BUCKET</key>
+	<string>barcode-to-pc.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false/>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<true/>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true/>
+	<key>IS_GCM_ENABLED</key>
+	<true/>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true/>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:592044361640:ios:0ba55496da9f18e28abf9d</string>
+	<key>DATABASE_URL</key>
+	<string>https://barcode-to-pc.firebaseio.com</string>
+</dict>
+</plist>
