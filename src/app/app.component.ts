@@ -1,7 +1,7 @@
 import { Component, ViewChild } from '@angular/core';
 import { Http } from '@angular/http';
 import { AppVersion } from '@ionic-native/app-version';
-import { GoogleAnalytics } from '@ionic-native/google-analytics';
+import { FirebaseAnalytics } from '@ionic-native/firebase-analytics';
 import { Insomnia } from '@ionic-native/insomnia';
 import { SplashScreen } from '@ionic-native/splash-screen';
 import { StatusBar } from '@ionic-native/status-bar';
@@ -38,7 +38,7 @@ export class MyApp {
     private settings: Settings,
     public menuCtrl: MenuController,
     public modalCtrl: ModalController,
-    private ga: GoogleAnalytics,
+    private firebaseAnalytics: FirebaseAnalytics,
     private http: Http,
     private utils: Utils,
     private markdownService: MarkdownService,
@@ -48,13 +48,8 @@ export class MyApp {
   ) {
     platform.ready().then(() => {
 
-      this.ga.startTrackerWithId(Config.GOOGLE_ANALYTICS_ID).then(() => {
-        this.ga.setAllowIDFACollection(true);
+      this.firebaseAnalytics.setEnabled(!Config.DEBUG)
 
-        if (Config.DEBUG) {
-          this.ga.debugMode();
-        }
-      })
 
       Promise.all([this.settings.getNoRunnings(), this.settings.getEverConnected(), this.settings.getAlwaysSkipWelcomePage(), this.upgrade(), this.settings.getKeepDisplayOn()]).then((results: any[]) => {
         let runnings = results[0];

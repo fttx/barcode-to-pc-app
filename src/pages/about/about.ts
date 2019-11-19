@@ -1,8 +1,7 @@
 import { AppVersion } from '@ionic-native/app-version';
 import { Config } from '../../providers/config';
 import { Component } from '@angular/core';
-import { GoogleAnalytics } from '@ionic-native/google-analytics';
-
+import { FirebaseAnalytics } from '@ionic-native/firebase-analytics';
 @Component({
   selector: 'page-about',
   templateUrl: 'about.html'
@@ -15,12 +14,12 @@ export class AboutPage {
 
 
   constructor(
-    private ga: GoogleAnalytics,
+    private firebaseAnalytics: FirebaseAnalytics,
     private appVersion: AppVersion,
   ) { }
 
   ionViewDidEnter() {
-    this.ga.trackView("AboutPage");
+    this.firebaseAnalytics.setCurrentScreen("AboutPage");
   }
 
   ionViewWillEnter() {

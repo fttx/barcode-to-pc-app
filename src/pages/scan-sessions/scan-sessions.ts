@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { GoogleAnalytics } from '@ionic-native/google-analytics';
+import { FirebaseAnalytics } from '@ionic-native/firebase-analytics';
 import { LaunchReview } from '@ionic-native/launch-review';
 import * as BluebirdPromise from 'bluebird';
 import { AlertController, ItemSliding, NavController, PopoverController } from 'ionic-angular';
@@ -36,14 +36,14 @@ export class ScanSessionsPage {
     private serverProvider: ServerProvider,
     private scanSessionsStorage: ScanSessionsStorage,
     public popoverCtrl: PopoverController,
-    private ga: GoogleAnalytics,
+    private firebaseAnalytics: FirebaseAnalytics,
     private settings: Settings,
     private launchReview: LaunchReview,
     private utils: Utils
   ) { }
 
   ionViewDidEnter() {
-    this.ga.trackView('ScanSessionsPage');
+    this.firebaseAnalytics.setCurrentScreen('ScanSessionsPage');
 
     this.scanSessionsStorage.getScanSessions().then(data => {
       this.scanSessions = data;

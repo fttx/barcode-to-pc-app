@@ -4,7 +4,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BarcodeScanner } from '@fttx/barcode-scanner';
 import { AppVersion } from '@ionic-native/app-version';
 import { Device } from '@ionic-native/device';
-import { GoogleAnalytics } from '@ionic-native/google-analytics';
+import { FirebaseAnalytics } from '@ionic-native/firebase-analytics';
 import { Insomnia } from '@ionic-native/insomnia';
 import { LaunchReview } from '@ionic-native/launch-review';
 import { NativeAudio } from '@ionic-native/native-audio';
@@ -91,7 +91,7 @@ import { MyApp } from './app.component';
     Utils,
     Settings,
     ScanSessionsStorage,
-    GoogleAnalytics,
+    FirebaseAnalytics,
     StatusBar,
     SplashScreen,
     LaunchReview,

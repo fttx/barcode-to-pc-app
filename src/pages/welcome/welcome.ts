@@ -7,7 +7,7 @@ import { ScanSessionsPage } from '../scan-sessions/scan-sessions';
 import { ServerProvider } from '../../providers/server'
 import { Config } from '../../providers/config'
 import { Settings } from '../../providers/settings'
-import { GoogleAnalytics } from '@ionic-native/google-analytics';
+import { FirebaseAnalytics } from '@ionic-native/firebase-analytics';
 import { BarcodeScanner } from '@fttx/barcode-scanner';
 import { wsEvent } from '../../models/ws-event.model';
 import { Utils } from '../../providers/utils';
@@ -38,13 +38,13 @@ export class WelcomePage {
     public viewCtrl: ViewController,
     private settings: Settings,
     private ngZone: NgZone,
-    private ga: GoogleAnalytics,
+    private firebaseAnalytics: FirebaseAnalytics,
     private barcodeScanner: BarcodeScanner,
     private utils: Utils,
   ) { }
 
   ionViewDidEnter() {
-    this.ga.trackView("WelcomePage");
+    this.firebaseAnalytics.setCurrentScreen("WelcomePage");
   }
 
   ionViewDidLeave() {
@@ -64,7 +64,7 @@ export class WelcomePage {
   }
 
   onSkipClicked() {
-    this.ga.trackEvent('connectivity', 'server_discovery', 'welcome', 0);
+    this.firebaseAnalytics.logEvent('welcome', {});
 
     let alert = this.alertCtrl.create({
       inputs: [
@@ -109,7 +109,7 @@ export class WelcomePage {
   }
 
   startScanningClicked() {
-    this.ga.trackEvent('connectivity', 'server_discovery', 'welcome', 1);
+    this.firebaseAnalytics.logEvent('welcome', {});
     this.navCtrl.setRoot(ScanSessionsPage);
   }
 

@@ -1,6 +1,6 @@
 import { Injectable, NgZone } from '@angular/core';
 import { BarcodeScanner, BarcodeScannerOptions, BarcodeScanResult } from '@fttx/barcode-scanner';
-import { GoogleAnalytics } from '@ionic-native/google-analytics';
+import { FirebaseAnalytics } from '@ionic-native/firebase-analytics';
 import { AlertController, Platform } from 'ionic-angular';
 import { Observable, Subscription, Subscriber } from 'rxjs';
 import { KeyboardInputComponent } from '../components/keyboard-input/keyboard-input';
@@ -48,7 +48,7 @@ export class ScanProvider {
     private barcodeScanner: BarcodeScanner,
     private platform: Platform,
     private ngZone: NgZone,
-    private ga: GoogleAnalytics,
+    private firebaseAnalytics: FirebaseAnalytics,
     private settings: Settings,
   ) {
   }
@@ -554,7 +554,7 @@ export class ScanProvider {
         }]
       });
       alert.present();
-      this.ga.trackEvent('scannings', 'custom_timeout', null, timeoutSeconds);
+      this.firebaseAnalytics.logEvent('custom_timeout', {});
       interval = setInterval(() => {
         this.ngZone.run(() => {
           alert.setSubTitle('Timeout: ' + timeoutSeconds);

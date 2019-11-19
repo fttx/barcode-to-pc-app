@@ -1,6 +1,6 @@
 import { Component, NgZone, ViewChild } from '@angular/core';
 import { Device } from '@ionic-native/device';
-import { GoogleAnalytics } from '@ionic-native/google-analytics';
+import { FirebaseAnalytics } from '@ionic-native/firebase-analytics';
 import { NativeAudio } from '@ionic-native/native-audio';
 import { SocialSharing } from '@ionic-native/social-sharing';
 import { Promise as BluebirdPromise } from 'bluebird';
@@ -56,7 +56,7 @@ export class ScanSessionPage {
     public navCtrl: NavController,
     public scanSessionsStorage: ScanSessionsStorage,
     public modalCtrl: ModalController,
-    public ga: GoogleAnalytics,
+    private firebaseAnalytics: FirebaseAnalytics,
     public settings: Settings,
     public socialSharing: SocialSharing,
     public nativeAudio: NativeAudio,
@@ -73,7 +73,7 @@ export class ScanSessionPage {
   }
 
   ionViewDidEnter() {
-    this.ga.trackView("ScanSessionPage");
+    this.firebaseAnalytics.setCurrentScreen("ScanSessionPage");
     this.responseSubscription = this.serverProvider.onResponse().subscribe(message => {
       this.ngZone.run(() => {
         if (message.action == responseModel.ACTION_PUT_SCAN_ACK) {
@@ -215,7 +215,7 @@ export class ScanSessionPage {
   }
 
   saveAndSendScan(scan: ScanModel) {
-    this.ga.trackEvent('scannings', 'scan');
+    this.firebaseAnalytics.logEvent('scan', {});
     this.scanSession.scannings.unshift(scan);
     this.save();
     this.sendPutScan(scan);
@@ -232,7 +232,7 @@ export class ScanSessionPage {
     } else {
       this.repeat(scan);
     }
-    this.ga.trackEvent('scannings', 'repeat');
+    this.firebaseAnalytics.logEvent('repeat', {});
   }
 
   onItemPressed(scan: ScanModel, scanIndex: number) {
@@ -240,7 +240,7 @@ export class ScanSessionPage {
 
     buttons.push({
       text: 'Delete', icon: 'trash', role: 'destructive', handler: () => {
-        this.ga.trackEvent('scannings', 'delete');
+        this.firebaseAnalytics.logEvent('delete', {});
         this.scanSession.scannings.splice(scanIndex, 1);
         this.save();
         this.sendDeleteScan(scan);
@@ -253,7 +253,7 @@ export class ScanSessionPage {
     let scanString = ScanModel.ToString(scan);
     buttons.push({
       text: 'Share', icon: 'share', handler: () => {
-        this.ga.trackEvent('scannings', 'share');
+        this.firebaseAnalytics.logEvent('share', {});
         this.socialSharing.share(scanString, "", "", "")
       }
     });
@@ -261,7 +261,7 @@ export class ScanSessionPage {
     if (scanString.indexOf('http') == 0) {
       buttons.push({
         text: 'Open in browser', icon: 'open', handler: () => {
-          this.ga.trackEvent('scannings', 'open_browser');
+          this.firebaseAnalytics.logEvent('open_browser', {});
           window.open(scanString, '_blank');
         }
       });
@@ -270,7 +270,7 @@ export class ScanSessionPage {
     buttons.push({
       text: 'Repeat from here', icon: 'refresh',
       handler: () => {
-        this.ga.trackEvent('scannings', 'repeatAll');
+        this.firebaseAnalytics.logEvent('repeatAll', {});
         if (this.repeatingStatus == 'stopped') {
           this.repeatAll(scanIndex);
         }
@@ -295,7 +295,7 @@ export class ScanSessionPage {
       }).present();
       return;
     }
-    this.ga.trackEvent('scannings', 'edit_scan');
+    this.firebaseAnalytics.logEvent('edit_scan', {});
     let editModal = this.modalCtrl.create(EditScanSessionPage, this.scanSession);
     editModal.onDidDismiss(scanSession => {
       this.scanSession = scanSession;
@@ -378,7 +378,7 @@ export class ScanSessionPage {
         text: 'Cancel', role: 'cancel', handler: data => { }
       }, {
         text: 'Send', handler: data => {
-          this.ga.trackEvent('scannings', 'repeatAll');
+          this.firebaseAnalytics.logEvent('repeatAll', {});
 
           this.skipAlreadySent = (data == 'skipAlreadySent')
 

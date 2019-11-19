@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { BarcodeScanner } from '@fttx/barcode-scanner';
-import { GoogleAnalytics } from '@ionic-native/google-analytics';
+import { FirebaseAnalytics } from '@ionic-native/firebase-analytics';
 import { Promise } from 'bluebird';
 import { AlertController, NavController, ViewController } from 'ionic-angular';
 import { ScanModel } from '../../models/scan.model';
@@ -38,7 +38,7 @@ export class SelectServerPage {
     private alertCtrl: AlertController,
     private serverProvider: ServerProvider,
     private settings: Settings,
-    private ga: GoogleAnalytics,
+    private firebaseAnalytics: FirebaseAnalytics,
     private barcodeScanner: BarcodeScanner,
     private utils: Utils,
   ) { }
@@ -46,7 +46,7 @@ export class SelectServerPage {
   public isVisible = false;
 
   ionViewDidEnter() {
-    this.ga.trackView("SelectServerPage");
+    this.firebaseAnalytics.setCurrentScreen("SelectServerPage");
     this.isVisible = true;
     this.serverProvider.setContinuoslyWatchForServers(true); // TODO: test if this even works
     this.scanForServers();
@@ -54,7 +54,7 @@ export class SelectServerPage {
     Promise.join(this.settings.getSavedServers(), this.settings.getDefaultServer(), (savedServers, defaultServer) => {
       this.addServers(savedServers, false, true);
       this.addServer(defaultServer, false, false);
-      // this.settings.setDefaultServer(this.selectedServer);            
+      // this.settings.setDefaultServer(this.selectedServer);
       this.setSelectedServer(defaultServer);
       console.log("SELSER: default server present in localstorage: " + defaultServer.address + " connecting...")
       // this.connect(defaultServer);
