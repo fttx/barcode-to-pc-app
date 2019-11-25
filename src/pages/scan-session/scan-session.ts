@@ -20,7 +20,7 @@ import { Settings } from './../../providers/settings';
 import { EditScanSessionPage } from './edit-scan-session/edit-scan-session';
 import { SelectScanningModePage } from './select-scanning-mode/select-scanning-mode';
 import { Utils } from '../../providers/utils';
-
+import { CSVExportOptionsPage } from './csv-export-options/csv-export-options';
 
 /**
  * This page is used to display the list of the barcodes of a specific
@@ -444,13 +444,15 @@ export class ScanSessionPage {
   }
 
   onShareClick() {
-    let csv = ScanModel.ToCSV(this.scanSession.scannings, true, false, ",", null);
-    let data = btoa(csv);
-    if (this.utils.isAndroid()) {
-      this.socialSharing.share(null, this.scanSession.name, "data:text/csv;base64," + data, null)
-    } else {
-      // iOS Quirk: https://github.com/EddyVerbruggen/SocialSharing-PhoneGap-Plugin/issues/778
-      this.socialSharing.share(null, this.scanSession.name, "data:text/csv;df:" + this.scanSession.name + ".csv;base64," + data, null)
-    }
+    let editModal = this.modalCtrl.create(CSVExportOptionsPage, this.scanSession);
+    editModal.onDidDismiss(base64CSV => {
+      if (this.utils.isAndroid()) {
+        this.socialSharing.share(null, this.scanSession.name, "data:text/csv;base64," + base64CSV, null)
+      } else {
+        // iOS Quirk: https://github.com/EddyVerbruggen/SocialSharing-PhoneGap-Plugin/issues/778
+        this.socialSharing.share(null, this.scanSession.name, "data:text/csv;df:" + this.scanSession.name + ".csv;base64," + base64CSV, null)
+      }
+    });
+    editModal.present();
   }
 }

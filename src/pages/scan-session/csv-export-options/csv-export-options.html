@@ -1,0 +1,44 @@
+<!--
+  Generated template for the ScanSessionCsvExportOptionsPage page.
+
+  See http://ionicframework.com/docs/components/#navigation for more info on
+  Ionic pages and navigation.
+-->
+<ion-header>
+  <ion-navbar color="primary">
+    <ion-title>Export as CSV</ion-title>
+  </ion-navbar>
+</ion-header>
+
+<ion-content padding>
+  <ion-list>
+
+    <ion-item>
+      <ion-label color="dark">Export only text components</ion-label>
+      <ion-toggle [(ngModel)]="exportOnlyText"></ion-toggle>
+    </ion-item>
+
+    <ion-item>
+      <ion-label color="dark">Enable quotes</ion-label>
+      <ion-toggle [(ngModel)]="enableQuotes"></ion-toggle>
+    </ion-item>
+
+    <ion-item no-lines>
+      <ion-label color="dark">Delimiter</ion-label>
+      <ion-input [(ngModel)]="csvDelimiter" placeholder="Eg. ," text-right></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label color="dark">New line character</ion-label>
+      <ion-select [(ngModel)]="newLineCharacter">
+        <ion-option value="CRLF">&#92;r&#92;n</ion-option>
+        <ion-option value="LF">&#92;n</ion-option>
+        <ion-option value="CR">&#92;r</ion-option>
+      </ion-select>
+    </ion-item>
+  </ion-list>
+
+  <button ion-button full color="primary" (click)="onExportClick()">
+    Export
+  </button>
+</ion-content>

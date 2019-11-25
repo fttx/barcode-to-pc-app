@@ -23,6 +23,7 @@ import { AboutPage } from '../pages/about/about';
 import { ArchivedPage } from '../pages/archived/archived';
 import { HelpPage } from '../pages/help/help';
 import { EditScanSessionPage } from '../pages/scan-session/edit-scan-session/edit-scan-session';
+import { CSVExportOptionsPage } from '../pages/scan-session/csv-export-options/csv-export-options';
 import { ScanSessionPage } from '../pages/scan-session/scan-session';
 import { SelectScanningModePage } from '../pages/scan-session/select-scanning-mode/select-scanning-mode';
 import { ScanSessionsPage } from '../pages/scan-sessions/scan-sessions';
@@ -52,6 +53,7 @@ import { MyApp } from './app.component';
     ArchivedPage,
     ScanSessionsPage,
     EditScanSessionPage,
+    CSVExportOptionsPage,
     SelectScanningModePage,
     WelcomePage,
     ScanSessionPage,
@@ -79,6 +81,7 @@ import { MyApp } from './app.component';
     ScanSessionsPage,
     SelectServerPage,
     EditScanSessionPage,
+    CSVExportOptionsPage,
     SelectScanningModePage,
     SettingsPage,
     HelpPage,
