@@ -35,6 +35,8 @@
     ionic cordova resources
     ```
 
+- Put the Firebase config files in the root folder (GoogleService-Info.plist and google-services.json)
+
 ## Run
 
 ```bash
