@@ -193,8 +193,8 @@ export class ScanSessionsPage {
   onDeleteClick(scanSession: ScanSessionModel, index: number, slidingItem: ItemSliding) {
     slidingItem.close();
     this.alertCtrl.create({
-      title: 'Confirm delete',
-      message: 'Do you really want to delete ' + scanSession.name + '?',
+      title: 'Are you sure?',
+      message: 'The scan session "' + scanSession.name + '" will be permanently deleted from both smartphone and server.\n\nIf instead you want to keep it only on the smartphone, use the archive button.',
       buttons: [{
         text: 'Cancel', role: 'cancel'
       }, {
@@ -255,8 +255,8 @@ export class ScanSessionsPage {
 
   onDeleteSelectedClick() {
     this.alertCtrl.create({
-      title: 'Confirm delete',
-      message: 'Do you really want to delete the selected scan sessions?',
+      title: 'Are you sure?',
+      message: 'The scan session will be permanently deleted from both smartphone and server.\n\nIf instead you want to keep it only on the smartphone, use the archive button.',
       buttons: [{
         text: 'Cancel', role: 'cancel'
       }, {

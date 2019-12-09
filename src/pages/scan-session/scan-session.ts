@@ -241,12 +241,22 @@ export class ScanSessionPage {
     buttons.push({
       text: 'Delete', icon: 'trash', role: 'destructive', handler: () => {
         this.firebaseAnalytics.logEvent('delete', {});
-        this.scanSession.scannings.splice(scanIndex, 1);
-        this.save();
-        this.sendDeleteScan(scan);
-        if (this.scanSession.scannings.length == 0) {
-          // TODO go back and delete scan session
-        }
+        this.alertCtrl.create({
+          title: 'Are you sure?',
+          message: 'The the scan will be deleted only from the smartphone.',
+          buttons: [{
+            text: 'Cancel', role: 'cancel'
+          }, {
+            text: 'Delete', handler: () => {
+              this.scanSession.scannings.splice(scanIndex, 1);
+              this.save();
+              this.sendDeleteScan(scan);
+              if (this.scanSession.scannings.length == 0) {
+                // TODO go back and delete scan session
+              }
+            }
+          }]
+        }).present();
       }
     });
 
