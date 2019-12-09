@@ -27,6 +27,7 @@ export class Settings {
   private static REPEAT_INTERVAL = 'repeat_interval';
   private static ALWAYS_USE_DEFAULT_SCAN_SESSION_NAME = 'always_use_default_scan_session_name';
   private static PREFER_FRONT_CAMERA = 'prefer_front_camera';
+  private static TORCH_ON = 'torch_on';
   private static KEEP_DISPLAY_ON = 'keep_display_on';
   private static UPGRADED_TO_SQLITE = 'upgraded_to_sqlite_5x';
   private static LAST_VERSION = 'last_version';
@@ -244,6 +245,13 @@ export class Settings {
   }
   getPreferFrontCamera(): Promise<boolean> {
     return this.storage.get(Settings.PREFER_FRONT_CAMERA).then(result => { return result || false });
+  }
+
+  setTorchOn(torchOn: boolean) {
+    return this.storage.set(Settings.TORCH_ON, torchOn);
+  }
+  getTorchOn(): Promise<boolean> {
+    return this.storage.get(Settings.TORCH_ON).then(result => { return result || false });
   }
 
   setKeepDisplayOn(keepDisplayOn: boolean) {

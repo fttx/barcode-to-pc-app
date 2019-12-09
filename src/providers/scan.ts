@@ -88,6 +88,7 @@ export class ScanProvider {
         this.settings.getContinueModeTimeout(), // 4
         this.settings.getDeviceName(), // 5
         this.getOutputProfile(outputProfileIndex), //6
+        this.settings.getTorchOn(), // 7
       ]).then(async result => {
         // parameters
         let preferFrontCamera = result[0];
@@ -97,6 +98,7 @@ export class ScanProvider {
         let continueModeTimeout = result[4];
         this.deviceName = result[5];
         this.outputProfile = result[6];
+        let torchOn = result[7];
         let blockingOutputComponents = OutputProfileModel.HasBlockingOutputComponents(this.outputProfile);
 
         // other computed parameters
@@ -119,6 +121,7 @@ export class ScanProvider {
           prompt: Config.DEFAULT_ACQUISITION_LABEL, // supported on Android only
           showTorchButton: true,
           preferFrontCamera: preferFrontCamera,
+          torchOn: torchOn,
           continuousMode: this.acqusitionMode == 'continue',
         };
         if (enableLimitBarcodeFormats) {

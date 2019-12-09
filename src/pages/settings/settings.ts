@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { Device } from '@ionic-native/device';
-import { NavController, ViewController } from 'ionic-angular';
+import { NavController, ViewController, Platform } from 'ionic-angular';
 
 import { barcodeFormatModel } from '../../models/barcode-format.model';
 import { requestModelHelo } from '../../models/request.model';
@@ -31,6 +31,7 @@ export class SettingsPage {
   public scanMode = '';
   public alwaysUseDefaultScanSessionName = false;
   public preferFrontCamera = false;
+  public torchOn = false;
   public keepDisplayOn = false;
   public openScanOnStart = false;
   private changesSaved = false;
@@ -46,6 +47,7 @@ export class SettingsPage {
     private serverProvider: ServerProvider,
     public appVersion: AppVersion,
     private device: Device,
+    public platform: Platform,
     private insomnia: Insomnia,
   ) {
     for (let i = 0; i <= 15000; i += 250) {
@@ -96,6 +98,10 @@ export class SettingsPage {
       this.preferFrontCamera = preferFrontCamera;
     });
 
+    this.settings.getTorchOn().then(torchOn => {
+      this.torchOn = torchOn;
+    });
+    
     this.settings.getKeepDisplayOn().then(keepDisplayOn => {
       this.keepDisplayOn = keepDisplayOn;
     });
@@ -131,6 +137,7 @@ export class SettingsPage {
     this.settings.setScanSessionName(this.scanSessionName);
     this.settings.setAlwaysUseDefaultScanSessionName(this.alwaysUseDefaultScanSessionName);
     this.settings.setPreferFrontCamera(this.preferFrontCamera);
+    this.settings.setTorchOn(this.torchOn);
     this.settings.setKeepDisplayOn(this.keepDisplayOn);
     this.settings.setOpenScanOnStart(this.openScanOnStart);
     this.settings.setBarcodeFormats(this.barcodeFormats);
