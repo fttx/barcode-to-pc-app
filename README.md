@@ -26,16 +26,17 @@
     - See: <https://ionicframework.com/docs/intro/installation/>
     - And also [last-ionic-info.txt](last-ionic-info.txt)
 
+- Put the Firebase config files in the root folder (GoogleService-Info.plist and google-services.json)
+
 - Install the npm dependencies and add your platform
 
     ```bash
     npm install
     ionic cordova platform add android@8.1.0
     ionic cordova platform add ios
-    ionic cordova resources
+    ionic cordova resources # rename icon.ios.png to icon.png to generate the iOS icons
     ```
 
-- Put the Firebase config files in the root folder (GoogleService-Info.plist and google-services.json)
 
 ## Run
 
@@ -44,7 +45,11 @@ ionic cordova run ios --device
 ionic cordova run android
 ```
 
-## Release
+## Publish updates
+
+- Increase the version number of the package.json
+- Increase the versionCode and version number in the config.xml
+- Run the following commands:
 
 ```bash
 # iOS
