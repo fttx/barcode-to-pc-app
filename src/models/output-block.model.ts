@@ -1,5 +1,5 @@
 /**
- * It's an element of the Output field.
+ * It's an element of the Output template.
  * Sometimes i also refer to it as Output component
  */
 export class OutputBlockModel {
