@@ -139,7 +139,7 @@ export class MyApp {
 
           // Changelog alert
           let httpRes = await this.http.get(Config.URL_GITHUB_CHANGELOG).toPromise();
-          let changelog = '<div style="font-size: .1em">' + this.markdownService.compile(httpRes.text()) + '</div>';
+          let changelog = 'Please make you sure to update also the server on your computer.<div style="font-size: .1em">' + this.markdownService.compile(httpRes.text()) + '</div>';
           this.alertCtrl.create({
             title: 'The app has been updated',
             message: changelog,
