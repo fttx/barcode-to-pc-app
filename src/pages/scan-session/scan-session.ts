@@ -456,6 +456,7 @@ export class ScanSessionPage {
   onShareClick() {
     let editModal = this.modalCtrl.create(CSVExportOptionsPage, this.scanSession);
     editModal.onDidDismiss(base64CSV => {
+      if (!base64CSV) return;
       if (this.utils.isAndroid()) {
         this.socialSharing.share(null, this.scanSession.name, "data:text/csv;base64," + base64CSV, null)
       } else {
