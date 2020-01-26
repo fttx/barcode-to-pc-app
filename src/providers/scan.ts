@@ -130,8 +130,9 @@ export class ScanProvider {
         this.pluginOptions = pluginOptions;
 
         // used to prevent infinite loops.
-        let resetIfCountTimer;
+        let resetAgainCountTimer;
         let againCount = 0;
+        let prevScanDisplayValue = '';
 
         // used to prevent scan(), and thus again() calls overlaps
         let _scanCallId = this._scanCallId;
@@ -324,12 +325,6 @@ export class ScanProvider {
             } // switch outputBlock.type
           } // for
 
-
-          // prevent infinite loops
-          againCount++;
-          if (resetIfCountTimer) clearTimeout(resetIfCountTimer);
-          resetIfCountTimer = setTimeout(() => againCount = 0, 500);
-
           /**
           * @deprecated backwards compatibility
           */
@@ -343,6 +338,15 @@ export class ScanProvider {
           // end backwards compatibility
 
           scan.displayValue = ScanModel.ToString(scan);
+
+          // prevent infinite loops
+          if (scan.displayValue == prevScanDisplayValue) {
+            againCount++;
+          }
+          prevScanDisplayValue = scan.displayValue;
+          if (resetAgainCountTimer) clearTimeout(resetAgainCountTimer);
+          resetAgainCountTimer = setTimeout(() => againCount = 0, 500);
+
           observer.next(scan);
 
           // decide how and if repeat the outputBlock
