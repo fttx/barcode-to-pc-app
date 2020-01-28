@@ -54,6 +54,7 @@ ionic cordova run android
 ```bash
 # iOS
 ionic cordova build ios --prod --release
+open "platforms/ios/Barcode to PC.xcworkspace"
 
 # Android
 # Increase version code in config.xml
