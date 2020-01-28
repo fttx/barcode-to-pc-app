@@ -33,6 +33,7 @@ export class SettingsPage {
   public preferFrontCamera = false;
   public torchOn = false;
   public keepDisplayOn = false;
+  public enableBeep = true;
   public openScanOnStart = false;
   private changesSaved = false;
   public quantityType: string = 'number';
@@ -101,9 +102,13 @@ export class SettingsPage {
     this.settings.getTorchOn().then(torchOn => {
       this.torchOn = torchOn;
     });
-    
+
     this.settings.getKeepDisplayOn().then(keepDisplayOn => {
       this.keepDisplayOn = keepDisplayOn;
+    });
+
+    this.settings.getEnableBeep().then(enableBeep => {
+      this.enableBeep = enableBeep;
     });
 
     this.settings.getOpenScanOnStart().then(openScanOnStart => {
@@ -139,6 +144,7 @@ export class SettingsPage {
     this.settings.setPreferFrontCamera(this.preferFrontCamera);
     this.settings.setTorchOn(this.torchOn);
     this.settings.setKeepDisplayOn(this.keepDisplayOn);
+    this.settings.setEnableBeep(this.enableBeep);
     this.settings.setOpenScanOnStart(this.openScanOnStart);
     this.settings.setBarcodeFormats(this.barcodeFormats);
     this.settings.setEnableLimitBarcodeFormats(this.enableLimitBarcodeFormats);

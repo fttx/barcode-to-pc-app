@@ -29,6 +29,7 @@ export class Settings {
   private static PREFER_FRONT_CAMERA = 'prefer_front_camera';
   private static TORCH_ON = 'torch_on';
   private static KEEP_DISPLAY_ON = 'keep_display_on';
+  private static ENABLE_BEEP = 'enable_beep';
   private static UPGRADED_TO_SQLITE = 'upgraded_to_sqlite_5x';
   private static LAST_VERSION = 'last_version';
   private static BARCODE_FORMATS = 'barcode_formats';
@@ -199,6 +200,7 @@ export class Settings {
   setDeviceName(deviceName: string) {
     return this.storage.set(Settings.DEVICE_NAME, deviceName);
   }
+
   getDeviceName(): Promise<string> {
     return new Promise(resolve => {
       this.storage.get(Settings.DEVICE_NAME).then(deviceName => {
@@ -214,6 +216,7 @@ export class Settings {
   setScanSessionName(scanSessionName: string) {
     return this.storage.set(Settings.SCAN_SESSION_NAME, scanSessionName);
   }
+
   getScanSessionName(): Promise<string> {
     return new Promise(resolve => {
       this.storage.get(Settings.SCAN_SESSION_NAME).then(scanSessionName => {
@@ -229,6 +232,7 @@ export class Settings {
   setRepeatInterval(interval: number) {
     return this.storage.set(Settings.REPEAT_INTERVAL, interval);
   }
+
   getRepeatInterval(): Promise<number> {
     return this.storage.get(Settings.REPEAT_INTERVAL);
   }
@@ -236,29 +240,41 @@ export class Settings {
   setAlwaysUseDefaultScanSessionName(alwaysUseDefaultScanSessionName: boolean) {
     return this.storage.set(Settings.ALWAYS_USE_DEFAULT_SCAN_SESSION_NAME, alwaysUseDefaultScanSessionName);
   }
+
   getAlwaysUseDefaultScanSessionName(): Promise<boolean> {
-    return this.storage.get(Settings.ALWAYS_USE_DEFAULT_SCAN_SESSION_NAME).then(result => { return result || false });
+    return this.storage.get(Settings.ALWAYS_USE_DEFAULT_SCAN_SESSION_NAME).then(result => { return result === true});
   }
 
   setPreferFrontCamera(preferFrontCamera: boolean) {
     return this.storage.set(Settings.PREFER_FRONT_CAMERA, preferFrontCamera);
   }
+
   getPreferFrontCamera(): Promise<boolean> {
-    return this.storage.get(Settings.PREFER_FRONT_CAMERA).then(result => { return result || false });
+    return this.storage.get(Settings.PREFER_FRONT_CAMERA).then(result => { return result === true});
   }
 
   setTorchOn(torchOn: boolean) {
     return this.storage.set(Settings.TORCH_ON, torchOn);
   }
+
   getTorchOn(): Promise<boolean> {
-    return this.storage.get(Settings.TORCH_ON).then(result => { return result || false });
+    return this.storage.get(Settings.TORCH_ON).then(result => { return result === true});
   }
 
   setKeepDisplayOn(keepDisplayOn: boolean) {
     return this.storage.set(Settings.KEEP_DISPLAY_ON, keepDisplayOn);
   }
   getKeepDisplayOn(): Promise<boolean> {
-    return this.storage.get(Settings.KEEP_DISPLAY_ON).then(result => { return result || false });
+    return this.storage.get(Settings.KEEP_DISPLAY_ON).then(result => { return result === true});
+  }
+
+  setEnableBeep(enableBeep: boolean) {
+    console.log('save: ', Settings.ENABLE_BEEP, enableBeep)
+    return this.storage.set(Settings.ENABLE_BEEP, enableBeep);
+  }
+
+  getEnableBeep(): Promise<boolean> {
+    return this.storage.get(Settings.ENABLE_BEEP).then(result => { return result === true });
   }
 
   setEnableLimitBarcodeFormats(enableLimitBarcodeFormats: boolean) {

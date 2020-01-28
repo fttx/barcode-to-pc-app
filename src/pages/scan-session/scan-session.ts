@@ -47,6 +47,7 @@ export class ScanSessionPage {
   private scanProviderSubscription: Subscription = null;
   private skipAlreadySent = false;
   private selectedOutputProfileIndex: number;
+  private enableBeep = true;
 
   constructor(
     public navParams: NavParams,
@@ -97,7 +98,8 @@ export class ScanSessionPage {
       this.scan();
     } else {
       // It will be shown only once because ioViewDidLoad is always called only once
-      BluebirdPromise.join(this.settings.getNoRunnings(), this.settings.getSoundFeedbackOrDialogShown(), (runnings, soundFeedbackOrDialogShown) => {
+      BluebirdPromise.join(this.settings.getNoRunnings(), this.settings.getSoundFeedbackOrDialogShown(),this.settings.getEnableBeep(), (runnings, soundFeedbackOrDialogShown, enableBeep) => {
+        this.enableBeep = enableBeep;
         if (!soundFeedbackOrDialogShown && runnings >= Config.NO_RUNNINGS_BEFORE_SHOW_SOUND_FEEDBACK_OR_DIALOG) {
           this.alertCtrl.create({
             title: 'Beep sound',
@@ -372,7 +374,9 @@ export class ScanSessionPage {
       scan.repeated = true;
     }
     this.sendPutScan(scan);
-    this.nativeAudio.play('beep');
+    if (this.enableBeep) {
+      this.nativeAudio.play('beep');
+    }
   }
 
   onRepeatAllClick() {
