@@ -353,6 +353,7 @@ export class Settings {
         if (quantityEnabled) {
           resolve([{
             name: "Output template 1",
+            version: null,
             outputBlocks: [
               { name: 'BARCODE', value: 'BARCODE', type: 'barcode', editable: true, skipOutput: false },
               { name: 'TAB', value: 'tab', type: 'key', modifiers: [] },
@@ -363,6 +364,7 @@ export class Settings {
         } else {
           // keep only this
           resolve([{
+            version: null,
             name: "Output template 1",
             outputBlocks: [{ name: 'BARCODE', value: 'BARCODE', type: 'barcode', editable: true, skipOutput: false }, { name: 'ENTER', value: 'enter', type: 'key', modifiers: [] }]
           }]);
