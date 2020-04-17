@@ -1,8 +1,8 @@
 <ion-header>
-	
+
 	<ion-navbar color="primary">
 		<ion-title>{{ scanSession && scanSession.name }}</ion-title>
-		
+
 		<ion-buttons end>
 			<button ion-button icon-only (click)="onShareClick()">
 				<ion-icon name="share"></ion-icon>
@@ -34,8 +34,7 @@
 
 <ion-content>
 	<ion-list [virtualScroll]="scanSession && scanSession.scannings" [approxItemHeight]="'47px'" [bufferRatio]="5">
-		<button ion-item *virtualItem="let scan; let i = index" (click)="onItemClicked(scan, i)" (press)="onItemPressed(scan, i)"
-		 [color]="scan.repeated ? 'light' : 'default'">
+		<button ion-item *virtualItem="let scan; let i = index" (click)="onItemClicked(scan, i)" (press)="onItemPressed(scan, i)" [color]="scan.repeated ? 'light' : 'default'">
 			<ion-grid no-padding>
 				<ion-row>
 					<ion-col align-self-start col-1>
@@ -60,8 +59,7 @@
 	<ion-toolbar>
 		<keyboard-input (touchstart)="keyboardInputTouchStart($event)" #keyboardInput></keyboard-input>
 		<ion-buttons end>
-			<button class="btn-send-manual-input" ion-button strong (touchstart)="$event.preventDefault(); $event.stopPropagation();"
-				(touchend)="onEnterClick($event);">
+			<button class="btn-send-manual-input" ion-button strong (touchstart)="$event.preventDefault(); $event.stopPropagation();" (touchend)="onEnterClick($event);">
 				<ion-icon name="send" icon-only color="primary"></ion-icon>
 			</button>
 		</ion-buttons>
