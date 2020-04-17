@@ -1,4 +1,4 @@
-import { Component, NgZone, ViewChild } from '@angular/core';
+import { Component, NgZone, ViewChild, HostListener } from '@angular/core';
 import { Device } from '@ionic-native/device';
 import { FirebaseAnalytics } from '@ionic-native/firebase-analytics';
 import { NativeAudio } from '@ionic-native/native-audio';
@@ -73,6 +73,15 @@ export class ScanSessionPage {
     this.nativeAudio.preloadSimple('beep', 'assets/audio/beep.ogg');
   }
 
+  @HostListener('window:keyup', ['$event'])
+  keyEvent(event: KeyboardEvent) {
+    this.ngZone.run(() => {
+      if (event.keyCode == 13 && this.keyboardInput.value.length > 0) {
+        this.onEnterClick();
+      }
+    })
+  }
+
   ionViewDidEnter() {
     this.firebaseAnalytics.setCurrentScreen("ScanSessionPage");
     this.responseSubscription = this.serverProvider.onResponse().subscribe(message => {
@@ -98,7 +107,7 @@ export class ScanSessionPage {
       this.scan();
     } else {
       // It will be shown only once because ioViewDidLoad is always called only once
-      BluebirdPromise.join(this.settings.getNoRunnings(), this.settings.getSoundFeedbackOrDialogShown(),this.settings.getEnableBeep(), (runnings, soundFeedbackOrDialogShown, enableBeep) => {
+      BluebirdPromise.join(this.settings.getNoRunnings(), this.settings.getSoundFeedbackOrDialogShown(), this.settings.getEnableBeep(), (runnings, soundFeedbackOrDialogShown, enableBeep) => {
         this.enableBeep = enableBeep;
         if (!soundFeedbackOrDialogShown && runnings >= Config.NO_RUNNINGS_BEFORE_SHOW_SOUND_FEEDBACK_OR_DIALOG) {
           this.alertCtrl.create({
