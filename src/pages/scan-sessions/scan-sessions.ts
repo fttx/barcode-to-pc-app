@@ -123,35 +123,38 @@ export class ScanSessionsPage {
   private onConnect() {
     BluebirdPromise.join(this.settings.getNoRunnings(), this.settings.getRated(), (runnings, rated) => {
       if (runnings >= Config.NO_RUNNINGS_BEFORE_SHOW_RATING && !rated) {
-        let store = this.utils.isAndroid() ? 'PlayStore' : 'Appstore';
-        this.alertCtrl.create({
-          title: 'Rate Barcode to PC',
-          message: 'Is Barcode to PC helping you transfer barcodes?<br><br>Let the world know by rating it on the ' + store + ', it would be appreciated!',
-          buttons: [{
-            text: 'Remind me later',
-            role: 'cancel'
-          }, {
-            text: 'No',
-            handler: () => {
+        // rating = In app native rating (iOS 10.3+ only)
+        // launch = Android and iOS 10.3-
+        if (this.launchReview.isRatingSupported()) {
+          // show native rating dialog
+          this.launchReview.rating().then(result => {
+            if (result === "dismissed") {
               this.settings.setRated(true);
             }
-          }, {
-            text: 'Rate',
-            handler: () => {
-              if (this.launchReview.isRatingSupported()) {
-                this.launchReview.rating().then(result => {
-                  if (result == 'shown') {
-                    this.settings.setRated(true);
-                  }
-                });
-              } else {
+          });
+        } else {
+          let store = this.utils.isAndroid() ? 'PlayStore' : 'Appstore';
+          this.alertCtrl.create({
+            title: 'Rate Barcode to PC',
+            message: 'Is Barcode to PC helping you transfer barcodes?<br><br>Let the world know by rating it on the ' + store + ', it would be appreciated!',
+            buttons: [{
+              text: 'Remind me later',
+              role: 'cancel'
+            }, {
+              text: 'No',
+              handler: () => {
+                this.settings.setRated(true);
+              }
+            }, {
+              text: 'Rate',
+              handler: () => {
                 this.launchReview.launch().then(() => {
                   this.settings.setRated(true);
                 })
               }
-            }
-          }]
-        }).present();
+            }]
+          }).present();
+        }
       }
     });
   }
