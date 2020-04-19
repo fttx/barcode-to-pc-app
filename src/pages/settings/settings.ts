@@ -181,7 +181,7 @@ export class SettingsPage {
 
   public getScanModeName(scanMode: string) {
     switch (scanMode) {
-      case SelectScanningModePage.SCAN_MODE_ASK: return 'Ask everytime'
+      case SelectScanningModePage.SCAN_MODE_ASK: return 'Ask every time'
       case SelectScanningModePage.SCAN_MODE_CONTINUE: return 'Continue mode'
       case SelectScanningModePage.SCAN_MODE_SINGLE: return 'Single mode'
       case SelectScanningModePage.SCAN_MODE_ENTER_MAUALLY: return 'Enter manually'
