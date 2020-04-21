@@ -188,7 +188,7 @@ export class ScanProvider {
           scan.repeated = false;
           scan.date = now;
 
-          // variables that can be used in the 'function' and 'if' OutputBlocks
+          // variables that can be used in the Output Components
           let variables = {
             barcode: '',
             barcodes: [],
@@ -196,6 +196,9 @@ export class ScanProvider {
             number: null,
             text: null,
             timestamp: (scan.date * 1000),
+            date: new Date(scan.date).toLocaleDateString(),
+            time: new Date(scan.date).toLocaleTimeString(),
+            scan_session_name: scanSession.name,
             device_name: this.deviceName,
           }
 
@@ -648,13 +651,18 @@ export class ScanProvider {
     let randomInt = this.getRandomInt() + '';
     // Typescript transpiles local variables such **barcode** and changes their name.
     // When eval() gets called it doesn't find the **barcode** variable and throws a syntax error.
-    // To prevent that i store the barcode inside the variable **window** which doesn't change.
-    // I use the randomInt as index insted of a fixed string to enforce mutual exclusion
+    // To prevent that we store the barcode as a property of the **window** variable which doesn't change.
+    // We use the randomInt as index insted of a fixed string to prevent collisions
     Object.defineProperty(window, randomInt, { value: {}, writable: true });
     Object.keys(variables).forEach(key => {
-      // console.log('key: ', key);
-      window[randomInt]['_' + key] = variables[key]; // i put the index like a literal, since randomInt can be transpiled too
-      code = code.replace(new RegExp(key, 'g'), 'window["' + randomInt + '"]["_' + key + '"]');
+      // We use the hashedKey instead of the clear key to prevent the Regex below
+      // replacing multiple times the variables with a similar name: eg. time and timestamp, barcode and barcodes, etc.
+      // Warning: this approach can create issues when the user uses similar variable names in his/her code.
+      let hashedKey = btoa(key);
+      window[randomInt][hashedKey] = variables[key]; // We put the index like a literal, since randomInt can be transpiled too
+      // 'barcode' = X2JhcmNvZGU=
+      // replace each variable: eg. barcode, timestamp, quantity, etc. with window[0000001]['X2JhcmNvZGU=']
+      code = code.replace(new RegExp(key, 'g'), 'window["' + randomInt + '"]["' + hashedKey + '"]');
     });
 
     // Run code
