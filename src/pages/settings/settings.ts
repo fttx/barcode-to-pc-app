@@ -36,7 +36,7 @@ export class SettingsPage {
   public enableBeep = true;
   public openScanOnStart = false;
   private changesSaved = false;
-  public quantityType: string = 'number';
+  public quantityType: string = 'number'; // deprecated
 
   public barcodeFormats: barcodeFormatModel[] = barcodeFormatModel.supportedBarcodeFormats
   public enableLimitBarcodeFormats: boolean = false;
@@ -115,6 +115,12 @@ export class SettingsPage {
       this.openScanOnStart = openScanOnStart;
     });
 
+    /**
+     * @deprecated For backwards compatibility, for the user who still have a
+     * QUANTITY component in the Output template.
+     * We still need to maintain the settings they chose in the beginning.
+     * Do not remove!
+     */
     this.settings.getQuantityType().then(quantityType => {
       if (quantityType) {
         this.quantityType = quantityType;

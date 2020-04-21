@@ -242,7 +242,7 @@ export class Settings {
   }
 
   getAlwaysUseDefaultScanSessionName(): Promise<boolean> {
-    return this.storage.get(Settings.ALWAYS_USE_DEFAULT_SCAN_SESSION_NAME).then(result => { return result === true});
+    return this.storage.get(Settings.ALWAYS_USE_DEFAULT_SCAN_SESSION_NAME).then(result => { return result === true });
   }
 
   setPreferFrontCamera(preferFrontCamera: boolean) {
@@ -250,7 +250,7 @@ export class Settings {
   }
 
   getPreferFrontCamera(): Promise<boolean> {
-    return this.storage.get(Settings.PREFER_FRONT_CAMERA).then(result => { return result === true});
+    return this.storage.get(Settings.PREFER_FRONT_CAMERA).then(result => { return result === true });
   }
 
   setTorchOn(torchOn: boolean) {
@@ -258,14 +258,14 @@ export class Settings {
   }
 
   getTorchOn(): Promise<boolean> {
-    return this.storage.get(Settings.TORCH_ON).then(result => { return result === true});
+    return this.storage.get(Settings.TORCH_ON).then(result => { return result === true });
   }
 
   setKeepDisplayOn(keepDisplayOn: boolean) {
     return this.storage.set(Settings.KEEP_DISPLAY_ON, keepDisplayOn);
   }
   getKeepDisplayOn(): Promise<boolean> {
-    return this.storage.get(Settings.KEEP_DISPLAY_ON).then(result => { return result === true});
+    return this.storage.get(Settings.KEEP_DISPLAY_ON).then(result => { return result === true });
   }
 
   setEnableBeep(enableBeep: boolean) {
@@ -329,10 +329,16 @@ export class Settings {
     return await this.storage.get(Settings.SELECTED_OUTPUT_PROFILE) || 0;
   }
 
+  /**
+   * @deprecated see src/pages/settings/settings.ts/ionViewDidLoad()/getQuantityType()
+   */
   setQuantityType(type: string) {
     return this.storage.set(Settings.QUANTITY_TYPE, type);
   }
 
+  /**
+   * @deprecated
+   */
   getQuantityType(): Promise<string> {
     return this.storage.get(Settings.QUANTITY_TYPE);
   }
@@ -357,7 +363,7 @@ export class Settings {
             outputBlocks: [
               { name: 'BARCODE', value: 'BARCODE', type: 'barcode', editable: true, skipOutput: false },
               { name: 'TAB', value: 'tab', type: 'key', modifiers: [] },
-              { name: 'QUANTITY', value: 'quantity', type: 'variable', editable: true, skipOutput: false, label: null },
+              { name: 'NUMBER', value: 'number', type: 'variable', editable: true, skipOutput: false, label: null },
               { name: 'ENTER', value: 'enter', type: 'key', modifiers: [] },
             ]
           }]);

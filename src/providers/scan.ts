@@ -33,14 +33,17 @@ export class ScanProvider {
   // choose, while the acquisitionMode is how actually the barcode acquisition
   // is performed.
   // This separation is required in order to allow the mixed_continue when
-  // there is a quantity parameter or when the native plugin doesn't support
+  // there is a number parameter or when the native plugin doesn't support
   // the continue mode.
   public acqusitionMode: 'manual' | 'single' | 'mixed_continue' | 'continue' = 'manual';
   private barcodeFormats;
   private outputProfile: OutputProfileModel;
   private outputProfileIndex: number;
   private deviceName: string;
-  private quantityType: string;
+  /**
+   * @deprecated see src/pages/settings/settings.ts/ionViewDidLoad()/getQuantityType()
+   */
+  private quantityType: 'number' | 'text';
   private keyboardInput: KeyboardInputComponent;
 
   constructor(
@@ -101,16 +104,22 @@ export class ScanProvider {
         this.outputProfile = result[6];
         let torchOn = result[7];
         let enableBeep = result[8];
-        let blockingOutputComponents = OutputProfileModel.HasBlockingOutputComponents(this.outputProfile);
+        let blockingComponents = OutputProfileModel.ContainsBlockingComponents(this.outputProfile);
 
         // other computed parameters
-        this.quantityType = quantityType || 'number';
+        if (quantityType && quantityType == 'text') {
+          // trick to avoid type checking
+          // quantityType is deprecated
+          this.quantityType = 'text'
+        } else {
+          this.quantityType = 'number';
+        }
         switch (scanMode) {
           case SelectScanningModePage.SCAN_MODE_ENTER_MAUALLY: this.acqusitionMode = 'manual'; break;
           case SelectScanningModePage.SCAN_MODE_SINGLE: this.acqusitionMode = 'single'; break;
           case SelectScanningModePage.SCAN_MODE_CONTINUE: {
             this.acqusitionMode = 'continue';
-            if (blockingOutputComponents || !this.platform.is('android') || continueModeTimeout) {
+            if (blockingComponents || !this.platform.is('android') || continueModeTimeout) {
               this.acqusitionMode = 'mixed_continue';
             }
             break;
@@ -163,7 +172,7 @@ export class ScanProvider {
             // when the if contains a syntax error.
             let wantToContinue = await this.showPreventInfiniteLoopDialog();
             if (!wantToContinue) {
-              // this code fragment is duplicated for the 'quantity', 'if' and 'barcode' blocks and in the againCount condition
+              // this code fragment is duplicated for the 'number', 'text', 'if' and 'barcode' blocks and in the againCount condition
               observer.complete();
               return; // returns the again() function
             }
@@ -183,7 +192,9 @@ export class ScanProvider {
           let variables = {
             barcode: '',
             barcodes: [],
-            quantity: null,
+            quantity: null, // deprecated
+            number: null,
+            text: null,
             timestamp: (scan.date * 1000),
             device_name: this.deviceName,
           }
@@ -215,18 +226,31 @@ export class ScanProvider {
                   case 'time': outputBlock.value = new Date(scan.date).toLocaleTimeString(); break;
                   case 'date_time': outputBlock.value = new Date(scan.date).toLocaleTimeString() + ' ' + new Date(scan.date).toLocaleDateString(); break;
                   case 'scan_session_name': outputBlock.value = scanSession.name; break;
-                  case 'quantity': {
+                  case 'quantity': // deprecated
+                  case 'number': {
                     try {
-                      outputBlock.value = await this.getQuantity(outputBlock.label);
+                      outputBlock.value = await this.getField(outputBlock.label, 'number');
                     } catch (err) {
-                      // this code fragment is duplicated for the 'quantity', 'if' and 'barcode' blocks and in the againCount condition
+                      // this code fragment is duplicated for the 'number', 'text', 'if' and 'barcode' blocks and in the againCount condition
                       observer.complete();
                       return; // returns the again() function
                     }
-                    // it's ok to always include the quantity variable, since even if the user
+                    // it's ok to always include the number variable, since even if the user
                     // doesn't have the license he won't be able to create the output profile
-                    variables.quantity = outputBlock.value;
+                    variables.number = outputBlock.value;
+                    variables.quantity = outputBlock.value; // deprecated, backwards compatibility
                     scan.quantity = outputBlock.value; // backwards compatibility
+                    break;
+                  }
+                  case 'text': {
+                    try {
+                      outputBlock.value = await this.getField(outputBlock.label, 'text');
+                    } catch (err) {
+                      // this code fragment is duplicated for the 'number', 'text', 'if' and 'barcode' blocks and in the againCount condition
+                      observer.complete();
+                      return; // returns the again() function
+                    }
+                    variables.text = outputBlock.value;
                     break;
                   }
                 } // switch outputBlock.value
@@ -259,7 +283,7 @@ export class ScanProvider {
                   // (by clicking the FAB), we have to drop the barcode that will acquired from
                   // the stuck again(), and also call return; to prevent other components to be exceuted.
                   //
-                  // The same thing could happen with await getQuantity() and await getSelectOption()
+                  // The same thing could happen with await getNumberField() and await getSelectOption()
                   // but since there isn't a way to press the FAB button and create a new scan() without
                   // closing the alert, they won't never get stuck.
                   if (_scanCallId != this._scanCallId) {
@@ -271,7 +295,7 @@ export class ScanProvider {
                   variables.barcodes.push(barcode);
                   outputBlock.value = barcode;
                 } catch (err) {
-                  // this code fragment is duplicated for the 'quantity', 'if' and 'barcode' blocks and in the againCount condition
+                  // this code fragment is duplicated for the 'number', 'text', 'if' and 'barcode' blocks and in the againCount condition
                   observer.complete();
                   return; // returns the again() function
                 }
@@ -293,7 +317,7 @@ export class ScanProvider {
                   // if the condition cannot be evaluated we must stop
                   // TODO stop only if the acusitionMode is manual? Or pop-back?
 
-                  // this code fragment is duplicated for the 'quantity', 'if' and 'barcode' blocks and in the againCount condition
+                  // this code fragment is duplicated for the 'number', 'text', 'if' and 'barcode' blocks and in the againCount condition
                   observer.complete();
                   return; // returns the again() function
                 }
@@ -414,8 +438,8 @@ export class ScanProvider {
           resolve(barcodeScanResult.text);
           break;
         }
-        // It is used only if there is no quantity and the user selected
-        // the continuos mode. The only way to exit is to press cancel.
+        // It's used only if there aren't dialog components and the user
+        // selected the continuos mode. The only way to exit is to press cancel.
         //
         // Practically getBarcodes is called indefinitelly until it
         // doesn't reject() the returned promise (cancel press).
@@ -516,13 +540,30 @@ export class ScanProvider {
     });
   }
 
-  private getQuantity(label = null): Promise<string> { // doesn't need to be async becouse doesn't contain awaits
+  /**
+   * Shows a dialog to acquire a value that can be number or text
+   */
+  private getField(label = null, fieldType: ('number' | 'text') = 'number'): Promise<string> { // doesn't need to be async becouse doesn't contain awaits
+    if (label == null) {
+      if (fieldType == 'number') {
+        label = 'Insert a number';
+      } else {
+        label = 'Insert text'
+      }
+    }
     return new Promise((resolve, reject) => {
+
+      // quantityType is deprecated, it's always 'number' in the newest versions,
+      // but we still keep it for backwards compatibility
+      if (this.quantityType && fieldType == 'number') {
+        fieldType = this.quantityType;
+      }
+
       let alert = this.alertCtrl.create({
-        title: label ? label : 'Enter quantity value',
+        title: label,
         // message: 'Inse',
         enableBackdropDismiss: false,
-        inputs: [{ name: 'quantity', type: this.quantityType, placeholder: this.quantityType == 'number' ? '(Default is 1, press Ok to insert it)' : 'Eg. ten' }],
+        inputs: [{ name: 'value', type: fieldType, placeholder: fieldType == 'number' ? '(Default is 1, press Ok to insert it)' : 'Eg. ten' }],
         buttons: [{
           role: 'cancel', text: 'Cancel',
           handler: () => {
@@ -531,9 +572,9 @@ export class ScanProvider {
         }, {
           text: 'Ok',
           handler: data => {
-            if (data.quantity) { // && isNumber(data.quantity)
-              resolve(data.quantity)
-            } else if (this.quantityType == 'number') {
+            if (data.value) { // && isNumber(data.value)
+              resolve(data.value)
+            } else if (fieldType == 'number') {
               resolve('1')
             }
           }

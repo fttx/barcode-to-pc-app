@@ -165,7 +165,7 @@ export class MyApp {
                 if (scan.quantity) {
                   scan.outputBlocks.push({
                     editable: false,
-                    name: 'QUANTITY',
+                    name: 'NUMBER',
                     value: scan.quantity,
                     type: 'variable'
                   });
