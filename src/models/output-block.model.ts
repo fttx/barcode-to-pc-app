@@ -1,5 +1,5 @@
 /**
- * It's an element of the Output template.
+ * It's an element of the Output field.
  * Sometimes i also refer to it as Output component
  */
 export class OutputBlockModel {
@@ -64,6 +64,12 @@ export class OutputBlockModel {
      * HTTP request method
      */
     method?: 'get' | 'post';
+
+    /**
+     * Enabled formats for the BARCODE component.
+     * When the array is empty, then all barcode formats are enabled.
+    */
+    enabledFormats?: string[];
 
     static FindEndIfIndex(outputBlocks: OutputBlockModel[], startFrom = 0): number {
         let skip = 0;

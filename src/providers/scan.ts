@@ -36,7 +36,7 @@ export class ScanProvider {
   // there is a number parameter or when the native plugin doesn't support
   // the continue mode.
   public acqusitionMode: 'manual' | 'single' | 'mixed_continue' | 'continue' = 'manual';
-  private barcodeFormats;
+  private barcodeFormats: any[];
   private outputProfile: OutputProfileModel;
   private outputProfileIndex: number;
   private deviceName: string;
@@ -104,7 +104,9 @@ export class ScanProvider {
         this.outputProfile = result[6];
         let torchOn = result[7];
         let enableBeep = result[8];
-        let blockingComponents = OutputProfileModel.ContainsBlockingComponents(this.outputProfile);
+        const blockingComponents = OutputProfileModel.ContainsBlockingComponents(this.outputProfile);
+        // const containsMixedBarcodeFormats = OutputProfileModel.ContainsMixedBarcodeFormats(this.outputProfile);
+        const containsMultipleBarcodeFormats = OutputProfileModel.ContainsMultipleBarcodeFormats(this.outputProfile);
 
         // other computed parameters
         if (quantityType && quantityType == 'text') {
@@ -119,15 +121,21 @@ export class ScanProvider {
           case SelectScanningModePage.SCAN_MODE_SINGLE: this.acqusitionMode = 'single'; break;
           case SelectScanningModePage.SCAN_MODE_CONTINUE: {
             this.acqusitionMode = 'continue';
-            if (blockingComponents || !this.platform.is('android') || continueModeTimeout) {
+            if (blockingComponents || !this.platform.is('android') || continueModeTimeout || containsMultipleBarcodeFormats) {
+              // Note: we force mixed_continue also when there are mutliple barcodes to allow the Label to be update
+              // containsMixedBarcodeFormats will scan ok, but the user won't have much feedback, and the label
+              // won't update
               this.acqusitionMode = 'mixed_continue';
             }
             break;
           }
         }
 
-        // native plugin options
-        let pluginOptions: BarcodeScannerOptions = {
+        // These options are require from the native plugin
+        // We init them here, but they can change while the Output template is
+        // beign executed, in particular the BARCODE component can override the
+        // appPluginOptions.formats property
+        let initialPluginOptions: BarcodeScannerOptions = {
           showFlipCameraButton: true,
           prompt: Config.DEFAULT_ACQUISITION_LABEL, // supported on Android only
           showTorchButton: true,
@@ -137,9 +145,10 @@ export class ScanProvider {
           disableSuccessBeep: !enableBeep
         };
         if (enableLimitBarcodeFormats) {
-          pluginOptions.formats = this.barcodeFormats.filter(barcodeFormat => barcodeFormat.enabled).map(barcodeFormat => barcodeFormat.name).join(',');
+          // set the barcode formats from the app settings
+          initialPluginOptions.formats = this.barcodeFormats.filter(barcodeFormat => barcodeFormat.enabled).map(barcodeFormat => barcodeFormat.name).join(',');
         }
-        this.pluginOptions = pluginOptions;
+        this.pluginOptions = initialPluginOptions;
 
         // used to prevent infinite loops.
         let resetAgainCountTimer;
@@ -208,10 +217,10 @@ export class ScanProvider {
 
             // Prepare the label for an eventual barcode acqusition
             if (outputBlock.label) {
-              pluginOptions.prompt = outputBlock.label
+              initialPluginOptions.prompt = outputBlock.label
             } else {
               // Always clear the label for the next acquisition
-              pluginOptions.prompt = Config.DEFAULT_ACQUISITION_LABEL;
+              initialPluginOptions.prompt = Config.DEFAULT_ACQUISITION_LABEL;
             }
 
             switch (outputBlock.type) {
@@ -274,6 +283,13 @@ export class ScanProvider {
               }
               case 'barcode': {
                 try {
+                  if (outputBlock.enabledFormats && outputBlock.enabledFormats.length != 0) {
+                    this.pluginOptions.formats = outputBlock.enabledFormats.join(',')
+                  } else {
+                    // since the this.pluginOptions.formats variable can be dirty from
+                    // the previous iteration, we must reset it to the initial value.
+                    this.pluginOptions.formats = initialPluginOptions.formats;
+                  }
                   let barcode = await this.getBarcode(outputBlock.label);
 
                   // Context:
@@ -294,6 +310,7 @@ export class ScanProvider {
                     return;
                   }
 
+                  delete outputBlock['enabledFormats'];
                   variables.barcode = barcode;
                   variables.barcodes.push(barcode);
                   outputBlock.value = barcode;

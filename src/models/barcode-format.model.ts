@@ -1,3 +1,6 @@
+/**
+ * Warning: this class is duplicated on the server side
+ */
 export class barcodeFormatModel {
     name: string;
     enabled: boolean;

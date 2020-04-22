@@ -22,7 +22,7 @@ export class ScanSessionsStorage {
     public storage: Storage,
   ) {
     this.onScanSessionSetObservable.debounceTime(500).subscribe((scanSessions: ScanSessionModel[]) => {
-      console.log('saving:', scanSessions)
+      // console.log('saving:', scanSessions)
       this.storage.set(ScanSessionsStorage.SCAN_SESSIONS, JSON.stringify(scanSessions)); // why rewrite the enteire database? This is stupid. Use a different storage item for each session at least
     })
   }
