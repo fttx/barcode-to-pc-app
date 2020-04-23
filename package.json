@@ -26,7 +26,7 @@
     "@ionic-native/device": "4.5.0",
     "@ionic-native/firebase-analytics": "^4.20.0",
     "@ionic-native/header-color": "4.5.0",
-    "@ionic-native/in-app-browser": "4.5.0",
+    "@ionic-native/in-app-browser": "^5.24.0",
     "@ionic-native/insomnia": "^4.20.0",
     "@ionic-native/launch-review": "^4.12.2",
     "@ionic-native/native-audio": "4.5.0",
@@ -40,7 +40,7 @@
     "bluebird": "^3.5.1",
     "cordova": "^9.0.0",
     "cordova-android": "^8.1.0",
-    "cordova-ios": "^5.0.1",
+    "cordova-ios": "^5.1.1",
     "cordova-launch-review": "^3.1.1",
     "cordova-plugin-add-swift-support": "2.0.1",
     "cordova-plugin-androidx": "^1.0.2",
@@ -50,7 +50,7 @@
     "cordova-plugin-device": "^2.0.3",
     "cordova-plugin-firebase-analytics": "^4.0.0",
     "cordova-plugin-headercolor": "^1.0.0",
-    "cordova-plugin-inappbrowser": "^1.7.2",
+    "cordova-plugin-inappbrowser": "^3.2.0",
     "cordova-plugin-insomnia": "^4.3.0",
     "cordova-plugin-ionic-keyboard": "^2.2.0",
     "cordova-plugin-ionic-webview": "^4.2.0",
@@ -103,7 +103,6 @@
     "plugins": {
       "cordova-plugin-app-version": {},
       "cordova-plugin-device": {},
-      "cordova-plugin-inappbrowser": {},
       "cordova-plugin-splashscreen": {},
       "cordova-plugin-whitelist": {},
       "cordova-plugin-x-socialsharing": {
@@ -127,7 +126,8 @@
       "fttx-cordova-plugin-zeroconf": {},
       "cordova-plugin-insomnia": {},
       "cordova-plugin-androidx": {},
-      "cordova-plugin-androidx-adapter": {}
+      "cordova-plugin-androidx-adapter": {},
+      "cordova-plugin-inappbrowser": {}
     },
     "platforms": [
       "android",
