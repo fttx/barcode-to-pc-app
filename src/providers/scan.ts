@@ -514,6 +514,11 @@ export class ScanProvider {
 
   public async updateCurrentOutputProfile() {
     this.outputProfile = await this.getOutputProfile(this.outputProfileIndex);
+    this.alertCtrl.create({
+      title: 'Settings updated',
+      message: 'The server settings have been updated. To apply the changes tap on the camera button.',
+      buttons: ['Ok'],
+    }).present();
   }
 
   // getOutputProfile() is called in two separated places, that's why is
