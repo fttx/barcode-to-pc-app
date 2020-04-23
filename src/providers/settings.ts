@@ -361,7 +361,7 @@ export class Settings {
             name: "Output template 1",
             version: null,
             outputBlocks: [
-              { name: 'BARCODE', value: 'BARCODE', type: 'barcode', editable: true, skipOutput: false },
+              { name: 'BARCODE', value: 'BARCODE', type: 'barcode', editable: true, skipOutput: false, label: null, enabledFormats: [] },
               { name: 'TAB', value: 'tab', type: 'key', modifiers: [] },
               { name: 'NUMBER', value: 'number', type: 'variable', editable: true, skipOutput: false, label: null },
               { name: 'ENTER', value: 'enter', type: 'key', modifiers: [] },
@@ -372,7 +372,7 @@ export class Settings {
           resolve([{
             version: null,
             name: "Output template 1",
-            outputBlocks: [{ name: 'BARCODE', value: 'BARCODE', type: 'barcode', editable: true, skipOutput: false }, { name: 'ENTER', value: 'enter', type: 'key', modifiers: [] }]
+            outputBlocks: [{ name: 'BARCODE', value: 'BARCODE', type: 'barcode', editable: true, skipOutput: false, label: null, enabledFormats: [] }, { name: 'ENTER', value: 'enter', type: 'key', modifiers: [] }]
           }]);
         }
       })
