@@ -13,6 +13,7 @@ import { Utils } from './utils';
 import * as Supplant from 'supplant';
 import { Config } from './config';
 import { AlertInputOptions } from 'ionic-angular/components/alert/alert-options';
+import { NativeAudio } from '@ionic-native/native-audio';
 
 /**
  * The job of this class is to generate a ScanModel by talking with the native
@@ -52,8 +53,14 @@ export class ScanProvider {
     private platform: Platform,
     private ngZone: NgZone,
     private firebaseAnalytics: FirebaseAnalytics,
+    public nativeAudio: NativeAudio,
     private settings: Settings,
   ) {
+    this.nativeAudio.preloadSimple('beep_high', 'assets/audio/beep_high.ogg');
+    this.nativeAudio.preloadSimple('beep_low', 'assets/audio/beep_low.ogg');
+    this.nativeAudio.preloadSimple('beep_two_tone', 'assets/audio/beep_two_tone.ogg');
+    this.nativeAudio.preloadSimple('beep_double', 'assets/audio/beep_double.ogg');
+    this.nativeAudio.preloadSimple('beep', 'assets/audio/beep.ogg');
   }
 
   private lastObserver: Subscriber<ScanModel> = null;
@@ -327,6 +334,23 @@ export class ScanProvider {
                 // Example:
                 // 'http://localhost/?a={{ barcode }}' becomes 'http://localhost/?a=123456789'
                 outputBlock.value = new Supplant().text(outputBlock.value, variables);
+                break;
+              }
+              case 'beep': {
+                // this code is duplicated on the server side for the TEST AUDIO button (settings.html)
+                let beepSpeed;
+                switch (outputBlock.beepSpeed) {
+                  case 'low': beepSpeed = 700; break;
+                  case 'medium': beepSpeed = 450; break;
+                  case 'fast': beepSpeed = 250; break;
+                }
+                let beep = () => {
+                  return new Promise((resolve, reject) => {
+                    this.nativeAudio.play(outputBlock.value);
+                    setTimeout(() => { resolve() }, beepSpeed);
+                  });
+                };
+                for (let i = 0; i < outputBlock.beepsNumber; i++) { await beep(); }
                 break;
               }
               case 'if': {
