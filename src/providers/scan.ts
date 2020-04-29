@@ -207,7 +207,7 @@ export class ScanProvider {
           // variables that can be used in the Output Components
           let variables = {
             barcode: '',
-            barcodes: [],
+            // barcodes: [],
             quantity: null, // deprecated
             number: null,
             text: null,
@@ -216,6 +216,7 @@ export class ScanProvider {
             time: new Date(scan.date).toLocaleTimeString(),
             scan_session_name: scanSession.name,
             device_name: this.deviceName,
+            select_option: null,
           }
 
           // run the OutputProfile
@@ -278,6 +279,7 @@ export class ScanProvider {
               case 'select_option': {
                 outputBlock.value = new Supplant().text(outputBlock.value, variables);
                 outputBlock.value = await this.showSelectOption(outputBlock.value);
+                variables.select_option = outputBlock.value;
                 break;
               }
               case 'function': {
@@ -319,7 +321,7 @@ export class ScanProvider {
 
                   delete outputBlock['enabledFormats'];
                   variables.barcode = barcode;
-                  variables.barcodes.push(barcode);
+                  // variables.barcodes.push(barcode);
                   outputBlock.value = barcode;
                 } catch (err) {
                   // this code fragment is duplicated for the 'number', 'text', 'if' and 'barcode' blocks and in the againCount condition
