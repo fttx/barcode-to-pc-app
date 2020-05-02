@@ -3,6 +3,7 @@ import { Http } from '@angular/http';
 import { AppVersion } from '@ionic-native/app-version';
 import { FirebaseAnalytics } from '@ionic-native/firebase-analytics';
 import { Insomnia } from '@ionic-native/insomnia';
+import { NativeAudio } from '@ionic-native/native-audio';
 import { SplashScreen } from '@ionic-native/splash-screen';
 import { StatusBar } from '@ionic-native/status-bar';
 import { AlertController, Events, MenuController, ModalController, NavController, Platform } from 'ionic-angular';
@@ -16,6 +17,7 @@ import { ScanSessionsPage } from '../pages/scan-sessions/scan-sessions';
 import { SettingsPage } from '../pages/settings/settings';
 import { WelcomePage } from '../pages/welcome/welcome';
 import { Config } from '../providers/config';
+import { EventsReporterProvider } from '../providers/events-reporter/events-reporter';
 import { ScanSessionsStorage } from '../providers/scan-sessions-storage';
 import { Settings } from '../providers/settings';
 import { Utils } from '../providers/utils';
@@ -45,11 +47,18 @@ export class MyApp {
     private scanSessionsStorage: ScanSessionsStorage,
     public events: Events,
     private insomnia: Insomnia,
+    public nativeAudio: NativeAudio,
+    private eventsReporterProvider: EventsReporterProvider,
   ) {
     platform.ready().then(() => {
 
       this.firebaseAnalytics.setEnabled(!Config.DEBUG)
 
+      this.nativeAudio.preloadSimple('beep_high', 'assets/audio/beep_high.ogg');
+      this.nativeAudio.preloadSimple('beep_low', 'assets/audio/beep_low.ogg');
+      this.nativeAudio.preloadSimple('beep_two_tone', 'assets/audio/beep_two_tone.ogg');
+      this.nativeAudio.preloadSimple('beep_double', 'assets/audio/beep_double.ogg');
+      this.nativeAudio.preloadSimple('beep', 'assets/audio/beep.ogg');
 
       Promise.all([this.settings.getNoRunnings(), this.settings.getEverConnected(), this.settings.getAlwaysSkipWelcomePage(), this.upgrade(), this.settings.getKeepDisplayOn()]).then((results: any[]) => {
         let runnings = results[0];
@@ -75,6 +84,8 @@ export class MyApp {
         if (platform.is('ios')) {
           statusBar.overlaysWebView(true);
         }
+
+        this.eventsReporterProvider.init();
       });
     });
 

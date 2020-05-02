@@ -5,7 +5,7 @@ import { NativeAudio } from '@ionic-native/native-audio';
 import { SocialSharing } from '@ionic-native/social-sharing';
 import { Promise as BluebirdPromise } from 'bluebird';
 import { ActionSheetController, AlertController, ModalController, NavController, NavParams } from 'ionic-angular';
-import { Subscription } from 'rxjs';
+import { Subscription, VirtualTimeScheduler } from 'rxjs';
 import { KeyboardInputComponent } from '../../components/keyboard-input/keyboard-input';
 import { requestModelDeleteScan, requestModelPutScanSessions, requestModelUpdateScanSession } from '../../models/request.model';
 import { responseModel, responseModelPutScanAck } from '../../models/response.model';
@@ -70,7 +70,6 @@ export class ScanSessionPage {
     if (!this.scanSession) {
       this.isNewSession = true;
     }
-    this.nativeAudio.preloadSimple('beep', 'assets/audio/beep.ogg');
   }
 
   @HostListener('window:keyup', ['$event'])
@@ -84,22 +83,20 @@ export class ScanSessionPage {
 
   ionViewDidEnter() {
     this.firebaseAnalytics.setCurrentScreen("ScanSessionPage");
-    this.responseSubscription = this.serverProvider.onResponse().subscribe(message => {
-      this.ngZone.run(() => {
-        if (message.action == responseModel.ACTION_PUT_SCAN_ACK) {
-          let response: responseModelPutScanAck = message;
-          if (this.scanSession.id == response.scanSessionId) {
-            let len = this.scanSession.scannings.length;
-            for (let i = (len - 1); i >= 0; i--) {
-              if (this.scanSession.scannings[i].id == response.scanId) {
-                this.scanSession.scannings[i].ack = true;
-                // this.scanSession.scannings[i].repeated = false;
-              }
+    this.responseSubscription = this.serverProvider.onMessage().subscribe(message => {
+      if (message.action == responseModel.ACTION_PUT_SCAN_ACK) {
+        let response: responseModelPutScanAck = message;
+        if (this.scanSession.id == response.scanSessionId) {
+          let len = this.scanSession.scannings.length;
+          for (let i = (len - 1); i >= 0; i--) {
+            if (this.scanSession.scannings[i].id == response.scanId) {
+              this.scanSession.scannings[i].ack = true;
+              // this.scanSession.scannings[i].repeated = false;
             }
           }
         }
-      });
-    })
+      }
+    });
   }
 
   ionViewDidLoad() {

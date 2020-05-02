@@ -42,6 +42,7 @@ export class Settings {
   private static SCAN_SESSION_NAME = 'scan_session_name';
   private static UPGRADED_DISPLAYVALUE = 'upgraded_displayvalue';
   private static OPEN_SCAN_ON_START = 'open_scan_on_start';
+  private static EVENT_ON_SMARTPHONE_CHARGE_ENABLED = 'event_on_smartphone_charge_enabled';
 
   constructor(
     public storage: Storage,
@@ -282,7 +283,7 @@ export class Settings {
   }
 
   getEnableLimitBarcodeFormats(): Promise<boolean> {
-    return this.storage.get(Settings.ENABLE_LIMIT_BARCODE_FORMATS);
+    return this.storage.get(Settings.ENABLE_LIMIT_BARCODE_FORMATS).then(result => { return result === true });
   }
 
   setBarcodeFormats(barcodeFormats: barcodeFormatModel[]) {
@@ -400,6 +401,13 @@ export class Settings {
    * @deprecated Use OutputProfiles
    */
   getQuantityEnabled(): Promise<boolean> {
-    return this.storage.get(Settings.QUANTITY_ENABLED);
+    return this.storage.get(Settings.QUANTITY_ENABLED).then(result => { return result === true });
+  }
+
+  setEventsOnSmartphoneChargeEnabled(enabled: boolean) {
+    return this.storage.set(Settings.EVENT_ON_SMARTPHONE_CHARGE_ENABLED, enabled);
+  }
+  getEventsOnSmartphoneChargeEnabled(): Promise<boolean> {
+    return this.storage.get(Settings.EVENT_ON_SMARTPHONE_CHARGE_ENABLED).then(result => { return result === true });
   }
 }

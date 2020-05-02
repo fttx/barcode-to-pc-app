@@ -3,6 +3,7 @@ import { HttpModule } from '@angular/http';
 import { BrowserModule } from '@angular/platform-browser';
 import { BarcodeScanner } from '@fttx/barcode-scanner';
 import { AppVersion } from '@ionic-native/app-version';
+import { BatteryStatus } from '@ionic-native/battery-status';
 import { Device } from '@ionic-native/device';
 import { FirebaseAnalytics } from '@ionic-native/firebase-analytics';
 import { Insomnia } from '@ionic-native/insomnia';
@@ -22,14 +23,15 @@ import { KeyboardInputComponent } from '../components/keyboard-input/keyboard-in
 import { AboutPage } from '../pages/about/about';
 import { ArchivedPage } from '../pages/archived/archived';
 import { HelpPage } from '../pages/help/help';
-import { EditScanSessionPage } from '../pages/scan-session/edit-scan-session/edit-scan-session';
 import { CSVExportOptionsPage } from '../pages/scan-session/csv-export-options/csv-export-options';
+import { EditScanSessionPage } from '../pages/scan-session/edit-scan-session/edit-scan-session';
 import { ScanSessionPage } from '../pages/scan-session/scan-session';
 import { SelectScanningModePage } from '../pages/scan-session/select-scanning-mode/select-scanning-mode';
 import { ScanSessionsPage } from '../pages/scan-sessions/scan-sessions';
 import { SelectServerPage } from '../pages/select-server/select-server';
 import { SettingsPage } from '../pages/settings/settings';
 import { WelcomePage } from '../pages/welcome/welcome';
+import { EventsReporterProvider } from '../providers/events-reporter/events-reporter';
 import { LastToastProvider } from '../providers/last-toast/last-toast';
 import { ScanProvider } from '../providers/scan';
 import { ScanSessionsStorage } from '../providers/scan-sessions-storage';
@@ -102,12 +104,14 @@ import { MyApp } from './app.component';
     SocialSharing,
     AppVersion,
     Insomnia,
+    BatteryStatus,
     BarcodeScanner,
     Zeroconf,
     Network,
     NativeAudio,
     { provide: ErrorHandler, useClass: IonicErrorHandler },
     LastToastProvider,
+    EventsReporterProvider,
   ]
 })
 export class AppModule { }

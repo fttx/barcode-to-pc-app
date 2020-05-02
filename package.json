@@ -1,7 +1,7 @@
 {
   "name": "barcode-to-pc-app",
   "author": "Filippo Tortomasi",
-  "version": "3.8.0",
+  "version": "3.9.0",
   "homepage": "https://barcodetopc.com/",
   "private": true,
   "scripts": {
@@ -22,6 +22,7 @@
     "@angular/platform-browser-dynamic": "5.2.11",
     "@fttx/barcode-scanner": "^4.12.3",
     "@ionic-native/app-version": "4.5.0",
+    "@ionic-native/battery-status": "^4.20.0",
     "@ionic-native/core": "~4.18.0",
     "@ionic-native/device": "4.5.0",
     "@ionic-native/firebase-analytics": "^4.20.0",
@@ -46,6 +47,7 @@
     "cordova-plugin-androidx": "^1.0.2",
     "cordova-plugin-androidx-adapter": "^1.1.0",
     "cordova-plugin-app-version": "^0.1.9",
+    "cordova-plugin-battery-status": "^2.0.3",
     "cordova-plugin-compat": "^1.2.0",
     "cordova-plugin-device": "^2.0.3",
     "cordova-plugin-firebase-analytics": "^4.0.0",
@@ -127,7 +129,8 @@
       "cordova-plugin-insomnia": {},
       "cordova-plugin-androidx": {},
       "cordova-plugin-androidx-adapter": {},
-      "cordova-plugin-inappbrowser": {}
+      "cordova-plugin-inappbrowser": {},
+      "cordova-plugin-battery-status": {}
     },
     "platforms": [
       "android",

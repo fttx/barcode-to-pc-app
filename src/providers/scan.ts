@@ -56,11 +56,7 @@ export class ScanProvider {
     public nativeAudio: NativeAudio,
     private settings: Settings,
   ) {
-    this.nativeAudio.preloadSimple('beep_high', 'assets/audio/beep_high.ogg');
-    this.nativeAudio.preloadSimple('beep_low', 'assets/audio/beep_low.ogg');
-    this.nativeAudio.preloadSimple('beep_two_tone', 'assets/audio/beep_two_tone.ogg');
-    this.nativeAudio.preloadSimple('beep_double', 'assets/audio/beep_double.ogg');
-    this.nativeAudio.preloadSimple('beep', 'assets/audio/beep.ogg');
+
   }
 
   private lastObserver: Subscriber<ScanModel> = null;

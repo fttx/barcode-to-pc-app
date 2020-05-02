@@ -7,7 +7,7 @@ import { Observable, Subject, Subscription } from 'rxjs';
 import { SemVer } from 'semver';
 import { discoveryResultModel } from '../models/discovery-result';
 import { requestModel, requestModelGetVersion, requestModelHelo, requestModelPing } from '../models/request.model';
-import { responseModel, responseModelHelo, responseModelKick, responseModelPopup, responseModelUpdateOutputProfiles, responseModelEnableQuantity } from '../models/response.model';
+import { responseModel, responseModelHelo, responseModelKick, responseModelPopup, responseModelUpdateSettings, responseModelEnableQuantity } from '../models/response.model';
 import { wsEvent } from '../models/ws-event.model';
 import { HelpPage } from '../pages/help/help';
 import { Settings } from '../providers/settings';
@@ -32,6 +32,8 @@ export class ServerProvider {
   private connected = false;
   private webSocket: WebSocket;
   private responseObservable = new Subject<responseModel>();
+  private _onConnect = new Subject<any>();
+  private _onDisconnect = new Subject<any>();
   private wsEventObservable = new Subject<wsEvent>();
   private watchForServersObservable = null;
   private watchForServersObserver: Subscription;
@@ -54,7 +56,7 @@ export class ServerProvider {
   constructor(
     private settings: Settings,
     private scanProvider: ScanProvider,
-    private NgZone: NgZone,
+    private ngZone: NgZone,
     private lastToast: LastToastProvider,
     private zeroconf: Zeroconf,
     private alertCtrl: AlertController,
@@ -66,12 +68,20 @@ export class ServerProvider {
 
   }
 
-  onResponse(): Subject<any> {
+  onMessage(): Subject<any> {
     return this.responseObservable;
   }
 
   onWsEvent(): Subject<wsEvent> {
     return this.wsEventObservable;
+  }
+
+  onConnect(): Subject<any> {
+    return this._onConnect;
+  }
+
+  onDisconnect(): Subject<any> {
+    return this._onDisconnect;
   }
 
   connect(server: ServerModel, skipQueue: boolean = false) {
@@ -107,6 +117,7 @@ export class ServerProvider {
         this.lastToast.present('Connection lost');
         this.connected = false;
         this.wsEventObservable.next({ name: wsEvent.EVENT_ERROR, ws: this.webSocket });
+        this._onDisconnect.next();
       }
       let code = reconnect ? ServerProvider.EVENT_CODE_CLOSE_NORMAL : ServerProvider.EVENT_CODE_DO_NOT_ATTEMP_RECCONECTION;
       this.webSocket.close(code);
@@ -156,7 +167,7 @@ export class ServerProvider {
     this.webSocket = new WebSocket(wsUrl);
     //console.log('[S]: WS: A new WebSocket has been created')
 
-    this.webSocket.onmessage = message => {
+    this.webSocket.onmessage = async message => {
       //console.log('[S]: this.webSocket.onmessage()', message)
 
       let messageData = null;
@@ -206,9 +217,9 @@ export class ServerProvider {
           buttons: ['Ok']
         });
         this.popup.present();
-      } else if (messageData.action == responseModel.UPDATE_OUTPUT_PROFILES) {
-        let responseModelUpdateOutputProfiles: responseModelUpdateOutputProfiles = messageData;
-        this.settings.setOutputProfiles(responseModelUpdateOutputProfiles.outputProfiles);
+      } else if (messageData.action == responseModel.ACTION_UPDATE_SETTINGS) {
+        let responseModelUpdateSettings: responseModelUpdateSettings = messageData;
+        await this.settings.setOutputProfiles(responseModelUpdateSettings.outputProfiles);
         this.scanProvider.updateCurrentOutputProfile();
       } else if (messageData.action == responseModel.ACTION_GET_VERSION) {
         // fallBack for old server versions
@@ -230,9 +241,10 @@ export class ServerProvider {
             buttons: [{ text: 'Close', role: 'cancel' }]
           }).present();
         }
-      } else {
-        this.responseObservable.next(messageData);
       }
+      this.ngZone.run(() => {
+        this.responseObservable.next(messageData);
+      })
     }
 
     this.webSocket.onopen = () => {
@@ -256,6 +268,7 @@ export class ServerProvider {
         console.log("[S]: stopping watching for servers")
       }
       this.wsEventObservable.next({ name: 'open', ws: this.webSocket });
+      this._onConnect.next();
       this.lastToast.present('Connection established with ' + server.name)
 
       //console.log('[S]: WS: new heartbeat started');
@@ -322,6 +335,7 @@ export class ServerProvider {
       }
       this.connected = false;
       this.wsEventObservable.next({ name: wsEvent.EVENT_ERROR, ws: this.webSocket });
+      this._onDisconnect.next();
       this.scheduleNewWsConnection(server);
     }
 
@@ -338,7 +352,7 @@ export class ServerProvider {
       this.connected = false;
       this.kickedOut = false;
       this.wsEventObservable.next({ name: wsEvent.EVENT_CLOSE, ws: this.webSocket });
-
+      this._onDisconnect.next();
 
       if (!this.watchForServersObserver) {
         this.watchForServersObserver = this.watchForServers().subscribe((discoveryResult: discoveryResultModel) => {
@@ -421,7 +435,7 @@ export class ServerProvider {
         if (service.port == Config.SERVER_PORT && service.ipv4Addresses && service.ipv4Addresses.length) {
           console.log("ZEROCONF:", result);
 
-          this.NgZone.run(() => {
+          this.ngZone.run(() => {
             service.ipv4Addresses.forEach(ipv4 => {
               if (ipv4 && ipv4.length) {
                 observer.next({ server: new ServerModel(ipv4, service.hostname), action: action });

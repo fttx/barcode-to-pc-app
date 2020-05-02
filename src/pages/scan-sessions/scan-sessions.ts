@@ -26,7 +26,6 @@ export class ScanSessionsPage {
   public selectedScanSessions: ScanSessionModel[] = [];
 
   private responseSubscription = null;
-  private wsEventSubscription = null;
   private preventClickTimeout = null;
   private clickDisabled = false;
 
@@ -81,27 +80,66 @@ export class ScanSessionsPage {
         this.scanSessionsStorage.setScanSessions(this.scanSessions)
       }
     });
-
-    this.settings.getDefaultServer().then(server => {
-      if (!this.wsEventSubscription) {
-        this.wsEventSubscription = this.serverProvider.onWsEvent().subscribe((event: wsEvent) => {
-          this.connected = this.serverProvider.isConnected();
-          if (event.name == wsEvent.EVENT_OPEN) {
-            this.onConnect();
-          }
-        });
-      }
-      this.serverProvider.connect(server);
-    }, err => { })
   }
 
   ionViewDidLoad() {
     this.utils.showEnableWifiDialog();
+
+    // Connect to the default server
+    this.settings.getDefaultServer().then(server => {
+      this.serverProvider.onDisconnect().subscribe(() => {
+        this.connected = false;
+      });
+      this.serverProvider.onConnect().subscribe(() => {
+        this.connected = true;
+        // Rating dialog
+        BluebirdPromise.join(this.settings.getNoRunnings(), this.settings.getRated(), (runnings, rated) => {
+          if (runnings >= Config.NO_RUNNINGS_BEFORE_SHOW_RATING && !rated) {
+            // rating = In app native rating (iOS 10.3+ only)
+            // launch = Android and iOS 10.3-
+            if (this.launchReview.isRatingSupported()) {
+              // show native rating dialog
+              this.launchReview.rating().then(result => {
+                if (result === "dismissed") {
+                  this.settings.setRated(true);
+                }
+              });
+            } else {
+              let store = this.utils.isAndroid() ? 'PlayStore' : 'Appstore';
+              this.alertCtrl.create({
+                title: 'Rate Barcode to PC',
+                message: 'Is Barcode to PC helping you transfer barcodes?<br><br>Let the world know by rating it on the ' + store + ', it would be appreciated!',
+                buttons: [{
+                  text: 'Remind me later',
+                  role: 'cancel'
+                }, {
+                  text: 'No',
+                  handler: () => {
+                    this.settings.setRated(true);
+                  }
+                }, {
+                  text: 'Rate',
+                  handler: () => {
+                    this.launchReview.launch().then(() => {
+                      this.settings.setRated(true);
+                    })
+                  }
+                }]
+              }).present();
+            }
+          }
+        });
+      });
+
+      // First connection
+      this.serverProvider.connect(server);
+    }, err => { })
+
     this.settings.getOpenScanOnStart().then(openScanOnStart => {
       if (openScanOnStart) {
         this.navCtrl.push(ScanSessionPage);
       }
-    })
+    });
   }
 
   ionViewDidLeave() {
@@ -109,54 +147,10 @@ export class ScanSessionsPage {
       this.responseSubscription.unsubscribe();
       this.responseSubscription = null;
     }
-
-    if (this.wsEventSubscription) {
-      this.wsEventSubscription.unsubscribe();
-      this.wsEventSubscription = null;
-    }
   }
 
   ionViewWillLeave() {
     this.unselectAll();
-  }
-
-  private onConnect() {
-    BluebirdPromise.join(this.settings.getNoRunnings(), this.settings.getRated(), (runnings, rated) => {
-      if (runnings >= Config.NO_RUNNINGS_BEFORE_SHOW_RATING && !rated) {
-        // rating = In app native rating (iOS 10.3+ only)
-        // launch = Android and iOS 10.3-
-        if (this.launchReview.isRatingSupported()) {
-          // show native rating dialog
-          this.launchReview.rating().then(result => {
-            if (result === "dismissed") {
-              this.settings.setRated(true);
-            }
-          });
-        } else {
-          let store = this.utils.isAndroid() ? 'PlayStore' : 'Appstore';
-          this.alertCtrl.create({
-            title: 'Rate Barcode to PC',
-            message: 'Is Barcode to PC helping you transfer barcodes?<br><br>Let the world know by rating it on the ' + store + ', it would be appreciated!',
-            buttons: [{
-              text: 'Remind me later',
-              role: 'cancel'
-            }, {
-              text: 'No',
-              handler: () => {
-                this.settings.setRated(true);
-              }
-            }, {
-              text: 'Rate',
-              handler: () => {
-                this.launchReview.launch().then(() => {
-                  this.settings.setRated(true);
-                })
-              }
-            }]
-          }).present();
-        }
-      }
-    });
   }
 
   onSelectServerClick() {

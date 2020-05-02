@@ -129,8 +129,8 @@ export class WelcomePage {
     if (this.connecting) {
       this.slider.slideTo(this.slider.length() - 1);
       this.lastServerAttempted = server;
-      this.serverProvider.onWsEvent().subscribe((event: wsEvent) => {
-        if (event.name == wsEvent.EVENT_OPEN && !this.connected) {
+      this.serverProvider.onConnect().subscribe(() => {
+        if (!this.connected) {
           // console.log('connection opened with the server: ', server);
           this.serverProvider.unwatch();
           this.settings.setDefaultServer(server);
