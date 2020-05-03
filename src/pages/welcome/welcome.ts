@@ -11,6 +11,7 @@ import { FirebaseAnalytics } from '@ionic-native/firebase-analytics';
 import { BarcodeScanner } from '@fttx/barcode-scanner';
 import { wsEvent } from '../../models/ws-event.model';
 import { Utils } from '../../providers/utils';
+import { Subscription } from 'rxjs';
 
 /*
   Generated class for the Welcome page.
@@ -23,13 +24,14 @@ import { Utils } from '../../providers/utils';
   templateUrl: 'welcome.html'
 })
 export class WelcomePage {
-  @ViewChild('welcome') slider: Slides;
+  @ViewChild('slider') slider: Slides;
   public showNext = true;
   public connecting = true;
   public connected = false;
 
   private troubleshootingDialogTimeout = null;
-  public lastServerAttempted: ServerModel;
+  public currentAttemptingServer: ServerModel;
+  private onConnectSubscription: Subscription;
 
   constructor(
     private alertCtrl: AlertController,
@@ -45,22 +47,28 @@ export class WelcomePage {
 
   ionViewDidEnter() {
     this.firebaseAnalytics.setCurrentScreen("WelcomePage");
-  }
+    this.onConnectSubscription = this.serverProvider.onConnect().subscribe((server) => {
+      this.settings.setDefaultServer(server);
+      this.slider.slideTo(this.slider.length() - 1);
+      this.ngZone.run(() => {
+        this.connecting = false;
+        this.showNext = false;
+      });
+      this.connected = true;
+      this.serverProvider.stopWatchForServers();
+    });
 
-  ionViewDidLeave() {
-    clearTimeout(this.troubleshootingDialogTimeout);
-  }
-
-  ionViewDidLoad() {
-    this.viewCtrl.willLeave.subscribe(() => {
-      this.serverProvider.unwatch();
-    })
-
-    this.serverProvider.watchForServers().subscribe(data => {
+    this.serverProvider.watchForServers().delay(500).subscribe(data => { // delay to prevent this.slide null when the server gets published too fast
       if (data.action == 'added' || data.action == 'resolved') {
         this.attempConnection(data.server)
       }
     });
+  }
+
+  ionViewDidLeave() {
+    this.serverProvider.stopWatchForServers();
+    this.onConnectSubscription.unsubscribe();
+    clearTimeout(this.troubleshootingDialogTimeout);
   }
 
   onSkipClicked() {
@@ -116,8 +124,8 @@ export class WelcomePage {
   onSlideChanged() {
     this.showNext = !this.slider.isEnd();
     if (this.slider.isEnd()) {
-      this.scheduleShowTroubleshootingDialog(40);
-      this.utils.showEnableWifiDialog();
+      this.scheduleShowTroubleshootingDialog();
+      this.utils.askWiFiEnableIfDisabled();
     }
   }
 
@@ -128,27 +136,13 @@ export class WelcomePage {
   attempConnection(server: ServerModel) {
     if (this.connecting) {
       this.slider.slideTo(this.slider.length() - 1);
-      this.lastServerAttempted = server;
-      this.serverProvider.onConnect().subscribe(() => {
-        if (!this.connected) {
-          // console.log('connection opened with the server: ', server);
-          this.serverProvider.unwatch();
-          this.settings.setDefaultServer(server);
-          this.slider.slideTo(this.slider.length() - 1);
-          this.ngZone.run(() => {
-            this.connecting = false;
-            this.showNext = false;
-          });
-          this.connected = true;
-        }
-      });
-
+      this.currentAttemptingServer = server;
       this.serverProvider.connect(server)
-      this.scheduleShowTroubleshootingDialog(20);
+      this.scheduleShowTroubleshootingDialog();
     }
   }
 
-  scheduleShowTroubleshootingDialog(secs) {
+  scheduleShowTroubleshootingDialog() {
     if (this.troubleshootingDialogTimeout) clearTimeout(this.troubleshootingDialogTimeout);
 
     this.troubleshootingDialogTimeout = setTimeout(() => {
@@ -172,6 +166,6 @@ export class WelcomePage {
         });
         alert.present();
       }
-    }, 1000 * secs)
+    }, 1000 * 25) // 25 secs
   }
 }

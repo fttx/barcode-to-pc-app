@@ -1,13 +1,14 @@
-import { Injectable, NgZone, ComponentFactoryResolver } from '@angular/core';
+import { Injectable, NgZone } from '@angular/core';
 import { AppVersion } from '@ionic-native/app-version';
 import { Device } from '@ionic-native/device';
 import { Zeroconf } from '@ionic-native/zeroconf';
+import * as ipUtils from 'ip-utils';
 import { Alert, AlertController, Events, Platform } from 'ionic-angular';
-import { Observable, Subject, Subscription } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { SemVer } from 'semver';
 import { discoveryResultModel } from '../models/discovery-result';
 import { requestModel, requestModelGetVersion, requestModelHelo, requestModelPing } from '../models/request.model';
-import { responseModel, responseModelHelo, responseModelKick, responseModelPopup, responseModelUpdateSettings, responseModelEnableQuantity } from '../models/response.model';
+import { responseModel, responseModelEnableQuantity, responseModelHelo, responseModelKick, responseModelPopup, responseModelUpdateSettings } from '../models/response.model';
 import { wsEvent } from '../models/ws-event.model';
 import { HelpPage } from '../pages/help/help';
 import { Settings } from '../providers/settings';
@@ -15,6 +16,7 @@ import { ServerModel } from './../models/server.model';
 import { Config } from './config';
 import { LastToastProvider } from './last-toast/last-toast';
 import { ScanProvider } from './scan';
+import { NetworkInterface } from '@ionic-native/network-interface';
 
 
 /*
@@ -31,12 +33,11 @@ export class ServerProvider {
 
   private connected = false;
   private webSocket: WebSocket;
-  private responseObservable = new Subject<responseModel>();
-  private _onConnect = new Subject<any>();
+  private _onMessage = new Subject<responseModel>();
+  private _onConnect = new Subject<ServerModel>();
   private _onDisconnect = new Subject<any>();
   private wsEventObservable = new Subject<wsEvent>();
-  private watchForServersObservable = null;
-  private watchForServersObserver: Subscription;
+  private watchForServersSubject: Subject<discoveryResultModel>;
   private reconnecting = false;
   private everConnected = false; // in the current session
   private connectionProblemAlert = false; // in the current session
@@ -48,7 +49,6 @@ export class ServerProvider {
 
   private fallBackTimeout = null;
   private popup: Alert = null;
-  private continuoslyWatchForServers: boolean; // if true it still watches for new servers after a successfully connection, and if it finds a new server with the same name of the defaultServer it re-connects (this happens when the server has a new ip address)
   private kickedOut = false;
 
   private lastOnResumeSubscription = null;
@@ -62,34 +62,36 @@ export class ServerProvider {
     private alertCtrl: AlertController,
     public platform: Platform,
     public device: Device,
+    private networkInterface: NetworkInterface,
     public events: Events,
     private appVersion: AppVersion,
   ) {
 
   }
 
-  onMessage(): Subject<any> {
-    return this.responseObservable;
+  onMessage(): Observable<any> {
+    return this._onMessage.asObservable();
   }
 
   onWsEvent(): Subject<wsEvent> {
     return this.wsEventObservable;
   }
 
-  onConnect(): Subject<any> {
-    return this._onConnect;
+  onConnect(): Observable<ServerModel> {
+    return this._onConnect.asObservable();
   }
 
-  onDisconnect(): Subject<any> {
-    return this._onDisconnect;
+  onDisconnect(): Observable<any> {
+    return this._onDisconnect.asObservable();
   }
 
   connect(server: ServerModel, skipQueue: boolean = false) {
+    console.log('[S-c] connect(server=', server, 'skipQueue=', skipQueue);
     if (!this.webSocket || this.webSocket.readyState != WebSocket.OPEN || this.webSocket.url.indexOf(server.address) == -1) {
-      console.log('[S]: not connected or new server selected, creating a new WS connection...');
+      console.log('[S-c]: not connected or new server selected, creating a new WS connection...');
       this.wsConnect(server, skipQueue);
     } else if (this.webSocket.readyState == WebSocket.OPEN) {
-      console.log('[S]: already connected to a server, no action taken');
+      console.log('[S-c]: already connected to a server, no action taken');
       this.serverQueue = [];
       this.connected = true;
       this.wsEventObservable.next({ name: wsEvent.EVENT_ALREADY_OPEN, ws: this.webSocket });
@@ -110,7 +112,7 @@ export class ServerProvider {
   }
 
   private wsDisconnect(reconnect = false) {
-    console.log('[S]: wsDisconnect(reconnect=' + reconnect + ')', this.webSocket);
+    console.log('[S-wd]: wsDisconnect(reconnect=' + reconnect + ')', this.webSocket);
 
     if (this.webSocket) {
       if (this.everConnected && !this.reconnecting) {
@@ -134,10 +136,10 @@ export class ServerProvider {
   }
 
   private wsConnect(server: ServerModel, skipQueue: boolean = false) {
-    //console.log('[S]: wsConnect(' + server.address + ')', new Date())
+    console.log('[S-wc]: wsConnect(' + server.address + ')', new Date())
 
     if (skipQueue) {
-      console.log('[S]: WS: skipQueue is true, skipping the queue and disconnecting from the old one')
+      console.log('[S-wc]: WS: skipQueue is true, skipping the queue and disconnecting from the old one')
       this.serverQueue = [];
       this.serverQueue.push(server);
       this.reconnecting = true;
@@ -178,7 +180,7 @@ export class ServerProvider {
       console.log('responseModel action = ', messageData.action)
       if (messageData.action == responseModel.ACTION_HELO) {
         // fallBack for old server versions
-        console.log('FallBack: new HELO request received, aborting fallback')
+        // console.log('FallBack: new HELO request received, aborting fallback')
         if (this.fallBackTimeout) clearTimeout(this.fallBackTimeout);
         // fallBack for old server versions
 
@@ -243,7 +245,7 @@ export class ServerProvider {
         }
       }
       this.ngZone.run(() => {
-        this.responseObservable.next(messageData);
+        this._onMessage.next(messageData);
       })
     }
 
@@ -255,20 +257,14 @@ export class ServerProvider {
       this.serverQueue = [];
 
       if (this.pongTimeout) clearTimeout(this.pongTimeout);
-      console.log("[S]: WS: reconnected successfully...")
+      console.log("[S-wc]: WS: reconnected successfully with " + server.address)
       this.clearReconnectInterval();
 
 
       this.settings.saveServer(server);
       this.connected = true;
-      if (!this.continuoslyWatchForServers) {
-        console.log("[S]: stopping watching for servers")
-        this.unwatch();
-      } else {
-        console.log("[S]: stopping watching for servers")
-      }
       this.wsEventObservable.next({ name: 'open', ws: this.webSocket });
-      this._onConnect.next();
+      this._onConnect.next(server);
       this.lastToast.present('Connection established with ' + server.name)
 
       //console.log('[S]: WS: new heartbeat started');
@@ -280,7 +276,7 @@ export class ServerProvider {
         //console.log('[S]: WS: waiting 5 secs before starting the connection again')
         if (this.pongTimeout) clearTimeout(this.pongTimeout);
         this.pongTimeout = setTimeout(() => { // do 5 secondi per rispondere
-          console.log('[S]: WS pong not received, closing connection...')
+          console.log('[S-wc]: WS pong not received, closing connection...')
           this.wsDisconnect(false);
           this.scheduleNewWsConnection(server); // se il timeout non è stato fermato prima da una risposta, allora schedulo una nuova connessione
         }, 1000 * 5);
@@ -306,7 +302,7 @@ export class ServerProvider {
 
 
       this.settings.getDeviceName().then(async deviceName => {
-        console.log('promise join: getDeviceName getRated getLastScanDate ')
+        console.log('[S-wc] sending HELO to ' + server.address)
         let request = new requestModelHelo().fromObject({
           version: await this.appVersion.getVersionNumber(),
           deviceName: deviceName,
@@ -315,10 +311,10 @@ export class ServerProvider {
         this.send(request);
 
         // fallBack for old server versions
-        console.log('FallBack: new Helo sent, waiting for response...')
+        // console.log('FallBack: new Helo sent, waiting for response...')
         if (this.fallBackTimeout) clearTimeout(this.fallBackTimeout);
         this.fallBackTimeout = setTimeout(() => {
-          console.log('FallBack: new Helo response not received, sending old getVersion');
+          // console.log('FallBack: new Helo response not received, sending old getVersion');
           let request = new requestModelGetVersion().fromObject({});
           this.send(request);
         }, 5000);
@@ -353,40 +349,6 @@ export class ServerProvider {
       this.kickedOut = false;
       this.wsEventObservable.next({ name: wsEvent.EVENT_CLOSE, ws: this.webSocket });
       this._onDisconnect.next();
-
-      if (!this.watchForServersObserver) {
-        this.watchForServersObserver = this.watchForServers().subscribe((discoveryResult: discoveryResultModel) => {
-          this.settings.getDefaultServer().then(defaultServer => {
-            if (defaultServer.name == discoveryResult.server.name && discoveryResult.server.name.length && defaultServer.address != discoveryResult.server.address) { // if the server has the same name, but a different ip => ask to reconnect
-              let alert = this.alertCtrl.create({
-                title: "Reconnect",
-                message: "It seems that the computer " + defaultServer.name + " changed ip address from \
-                 " + defaultServer.address + " to " + discoveryResult.server.address + ", do you want to reconnect?",
-                buttons: [{
-                  text: 'No',
-                  role: 'cancel',
-                  handler: () => { }
-                }, {
-                  text: 'Reconnect',
-                  handler: () => {
-                    this.settings.setDefaultServer(discoveryResult.server); // override the defaultServer
-                    this.settings.getSavedServers().then(savedServers => {
-                      this.settings.setSavedServers(
-                        savedServers
-                          .filter(x => x.name != discoveryResult.server.name) // remove the old server
-                          .concat(discoveryResult.server)) // add a new one
-                    });
-                    this.wsConnect(discoveryResult.server, true);
-                  }
-                }]
-              });
-              alert.present();
-            } else if (defaultServer.name == discoveryResult.server.name && defaultServer.address == discoveryResult.server.address && this.everConnected) { // if the server was closed and open again => reconnect whitout asking
-              this.wsConnect(discoveryResult.server, true);
-            }
-          })
-        })
-      }
     }
   } // wsConnect() end
 
@@ -415,46 +377,75 @@ export class ServerProvider {
     }
   }
 
+  /**
+   * Call stopWatchForServers when you don't need to receive updates anymore
+   *
+   * It is NOT required to call stopWatchForServers() before calling
+   * watchForServers. It'll always start a brand new "watch" everytime it's
+   * called.
+   */
   watchForServers(): Observable<discoveryResultModel> {
-    if (this.watchForServersObservable) {
-      return this.watchForServersObservable;
+    this.stopWatchForServers();
+    console.log("[S] watchForServers()")
+    this.watchForServersSubject = new Subject<discoveryResultModel>();
+
+    // Dummy server for debugging
+    if (!this.platform.is('cordova')) {
+      let dummyServer: discoveryResultModel = { server: new ServerModel('192.168.5.10', 'Server 1'), action: 'added' };
+      this.watchForServersSubject.next(dummyServer);
+      setTimeout(() => {
+        dummyServer = { server: new ServerModel('192.168.6.7', 'Server 2'), action: 'added' };
+        this.watchForServersSubject.next(dummyServer);
+      }, 500)
+      return;
     }
 
-    this.watchForServersObservable = Observable.create(observer => {
-      if (!this.platform.is('cordova')) { // for browser support
-        setTimeout(() => {
-          let dummyServer: discoveryResultModel = { server: new ServerModel('localhost', 'localhost'), action: 'added' };
-          observer.next(dummyServer);
-        }, 1000)
-        return;
-      }
-      this.unwatch();
-      this.zeroconf.watch('_http._tcp.', 'local.').subscribe(result => {
-        var action = result.action;
-        var service = result.service;
+    Promise.all([this.zeroconf.reInit(), this.networkInterface.getWiFiIPAddress(), this.networkInterface.getCarrierIPAddress()].map(p => p.catch(e => { }))).then((results: any[]) => { // ignore rejected promises
+      let wifi = results[1];
+      let otherInterfaces = results[2];
+
+      // Collect all the interface information inside an array
+      let interfaces = []; // [{ip: 192.168.0.1, subnet: 255.255.255.0}, ...]
+      if (wifi) interfaces.push(wifi);
+      if (otherInterfaces) interfaces.push(otherInterfaces);
+
+      this.zeroconf.watch('_http._tcp.', 'local.').subscribe(zeroconfResult => {
+        var action = zeroconfResult.action;
+        var service = zeroconfResult.service;
         if (service.port == Config.SERVER_PORT && service.ipv4Addresses && service.ipv4Addresses.length) {
-          console.log("ZEROCONF:", result);
+          console.log("[S-wfs] zeroconf ->", zeroconfResult);
 
           this.ngZone.run(() => {
             service.ipv4Addresses.forEach(ipv4 => {
               if (ipv4 && ipv4.length) {
-                observer.next({ server: new ServerModel(ipv4, service.hostname), action: action });
+                // Check if the discovered IP is inside one of the subnets.
+                //
+                // All the network information can be calculated from the smartphone IP address
+                // and the relative subnet mask. We calculate them for each interface of the
+                // smartphone and check if the discovered IP address is part of one of the networks.
+                let isInSubnets = interfaces.map(x => {
+                  return ipUtils.subnet(x.ip + '/' + ipUtils.maskToCidr(x.subnet)).contains(ipv4)
+                }).findIndex(x => x == true) != -1;
+
+                if (isInSubnets) {
+                  this.watchForServersSubject.next({ server: new ServerModel(ipv4, service.hostname), action: action });
+                }
               }
             })
           });
         }
       });
     });
-    return this.watchForServersObservable;
+    // return observable to prevent to call .next() by accident from the outside
+    return this.watchForServersSubject.asObservable();
   }
 
-  unwatch() {
-    this.watchForServersObservable = null;
-    if (this.watchForServersObserver) {
-      this.watchForServersObserver.unsubscribe();
-      this.watchForServersObserver = null;
+  async stopWatchForServers() {
+    console.error("[S] stopWatchForServers()")
+    if (this.watchForServersSubject) {
+      this.watchForServersSubject.complete();
+      this.watchForServersSubject = null;
     }
-    //console.log('[S]: UNWATCHED ')
     this.zeroconf.close();
   }
 
@@ -464,13 +455,6 @@ export class ServerProvider {
   //   }
   //   return true;
   // }
-
-  public setContinuoslyWatchForServers(continuoslyWatchForServers: boolean) {
-    this.continuoslyWatchForServers = continuoslyWatchForServers;
-    if (!continuoslyWatchForServers) {
-      this.unwatch();
-    }
-  }
 
   private clearReconnectInterval() {
     if (this.reconnectInterval) {
@@ -482,23 +466,21 @@ export class ServerProvider {
   }
 
   private scheduleNewWsConnection(server) {
-    console.log('[S]: scheduleNewWsConnection()->')
+    console.log('[S-snwc]: scheduleNewWsConnection()->')
     this.reconnecting = true;
     if (this.pongTimeout) clearTimeout(this.pongTimeout);
     if (this.heartBeatInterval) clearInterval(this.heartBeatInterval);
     if (!this.reconnectInterval) {
       if (this.serverQueue.length) {
-        console.log('[S]:    server queue is not empty, attemping a new reconnection whithout waiting')
+        console.log('[S-snwc]:    server queue is not empty, attemping a new reconnection whithout waiting')
         server = this.serverQueue.shift(); // Removes the first element from an array and returns it
         this.wsConnect(server);
       } else {
-        console.log('[S]:    server queue is empty, attemping a new reconnection to the same server in ' + ServerProvider.RECONNECT_INTERVAL + ' secs');
+        console.log('[S-snwc]:    server queue is empty, attemping a new reconnection to the same server in ' + ServerProvider.RECONNECT_INTERVAL + ' secs');
         this.reconnectInterval = setInterval(() => {
           this.wsConnect(server);
         }, ServerProvider.RECONNECT_INTERVAL);
       }
-
-      //console.log("   reconnection scheduled.")
     }
   }
 

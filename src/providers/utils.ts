@@ -320,7 +320,7 @@ export class Utils {
     }).present();
   }
 
-  showEnableWifiDialog() {
+  askWiFiEnableIfDisabled() {
     if (this.network.type != 'ethernet' && this.network.type != 'wifi' && !this.enableWifiShown) {
       this.alertCtrl.create({
         title: 'Wi-Fi is disabled',

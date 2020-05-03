@@ -3,10 +3,11 @@ import { FirebaseAnalytics } from '@ionic-native/firebase-analytics';
 import { LaunchReview } from '@ionic-native/launch-review';
 import * as BluebirdPromise from 'bluebird';
 import { AlertController, ItemSliding, NavController, PopoverController } from 'ionic-angular';
+import { Subscription } from 'rxjs';
+import { discoveryResultModel } from '../../models/discovery-result';
 import { requestModelDeleteScanSessions } from '../../models/request.model';
 import { ScanSessionModel } from '../../models/scan-session.model';
 import { ScanModel } from '../../models/scan.model';
-import { wsEvent } from '../../models/ws-event.model';
 import { Config } from '../../providers/config';
 import { ScanSessionsStorage } from '../../providers/scan-sessions-storage';
 import { ServerProvider } from '../../providers/server';
@@ -15,13 +16,14 @@ import { ScanSessionPage } from '../scan-session/scan-session';
 import { SelectServerPage } from '../select-server/select-server';
 import { Settings } from './../../providers/settings';
 
-
 @Component({
   selector: 'page-scannings',
   templateUrl: 'scan-sessions.html',
 })
 export class ScanSessionsPage {
   public connected = false;
+  private onConnectSubscription: Subscription;
+  private onDisconnectSubscription: Subscription;
   public scanSessions: ScanSessionModel[] = [];
   public selectedScanSessions: ScanSessionModel[] = [];
 
@@ -32,13 +34,13 @@ export class ScanSessionsPage {
   constructor(
     public navCtrl: NavController,
     private alertCtrl: AlertController,
-    private serverProvider: ServerProvider,
     private scanSessionsStorage: ScanSessionsStorage,
     public popoverCtrl: PopoverController,
     private firebaseAnalytics: FirebaseAnalytics,
     private settings: Settings,
     private launchReview: LaunchReview,
-    private utils: Utils
+    private serverProvider: ServerProvider,
+    private utils: Utils,
   ) { }
 
   ionViewDidEnter() {
@@ -82,16 +84,65 @@ export class ScanSessionsPage {
     });
   }
 
+  ionViewWillUnload() {
+    this.onConnectSubscription.unsubscribe();
+    this.onDisconnectSubscription.unsubscribe();
+  }
+
   ionViewDidLoad() {
-    this.utils.showEnableWifiDialog();
+    this.utils.askWiFiEnableIfDisabled();
+    let everConnected = false;
+    let isWatching = false;
 
     // Connect to the default server
-    this.settings.getDefaultServer().then(server => {
-      this.serverProvider.onDisconnect().subscribe(() => {
+    this.settings.getDefaultServer().then(defaultServer => {
+
+      this.onDisconnectSubscription = this.serverProvider.onDisconnect().subscribe(() => {
         this.connected = false;
+        // onDisconnect can be called also when there is an 'error'
+        // So we need to make sure to not start another watchForServers()
+        // subscription, since this 'error' may be caused from a connection
+        // initialized inside the watch subscriber it self
+        // Solution => use an external variable: isWatching
+        if (isWatching) return;
+        // delay 7001s to allow the serverProvider to perform a re-connect to the last ip
+        isWatching = true;
+        this.serverProvider.watchForServers().delay(7001).subscribe((discoveryResult: discoveryResultModel) => {
+          // too late, abort
+          if (this.connected) return;
+          // if the server has the same name, but a different ip => ask to reconnect
+          if (defaultServer.name == discoveryResult.server.name && discoveryResult.server.name.length && defaultServer.address != discoveryResult.server.address) {
+            let alert = this.alertCtrl.create({
+              title: "Reconnect",
+              message: "It seems that the computer " + defaultServer.name + " changed ip address from \
+                   " + defaultServer.address + " to " + discoveryResult.server.address + ", do you want to reconnect?",
+              buttons: [{ text: 'No', role: 'cancel', handler: () => { } }, {
+                text: 'Reconnect',
+                handler: () => {
+                  this.settings.setDefaultServer(discoveryResult.server); // override the defaultServer
+                  this.settings.getSavedServers().then(savedServers => {
+                    this.settings.setSavedServers(
+                      savedServers
+                        .filter(x => x.name != discoveryResult.server.name) // remove the old server
+                        .concat(discoveryResult.server)) // add a new one
+                  });
+                  this.serverProvider.connect(discoveryResult.server, true);
+                }
+              }]
+            });
+            alert.present();
+          } else if (defaultServer.name == discoveryResult.server.name && defaultServer.address == discoveryResult.server.address && everConnected) {
+            // if the server was closed and open again => reconnect whitout asking
+            this.serverProvider.connect(discoveryResult.server, true);
+          }
+        })
       });
-      this.serverProvider.onConnect().subscribe(() => {
+
+      this.onConnectSubscription = this.serverProvider.onConnect().subscribe(() => {
         this.connected = true;
+        everConnected = true;
+        this.serverProvider.stopWatchForServers();
+        isWatching = false;
         // Rating dialog
         BluebirdPromise.join(this.settings.getNoRunnings(), this.settings.getRated(), (runnings, rated) => {
           if (runnings >= Config.NO_RUNNINGS_BEFORE_SHOW_RATING && !rated) {
@@ -109,31 +160,32 @@ export class ScanSessionsPage {
               this.alertCtrl.create({
                 title: 'Rate Barcode to PC',
                 message: 'Is Barcode to PC helping you transfer barcodes?<br><br>Let the world know by rating it on the ' + store + ', it would be appreciated!',
-                buttons: [{
-                  text: 'Remind me later',
-                  role: 'cancel'
-                }, {
-                  text: 'No',
-                  handler: () => {
-                    this.settings.setRated(true);
-                  }
-                }, {
-                  text: 'Rate',
-                  handler: () => {
-                    this.launchReview.launch().then(() => {
-                      this.settings.setRated(true);
-                    })
-                  }
-                }]
+                buttons: [
+                  { text: 'Remind me later', role: 'cancel' },
+                  { text: 'No', handler: () => { this.settings.setRated(true); } }, {
+                    text: 'Rate',
+                    handler: () => {
+                      this.launchReview.launch().then(() => {
+                        this.settings.setRated(true);
+                      })
+                    }
+                  }]
               }).present();
             }
           }
         });
       });
 
-      // First connection
-      this.serverProvider.connect(server);
-    }, err => { })
+      if (this.serverProvider.isConnected()) {
+        // It may happen that the connection is already established from another
+        // page, eg. WelcomePage
+        this.connected = true;
+      } else {
+        // If instead we're launching the app, we must initiate a new connection
+        this.serverProvider.connect(defaultServer);
+      }
+
+    }, err => { }) // getDefaultServer()
 
     this.settings.getOpenScanOnStart().then(openScanOnStart => {
       if (openScanOnStart) {

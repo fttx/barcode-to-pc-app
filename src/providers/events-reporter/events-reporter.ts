@@ -31,6 +31,8 @@ export class EventsReporterProvider {
   public init() {
 
     // onSmartPhoneCharge
+    // We won't need to unsubscribe to the onConnect/onDisconnect events since
+    // there is only one instance of the EventsReporterProvider.
     this.serverProvider.onConnect().subscribe(() => {
       this.updateBatteryReporting();
     });

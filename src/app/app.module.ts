@@ -10,6 +10,7 @@ import { Insomnia } from '@ionic-native/insomnia';
 import { LaunchReview } from '@ionic-native/launch-review';
 import { NativeAudio } from '@ionic-native/native-audio';
 import { Network } from '@ionic-native/network';
+import { NetworkInterface } from '@ionic-native/network-interface';
 import { SocialSharing } from '@ionic-native/social-sharing';
 import { SplashScreen } from '@ionic-native/splash-screen';
 import { StatusBar } from '@ionic-native/status-bar';
@@ -39,6 +40,7 @@ import { ServerProvider } from '../providers/server';
 import { Settings } from '../providers/settings';
 import { Utils } from '../providers/utils';
 import { MyApp } from './app.component';
+
 
 
 // Modules
@@ -107,6 +109,7 @@ import { MyApp } from './app.component';
     BatteryStatus,
     BarcodeScanner,
     Zeroconf,
+    NetworkInterface,
     Network,
     NativeAudio,
     { provide: ErrorHandler, useClass: IonicErrorHandler },

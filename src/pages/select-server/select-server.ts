@@ -48,7 +48,6 @@ export class SelectServerPage {
   ionViewDidEnter() {
     this.firebaseAnalytics.setCurrentScreen("SelectServerPage");
     this.isVisible = true;
-    this.serverProvider.setContinuoslyWatchForServers(true); // TODO: test if this even works
     this.scanForServers();
 
     Promise.join(this.settings.getSavedServers(), this.settings.getDefaultServer(), (savedServers, defaultServer) => {
@@ -60,17 +59,15 @@ export class SelectServerPage {
       // this.connect(defaultServer);
     });
 
-    this.utils.showEnableWifiDialog();
+    this.utils.askWiFiEnableIfDisabled();
   }
 
   ionViewDidLeave() {
     this.isVisible = false;
-    this.serverProvider.setContinuoslyWatchForServers(false);
-    this.serverProvider.unwatch();
+    this.serverProvider.stopWatchForServers();
     if (this.wsEventsSubscription) this.wsEventsSubscription.unsubscribe();
     if (this.cannotFindServerTimeout) clearTimeout(this.cannotFindServerTimeout);
   }
-
 
   onSelectServerChanged() {
     if (this.selectedServer) {
@@ -124,7 +121,6 @@ export class SelectServerPage {
   }
 
   scanForServers() {
-    this.serverProvider.unwatch();
     this.serverProvider.watchForServers().subscribe(data => {
       let server = data.server;
       if (data.action == 'added' || data.action == 'resolved') {
