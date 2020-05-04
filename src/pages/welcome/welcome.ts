@@ -58,6 +58,7 @@ export class WelcomePage {
       this.serverProvider.stopWatchForServers();
     });
 
+    // this code is kind of duplicated for the "Try again" button
     this.serverProvider.watchForServers().delay(500).subscribe(data => { // delay to prevent this.slide null when the server gets published too fast
       if (data.action == 'added' || data.action == 'resolved') {
         this.attempConnection(data.server)
@@ -155,6 +156,17 @@ export class WelcomePage {
               text: 'Cancel',
               role: 'cancel',
               handler: () => { }
+            },
+            {
+              text: 'Try again',
+              handler: () => {
+                // This code is duplicated in ionViewDidEnter
+                this.serverProvider.watchForServers().subscribe(data => {
+                  if (data.action == 'added' || data.action == 'resolved') {
+                    this.attempConnection(data.server)
+                  }
+                });
+              }
             },
             {
               text: 'View instructions',
