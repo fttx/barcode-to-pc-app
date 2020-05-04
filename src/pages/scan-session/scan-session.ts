@@ -109,7 +109,7 @@ export class ScanSessionPage {
         if (!soundFeedbackOrDialogShown && runnings >= Config.NO_RUNNINGS_BEFORE_SHOW_SOUND_FEEDBACK_OR_DIALOG) {
           this.alertCtrl.create({
             title: 'Beep sound',
-            message: 'If you want to hear a beep sound after the scan, raise your Media volume <b>and</b> also make you sure that the Ringer volume is not 0. <br><br>If you want to wait a certain amount of time between a scan and another you can set a <b>timeout</b> in the Settings page',
+            message: 'If you want to hear a beep sound after the scan, raise your Media volume <b>and</b> also make you sure that the Do not disturb mode is disabled.<br><br>If you want to customize the beep sound, please use the BEEP component in the server settings. <br><br>If instead you want to put a delay between the scans you can set a <b>timeout</b> in the Settings page',
             buttons: [
               { text: 'Open Settings', handler: () => { this.navCtrl.push(SettingsPage) } },
               { text: 'Show later', role: 'cancel', handler: () => { } },
