@@ -1,13 +1,14 @@
 import { Injectable, NgZone } from '@angular/core';
 import { AppVersion } from '@ionic-native/app-version';
 import { Device } from '@ionic-native/device';
+import { NetworkInterface } from '@ionic-native/network-interface';
 import { Zeroconf } from '@ionic-native/zeroconf';
-import * as ipUtils from 'ip-utils';
 import { Alert, AlertController, Events, Platform } from 'ionic-angular';
+import * as ipUtils from 'ip-utils';
 import { Observable, Subject } from 'rxjs';
 import { SemVer } from 'semver';
 import { discoveryResultModel } from '../models/discovery-result';
-import { requestModel, requestModelGetVersion, requestModelHelo, requestModelPing } from '../models/request.model';
+import { requestModel, requestModelGetVersion, requestModelHelo, requestModelPing, requestModelUndoInfiniteLoop } from '../models/request.model';
 import { responseModel, responseModelEnableQuantity, responseModelHelo, responseModelKick, responseModelPopup, responseModelUpdateSettings } from '../models/response.model';
 import { wsEvent } from '../models/ws-event.model';
 import { HelpPage } from '../pages/help/help';
@@ -16,7 +17,6 @@ import { ServerModel } from './../models/server.model';
 import { Config } from './config';
 import { LastToastProvider } from './last-toast/last-toast';
 import { ScanProvider } from './scan';
-import { NetworkInterface } from '@ionic-native/network-interface';
 
 
 /*
@@ -67,6 +67,12 @@ export class ServerProvider {
     private appVersion: AppVersion,
   ) {
 
+    // We do this here because to avoid circular dependency between the
+    // ServerProvider class and the ScanProvider class
+    this.scanProvider.onInfiniteLoopDetect().subscribe(() => {
+      let wsRequest = new requestModelUndoInfiniteLoop().fromObject({ count: ScanProvider.INFINITE_LOOP_DETECT_THRESHOLD });
+      this.send(wsRequest);
+    })
   }
 
   onMessage(): Observable<any> {

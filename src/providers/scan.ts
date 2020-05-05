@@ -1,19 +1,19 @@
 import { Injectable, NgZone } from '@angular/core';
 import { BarcodeScanner, BarcodeScannerOptions, BarcodeScanResult } from '@fttx/barcode-scanner';
 import { FirebaseAnalytics } from '@ionic-native/firebase-analytics';
+import { NativeAudio } from '@ionic-native/native-audio';
 import { AlertController, Platform } from 'ionic-angular';
-import { Observable, Subscription, Subscriber } from 'rxjs';
+import { AlertInputOptions } from 'ionic-angular/components/alert/alert-options';
+import { Observable, Subject, Subscriber, Subscription } from 'rxjs';
+import * as Supplant from 'supplant';
 import { KeyboardInputComponent } from '../components/keyboard-input/keyboard-input';
 import { OutputBlockModel } from '../models/output-block.model';
 import { OutputProfileModel } from '../models/output-profile.model';
 import { ScanModel } from '../models/scan.model';
 import { SelectScanningModePage } from '../pages/scan-session/select-scanning-mode/select-scanning-mode';
+import { Config } from './config';
 import { Settings } from './settings';
 import { Utils } from './utils';
-import * as Supplant from 'supplant';
-import { Config } from './config';
-import { AlertInputOptions } from 'ionic-angular/components/alert/alert-options';
-import { NativeAudio } from '@ionic-native/native-audio';
 
 /**
  * The job of this class is to generate a ScanModel by talking with the native
@@ -46,6 +46,9 @@ export class ScanProvider {
    */
   private quantityType: 'number' | 'text';
   private keyboardInput: KeyboardInputComponent;
+
+  private _onInfiniteLoopDetect = new Subject<any>();
+  public static INFINITE_LOOP_DETECT_THRESHOLD = 30;
 
   constructor(
     private alertCtrl: AlertController,
@@ -172,7 +175,7 @@ export class ScanProvider {
           }
 
           // infinite loop detetion
-          if (againCount > 30) {
+          if (againCount > ScanProvider.INFINITE_LOOP_DETECT_THRESHOLD) {
             // Example of infinite loop:
             //
             // Output template = [IF(false)] [BARCODE] [ENDIF]
@@ -675,6 +678,7 @@ export class ScanProvider {
         buttons: [{
           text: 'Stop', role: 'cancel',
           handler: () => {
+            this._onInfiniteLoopDetect.next();
             resolve(false);
           }
         }, {
@@ -738,5 +742,9 @@ export class ScanProvider {
 
   getRandomInt(max = Number.MAX_SAFE_INTEGER) {
     return Math.floor(Math.random() * Math.floor(max));
+  }
+
+  onInfiniteLoopDetect(): Observable<any> {
+    return this._onInfiniteLoopDetect.asObservable();
   }
 }
