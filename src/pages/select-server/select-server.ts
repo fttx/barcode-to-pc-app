@@ -329,19 +329,11 @@ export class SelectServerPage {
 
     this.actionSheetCtrl.create({
       title: server.name || server.address,
-      buttons: [{
-        text: 'Remove', icon: 'trash', role: 'destructive', handler: () => {
-          this.deleteServer(server);
-        }
-      }, {
-        text: 'Rename', icon: 'create', handler: () => {
-          this.rename(server);
-        }
-      }, {
-        text: 'Info', icon: 'information-circle', handler: () => {
-          this.info(server);
-        }
-      }, { text: 'Close', role: 'cancel', handler: () => { } }]
+      buttons: [
+        { text: 'Remove', icon: 'trash', role: 'destructive', handler: () => { this.deleteServer(server); } },
+        { text: 'Rename', icon: 'create', handler: () => { this.rename(server); } },
+        { text: 'Info', icon: 'information-circle', handler: () => { this.info(server); } },
+        { text: 'Close', role: 'cancel', handler: () => { } }]
     }).present();
   }
 }
