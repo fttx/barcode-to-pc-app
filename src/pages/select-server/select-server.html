@@ -15,12 +15,12 @@
 			</button>
 
 			<button ion-button icon-only (click)="onScanQRCodeClicked()">
-        		<ion-icon name="qr-scanner"></ion-icon>
-      		</button>
+				<ion-icon name="qr-scanner"></ion-icon>
+			</button>
 
 			<button ion-button icon-only (click)="onAddManuallyClicked()">
-        		<ion-icon name="add"></ion-icon>
-      		</button>
+				<ion-icon name="add"></ion-icon>
+			</button>
 		</ion-buttons>
 	</ion-navbar>
 
@@ -28,12 +28,12 @@
 
 
 <ion-content>
-	<ion-list radio-group  [(ngModel)]="selectedServer" >
+	<ion-list radio-group [(ngModel)]="selectedServer">
 		<ion-item *ngIf="!servers">
 			Empty
 		</ion-item>
-		<ion-item-sliding *ngFor="let server of servers">
-			<ion-item>
+		<ion-item-sliding *ngFor="let server of servers; let i = index;">
+			<ion-item (press)="onItemPressed(server,i )">
 				<ion-avatar class="status-icon" item-left>
 					<ion-icon [name]="server.online != 'offline' ? 'ios-wifi' : 'ios-wifi-outline'" [style.color]="server.online != 'connected' ? 'rgba(0,0,0,.4)' : 'red'"></ion-icon>
 				</ion-avatar>
@@ -46,7 +46,17 @@
 			</ion-item>
 
 			<ion-item-options side="right">
-				<button ion-button color="primary" (click)="deleteServer(server)">
+				<button ion-button color="info" (click)="info(item)">
+					<ion-icon name="information-circle"></ion-icon>
+					Info
+				</button>
+
+				<button ion-button color="edit" (click)="rename(item)">
+					<ion-icon name="create"></ion-icon>
+					Rename
+				</button>
+
+				<button ion-button color="B71C1C" (click)="deleteServer(server)">
 					<ion-icon name="trash"></ion-icon>
 					Delete
 				</button>
@@ -57,6 +67,6 @@
 	<!-- <br>Servers: {{ servers | json }}<br><br>
 	Reconnecting: {{ serverProvider.reconnecting }} -->
 
-	
+
 	<ion-spinner class="main-spinner" color="primary" [hidden]="servers.length != 0"></ion-spinner>
 </ion-content>

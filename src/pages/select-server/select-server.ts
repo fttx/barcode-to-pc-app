@@ -2,15 +2,14 @@ import { Component } from '@angular/core';
 import { BarcodeScanner } from '@fttx/barcode-scanner';
 import { FirebaseAnalytics } from '@ionic-native/firebase-analytics';
 import { Promise } from 'bluebird';
-import { AlertController, NavController, ViewController } from 'ionic-angular';
+import { ActionSheetController, AlertController, NavController, Platform, ViewController } from 'ionic-angular';
 import { ScanModel } from '../../models/scan.model';
 import { wsEvent } from '../../models/ws-event.model';
 import { Config } from '../../providers/config';
 import { ServerProvider } from '../../providers/server';
 import { Settings } from '../../providers/settings';
-import { ServerModel } from './../../models/server.model';
 import { Utils } from '../../providers/utils';
-
+import { ServerModel } from './../../models/server.model';
 
 /*
   Generated class for the SelectServer page.
@@ -41,6 +40,8 @@ export class SelectServerPage {
     private firebaseAnalytics: FirebaseAnalytics,
     private barcodeScanner: BarcodeScanner,
     private utils: Utils,
+    public actionSheetCtrl: ActionSheetController,
+    public platform: Platform,
   ) { }
 
   public isVisible = false;
@@ -283,5 +284,64 @@ export class SelectServerPage {
       this.selectedServer = s;
       this.onSelectServerChanged();
     }
+  }
+
+  rename(server: ServerModel) {
+    this.alertCtrl.create({
+      title: 'Rename',
+      // message: 'Inse',
+      enableBackdropDismiss: false,
+      inputs: [{ name: 'name', type: 'text', placeholder: 'Server name', value: server.name }],
+      buttons: [{
+        role: 'cancel', text: 'Cancel',
+        handler: () => { }
+      }, {
+        text: 'Ok',
+        handler: data => {
+          if (data.name != "") {
+            server.name = data.name;
+            this.settings.setSavedServers(this.servers);
+          }
+        }
+      }]
+    }).present();
+  }
+
+  info(server: ServerModel) {
+    let status = 'offline';
+    if (server.online == 'online') {
+      status = ' online, tap on it to connect.';
+    } else if (server.online == 'connected') {
+      status = 'connected with this smartphone.'
+    }
+    this.alertCtrl.create({
+      title: 'Info',
+      message: 'The server ' + (server.name || server.address) + ' is ' + status,
+      buttons: ['Ok'],
+    }).present();
+  }
+
+  onItemPressed(server: ServerModel, i: number) {
+    if (this.platform.is('ios')) {
+      // Use sliding item
+      return;
+    }
+
+    this.actionSheetCtrl.create({
+      title: server.name || server.address,
+      buttons: [{
+        text: 'Remove', icon: 'trash', role: 'destructive', handler: () => {
+          this.deleteServer(server);
+        }
+      }, {
+        text: 'Rename', icon: 'create', handler: () => {
+          this.rename(server);
+        }
+      }, {
+        text: 'Info', icon: 'information-circle', handler: () => {
+          this.info(server);
+        }
+      }, { text: 'Close', role: 'cancel', handler: () => { } }]
+    }).present();
   }
 }
