@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { FirebaseAnalytics } from '@ionic-native/firebase-analytics';
 import { LaunchReview } from '@ionic-native/launch-review';
 import * as BluebirdPromise from 'bluebird';
-import { AlertController, ItemSliding, NavController, PopoverController } from 'ionic-angular';
+import { AlertController, ItemSliding, NavController, PopoverController, Platform } from 'ionic-angular';
 import { Subscription } from 'rxjs';
 import { discoveryResultModel } from '../../models/discovery-result';
 import { requestModelDeleteScanSessions } from '../../models/request.model';
@@ -31,6 +31,8 @@ export class ScanSessionsPage {
   private preventClickTimeout = null;
   private clickDisabled = false;
 
+  private unregisterBackButton = null;
+
   constructor(
     public navCtrl: NavController,
     private alertCtrl: AlertController,
@@ -41,6 +43,7 @@ export class ScanSessionsPage {
     private launchReview: LaunchReview,
     private serverProvider: ServerProvider,
     private utils: Utils,
+    public platform: Platform,
   ) { }
 
   ionViewDidEnter() {
@@ -82,6 +85,10 @@ export class ScanSessionsPage {
         this.scanSessionsStorage.setScanSessions(this.scanSessions)
       }
     });
+
+    this.unregisterBackButton = this.platform.registerBackButtonAction(() => {
+      this.unselectAll();
+    }, 0);
   }
 
   ionViewWillUnload() {
@@ -198,6 +205,11 @@ export class ScanSessionsPage {
     if (this.responseSubscription) {
       this.responseSubscription.unsubscribe();
       this.responseSubscription = null;
+    }
+
+    if (this.unregisterBackButton != null) {
+      this.unregisterBackButton();
+      this.unregisterBackButton = null;
     }
   }
 

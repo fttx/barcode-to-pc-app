@@ -322,10 +322,10 @@ export class SelectServerPage {
   }
 
   onItemPressed(server: ServerModel, i: number) {
-    if (this.platform.is('ios')) {
-      // Use sliding item
-      return;
-    }
+    // if (this.platform.is('ios')) {
+    //   // Use sliding item
+    //   return;
+    // }
 
     this.actionSheetCtrl.create({
       title: server.name || server.address,

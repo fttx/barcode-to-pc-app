@@ -35,11 +35,16 @@
 
 <ion-content>
 	<ion-list>
-		<ion-item-sliding *ngFor="let scanSession of scanSessions; let i = index;" #slidingItem>
+		<ion-item-sliding *ngFor="let scanSession of scanSessions; let i = index;" (ionSwipe)="onScanSessionPress(scanSession, i); onArchiveSelectedClick()" #slidingItem>
+			<!-- <ion-item-options side="right" *ngIf="platform.is('ios')"> -->
 			<ion-item-options side="right">
 				<button color="danger" ion-button (click)="onDeleteClick(scanSession, i, slidingItem)">
 					<ion-icon name="trash"></ion-icon>
 					Delete
+				</button>
+				<button color="archived" expandable ion-button (click)="onScanSessionPress(scanSession, i); onArchiveSelectedClick()">
+					<ion-icon name="archive"></ion-icon>
+					Archive
 				</button>
 			</ion-item-options>
 

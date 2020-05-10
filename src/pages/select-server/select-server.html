@@ -45,13 +45,14 @@
 				<ion-radio [value]="server" (ionSelect)="onSelectServerChanged()"></ion-radio>
 			</ion-item>
 
+			<!-- <ion-item-options side="right" *ngIf="platform.is('ios')"> -->
 			<ion-item-options side="right">
-				<button ion-button color="info" (click)="info(item)">
+				<button ion-button color="info" (click)="info(server)">
 					<ion-icon name="information-circle"></ion-icon>
 					Info
 				</button>
 
-				<button ion-button color="edit" (click)="rename(item)">
+				<button ion-button color="edit" (click)="rename(server)">
 					<ion-icon name="create"></ion-icon>
 					Rename
 				</button>
