@@ -55,6 +55,7 @@ export class ArchivedPage {
       buttons: [
         {
           text: 'Delete permanently',
+          icon: 'trash',
           handler: () => {
             this.archivedScanSessions = this.archivedScanSessions.filter(x => x != scanSession);
             this.scanSessionsStorage.setArchivedScanSessions(this.archivedScanSessions);
@@ -62,6 +63,7 @@ export class ArchivedPage {
         },
         {
           text: 'Restore',
+          icon: 'refresh',
           handler: () => {
             if (!this.serverProvider.isConnected()) {
               this.utils.showCannotPerformActionOffline();
