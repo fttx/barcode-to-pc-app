@@ -613,12 +613,13 @@ export class ScanProvider {
         title: label,
         // message: 'Inse',
         enableBackdropDismiss: false,
-        inputs: [{ name: 'value', type: fieldType, placeholder: fieldType == 'number' ? '(Default is 1, press Ok to insert it)' : 'Eg. ten' }],
+        inputs: [{ name: 'value', type: fieldType, placeholder: fieldType == 'number' ? '(Default is 1, press OK to insert it)' : 'Eg. ten' }],
         buttons: [{
           role: 'cancel', text: 'Cancel',
           handler: () => {
             reject('cancelled');
-          }
+          },
+          cssClass: 'button-outline-md',
         }, {
           text: 'Ok',
           handler: data => {
@@ -627,7 +628,8 @@ export class ScanProvider {
             } else if (fieldType == 'number') {
               resolve('1')
             }
-          }
+          },
+          cssClass: 'button-outline-md button-ok',
         }]
       });
       alert.setLeavingOpts({ keyboardClose: false, animate: false });
