@@ -94,13 +94,23 @@ $colors: (
 @import "noto-sans";
 
 
-.md .button-ok {
-  color: white  !important;
-  background-color: map-get($colors, primary) !important;
-  min-width: 10rem;
-  text-align: center !important;
-}
+.md{
+  .button-ok {
+    color: white  !important;
+    background-color: map-get($colors, primary) !important;
+    min-width: 10rem;
+    text-align: center !important;
+  }
 
-.md .button-ok .button-inner {
-  justify-content: center !important;
+  .button-ok .button-inner {
+    justify-content: center !important;
+  }
+
+  .alert-get-field .alert-message {
+    color: red !important;
+  }
+
+  .alert-big-buttons .alert-button-group {
+    padding-bottom: 24px !important;
+  }
 }

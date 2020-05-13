@@ -24,6 +24,7 @@ import { Utils } from './utils';
  */
 @Injectable()
 export class ScanProvider {
+  // Used to restore the focus of the Keyboard input field from the ScanSession page
   public awaitingForBarcode: boolean;
 
   private pluginOptions: BarcodeScannerOptions
@@ -221,15 +222,6 @@ export class ScanProvider {
           // run the OutputProfile
           for (let i = 0; i < scan.outputBlocks.length; i++) {
             let outputBlock = scan.outputBlocks[i];
-
-            // Prepare the label for an eventual barcode acqusition
-            if (outputBlock.label) {
-              initialPluginOptions.prompt = outputBlock.label
-            } else {
-              // Always clear the label for the next acquisition
-              initialPluginOptions.prompt = Config.DEFAULT_ACQUISITION_LABEL;
-            }
-
             switch (outputBlock.type) {
               // some components like 'key' and 'text', do not need any processing from the
               // app side, so we just skip them
@@ -248,7 +240,7 @@ export class ScanProvider {
                   case 'quantity': // deprecated
                   case 'number': {
                     try {
-                      outputBlock.value = await this.getField(outputBlock.label, 'number');
+                      outputBlock.value = await this.getField(outputBlock.label, 'number', outputBlock.filter, outputBlock.errorMessage);
                     } catch (err) {
                       // this code fragment is duplicated for the 'number', 'text', 'if' and 'barcode' blocks and in the againCount condition
                       observer.complete();
@@ -263,7 +255,7 @@ export class ScanProvider {
                   }
                   case 'text': {
                     try {
-                      outputBlock.value = await this.getField(outputBlock.label, 'text');
+                      outputBlock.value = await this.getField(outputBlock.label, 'text', outputBlock.filter, outputBlock.errorMessage);
                     } catch (err) {
                       // this code fragment is duplicated for the 'number', 'text', 'if' and 'barcode' blocks and in the againCount condition
                       observer.complete();
@@ -291,6 +283,10 @@ export class ScanProvider {
               }
               case 'barcode': {
                 try {
+                  // Prepare the label for an eventual barcode acqusition
+                  this.pluginOptions.prompt = outputBlock.label || Config.DEFAULT_ACQUISITION_LABEL;
+                  this.keyboardInput.setError(false);
+
                   if (outputBlock.enabledFormats && outputBlock.enabledFormats.length != 0) {
                     this.pluginOptions.formats = outputBlock.enabledFormats.join(',')
                   } else {
@@ -298,7 +294,8 @@ export class ScanProvider {
                     // the previous iteration, we must reset it to the initial value.
                     this.pluginOptions.formats = initialPluginOptions.formats;
                   }
-                  let barcode = await this.getBarcode(outputBlock.label);
+
+                  let barcode = await this.getBarcode(outputBlock.label, outputBlock.filter, outputBlock.errorMessage);
 
                   // Context:
                   //
@@ -306,7 +303,7 @@ export class ScanProvider {
                   // to add more scannings, we always call again() wich will get stuck in the Promise
                   // of the line above that waits for a text input (or camera acquisition).
                   //
-                  // If the user starts a new scan() and this an new OutputProfile executuion
+                  // If the user starts a new scan() and thus an new OutputProfile executuion
                   // (by clicking the FAB), we have to drop the barcode that will acquired from
                   // the stuck again(), and also call return; to prevent other components to be exceuted.
                   //
@@ -319,6 +316,8 @@ export class ScanProvider {
                   }
 
                   delete outputBlock['enabledFormats'];
+                  delete outputBlock['filter'];
+                  delete outputBlock['errorMessage'];
                   variables.barcode = barcode;
                   // variables.barcodes.push(barcode);
                   outputBlock.value = barcode;
@@ -463,72 +462,93 @@ export class ScanProvider {
   private lastReject;
   private continuosScanSubscription: Subscription = null;
 
-  private getBarcode(label = null): Promise<string> {
+  private getBarcode(label = null, filter = null, errorMessage = null): Promise<string> {
     this.awaitingForBarcode = true;
 
-    let promise = new Promise<string>(async (resolve, reject) => {
-      switch (this.acqusitionMode) {
-        case 'single':
-        case 'mixed_continue': {
-          let barcodeScanResult: BarcodeScanResult = await this.barcodeScanner.scan(this.pluginOptions).first().toPromise();
-          if (!barcodeScanResult || barcodeScanResult.cancelled) {
-            reject('cancelled');
-            return;
-          }
-          // CODE_39 fix (there is a copy of this fix in the CONTINUE mode part, if you change this then you have to change also the other one )
-          if (barcodeScanResult.text && barcodeScanResult.format == 'CODE_39' && this.barcodeFormats.findIndex(x => x.enabled && x.name == 'CODE_32') != -1) {
-            barcodeScanResult.text = Utils.convertCode39ToCode32(barcodeScanResult.text);
-          }
-          // END CODE_39 fix
-          resolve(barcodeScanResult.text);
-          break;
+    let promise = new Promise<string>((resolve, reject) => {
+      let again = async (showError = false) => {
+        if (showError && errorMessage) {
+          this.pluginOptions.prompt = 'Error: ' + errorMessage;
         }
-        // It's used only if there aren't dialog components and the user
-        // selected the continuos mode. The only way to exit is to press cancel.
-        //
-        // Practically getBarcodes is called indefinitelly until it
-        // doesn't reject() the returned promise (cancel press).
-        //
-        // Since the exit condition is inside this method, we just
-        // accumulate barcodes indefinitely, they will always be
-        // consumed from the caller.
-        case 'continue': {
-          this.lastResolve = resolve;
-          this.lastReject = reject;
-
-          if (this.continuosScanSubscription == null) {
-            this.continuosScanSubscription = this.barcodeScanner.scan(this.pluginOptions).subscribe(barcodeScanResult => {
-              if (!barcodeScanResult || barcodeScanResult.cancelled) {
-                this.continuosScanSubscription.unsubscribe();
-                this.continuosScanSubscription = null;
-                this.lastReject();
-                return; // returns the promise executor function
-              }
-
-              // CODE_39 fix (there is a copy of this fix in the SINGLE mode part, if you change this then you have to change also the other one )
-              if (barcodeScanResult.text && barcodeScanResult.format == 'CODE_39' && this.barcodeFormats.findIndex(x => x.enabled && x.name == 'CODE_32') != -1) {
-                barcodeScanResult.text = Utils.convertCode39ToCode32(barcodeScanResult.text);
-              }
-              // END CODE_39 fix
-              this.lastResolve(barcodeScanResult.text);
-            }, error => {
-              // this should never be called
-            }, () => {
-              // this should never be called
-            })
+        switch (this.acqusitionMode) {
+          case 'single':
+          case 'mixed_continue': {
+            let barcodeScanResult: BarcodeScanResult = await this.barcodeScanner.scan(this.pluginOptions).first().toPromise();
+            if (!barcodeScanResult || barcodeScanResult.cancelled) {
+              reject('cancelled');
+              return;
+            }
+            // CODE_39 fix (there is a copy of this fix in the CONTINUE mode part, if you change this then you have to change also the other one )
+            if (barcodeScanResult.text && barcodeScanResult.format == 'CODE_39' && this.barcodeFormats.findIndex(x => x.enabled && x.name == 'CODE_32') != -1) {
+              barcodeScanResult.text = Utils.convertCode39ToCode32(barcodeScanResult.text);
+            }
+            // END CODE_39 fix
+            if (filter != null && !barcodeScanResult.text.match(filter)) {
+              again(true);
+              return;
+            } else {
+              resolve(barcodeScanResult.text);
+            }
+            break;
           }
-          break;
-        }
+          // It's used only if there aren't dialog components and the user
+          // selected the continuos mode. The only way to exit is to press cancel.
+          //
+          // Practically getBarcodes is called indefinitelly until it
+          // doesn't reject() the returned promise (cancel press).
+          //
+          // Since the exit condition is inside this method, we just
+          // accumulate barcodes indefinitely, they will always be
+          // consumed from the caller.
+          case 'continue': {
+            this.lastResolve = resolve;
+            this.lastReject = reject;
 
-        case 'manual': {
-          this.keyboardInput.focus(true);
-          this.keyboardInput.setPlaceholder(label);
-          // here we don't wrap the promise inside a try/catch statement because there
-          // isn't a way to cancel a manual barcode acquisition
-          resolve(await this.keyboardInput.onSubmit.first().toPromise());
-          break;
-        }
-      } // switch acqusitionMode
+            if (this.continuosScanSubscription == null) {
+              this.continuosScanSubscription = this.barcodeScanner.scan(this.pluginOptions).subscribe(barcodeScanResult => {
+                if (!barcodeScanResult || barcodeScanResult.cancelled) {
+                  this.continuosScanSubscription.unsubscribe();
+                  this.continuosScanSubscription = null;
+                  this.lastReject();
+                  return; // returns the promise executor function
+                }
+
+                // CODE_39 fix (there is a copy of this fix in the SINGLE mode part, if you change this then you have to change also the other one )
+                if (barcodeScanResult.text && barcodeScanResult.format == 'CODE_39' && this.barcodeFormats.findIndex(x => x.enabled && x.name == 'CODE_32') != -1) {
+                  barcodeScanResult.text = Utils.convertCode39ToCode32(barcodeScanResult.text);
+                }
+                // END CODE_39 fix
+
+                if (filter == null || (filter != null && barcodeScanResult.text.match(filter))) {
+                  this.lastResolve(barcodeScanResult.text);
+                }
+              }, error => {
+                // this should never be called
+              }, () => {
+                // this should never be called
+              })
+            }
+            break;
+          }
+
+          case 'manual': {
+            this.keyboardInput.focus(true);
+            this.keyboardInput.setPlaceholder(label);
+            if (showError && errorMessage) this.keyboardInput.setError(errorMessage);
+            // here we don't wrap the promise inside a try/catch statement because there
+            // isn't a way to cancel a manual barcode acquisition
+            let barcode = await this.keyboardInput.onSubmit.first().toPromise();
+            if (filter != null && !barcode.match(filter)) {
+              again(true);
+              return;
+            } else {
+              resolve(barcode);
+            }
+            break;
+          }
+        } // switch acqusitionMode
+      }; // again
+      again();
     }); // promise
 
     promise
@@ -593,7 +613,7 @@ export class ScanProvider {
   /**
    * Shows a dialog to acquire a value that can be number or text
    */
-  private getField(label = null, fieldType: ('number' | 'text') = 'number'): Promise<string> { // doesn't need to be async becouse doesn't contain awaits
+  private getField(label = null, fieldType: ('number' | 'text') = 'number', filter = null, errorMessage = null): Promise<string> { // doesn't need to be async becouse doesn't contain awaits
     if (label == null) {
       if (fieldType == 'number') {
         label = 'Insert a number';
@@ -602,38 +622,45 @@ export class ScanProvider {
       }
     }
     return new Promise((resolve, reject) => {
+      let again = (showError = false) => {
+        // quantityType is deprecated, it's always 'number' in the newest versions,
+        // but we still keep it for backwards compatibility
+        if (this.quantityType && fieldType == 'number') {
+          fieldType = this.quantityType;
+        }
 
-      // quantityType is deprecated, it's always 'number' in the newest versions,
-      // but we still keep it for backwards compatibility
-      if (this.quantityType && fieldType == 'number') {
-        fieldType = this.quantityType;
-      }
-
-      let alert = this.alertCtrl.create({
-        title: label,
-        // message: 'Inse',
-        enableBackdropDismiss: false,
-        inputs: [{ name: 'value', type: fieldType, placeholder: fieldType == 'number' ? '(Default is 1, press OK to insert it)' : 'Eg. ten' }],
-        buttons: [{
-          role: 'cancel', text: 'Cancel',
-          handler: () => {
-            reject('cancelled');
-          },
-          cssClass: 'button-outline-md',
-        }, {
-          text: 'Ok',
-          handler: data => {
-            if (data.value) { // && isNumber(data.value)
-              resolve(data.value)
-            } else if (fieldType == 'number') {
-              resolve('1')
-            }
-          },
-          cssClass: 'button-outline-md button-ok',
-        }]
-      });
-      alert.setLeavingOpts({ keyboardClose: false, animate: false });
-      alert.present({ keyboardClose: false, animate: false });
+        let alert = this.alertCtrl.create({
+          title: label,
+          message: showError ? errorMessage : null,
+          enableBackdropDismiss: false,
+          cssClass: 'alert-get-field alert-big-buttons',
+          inputs: [{ name: 'value', type: fieldType, placeholder: fieldType == 'number' ? '(Default is 1, press OK to insert it)' : 'Eg. ten' }],
+          buttons: [{
+            role: 'cancel', text: 'Cancel',
+            handler: () => {
+              reject('cancelled');
+            },
+            cssClass: 'button-outline-md',
+          }, {
+            text: 'Ok',
+            handler: data => {
+              if (data.value) { // && isNumber(data.value)
+                if (filter != null && !data.value.match(filter)) {
+                  setTimeout(() => { again(true); }, 500);
+                  return;
+                }
+                resolve(data.value)
+              } else if (fieldType == 'number') {
+                resolve('1')
+              }
+            },
+            cssClass: 'button-outline-md button-ok',
+          }]
+        });
+        alert.setLeavingOpts({ keyboardClose: false, animate: false });
+        alert.present({ keyboardClose: false, animate: false });
+      };
+      again();
     });
   }
 

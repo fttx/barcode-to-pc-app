@@ -1,6 +1,1 @@
-<ion-input [placeholder]="placeholder" type="text"
-    (ionFocus)="focussed = true"
-    (ionBlur)="focussed = false"
-    [(ngModel)]="value"
-    clearInput
-    #ionInput></ion-input>
+<ion-input [placeholder]="placeholder" type="text" (ionFocus)="focussed = true" (ionBlur)="focussed = false" [(ngModel)]="value" [class.error]="hasError == true" clearInput #ionInput></ion-input>

@@ -102,10 +102,11 @@ export class SelectScanningModePage {
           title: 'Name', message: 'Insert a name for this scan session',
           inputs: [{ name: 'name', placeholder: defaultName }],
           buttons: [
-            { text: 'Cancel', handler: () => { reject() } },
-            { text: 'Ok', handler: data => { } }
+            { text: 'Cancel', handler: () => { reject() }, cssClass: 'button-outline-md' },
+            { text: 'Ok', handler: data => { }, cssClass: 'button-outline-md button-ok', }
           ],
           enableBackdropDismiss: false,
+          cssClass: 'alert-big-buttons',
         });
 
         alert.onDidDismiss((data) => {

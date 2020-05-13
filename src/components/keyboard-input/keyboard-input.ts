@@ -14,6 +14,8 @@ export class KeyboardInputComponent {
   public value = '';
   public placeholder = 'Keyboard input';
 
+  public hasError = false;
+
   constructor(
   ) {
   }
@@ -43,5 +45,13 @@ export class KeyboardInputComponent {
     } else {
       this.placeholder = 'Keyboard input';
     }
+    this.hasError = false;
+  }
+
+  public setError(errorMessage: string | boolean) {
+    if (errorMessage) {
+      this.placeholder = 'Error: ' + errorMessage;
+    }
+    this.hasError = !!errorMessage;
   }
 }

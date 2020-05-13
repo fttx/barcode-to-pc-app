@@ -1,3 +1,5 @@
 keyboard-input {
-
+  .error *::placeholder {
+    color: red !important;
+  }
 }
