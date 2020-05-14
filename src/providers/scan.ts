@@ -240,7 +240,7 @@ export class ScanProvider {
                   case 'quantity': // deprecated
                   case 'number': {
                     try {
-                      outputBlock.value = await this.getField(outputBlock.label, 'number', outputBlock.filter, outputBlock.errorMessage);
+                      outputBlock.value = await this.getField(outputBlock.label, 'number', outputBlock.defaultValue, outputBlock.filter, outputBlock.errorMessage);
                     } catch (err) {
                       // this code fragment is duplicated for the 'number', 'text', 'if' and 'barcode' blocks and in the againCount condition
                       observer.complete();
@@ -255,7 +255,7 @@ export class ScanProvider {
                   }
                   case 'text': {
                     try {
-                      outputBlock.value = await this.getField(outputBlock.label, 'text', outputBlock.filter, outputBlock.errorMessage);
+                      outputBlock.value = await this.getField(outputBlock.label, 'text', outputBlock.defaultValue, outputBlock.filter, outputBlock.errorMessage);
                     } catch (err) {
                       // this code fragment is duplicated for the 'number', 'text', 'if' and 'barcode' blocks and in the againCount condition
                       observer.complete();
@@ -613,7 +613,7 @@ export class ScanProvider {
   /**
    * Shows a dialog to acquire a value that can be number or text
    */
-  private getField(label = null, fieldType: ('number' | 'text') = 'number', filter = null, errorMessage = null): Promise<string> { // doesn't need to be async becouse doesn't contain awaits
+  private getField(label = null, fieldType: ('text' | 'number') = 'number', defaultValue: string = null, filter = null, errorMessage = null): Promise<string> { // doesn't need to be async becouse doesn't contain awaits
     if (label == null) {
       if (fieldType == 'number') {
         label = 'Insert a number';
@@ -629,17 +629,19 @@ export class ScanProvider {
           fieldType = this.quantityType;
         }
 
+        // NUMBER defaultValue is never null
+        let placeholder = `(Default is ${defaultValue} press OK to insert it)`;
+        if (defaultValue == null) placeholder = 'Eg. damaged item';
+
         let alert = this.alertCtrl.create({
           title: label,
           message: showError ? errorMessage : null,
           enableBackdropDismiss: false,
           cssClass: 'alert-get-field alert-big-buttons',
-          inputs: [{ name: 'value', type: fieldType, placeholder: fieldType == 'number' ? '(Default is 1, press OK to insert it)' : 'Eg. ten' }],
+          inputs: [{ name: 'value', type: fieldType, placeholder: placeholder }],
           buttons: [{
             role: 'cancel', text: 'Cancel',
-            handler: () => {
-              reject('cancelled');
-            },
+            handler: () => { reject('cancelled'); },
             cssClass: 'button-outline-md',
           }, {
             text: 'Ok',
@@ -649,9 +651,9 @@ export class ScanProvider {
                   setTimeout(() => { again(true); }, 500);
                   return;
                 }
-                resolve(data.value)
-              } else if (fieldType == 'number') {
-                resolve('1')
+                resolve(data.value);
+              } else {
+                resolve(defaultValue || '');
               }
             },
             cssClass: 'button-outline-md button-ok',
