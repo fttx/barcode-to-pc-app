@@ -11,6 +11,7 @@ page-select-scanning-mode {
     .btn-scan-mode-horizontal {
         min-width: 31%;
         width: 31%;
+        height: 10rem;
     }
 
     .btn-scan-mode-horizontal * {
@@ -43,9 +44,13 @@ page-select-scanning-mode {
     @media (min-width: 414px) and (orientation: landscape)
     {
         .btn-line-container {
-            height: 4rem;
-            line-height: 4rem;
+            height: 8rem;
+            line-height: 8rem;
             vertical-align: middle;
+        }
+
+        .btn-scan-mode-horizontal {
+            height: 8rem;
         }
 
         .btn-mode {
