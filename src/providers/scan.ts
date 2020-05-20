@@ -2,7 +2,7 @@ import { Injectable, NgZone } from '@angular/core';
 import { BarcodeScanner, BarcodeScannerOptions, BarcodeScanResult } from '@fttx/barcode-scanner';
 import { FirebaseAnalytics } from '@ionic-native/firebase-analytics';
 import { NativeAudio } from '@ionic-native/native-audio';
-import { AlertController, Platform } from 'ionic-angular';
+import { AlertController, Platform, Alert } from 'ionic-angular';
 import { AlertInputOptions } from 'ionic-angular/components/alert/alert-options';
 import { Observable, Subject, Subscriber, Subscription } from 'rxjs';
 import * as Supplant from 'supplant';
@@ -557,13 +557,16 @@ export class ScanProvider {
     return promise;
   }
 
+  private settingsUpdatedDialog: Alert = null;
   public async updateCurrentOutputProfile() {
     this.outputProfile = await this.getOutputProfile(this.outputProfileIndex);
-    this.alertCtrl.create({
+    if (this.settingsUpdatedDialog != null) this.settingsUpdatedDialog.dismiss();
+    this.settingsUpdatedDialog = this.alertCtrl.create({
       title: 'Settings updated',
       message: 'The server settings have been updated. To apply the changes tap on the camera button.',
       buttons: ['Ok'],
-    }).present();
+    });
+    this.settingsUpdatedDialog.present();
   }
 
   // getOutputProfile() is called in two separated places, that's why is
