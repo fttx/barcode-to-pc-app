@@ -11,12 +11,6 @@ import { Settings } from '../../providers/settings';
 import { Utils } from '../../providers/utils';
 import { ServerModel } from './../../models/server.model';
 
-/*
-  Generated class for the SelectServer page.
-
-  See http://ionicframework.com/docs/v2/components/#navigation for more info on
-  Ionic pages and navigation.
-*/
 @Component({
   selector: 'page-select-server',
   templateUrl: 'select-server.html',
@@ -169,19 +163,14 @@ export class SelectServerPage {
       if (server.equals(addServer)) {
         found = true;
         if (forceOnline) {
-          console.log('[SEL-SER] server ' + addServer.name + ' was added again (announced)')
           if (server.online != 'connected') {
             server.online = 'online';
 
             if (this.selectedServer && this.selectedServer.equals(server) && this.serverProvider.isReconnecting()) {
-              console.log('[SEL-SER] the connection state is != connected, trying to connect to ' + addServer.address + ' immediatly because is the selected server')
               this.connect(this.selectedServer);
             }
           }
         }
-        // if (forceNameUpdate) {
-        //     server.name = addServer.name;
-        // }
       }
 
       // if (addServer.equals(this.selectedServer)) { // radio fix
@@ -218,7 +207,6 @@ export class SelectServerPage {
       }
     }).catch(() => { })
       .then(() => {
-        console.log('after default server resolved or rejected');
         this.settings.deleteServer(server);
         this.servers.splice(this.servers.indexOf(server), 1);
       })
@@ -232,7 +220,6 @@ export class SelectServerPage {
 
 
   setOnline(server: ServerModel, online: ('online' | 'offline' | 'connected')) {
-    console.log('[SEL-SER]setting ' + server.address + ' online = ' + online)
     let s = this.servers.find(x => x.equals(server));
     if (s) {
       s.online = online;
@@ -240,8 +227,6 @@ export class SelectServerPage {
   }
 
   connect(server: ServerModel) {
-    console.log('[SEL-SER]connect(' + server.address + ')');
-    // this.serverProvider.onResponse().subscribe((response: responseModel) => {});
     if (this.wsEventsSubscription) {
       this.wsEventsSubscription.unsubscribe();
       this.wsEventsSubscription = null;
@@ -250,18 +235,13 @@ export class SelectServerPage {
           x.online = 'online';
         }
       })
-      // console.log('[SEL-SER]unsubscribed ' + server.address);
     }
     this.wsEventsSubscription = this.serverProvider.onWsEvent().subscribe((event: wsEvent) => {
       if (event.ws.url.indexOf(server.address) == -1) return;
-      console.log('[SEL-SER] onWsEvent(): name: ' + event.name + ' url: ' + event.ws.url + ' subscriber: ' + server.address);
       if (event.ws.url.indexOf(server.address) != -1) {
         if (event.name == wsEvent.EVENT_OPEN || event.name == wsEvent.EVENT_ALREADY_OPEN) {
-          // this.addServer(server, true, false);
-          // this.lastConnectedServer = server;
           this.setOnline(server, 'connected');
         } else {
-          // console.log('[SEL-SER]connect()->event: ' + event.name + ' setting ' + server.address + ' online= false')
           this.setOnline(server, 'offline')
         }
       }
@@ -272,7 +252,6 @@ export class SelectServerPage {
   setSelectedServer(server: ServerModel) {
     let s = this.servers.find(x => x.equals(server));
     if (s) {
-      console.log('setSelectedServer(): ' + s.address);
       this.selectedServer = s;
       this.onSelectServerChanged();
     }
@@ -347,10 +326,7 @@ export class SelectServerPage {
       BluebirdPromise.join(this.settings.getSavedServers(), this.settings.getDefaultServer(), (savedServers, defaultServer) => {
         this.addServers(savedServers, false, true);
         if (defaultServer != null) this.addServer(defaultServer, false, false);
-        // this.settings.setDefaultServer(this.selectedServer);
         this.setSelectedServer(defaultServer);
-        console.log("SELSER: default server present in localstorage: " + defaultServer.address + " connecting...")
-        // this.connect(defaultServer);
       });
       this.utils.askWiFiEnableIfDisabled();
     }
