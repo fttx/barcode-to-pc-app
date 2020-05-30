@@ -106,6 +106,8 @@ export class ServerProvider {
   }
 
   disconnect() {
+    if (this.heartBeatInterval) clearTimeout(this.heartBeatInterval);
+    if (this.pongTimeout) clearTimeout(this.pongTimeout);
     this.wsDisconnect(false);
   }
 
@@ -121,6 +123,10 @@ export class ServerProvider {
     console.log('[S-wd]: wsDisconnect(reconnect=' + reconnect + ')', this.webSocket);
 
     if (this.webSocket) {
+      // Show 'connection lost' only if we aren't trying to connect to other
+      // servers.
+      // Also emit the _onDisconnect event to prevent triggering another
+      // watchForServers from the scanSesison Page subscription.
       if (this.everConnected && !this.reconnecting) {
         this.lastToast.present('Connection lost');
         this.connected = false;
@@ -433,7 +439,7 @@ export class ServerProvider {
                   return ipUtils.subnet(x.ip + '/' + ipUtils.maskToCidr(x.subnet)).contains(ipv4)
                 }).findIndex(x => x == true) != -1;
 
-                if (isInSubnets) {
+                if (isInSubnets && this.watchForServersSubject != null) {
                   this.watchForServersSubject.next({ server: new ServerModel(ipv4, service.hostname), action: action });
                 }
               }

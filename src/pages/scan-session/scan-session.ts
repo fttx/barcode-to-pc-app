@@ -1,11 +1,11 @@
-import { Component, NgZone, ViewChild, HostListener } from '@angular/core';
+import { Component, HostListener, NgZone, ViewChild } from '@angular/core';
 import { Device } from '@ionic-native/device';
 import { FirebaseAnalytics } from '@ionic-native/firebase-analytics';
 import { NativeAudio } from '@ionic-native/native-audio';
 import { SocialSharing } from '@ionic-native/social-sharing';
 import { Promise as BluebirdPromise } from 'bluebird';
 import { ActionSheetController, AlertController, ModalController, NavController, NavParams } from 'ionic-angular';
-import { Subscription, VirtualTimeScheduler } from 'rxjs';
+import { Subscription } from 'rxjs';
 import { KeyboardInputComponent } from '../../components/keyboard-input/keyboard-input';
 import { requestModelDeleteScan, requestModelPutScanSessions, requestModelUpdateScanSession } from '../../models/request.model';
 import { responseModel, responseModelPutScanAck } from '../../models/response.model';
@@ -14,13 +14,13 @@ import { ScanModel } from '../../models/scan.model';
 import { ScanProvider } from '../../providers/scan';
 import { ScanSessionsStorage } from '../../providers/scan-sessions-storage';
 import { ServerProvider } from '../../providers/server';
+import { Utils } from '../../providers/utils';
 import { SettingsPage } from '../settings/settings';
 import { Config } from './../../providers/config';
 import { Settings } from './../../providers/settings';
+import { CSVExportOptionsPage } from './csv-export-options/csv-export-options';
 import { EditScanSessionPage } from './edit-scan-session/edit-scan-session';
 import { SelectScanningModePage } from './select-scanning-mode/select-scanning-mode';
-import { Utils } from '../../providers/utils';
-import { CSVExportOptionsPage } from './csv-export-options/csv-export-options';
 
 /**
  * This page is used to display the list of the barcodes of a specific

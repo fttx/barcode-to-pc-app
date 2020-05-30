@@ -1,73 +1,79 @@
-<!--
-  Generated template for the SelectServer page.
-
-  See http://ionicframework.com/docs/v2/components/#navigation for more info on
-  Ionic pages and navigation.
--->
 <ion-header>
 
-	<ion-navbar color="primary">
-		<ion-title>Select server</ion-title>
+  <ion-navbar color="primary">
+    <ion-title>Select server</ion-title>
 
-		<ion-buttons end>
-			<button ion-button icon-only [hidden]="servers.length == 0">
-				<ion-spinner color="text"></ion-spinner>
-			</button>
-
-			<button ion-button icon-only (click)="onScanQRCodeClicked()">
-				<ion-icon name="qr-scanner"></ion-icon>
-			</button>
-
-			<button ion-button icon-only (click)="onAddManuallyClicked()">
-				<ion-icon name="add"></ion-icon>
-			</button>
-		</ion-buttons>
-	</ion-navbar>
+    <ion-buttons end>
+      <button ion-button icon-only [hidden]="servers.length == 0">
+        <ion-spinner color="text"></ion-spinner>
+      </button>
+    </ion-buttons>
+  </ion-navbar>
 
 </ion-header>
 
-
 <ion-content>
-	<ion-list radio-group [(ngModel)]="selectedServer">
-		<ion-item *ngIf="!servers">
-			Empty
-		</ion-item>
-		<ion-item-sliding *ngFor="let server of servers; let i = index;">
-			<ion-item (press)="onItemPressed(server,i )">
-				<ion-avatar class="status-icon" item-left>
-					<ion-icon [name]="server.online != 'offline' ? 'ios-wifi' : 'ios-wifi-outline'" [style.color]="server.online != 'connected' ? 'rgba(0,0,0,.4)' : 'red'"></ion-icon>
-				</ion-avatar>
-				<ion-label>
-					<h2>{{ server.name }}</h2>
-					<p>{{ server.address }}</p>
-					<!-- <p>online: {{ server.online  }} </p> -->
-				</ion-label>
-				<ion-radio [value]="server" (ionSelect)="onSelectServerChanged()"></ion-radio>
-			</ion-item>
+  <ion-item-divider color="light">Server list</ion-item-divider>
 
-			<!-- <ion-item-options side="right" *ngIf="platform.is('ios')"> -->
-			<ion-item-options side="right">
-				<button ion-button color="info" (click)="info(server)">
-					<ion-icon name="information-circle"></ion-icon>
-					Info
-				</button>
+  <ion-spinner class="main-spinner" color="primary" [hidden]="servers.length != 0 || offlineMode"></ion-spinner>
 
-				<button ion-button color="edit" (click)="rename(server)">
-					<ion-icon name="create"></ion-icon>
-					Rename
-				</button>
+  <div [hidden]="!offlineMode" text-center class="offline-mode">
+    <h1>Offline mode</h1>
+    <p>To find servers switch to the Online mode</p>
+    <button ion-button color="primary" (click)="init(false)">Online mode</button>
+  </div>
 
-				<button ion-button color="danger" (click)="deleteServer(server)">
-					<ion-icon name="trash"></ion-icon>
-					Delete
-				</button>
-			</ion-item-options>
+  <ion-list [hidden]="servers.length == 0 || offlineMode" radio-group [(ngModel)]="selectedServer" class="server-list">
+    <ion-item *ngIf="!servers">
+      Empty
+    </ion-item>
+    <ion-item-sliding *ngFor="let server of servers; let i = index;">
+      <ion-item (press)="onItemPressed(server,i )">
+        <ion-avatar class="status-icon" item-left>
+          <ion-icon [name]="getServerIcon(server)" [style.color]="getServerColor(server)"></ion-icon>
+        </ion-avatar>
+        <ion-label>
+          <h2>{{ server.name }}</h2>
+          <p>{{ server.address }}</p>
+          <!-- <p>online: {{ server.online  }} </p> -->
+        </ion-label>
+        <ion-radio [value]="server" (ionSelect)="onSelectServerChanged()"></ion-radio>
+      </ion-item>
 
-		</ion-item-sliding>
-	</ion-list>
-	<!-- <br>Servers: {{ servers | json }}<br><br>
-	Reconnecting: {{ serverProvider.reconnecting }} -->
+      <!-- <ion-item-options side="right" *ngIf="platform.is('ios')"> -->
+      <ion-item-options side="right">
+        <button ion-button color="info" (click)="info(server)">
+          <ion-icon name="information-circle"></ion-icon>
+          Info
+        </button>
 
+        <button ion-button color="edit" (click)="rename(server)">
+          <ion-icon name="create"></ion-icon>
+          Rename
+        </button>
 
-	<ion-spinner class="main-spinner" color="primary" [hidden]="servers.length != 0"></ion-spinner>
+        <button ion-button color="danger" (click)="deleteServer(server)">
+          <ion-icon name="trash"></ion-icon>
+          Delete
+        </button>
+      </ion-item-options>
+
+    </ion-item-sliding>
+  </ion-list>
+  <!-- <br>Servers: {{ servers | json }}<br><br>
+  Reconnecting: {{ serverProvider.reconnecting }} -->
+
+  <!-- Empty divider -->
+  <ion-item-divider color="light"></ion-item-divider>
+
+  <button class="action-button" ion-button icon-start text-center (click)="onScanQRCodeClicked()">
+    <ion-icon name="qr-scanner"></ion-icon> QR Code Pairing
+  </button>
+  <button class="action-button" ion-button icon-start text-center (click)="onAddManuallyClicked()">
+    <ion-icon name="add"></ion-icon> Add server
+  </button>
+  <button class="action-button" ion-button outline icon-start text-center (click)="init(true)" [disabled]="offlineMode">
+    <ion-icon name="remove-circle-outline"></ion-icon> Offline mode
+  </button>
+
 </ion-content>

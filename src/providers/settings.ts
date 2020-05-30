@@ -43,6 +43,7 @@ export class Settings {
   private static UPGRADED_DISPLAYVALUE = 'upgraded_displayvalue';
   private static OPEN_SCAN_ON_START = 'open_scan_on_start';
   private static EVENT_ON_SMARTPHONE_CHARGE_ENABLED = 'event_on_smartphone_charge_enabled';
+  private static OFFLINE_MODE_ENABLED = 'offline_mode_enabled';
 
   constructor(
     public storage: Storage,
@@ -67,7 +68,7 @@ export class Settings {
           let server = new ServerModel(data.address, data.name);
           resolve(server);
         } else {
-          reject();
+          resolve(null);
         }
       });
     });
@@ -412,5 +413,12 @@ export class Settings {
   }
   getEventsOnSmartphoneChargeEnabled(): Promise<boolean> {
     return this.storage.get(Settings.EVENT_ON_SMARTPHONE_CHARGE_ENABLED).then(result => { return result === true });
+  }
+
+  setOfflineModeEnabled(enabled: boolean) {
+    return this.storage.set(Settings.OFFLINE_MODE_ENABLED, enabled);
+  }
+  getOfflineModeEnabled(): Promise<boolean> {
+    return this.storage.get(Settings.OFFLINE_MODE_ENABLED).then(result => { return result === true });
   }
 }

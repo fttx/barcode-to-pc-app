@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { BarcodeScanner } from '@fttx/barcode-scanner';
 import { FirebaseAnalytics } from '@ionic-native/firebase-analytics';
-import { Promise } from 'bluebird';
+import { Promise as BluebirdPromise } from 'bluebird';
 import { ActionSheetController, AlertController, NavController, Platform, ViewController } from 'ionic-angular';
 import { ScanModel } from '../../models/scan.model';
 import { wsEvent } from '../../models/ws-event.model';
@@ -45,22 +45,12 @@ export class SelectServerPage {
   ) { }
 
   public isVisible = false;
+  public offlineMode = false;
 
-  ionViewDidEnter() {
+  async ionViewDidEnter() {
     this.firebaseAnalytics.setCurrentScreen("SelectServerPage");
     this.isVisible = true;
-    this.scanForServers();
-
-    Promise.join(this.settings.getSavedServers(), this.settings.getDefaultServer(), (savedServers, defaultServer) => {
-      this.addServers(savedServers, false, true);
-      this.addServer(defaultServer, false, false);
-      // this.settings.setDefaultServer(this.selectedServer);
-      this.setSelectedServer(defaultServer);
-      console.log("SELSER: default server present in localstorage: " + defaultServer.address + " connecting...")
-      // this.connect(defaultServer);
-    });
-
-    this.utils.askWiFiEnableIfDisabled();
+    this.init(await this.settings.getOfflineModeEnabled());
   }
 
   ionViewDidLeave() {
@@ -79,6 +69,7 @@ export class SelectServerPage {
   }
 
   onScanQRCodeClicked() {
+    this.init(false);
     this.barcodeScanner.scan({
       "showFlipCameraButton": true,
       formats: "QR_COD£"
@@ -92,6 +83,7 @@ export class SelectServerPage {
   }
 
   onAddManuallyClicked() {
+    this.init(false);
     let alert = this.alertCtrl.create({
       title: 'Add manually',
       inputs: [{
@@ -144,7 +136,7 @@ export class SelectServerPage {
                           <li>Try to temporarily disable your antivirus\
                         </ul>",
           buttons: [{
-            text: 'Offline mode',
+            text: 'Close',
             role: 'cancel',
             handler: () => { }
           }, {
@@ -156,7 +148,7 @@ export class SelectServerPage {
             text: 'Scan again',
             handler: () => {
               this.servers.forEach(x => x.online = 'offline');
-              this.scanForServers();
+              this.init(false);
             }
           }]
         });
@@ -221,7 +213,7 @@ export class SelectServerPage {
     }
 
     this.settings.getDefaultServer().then(defaultServer => {
-      if (defaultServer.equals(server)) {
+      if (defaultServer != null && defaultServer.equals(server)) {
         this.settings.setDefaultServer(null);
       }
     }).catch(() => { })
@@ -335,5 +327,47 @@ export class SelectServerPage {
         { text: 'Info', icon: 'information-circle', handler: () => { this.info(server); } },
         { text: 'Close', role: 'cancel', handler: () => { } }]
     }).present();
+  }
+
+  init(offlineMode: boolean) {
+    // clear variables
+    this.servers = [];
+    if (this.wsEventsSubscription) this.wsEventsSubscription.unsubscribe();
+    this.wsEventsSubscription = null;
+    this.selectedServer = null;
+    this.offlineMode = offlineMode;
+
+    this.settings.setOfflineModeEnabled(offlineMode);
+
+    if (offlineMode) {
+      this.serverProvider.stopWatchForServers();
+      this.serverProvider.disconnect();
+    } else {
+      this.scanForServers();
+      BluebirdPromise.join(this.settings.getSavedServers(), this.settings.getDefaultServer(), (savedServers, defaultServer) => {
+        this.addServers(savedServers, false, true);
+        if (defaultServer != null) this.addServer(defaultServer, false, false);
+        // this.settings.setDefaultServer(this.selectedServer);
+        this.setSelectedServer(defaultServer);
+        console.log("SELSER: default server present in localstorage: " + defaultServer.address + " connecting...")
+        // this.connect(defaultServer);
+      });
+      this.utils.askWiFiEnableIfDisabled();
+    }
+  }
+
+  getServerColor(server: ServerModel) {
+    if (server.online == 'offline')
+      return 'rgba(0,0,0,0.5)';
+    if (server.online == 'online')
+      return 'rgba(0,0,0,0.5)';
+    if (server.online == 'connected')
+      return 'rgba(101, 184, 106,1)';
+  }
+
+  getServerIcon(server: ServerModel) {
+    if (server.online == 'offline')
+      return 'ios-close-circle-outline'
+    return 'desktop';
   }
 }

@@ -5,13 +5,27 @@ page-select-server {
 .main-spinner {
     width: 80px;
     height: 80px;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    margin: -40px;
+    margin: 80px auto;
+    display: block;
+}
+
+.offline-mode {
+  min-height: 240px;
+  padding-top: 35px;
+}
+
+.server-list {
+  min-height: 225px;
 }
 
 .status-icon {
     margin: 11px 0 0 0 !important;
     font-size: 1.5em !important;
+}
+
+.action-button {
+  display: block;
+  text-align: center !important;
+  margin: 2rem auto;
+  width: 80vw;
 }

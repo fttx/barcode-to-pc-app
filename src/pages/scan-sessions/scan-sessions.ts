@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { FirebaseAnalytics } from '@ionic-native/firebase-analytics';
 import { LaunchReview } from '@ionic-native/launch-review';
 import * as BluebirdPromise from 'bluebird';
-import { AlertController, ItemSliding, NavController, PopoverController, Platform } from 'ionic-angular';
+import { AlertController, ItemSliding, NavController, Platform, PopoverController } from 'ionic-angular';
 import { Subscription } from 'rxjs';
 import { discoveryResultModel } from '../../models/discovery-result';
 import { requestModelDeleteScanSessions } from '../../models/request.model';
@@ -21,13 +21,14 @@ import { Settings } from './../../providers/settings';
   templateUrl: 'scan-sessions.html',
 })
 export class ScanSessionsPage {
-  public connected = false;
   private onConnectSubscription: Subscription;
   private onDisconnectSubscription: Subscription;
   public scanSessions: ScanSessionModel[] = [];
   public selectedScanSessions: ScanSessionModel[] = [];
 
-  private responseSubscription = null;
+  public connected = false;
+  private everConnected = false;
+  private isWatching = false;
   private preventClickTimeout = null;
   private clickDisabled = false;
 
@@ -46,49 +47,78 @@ export class ScanSessionsPage {
     public platform: Platform,
   ) { }
 
-  ionViewDidEnter() {
+  async ionViewDidEnter() {
+    this.isWatching = false;
+    this.serverProvider.stopWatchForServers();
+
     this.firebaseAnalytics.setCurrentScreen('ScanSessionsPage');
 
     this.scanSessionsStorage.getScanSessions().then(data => {
       this.scanSessions = data;
-      if (Config.DEBUG && this.scanSessions && this.scanSessions.length == 0) {
-        let scanSessionDate = new Date().getTime();
-        for (let i = 0; i < 50; i++) {
-          let scannings = [];
-          scanSessionDate += Math.floor(Math.random() * 9999999) + 9999999;
-          let scanDate = scanSessionDate;
-          for (let j = 0; j < 500; j++) {
-            let scan = new ScanModel();
-            scan.cancelled = false;
-            scan.id = scanDate;
-            scan.date = scanDate;
-            scan.repeated = false;
-            scan.outputBlocks = [
-              { name: 'BARCODE', value: j + ' - ' + Math.floor(Math.random() * 99999999999) + '', type: 'barcode' },
-              { name: 'ENTER', value: 'tab', type: 'key' },
-              { name: 'NUMBER', value: '5', type: 'variable' },
-              { name: 'ENTER', value: 'enter', type: 'key' }];
-            scan.displayValue = ScanModel.ToString(scan);
-            scannings.push(scan);
-            scanDate += Math.floor(Math.random() * 2000) + 1500;
-          }
-          let newScanSession: ScanSessionModel = {
-            id: scanSessionDate,
-            name: 'Scan session ' + i,
-            date: scanSessionDate,
-            scannings: scannings,
-            selected: false,
-          };
-          this.scanSessions.push(newScanSession);
-          // Looking for scanSessions.push? See: scanSessionsStorage.updateScanSession
-        }
-        this.scanSessionsStorage.setScanSessions(this.scanSessions)
-      }
     });
 
     this.unregisterBackButton = this.platform.registerBackButtonAction(() => {
       this.unselectAll();
     }, 0);
+
+    this.settings.getOfflineModeEnabled().then(offlineMode => {
+      if (offlineMode) this.connected = false;
+    })
+
+    this.utils.askWiFiEnableIfDisabled();
+
+    this.onDisconnectSubscription = this.serverProvider.onDisconnect().subscribe(() => {
+      this.connected = false;
+      // onDisconnect can be called also when there is an 'error'
+      // So we need to make sure to not start another watchForServers()
+      // subscription, since this 'error' may be caused from a connection
+      // initialized inside the watch subscriber it self
+      // Solution => use an external variable: isWatching
+      if (this.isWatching) return;
+      // delay 7001s to allow the serverProvider to perform a re-connect to the last ip
+      this.isWatching = true;
+      this.reconnect();
+    });
+
+    this.onConnectSubscription = this.serverProvider.onConnect().subscribe(() => {
+      this.connected = true;
+      this.everConnected = true;
+      this.serverProvider.stopWatchForServers();
+      this.isWatching = false;
+      // Rating dialog
+      BluebirdPromise.join(this.settings.getNoRunnings(), this.settings.getRated(), (runnings, rated) => {
+        if (runnings >= Config.NO_RUNNINGS_BEFORE_SHOW_RATING && !rated) {
+          // rating = In app native rating (iOS 10.3+ only)
+          // launch = Android and iOS 10.3-
+          if (this.launchReview.isRatingSupported()) {
+            // show native rating dialog
+            this.launchReview.rating().then(result => {
+              if (result === "dismissed") {
+                this.settings.setRated(true);
+              }
+            });
+          } else {
+            let store = this.utils.isAndroid() ? 'PlayStore' : 'Appstore';
+            this.alertCtrl.create({
+              title: 'Rate Barcode to PC',
+              message: 'Is Barcode to PC helping you transfer barcodes?<br><br>Let the world know by rating it on the ' + store + ', it would be appreciated!',
+              buttons: [
+                { text: 'Remind me later', role: 'cancel' },
+                { text: 'No', handler: () => { this.settings.setRated(true); } }, {
+                  text: 'Rate',
+                  handler: () => {
+                    this.launchReview.launch().then(() => {
+                      this.settings.setRated(true);
+                    })
+                  }
+                }]
+            }).present();
+          }
+        }
+      });
+    });
+
+    this.reconnect();
   }
 
   ionViewWillUnload() {
@@ -96,104 +126,57 @@ export class ScanSessionsPage {
     this.onDisconnectSubscription.unsubscribe();
   }
 
-  ionViewDidLoad() {
-    this.utils.askWiFiEnableIfDisabled();
-    let everConnected = false;
-    let isWatching = false;
+  async reconnect() {
+    let offlineMode = await this.settings.getOfflineModeEnabled();
+    if (offlineMode) return;
 
-    // Connect to the default server
-    this.settings.getDefaultServer().then(defaultServer => {
-
-      this.onDisconnectSubscription = this.serverProvider.onDisconnect().subscribe(() => {
-        this.connected = false;
-        // onDisconnect can be called also when there is an 'error'
-        // So we need to make sure to not start another watchForServers()
-        // subscription, since this 'error' may be caused from a connection
-        // initialized inside the watch subscriber it self
-        // Solution => use an external variable: isWatching
-        if (isWatching) return;
-        // delay 7001s to allow the serverProvider to perform a re-connect to the last ip
-        isWatching = true;
-        this.serverProvider.watchForServers().delay(7001).subscribe((discoveryResult: discoveryResultModel) => {
-          // too late, abort
-          if (this.connected) return;
-          // if the server has the same name, but a different ip => ask to reconnect
-          if (defaultServer.name == discoveryResult.server.name && discoveryResult.server.name.length && defaultServer.address != discoveryResult.server.address) {
-            let alert = this.alertCtrl.create({
-              title: "Reconnect",
-              message: "It seems that the computer " + defaultServer.name + " changed ip address from \
-                   " + defaultServer.address + " to " + discoveryResult.server.address + ", do you want to reconnect?",
-              buttons: [{ text: 'No', role: 'cancel', handler: () => { } }, {
-                text: 'Reconnect',
-                handler: () => {
-                  this.settings.setDefaultServer(discoveryResult.server); // override the defaultServer
-                  this.settings.getSavedServers().then(savedServers => {
-                    this.settings.setSavedServers(
-                      savedServers
-                        .filter(x => x.name != discoveryResult.server.name) // remove the old server
-                        .concat(discoveryResult.server)) // add a new one
-                  });
-                  this.serverProvider.connect(discoveryResult.server, true);
-                }
-              }]
-            });
-            alert.present();
-          } else if (defaultServer.name == discoveryResult.server.name && defaultServer.address == discoveryResult.server.address && everConnected) {
-            // if the server was closed and open again => reconnect whitout asking
-            this.serverProvider.connect(discoveryResult.server, true);
-          }
-        })
-      });
-
-      this.onConnectSubscription = this.serverProvider.onConnect().subscribe(() => {
-        this.connected = true;
-        everConnected = true;
-        this.serverProvider.stopWatchForServers();
-        isWatching = false;
-        // Rating dialog
-        BluebirdPromise.join(this.settings.getNoRunnings(), this.settings.getRated(), (runnings, rated) => {
-          if (runnings >= Config.NO_RUNNINGS_BEFORE_SHOW_RATING && !rated) {
-            // rating = In app native rating (iOS 10.3+ only)
-            // launch = Android and iOS 10.3-
-            if (this.launchReview.isRatingSupported()) {
-              // show native rating dialog
-              this.launchReview.rating().then(result => {
-                if (result === "dismissed") {
-                  this.settings.setRated(true);
-                }
-              });
-            } else {
-              let store = this.utils.isAndroid() ? 'PlayStore' : 'Appstore';
-              this.alertCtrl.create({
-                title: 'Rate Barcode to PC',
-                message: 'Is Barcode to PC helping you transfer barcodes?<br><br>Let the world know by rating it on the ' + store + ', it would be appreciated!',
-                buttons: [
-                  { text: 'Remind me later', role: 'cancel' },
-                  { text: 'No', handler: () => { this.settings.setRated(true); } }, {
-                    text: 'Rate',
-                    handler: () => {
-                      this.launchReview.launch().then(() => {
-                        this.settings.setRated(true);
-                      })
-                    }
-                  }]
-              }).present();
-            }
-          }
-        });
-      });
-
-      if (this.serverProvider.isConnected()) {
-        // It may happen that the connection is already established from another
-        // page, eg. WelcomePage
-        this.connected = true;
-      } else {
-        // If instead we're launching the app, we must initiate a new connection
-        this.serverProvider.connect(defaultServer);
+    let defaultServer = await this.settings.getDefaultServer();
+    this.serverProvider.watchForServers().delay(defaultServer == null ? 0 : 8000).subscribe((discoveryResult: discoveryResultModel) => {
+      // too late, abort
+      if (this.connected) return;
+      // if the server has the same name, but a different ip => ask to reconnect
+      if (defaultServer != null && defaultServer.name == discoveryResult.server.name && discoveryResult.server.name.length && defaultServer.address != discoveryResult.server.address) {
+        setTimeout(() => {
+          // We add a 3s delay just in case the defaultServer address gets announced
+          // later, this way it has enough time to connect to it before prompting
+          // the user.
+          if (this.serverProvider.isConnected()) return;
+          this.alertCtrl.create({
+            title: "Reconnect",
+            message: "It seems that the computer " + defaultServer.name + " changed ip address from " + defaultServer.address + " to " + discoveryResult.server.address + ", do you want to reconnect?",
+            buttons: [{ text: 'No', role: 'cancel', handler: () => { } }, {
+              text: 'Reconnect',
+              handler: () => {
+                this.settings.setDefaultServer(discoveryResult.server); // override the defaultServer
+                this.settings.getSavedServers().then(savedServers => {
+                  this.settings.setSavedServers(
+                    savedServers
+                      .filter(x => x.name != discoveryResult.server.name) // remove the old server
+                      .concat(discoveryResult.server)) // add a new one
+                });
+                this.serverProvider.connect(discoveryResult.server, true);
+              }
+            }]
+          }).present();
+        }, 3000);
+      } else if (defaultServer == null || (defaultServer.name == discoveryResult.server.name && defaultServer.address == discoveryResult.server.address && this.everConnected)) {
+        // if the server was closed and open again => reconnect whitout asking
+        this.serverProvider.connect(discoveryResult.server, true);
       }
+    }); // END watchForServers()
 
-    }, err => { }) // getDefaultServer()
+    if (this.serverProvider.isConnected()) {
+      // It may happen that the connection is already established from another
+      // page, eg. WelcomePage
+      this.connected = true;
+    } else if (defaultServer != null) {
+      // If instead we're launching the app, we must initiate a new connection
+      this.serverProvider.connect(defaultServer);
+    }
+  }
 
+
+  async ionViewDidLoad() {
     this.settings.getOpenScanOnStart().then(openScanOnStart => {
       if (openScanOnStart) {
         this.navCtrl.push(ScanSessionPage);
@@ -202,14 +185,19 @@ export class ScanSessionsPage {
   }
 
   ionViewDidLeave() {
-    if (this.responseSubscription) {
-      this.responseSubscription.unsubscribe();
-      this.responseSubscription = null;
-    }
-
     if (this.unregisterBackButton != null) {
       this.unregisterBackButton();
       this.unregisterBackButton = null;
+    }
+
+    if (this.onDisconnectSubscription != null) {
+      this.onDisconnectSubscription.unsubscribe();
+      this.onDisconnectSubscription = null;
+    }
+
+    if (this.onConnectSubscription != null) {
+      this.onConnectSubscription.unsubscribe();
+      this.onConnectSubscription = null;
     }
   }
 
