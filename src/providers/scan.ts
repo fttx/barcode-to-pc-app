@@ -640,12 +640,12 @@ export class ScanProvider {
           title: label,
           message: showError ? errorMessage : null,
           enableBackdropDismiss: false,
-          cssClass: 'alert-get-field alert-big-buttons',
+          cssClass: this.platform.is('android') ? 'alert-get-field alert-big-buttons' : null,
           inputs: [{ name: 'value', type: fieldType, placeholder: placeholder }],
           buttons: [{
             role: 'cancel', text: 'Cancel',
             handler: () => { reject('cancelled'); },
-            cssClass: 'button-outline-md',
+            cssClass: this.platform.is('android') ? 'button-outline-md' : null,
           }, {
             text: 'Ok',
             handler: data => {
@@ -659,7 +659,7 @@ export class ScanProvider {
                 resolve(defaultValue || '');
               }
             },
-            cssClass: 'button-outline-md button-ok',
+            cssClass: this.platform.is('android') ? 'button-outline-md button-ok' : null,
           }]
         });
         alert.setLeavingOpts({ keyboardClose: false, animate: false });

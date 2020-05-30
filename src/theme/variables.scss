@@ -94,7 +94,7 @@ $colors: (
 @import "noto-sans";
 
 
-.md{
+.md {
   .button-ok {
     color: white  !important;
     background-color: map-get($colors, primary) !important;

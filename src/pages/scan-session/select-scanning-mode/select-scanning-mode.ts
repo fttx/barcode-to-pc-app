@@ -1,5 +1,5 @@
 import { Component, ViewChild } from '@angular/core';
-import { AlertController, Content, NavParams, ViewController } from 'ionic-angular';
+import { AlertController, Content, NavParams, ViewController, Platform } from 'ionic-angular';
 import * as Supplant from 'supplant';
 import { OutputProfileModel } from '../../../models/output-profile.model';
 import { Settings } from './../../../providers/settings';
@@ -30,6 +30,7 @@ export class SelectScanningModePage {
     private settings: Settings,
     private scanSessionsStorage: ScanSessionsStorage,
     public navParams: NavParams,
+    private platform: Platform,
     // public ngZone: NgZone,
   ) {
     this.scanSession = navParams.get('scanSession');
@@ -102,11 +103,11 @@ export class SelectScanningModePage {
           title: 'Name', message: 'Insert a name for this scan session',
           inputs: [{ name: 'name', placeholder: defaultName }],
           buttons: [
-            { text: 'Cancel', handler: () => { reject() }, cssClass: 'button-outline-md' },
-            { text: 'Ok', handler: data => { }, cssClass: 'button-outline-md button-ok', }
+            { text: 'Cancel', handler: () => { reject() }, cssClass: this.platform.is('android') ? 'button-outline-md' : null },
+            { text: 'Ok', handler: data => { }, cssClass: this.platform.is('android') ? 'button-outline-md button-ok' : null, }
           ],
           enableBackdropDismiss: false,
-          cssClass: 'alert-big-buttons',
+          cssClass: this.platform.is('android') ? 'alert-big-buttons' : null,
         });
 
         alert.onDidDismiss((data) => {
