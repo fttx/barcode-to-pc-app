@@ -149,7 +149,8 @@ export class ScanProvider {
           preferFrontCamera: preferFrontCamera,
           torchOn: torchOn,
           continuousMode: this.acqusitionMode == 'continue',
-          disableSuccessBeep: !enableBeep
+          disableSuccessBeep: !enableBeep,
+          resultDisplayDuration: 0
         };
         if (enableLimitBarcodeFormats) {
           // set the barcode formats from the app settings
