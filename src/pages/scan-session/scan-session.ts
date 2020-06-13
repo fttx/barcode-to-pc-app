@@ -20,6 +20,7 @@ import { Config } from './../../providers/config';
 import { Settings } from './../../providers/settings';
 import { CSVExportOptionsPage } from './csv-export-options/csv-export-options';
 import { EditScanSessionPage } from './edit-scan-session/edit-scan-session';
+import { OcrPage } from './ocr/ocr';
 import { SelectScanningModePage } from './select-scanning-mode/select-scanning-mode';
 
 /**
@@ -479,5 +480,15 @@ export class ScanSessionPage {
       }
     });
     editModal.present();
+  }
+
+  onOCRClick() {
+    let ocrPage = this.modalCtrl.create(OcrPage);
+    ocrPage.onDidDismiss(text => {
+      if (!text) return;
+      this.keyboardInput.value += text;
+      this.keyboardInput.focus();
+    });
+    ocrPage.present();
   }
 }

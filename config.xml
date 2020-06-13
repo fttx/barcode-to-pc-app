@@ -114,6 +114,15 @@
     <edit-config file="*-Info.plist" mode="merge" target="NSCameraUsageDescription">
         <string>This app requires camera access to scan barcodes.</string>
     </edit-config>
+    <edit-config file="*-Info.plist" mode="merge" target="NSPhotoLibraryUsageDescription">
+        <string>need photo library access to import pictures</string>
+    </edit-config>
+    <edit-config file="*-Info.plist" mode="merge" target="NSLocationWhenInUseUsageDescription">
+        <string>need location access to find elements nearby</string>
+    </edit-config>
+    <edit-config file="*-Info.plist" mode="merge" target="NSPhotoLibraryAddUsageDescription">
+        <string>need photo library access to save pictures</string>
+    </edit-config>
     <edit-config file="*-Info.plist" mode="merge" target="ITSAppUsesNonExemptEncryption">
         <false />
     </edit-config>

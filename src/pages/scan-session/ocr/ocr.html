@@ -1,0 +1,22 @@
+<ion-header>
+  <ion-navbar color="primary">
+    <ion-title>OCR Acquiring</ion-title>
+
+    <ion-buttons end>
+      <button ion-button icon-only (click)="start()">
+        Take again
+        <ion-icon name="refresh"></ion-icon>
+      </button>
+    </ion-buttons>
+  </ion-navbar>
+</ion-header>
+
+<ion-content fullscreen>
+  <ion-spinner class="spinner" color="primary"></ion-spinner>
+
+  <div id="ocr-canvas-container" [class.ocr-canvas-visible]="imageFilePath != null">
+    <canvas #canvas (touchend)="onCanvasTouchEnd($event)"></canvas>
+  </div>
+
+  <span class="suggestion">Tap a text to insert it</span>
+</ion-content>

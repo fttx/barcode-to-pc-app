@@ -59,6 +59,9 @@
 	<ion-toolbar>
 		<keyboard-input (touchstart)="keyboardInputTouchStart($event)" #keyboardInput></keyboard-input>
 		<ion-buttons end>
+			<button class="btn-send-manual-input" ion-button strong (touchstart)="$event.preventDefault(); $event.stopPropagation();" (touchend)="onOCRClick($event);">
+				<img src="assets/ocr/ocr.gif" class="ocr-icon" />
+			</button>
 			<button class="btn-send-manual-input" ion-button strong (touchstart)="$event.preventDefault(); $event.stopPropagation();" (touchend)="onEnterClick($event);">
 				<ion-icon name="send" icon-only color="primary"></ion-icon>
 			</button>

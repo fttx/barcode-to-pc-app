@@ -4,6 +4,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BarcodeScanner } from '@fttx/barcode-scanner';
 import { AppVersion } from '@ionic-native/app-version';
 import { BatteryStatus } from '@ionic-native/battery-status';
+import { Camera } from '@ionic-native/camera';
 import { Device } from '@ionic-native/device';
 import { FirebaseAnalytics } from '@ionic-native/firebase-analytics';
 import { Insomnia } from '@ionic-native/insomnia';
@@ -40,6 +41,7 @@ import { ServerProvider } from '../providers/server';
 import { Settings } from '../providers/settings';
 import { Utils } from '../providers/utils';
 import { MyApp } from './app.component';
+import { OcrPage } from '../pages/scan-session/ocr/ocr';
 
 
 
@@ -57,6 +59,7 @@ import { MyApp } from './app.component';
     ArchivedPage,
     ScanSessionsPage,
     EditScanSessionPage,
+    OcrPage,
     CSVExportOptionsPage,
     SelectScanningModePage,
     WelcomePage,
@@ -85,6 +88,7 @@ import { MyApp } from './app.component';
     ScanSessionsPage,
     SelectServerPage,
     EditScanSessionPage,
+    OcrPage,
     CSVExportOptionsPage,
     SelectScanningModePage,
     SettingsPage,
@@ -109,6 +113,7 @@ import { MyApp } from './app.component';
     BatteryStatus,
     BarcodeScanner,
     Zeroconf,
+    Camera,
     NetworkInterface,
     Network,
     NativeAudio,
