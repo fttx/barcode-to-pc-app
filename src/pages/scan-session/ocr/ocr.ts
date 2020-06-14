@@ -30,9 +30,7 @@ export class OcrPage {
   ) {
   }
 
-  ionViewDidLoad() {
-    console.log('ionViewDidLoad OcrPage');
-  }
+  ionViewDidLoad() { console.log('ionViewDidLoad OcrPage'); }
 
   ionViewDidEnter() {
     this.resizeSubscription = this.platform.resize.subscribe(() => {
@@ -100,10 +98,6 @@ export class OcrPage {
     this.resetCanvas();
     let ctx = canvas.getContext('2d');
 
-    // ctx.fillStyle = 'black';
-    // ctx.fillRect(0, 0, 500, 500);
-    // ctx.fill()
-
     let image = new Image;
     let that = this;
     image.onload = function () {
@@ -145,7 +139,6 @@ export class OcrPage {
       });
       ctx.stroke();
     }; // image.onload
-    console.log('src= ', this.imageFilePath);
     image.src = window.Ionic.WebView.convertFileSrc(this.imageFilePath); // converts file:///... to http://localhost/...
   } // renderOCRResult
 
