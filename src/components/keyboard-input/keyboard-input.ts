@@ -10,7 +10,7 @@ export class KeyboardInputComponent {
   @ViewChild('ionInput') ionInput;
 
   public onSubmit = new Subject<string>();
-  public focussed = false;
+  public _focussed = false;
   public value = '';
   public placeholder = 'Keyboard input';
 
@@ -53,5 +53,9 @@ export class KeyboardInputComponent {
       this.placeholder = 'Error: ' + errorMessage;
     }
     this.hasError = !!errorMessage;
+  }
+
+  public isFocussed() {
+    return this.isFocussed;
   }
 }

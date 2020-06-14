@@ -186,13 +186,21 @@ export class ScanSessionPage {
     selectScanningModeModal.present();
   }
 
-  // this method can't be moved inside scan.ts because there is no way to tell
+  // This method can't be moved inside scan.ts because there is no way to tell
   // wether the subscription is still active from inside that file
   keyboardInputTouchStart(event) {
-    // we always prevent default, because the input element will be focussed by
-    // the scanProvider.scan() as it runs the outputProfile
-    event.preventDefault();
-    event.stopPropagation();
+    // We prevent default, because we don't know if the Output Template  starts
+    // with a BARCODE component, so we don't want the keyboard to pop out.
+    // The input element will be focussed by the scanProvider.scan() as it runs
+    // the outputProfile.
+    //
+    // There is an exception: since copy & paste doesn't work in combination
+    // with preventDefault we do allow the event to pass only when the field has
+    // already been focussed from the scanProvider.
+    if (!this.keyboardInput.isFocussed()) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
 
     if (this.scanProviderSubscription && this.scanProviderSubscription != null) {
       if (this.scanProvider.acqusitionMode == 'manual') {
