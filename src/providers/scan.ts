@@ -218,6 +218,7 @@ export class ScanProvider {
             scan_session_name: scanSession.name,
             device_name: this.deviceName,
             select_option: null,
+            csv_lookup: null,
           }
 
           // run the OutputProfile
@@ -330,6 +331,7 @@ export class ScanProvider {
               }
               case 'delay': break;
               case 'run':
+              case 'csv_lookup':
               case 'http': {
                 // injects variables (interpolation)
                 // Example:
