@@ -579,6 +579,7 @@ export class ScanProvider {
     return new Promise<OutputProfileModel>((resolve, reject) => {
       // Prevent OutOfBounds. The same logic is duplciated in the SelectScanningModePage/ionViewWillEnter() method
       if (i >= profiles.length) i = profiles.length - 1;
+      if (i < 0) i = 0;
       resolve(profiles[i]);
     });
   }

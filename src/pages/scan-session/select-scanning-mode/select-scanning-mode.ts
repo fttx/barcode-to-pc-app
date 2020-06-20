@@ -40,10 +40,13 @@ export class SelectScanningModePage {
     // Get the output profile
     this.outputProfiles = await this.settings.getOutputProfiles();
     this.selectedOutputProfileIndex = await this.settings.getSelectedOutputProfile();
+    // Prevent OutOfBounds.
+    // The same logic is duplciated in the ScanProvider/getOutputProfile() method
     if (this.selectedOutputProfileIndex >= this.outputProfiles.length) {
-      // Prevent OutOfBounds.
-      // The same logic is duplciated in the ScanProvider/getOutputProfile() method
       this.selectedOutputProfileIndex = this.outputProfiles.length - 1;
+    }
+    if (this.selectedOutputProfileIndex < 0) {
+      this.selectedOutputProfileIndex = 0;
     }
     this.selectedOutputProfile = this.outputProfiles[this.selectedOutputProfileIndex];
 
