@@ -30,6 +30,7 @@ export class Settings {
   private static TORCH_ON = 'torch_on';
   private static KEEP_DISPLAY_ON = 'keep_display_on';
   private static ENABLE_BEEP = 'enable_beep';
+  private static ENABLE_VIBRATION_FEEDBACK = 'enable_vibration_feedback';
   private static UPGRADED_TO_SQLITE = 'upgraded_to_sqlite_5x';
   private static LAST_VERSION = 'last_version';
   private static BARCODE_FORMATS = 'barcode_formats';
@@ -279,6 +280,15 @@ export class Settings {
     return this.storage.get(Settings.ENABLE_BEEP).then(result => { return result === true });
   }
 
+  setEnableVibrationFeedback(enableVibrationFeedback: boolean) {
+    console.log('save: ', Settings.ENABLE_VIBRATION_FEEDBACK, enableVibrationFeedback)
+    return this.storage.set(Settings.ENABLE_VIBRATION_FEEDBACK, enableVibrationFeedback);
+  }
+
+  getEnableVibrationFeedback(): Promise<boolean> {
+    return this.storage.get(Settings.ENABLE_VIBRATION_FEEDBACK).then(result => { return result === true });
+  }
+
   setEnableLimitBarcodeFormats(enableLimitBarcodeFormats: boolean) {
     return this.storage.set(Settings.ENABLE_LIMIT_BARCODE_FORMATS, enableLimitBarcodeFormats);
   }
@@ -328,7 +338,7 @@ export class Settings {
   }
 
   async getSelectedOutputProfile(): Promise<number> {
-    return await this.storage.get(Settings.SELECTED_OUTPUT_PROFILE) || 0;
+    return await this.storage.get(Settings.SELECTED_OUTPUT_PROFILE).then(result => { return result || 0 });
   }
 
   /**

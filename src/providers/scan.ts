@@ -100,6 +100,7 @@ export class ScanProvider {
         this.getOutputProfile(outputProfileIndex), //6
         this.settings.getTorchOn(), // 7
         this.settings.getEnableBeep(), // 8
+        this.settings.getEnableVibrationFeedback(), // 9
       ]).then(async result => {
         // parameters
         let preferFrontCamera = result[0];
@@ -111,6 +112,7 @@ export class ScanProvider {
         this.outputProfile = result[6];
         let torchOn = result[7];
         let enableBeep = result[8];
+        let enableVibrationFeedback = result[9];
         const blockingComponents = OutputProfileModel.ContainsBlockingComponents(this.outputProfile);
         // const containsMixedBarcodeFormats = OutputProfileModel.ContainsMixedBarcodeFormats(this.outputProfile);
         const containsMultipleBarcodeFormats = OutputProfileModel.ContainsMultipleBarcodeFormats(this.outputProfile);
@@ -150,6 +152,7 @@ export class ScanProvider {
           torchOn: torchOn,
           continuousMode: this.acqusitionMode == 'continue',
           disableSuccessBeep: !enableBeep,
+          vibrationFeedback: enableVibrationFeedback,
           resultDisplayDuration: 0
         };
         if (enableLimitBarcodeFormats) {

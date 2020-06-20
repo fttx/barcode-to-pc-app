@@ -34,6 +34,7 @@ export class SettingsPage {
   public torchOn = false;
   public keepDisplayOn = false;
   public enableBeep = true;
+  public enableVibrationFeedback = true;
   public openScanOnStart = false;
   private changesSaved = false;
   public quantityType: string = 'number'; // deprecated
@@ -48,7 +49,7 @@ export class SettingsPage {
     private serverProvider: ServerProvider,
     public appVersion: AppVersion,
     private device: Device,
-    public platform: Platform,
+    public platform: Platform, // required from the template
     private insomnia: Insomnia,
   ) {
     for (let i = 0; i <= 15000; i += 250) {
@@ -111,6 +112,10 @@ export class SettingsPage {
       this.enableBeep = enableBeep;
     });
 
+    this.settings.getEnableVibrationFeedback().then(enableVibrationFeedback => {
+      this.enableVibrationFeedback = enableVibrationFeedback;
+    });
+
     this.settings.getOpenScanOnStart().then(openScanOnStart => {
       this.openScanOnStart = openScanOnStart;
     });
@@ -151,6 +156,7 @@ export class SettingsPage {
     this.settings.setTorchOn(this.torchOn);
     this.settings.setKeepDisplayOn(this.keepDisplayOn);
     this.settings.setEnableBeep(this.enableBeep);
+    this.settings.setEnableVibrationFeedback(this.enableVibrationFeedback);
     this.settings.setOpenScanOnStart(this.openScanOnStart);
     this.settings.setBarcodeFormats(this.barcodeFormats);
     this.settings.setEnableLimitBarcodeFormats(this.enableLimitBarcodeFormats);

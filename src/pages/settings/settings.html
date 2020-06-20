@@ -88,6 +88,11 @@
       <ion-toggle [(ngModel)]="enableBeep"></ion-toggle>
     </ion-item>
 
+    <ion-item [hidden]="platform.is('ios')">
+      <ion-label color="dark">Enable vibration feedback</ion-label>
+      <ion-toggle [(ngModel)]="enableVibrationFeedback"></ion-toggle>
+    </ion-item>
+
     <ion-item>
       <ion-label color="dark">Open the app in Scan mode</ion-label>
       <ion-toggle [(ngModel)]="openScanOnStart"></ion-toggle>
