@@ -230,6 +230,9 @@ export class MyApp {
           await this.settings.setUpgradedDisplayValue(true);
         } // Upgrade displayName end
 
+        if (currentVersion.compare('3.11.0') == 0) {
+          await this.settings.setEnableVibrationFeedback(true);
+        } // 3.11.0
 
         await this.settings.setLastVersion(currentVersion.version);
         resolve(); // always resolve at the end (note the awaits!)
