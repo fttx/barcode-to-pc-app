@@ -61,6 +61,10 @@ export class ScanSessionsPage {
       this.unselectAll();
     }, 0);
 
+    // WelcomePage and SelectServerPage can affect the connection status, so we
+    // must pull the new status from the server provider.
+    this.connected = this.serverProvider.isConnected();
+
     this.settings.getOfflineModeEnabled().then(offlineMode => {
       if (offlineMode) this.connected = false;
     })
