@@ -49,12 +49,18 @@ ionic cordova run android
 
 - Increase the version number of the package.json
 - Increase the versionCode and version number in the config.xml
+- Commit the changes, Add a tag & push
 - Run the following commands:
 
 ```bash
 # iOS
+# File > Workspace Settings... > Select "Legacy Build System"
+# Select Generic iOS device as Build Target
+# Barcode to PC > Build Phases > Remove "[CP] Copy Pods Resources"
+# Barcode to PC > Build Settings > Signing > Set Code Signign Identity to "iOS Developer"
 ionic cordova build ios --prod --release
 open "platforms/ios/Barcode to PC.xcworkspace"
+# Product > Archive
 
 # Android
 # Increase version code in config.xml
