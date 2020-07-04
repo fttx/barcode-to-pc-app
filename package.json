@@ -43,7 +43,7 @@
     "bluebird": "^3.5.1",
     "cordova": "^9.0.0",
     "cordova-android": "^8.1.0",
-    "cordova-ios": "^5.1.1",
+    "cordova-ios": "^6.1.0",
     "cordova-launch-review": "^3.1.1",
     "cordova-plugin-add-swift-support": "2.0.1",
     "cordova-plugin-androidx": "^1.0.2",
@@ -55,7 +55,7 @@
     "cordova-plugin-device": "^2.0.3",
     "cordova-plugin-firebase-analytics": "^4.0.0",
     "cordova-plugin-headercolor": "^1.0.0",
-    "cordova-plugin-inappbrowser": "^3.2.0",
+    "cordova-plugin-inappbrowser": "^4.0.0",
     "cordova-plugin-insomnia": "^4.3.0",
     "cordova-plugin-ionic-keyboard": "^2.2.0",
     "cordova-plugin-ionic-webview": "^4.2.0",
@@ -135,13 +135,13 @@
       "cordova-plugin-insomnia": {},
       "cordova-plugin-androidx": {},
       "cordova-plugin-androidx-adapter": {},
-      "cordova-plugin-inappbrowser": {},
       "cordova-plugin-battery-status": {},
       "cordova-plugin-networkinterface": {},
       "cordova-plugin-camera": {
         "ANDROID_SUPPORT_V4_VERSION": "27.+"
       },
-      "cordova-plugin-mobile-ocr": {}
+      "cordova-plugin-mobile-ocr": {},
+      "cordova-plugin-inappbrowser": {}
     },
     "platforms": [
       "android",
