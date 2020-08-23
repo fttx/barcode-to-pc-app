@@ -2,4 +2,27 @@ keyboard-input {
   .error *::placeholder {
     color: red !important;
   }
+
+  ion-input {
+    transition: padding-left .2s ease-in-out;
+  }
+
+  ion-spinner {
+    transition: visibility .5s ease-in-out;
+    display: none;
+  }
+
+  ion-input.locked {
+    padding-left: 32px;
+  }
+
+  ion-spinner.locked {
+    display: block;
+    position: absolute;
+    top: 19px;
+    left: 12px;
+    height: 19px;
+    width: 19px;
+    opacity: .7;
+  }
 }

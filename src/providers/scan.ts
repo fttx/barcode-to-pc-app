@@ -2,16 +2,20 @@ import { Injectable, NgZone } from '@angular/core';
 import { BarcodeScanner, BarcodeScannerOptions, BarcodeScanResult } from '@fttx/barcode-scanner';
 import { FirebaseAnalytics } from '@ionic-native/firebase-analytics';
 import { NativeAudio } from '@ionic-native/native-audio';
-import { AlertController, Platform, Alert } from 'ionic-angular';
+import { Alert, AlertController, Events, Platform } from 'ionic-angular';
 import { AlertInputOptions } from 'ionic-angular/components/alert/alert-options';
-import { Observable, Subject, Subscriber, Subscription } from 'rxjs';
+import { Observable, Subscriber, Subscription } from 'rxjs';
+import { lt, SemVer } from 'semver';
 import * as Supplant from 'supplant';
 import { KeyboardInputComponent } from '../components/keyboard-input/keyboard-input';
 import { OutputBlockModel } from '../models/output-block.model';
 import { OutputProfileModel } from '../models/output-profile.model';
+import { requestModelRemoteComponent, requestModelUndoInfiniteLoop } from '../models/request.model';
+import { responseModel, responseModelRemoteComponentResponse, responseModelUpdateSettings } from '../models/response.model';
 import { ScanModel } from '../models/scan.model';
 import { SelectScanningModePage } from '../pages/scan-session/select-scanning-mode/select-scanning-mode';
 import { Config } from './config';
+import { ServerProvider } from './server';
 import { Settings } from './settings';
 import { Utils } from './utils';
 
@@ -42,13 +46,15 @@ export class ScanProvider {
   private outputProfile: OutputProfileModel;
   private outputProfileIndex: number;
   private deviceName: string;
+  private settingsUpdatedDialog: Alert = null;
   /**
    * @deprecated see src/pages/settings/settings.ts/ionViewDidLoad()/getQuantityType()
    */
   private quantityType: 'number' | 'text';
   private keyboardInput: KeyboardInputComponent;
 
-  private _onInfiniteLoopDetect = new Subject<any>();
+  private remoteComponentErrorDialog: Alert = null;
+
   public static INFINITE_LOOP_DETECT_THRESHOLD = 30;
 
   constructor(
@@ -59,8 +65,19 @@ export class ScanProvider {
     private firebaseAnalytics: FirebaseAnalytics,
     public nativeAudio: NativeAudio,
     private settings: Settings,
+    public serverProvider: ServerProvider,
+    public events: Events,
   ) {
-
+    this.events.subscribe(responseModel.ACTION_UPDATE_SETTINGS, (responseModelUpdateSettings: responseModelUpdateSettings) => {
+      this.outputProfile = responseModelUpdateSettings.outputProfiles[this.outputProfileIndex];
+      if (this.settingsUpdatedDialog != null) this.settingsUpdatedDialog.dismiss();
+      this.settingsUpdatedDialog = this.alertCtrl.create({
+        title: 'Settings updated',
+        message: 'The server settings have been updated. To apply the changes also to the app side tap on the camera button.',
+        buttons: ['Ok'],
+      });
+      this.settingsUpdatedDialog.present();
+    });
   }
 
   private lastObserver: Subscriber<ScanModel> = null;
@@ -221,6 +238,8 @@ export class ScanProvider {
             scan_session_name: scanSession.name,
             device_name: this.deviceName,
             select_option: null,
+            http: null,
+            run: null,
             csv_lookup: null,
           }
 
@@ -333,13 +352,38 @@ export class ScanProvider {
                 }
               }
               case 'delay': break;
+              case 'http':
               case 'run':
-              case 'csv_lookup':
-              case 'http': {
-                // injects variables (interpolation)
-                // Example:
-                // 'http://localhost/?a={{ barcode }}' becomes 'http://localhost/?a=123456789'
+              case 'csv_lookup': {
+                // Injects variables (interpolation)
+                // Example: 'http://localhost/?a={{ barcode }}' becomes 'http://localhost/?a=123456789'
                 outputBlock.value = new Supplant().text(outputBlock.value, variables);
+
+                // If the app isn't connected we can't execute the remote component
+                if (!this.serverProvider.isConnected()) {
+                  outputBlock.value = outputBlock.notFoundValue;
+                  break;
+                }
+
+                // For older versions of the server we break here.
+                // The RUN value will be adjusted later with the PUT_SCAN_ACK response
+                if (this.serverProvider.serverVersion != null && lt(this.serverProvider.serverVersion, new SemVer('3.12.0'))) break;
+
+                try {
+                  this.keyboardInput.lock('Executing ' + outputBlock.name.toUpperCase() + ', please wait...');
+                  let newOutputBlock = await this.remoteComponent(outputBlock);
+                  this.keyboardInput.unlock();
+                  // For some reason the assigment isn't working (UI doesn't update)
+                  Object.assign(outputBlock, newOutputBlock);
+                } catch (err) {
+                  this.keyboardInput.unlock();
+
+                  // this code fragment is duplicated for the 'number', 'text', 'if' and 'barcode' blocks and in the againCount condition
+                  observer.complete();
+                  // TODO: when the promise is rejected the manual input should be disabled. ????
+                  return; // returns the again() function
+                }
+                variables[outputBlock.type] = outputBlock.value;
                 break;
               }
               case 'beep': {
@@ -563,18 +607,6 @@ export class ScanProvider {
     return promise;
   }
 
-  private settingsUpdatedDialog: Alert = null;
-  public async updateCurrentOutputProfile() {
-    this.outputProfile = await this.getOutputProfile(this.outputProfileIndex);
-    if (this.settingsUpdatedDialog != null) this.settingsUpdatedDialog.dismiss();
-    this.settingsUpdatedDialog = this.alertCtrl.create({
-      title: 'Settings updated',
-      message: 'The server settings have been updated. To apply the changes tap on the camera button.',
-      buttons: ['Ok'],
-    });
-    this.settingsUpdatedDialog.present();
-  }
-
   // getOutputProfile() is called in two separated places, that's why is
   // separated from the updateOutputProfile() method.
   private async getOutputProfile(i): Promise<OutputProfileModel> {
@@ -676,6 +708,48 @@ export class ScanProvider {
     });
   }
 
+  private remoteComponent(outputBlock: OutputBlockModel): Promise<OutputBlockModel> {
+    return new Promise((resolve, reject) => {
+      if (!this.serverProvider.isConnected()) {
+        this.alertCtrl.create({
+          title: 'Execution error',
+          message: 'Cannot execute the ' + outputBlock.type.toUpperCase() + ' component.<br><br>\
+                    Please make sure that the smartphone is connected to the server',
+          buttons: [{ text: 'Ok', handler: () => { } }]
+        }).present();
+        reject();
+        return;
+      }
+
+      // Generate an unique request id
+      let id = new Date().getTime();
+      let wsRequest = new requestModelRemoteComponent().fromObject({ id: id, outputBlock: outputBlock });
+
+      // Before sending the request, start listening fo the upcoming ACK response
+      let ackSubscription = this.serverProvider.onMessage().subscribe(message => {
+        if (message.action == responseModel.ACTION_REMOTE_COMPONENT_RESPONSE) {
+          let response: responseModelRemoteComponentResponse = message;
+          if (id == response.id) {
+            if (response.errorMessage == null) {
+              ackSubscription.unsubscribe();
+              resolve(response.outputBlock);
+            } else {
+              if (this.remoteComponentErrorDialog != null) this.remoteComponentErrorDialog.dismiss();
+              this.remoteComponentErrorDialog = this.alertCtrl.create({
+                title: 'Error',
+                message: response.errorMessage,
+                buttons: [{ text: 'OK', handler: () => { reject(); } }],
+              });
+              this.remoteComponentErrorDialog.present();
+            }
+          }
+        }
+      });
+      // Send to execute the command to the server
+      this.serverProvider.send(wsRequest);
+    });
+  }
+
   private showAddMoreDialog(timeoutSeconds): Promise<boolean> {
     return new Promise((resolve, reject) => {
       let interval = null;
@@ -719,7 +793,8 @@ export class ScanProvider {
         buttons: [{
           text: 'Stop', role: 'cancel',
           handler: () => {
-            this._onInfiniteLoopDetect.next();
+            let wsRequest = new requestModelUndoInfiniteLoop().fromObject({ count: ScanProvider.INFINITE_LOOP_DETECT_THRESHOLD });
+            this.serverProvider.send(wsRequest);
             resolve(false);
           }
         }, {
@@ -783,9 +858,5 @@ export class ScanProvider {
 
   getRandomInt(max = Number.MAX_SAFE_INTEGER) {
     return Math.floor(Math.random() * Math.floor(max));
-  }
-
-  onInfiniteLoopDetect(): Observable<any> {
-    return this._onInfiniteLoopDetect.asObservable();
   }
 }

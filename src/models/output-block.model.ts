@@ -42,6 +42,8 @@ export class OutputBlockModel {
      * delay is like sleep or wait
      * http for http requests
      * select_options is used to store CSV values
+     *
+     * Warning: remeber to update also edit-output-block-pop-over.ts/onHelpClick() method when chaning this field.
      */
     type: 'key' | 'text' | 'variable' | 'function' | 'barcode' | 'delay' | 'if' | 'endif' | 'http' | 'run' | 'select_option' | 'beep' | 'csv_lookup';
     /**
@@ -95,6 +97,7 @@ export class OutputBlockModel {
     csvFile?: string;
     searchColumn?: number;
     resultColumn?: number;
+    notFoundValue?: string;
 
     static FindEndIfIndex(outputBlocks: OutputBlockModel[], startFrom = 0): number {
         let skip = 0;

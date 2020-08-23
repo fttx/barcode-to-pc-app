@@ -13,8 +13,9 @@ export class KeyboardInputComponent {
   public _focussed = false;
   public value = '';
   public placeholder = 'Keyboard input';
-
   public hasError = false;
+
+  private locked = false;
 
   constructor(
   ) {
@@ -31,6 +32,10 @@ export class KeyboardInputComponent {
   }
 
   public submit() {
+    if (this.locked) {
+      return;
+    }
+
     if (this.value.length == 0) {
       return;
     }
@@ -39,7 +44,7 @@ export class KeyboardInputComponent {
     this.value = '';
   }
 
-  public setPlaceholder(placeholder = null) {
+  public setPlaceholder(placeholder: string = null) {
     if (placeholder) {
       this.placeholder = placeholder;
     } else {
@@ -57,5 +62,15 @@ export class KeyboardInputComponent {
 
   public isFocussed() {
     return this.isFocussed;
+  }
+
+  public lock(placeholder: string = null, backgroundColor: string = '') {
+    this.locked = true;
+    this.setPlaceholder(placeholder);
+  }
+
+  public unlock() {
+    this.locked = false;
+    this.setPlaceholder(null);
   }
 }

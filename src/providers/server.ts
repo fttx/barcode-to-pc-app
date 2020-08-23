@@ -8,7 +8,7 @@ import * as ipUtils from 'ip-utils';
 import { Observable, Subject } from 'rxjs';
 import { SemVer } from 'semver';
 import { discoveryResultModel } from '../models/discovery-result';
-import { requestModel, requestModelGetVersion, requestModelHelo, requestModelPing, requestModelUndoInfiniteLoop } from '../models/request.model';
+import { requestModel, requestModelGetVersion, requestModelHelo, requestModelPing } from '../models/request.model';
 import { responseModel, responseModelEnableQuantity, responseModelHelo, responseModelKick, responseModelPopup, responseModelUpdateSettings } from '../models/response.model';
 import { wsEvent } from '../models/ws-event.model';
 import { HelpPage } from '../pages/help/help';
@@ -16,8 +16,8 @@ import { Settings } from '../providers/settings';
 import { ServerModel } from './../models/server.model';
 import { Config } from './config';
 import { LastToastProvider } from './last-toast/last-toast';
-import { ScanProvider } from './scan';
-
+// Warning: do not import ScanProvider to prevent circular dependency
+// To communicate with ScanProvider use global events.
 
 /*
   Generated class for the Server provider.
@@ -30,6 +30,8 @@ export class ServerProvider {
   public static RECONNECT_INTERVAL = 7000;
   public static EVENT_CODE_CLOSE_NORMAL = 1000;
   public static EVENT_CODE_DO_NOT_ATTEMP_RECCONECTION = 4000; // Another server has been selected, do not attemp to connect again
+
+  public serverVersion: SemVer = null;
 
   private connected = false;
   private webSocket: WebSocket;
@@ -55,7 +57,6 @@ export class ServerProvider {
 
   constructor(
     private settings: Settings,
-    private scanProvider: ScanProvider,
     private ngZone: NgZone,
     private lastToast: LastToastProvider,
     private zeroconf: Zeroconf,
@@ -67,12 +68,6 @@ export class ServerProvider {
     private appVersion: AppVersion,
   ) {
 
-    // We do this here because to avoid circular dependency between the
-    // ServerProvider class and the ScanProvider class
-    this.scanProvider.onInfiniteLoopDetect().subscribe(() => {
-      let wsRequest = new requestModelUndoInfiniteLoop().fromObject({ count: ScanProvider.INFINITE_LOOP_DETECT_THRESHOLD });
-      this.send(wsRequest);
-    })
   }
 
   onMessage(): Observable<any> {
@@ -206,6 +201,7 @@ export class ServerProvider {
         this.appVersion.getVersionNumber().then(appVersionString => {
           let appVersion = new SemVer(appVersionString);
           let serverVersion = new SemVer(heloResponse.version);
+          this.serverVersion = serverVersion;
           if (appVersion.major != serverVersion.major) {
             this.showVersionMismatch();
           }
@@ -234,7 +230,7 @@ export class ServerProvider {
       } else if (messageData.action == responseModel.ACTION_UPDATE_SETTINGS) {
         let responseModelUpdateSettings: responseModelUpdateSettings = messageData;
         await this.settings.setOutputProfiles(responseModelUpdateSettings.outputProfiles);
-        this.scanProvider.updateCurrentOutputProfile();
+        this.events.publish(responseModel.ACTION_UPDATE_SETTINGS, responseModelUpdateSettings);
       } else if (messageData.action == responseModel.ACTION_GET_VERSION) {
         // fallBack for old server versions
         console.log('FallBack: old getVersion received, showing version mismatch');

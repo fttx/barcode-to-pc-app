@@ -1,1 +1,2 @@
-<ion-input [placeholder]="placeholder" type="text" (ionFocus)="_focussed = true" (ionBlur)="_focussed = false" [(ngModel)]="value" [class.error]="hasError == true" clearInput #ionInput></ion-input>
+<ion-spinner color="dark" [class.locked]="locked == true"></ion-spinner>
+<ion-input [placeholder]="placeholder" type="text" (ionFocus)="_focussed = true" (ionBlur)="_focussed = false" [(ngModel)]="value" [class.error]="hasError == true" [class.locked]="locked == true" clearInput #ionInput></ion-input>
