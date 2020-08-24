@@ -369,20 +369,12 @@ export class ScanProvider {
                 // The RUN value will be adjusted later with the PUT_SCAN_ACK response
                 if (this.serverProvider.serverVersion != null && lt(this.serverProvider.serverVersion, new SemVer('3.12.0'))) break;
 
-                try {
-                  this.keyboardInput.lock('Executing ' + outputBlock.name.toUpperCase() + ', please wait...');
-                  let newOutputBlock = await this.remoteComponent(outputBlock);
-                  this.keyboardInput.unlock();
-                  // For some reason the assigment isn't working (UI doesn't update)
-                  Object.assign(outputBlock, newOutputBlock);
-                } catch (err) {
-                  this.keyboardInput.unlock();
+                this.keyboardInput.lock('Executing ' + outputBlock.name.toUpperCase() + ', please wait...');
+                let newOutputBlock = await this.remoteComponent(outputBlock);
+                this.keyboardInput.unlock();
 
-                  // this code fragment is duplicated for the 'number', 'text', 'if' and 'barcode' blocks and in the againCount condition
-                  observer.complete();
-                  // TODO: when the promise is rejected the manual input should be disabled. ????
-                  return; // returns the again() function
-                }
+                // For some reason the assigment isn't working (UI doesn't update)
+                Object.assign(outputBlock, newOutputBlock);
                 variables[outputBlock.type] = outputBlock.value;
                 break;
               }
@@ -709,7 +701,7 @@ export class ScanProvider {
   }
 
   private remoteComponent(outputBlock: OutputBlockModel): Promise<OutputBlockModel> {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => { // sorrund by try/catch the await calls before rejecting
       if (!this.serverProvider.isConnected()) {
         this.alertCtrl.create({
           title: 'Execution error',
@@ -717,7 +709,7 @@ export class ScanProvider {
                     Please make sure that the smartphone is connected to the server',
           buttons: [{ text: 'Ok', handler: () => { } }]
         }).present();
-        reject();
+        resolve(outputBlock);
         return;
       }
 
@@ -738,7 +730,7 @@ export class ScanProvider {
               this.remoteComponentErrorDialog = this.alertCtrl.create({
                 title: 'Error',
                 message: response.errorMessage,
-                buttons: [{ text: 'OK', handler: () => { reject(); } }],
+                buttons: [{ text: 'OK', handler: () => { resolve(response.outputBlock); } }],
               });
               this.remoteComponentErrorDialog.present();
             }
