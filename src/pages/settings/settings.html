@@ -34,12 +34,18 @@
       </ion-select>
     </ion-item>
 
-    <ion-item>
+    <ion-item no-lines>
       <ion-label color="dark">Scan mode</ion-label>
       <ion-select [(ngModel)]="scanMode">
         <ion-option *ngFor="let scanMode of getScanModeList()" [value]="scanMode">{{ getScanModeName(scanMode) }}
         </ion-option>
       </ion-select>
+    </ion-item>
+
+    <ion-item text-wrap>
+      <p>
+        Note: if you use more Output Templates select "{{ getScanModeName(getScanModeList()[0]) }}"
+      </p>
     </ion-item>
 
     <ion-item no-lines>
