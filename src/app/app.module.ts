@@ -7,6 +7,7 @@ import { BatteryStatus } from '@ionic-native/battery-status';
 import { Camera } from '@ionic-native/camera';
 import { Device } from '@ionic-native/device';
 import { FirebaseAnalytics } from '@ionic-native/firebase-analytics';
+import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 import { Insomnia } from '@ionic-native/insomnia';
 import { LaunchReview } from '@ionic-native/launch-review';
 import { NativeAudio } from '@ionic-native/native-audio';
@@ -27,6 +28,7 @@ import { ArchivedPage } from '../pages/archived/archived';
 import { HelpPage } from '../pages/help/help';
 import { CSVExportOptionsPage } from '../pages/scan-session/csv-export-options/csv-export-options';
 import { EditScanSessionPage } from '../pages/scan-session/edit-scan-session/edit-scan-session';
+import { OcrPage } from '../pages/scan-session/ocr/ocr';
 import { ScanSessionPage } from '../pages/scan-session/scan-session';
 import { SelectScanningModePage } from '../pages/scan-session/select-scanning-mode/select-scanning-mode';
 import { ScanSessionsPage } from '../pages/scan-sessions/scan-sessions';
@@ -41,7 +43,6 @@ import { ServerProvider } from '../providers/server';
 import { Settings } from '../providers/settings';
 import { Utils } from '../providers/utils';
 import { MyApp } from './app.component';
-import { OcrPage } from '../pages/scan-session/ocr/ocr';
 
 
 
@@ -120,6 +121,7 @@ import { OcrPage } from '../pages/scan-session/ocr/ocr';
     { provide: ErrorHandler, useClass: IonicErrorHandler },
     LastToastProvider,
     EventsReporterProvider,
+    InAppBrowser,
   ]
 })
 export class AppModule { }

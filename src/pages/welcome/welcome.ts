@@ -1,17 +1,16 @@
-import { ServerModel } from './../../models/server.model';
-import { ScanModel } from './../../models/scan.model';
-import { Component } from '@angular/core';
-import { NavController, Slides, ViewController, AlertController } from 'ionic-angular';
-import { ViewChild, NgZone } from '@angular/core';
-import { ScanSessionsPage } from '../scan-sessions/scan-sessions';
-import { ServerProvider } from '../../providers/server'
-import { Config } from '../../providers/config'
-import { Settings } from '../../providers/settings'
-import { FirebaseAnalytics } from '@ionic-native/firebase-analytics';
+import { Component, NgZone, ViewChild } from '@angular/core';
 import { BarcodeScanner } from '@fttx/barcode-scanner';
-import { wsEvent } from '../../models/ws-event.model';
-import { Utils } from '../../providers/utils';
+import { FirebaseAnalytics } from '@ionic-native/firebase-analytics';
+import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
+import { AlertController, NavController, Slides, ViewController } from 'ionic-angular';
 import { Subscription } from 'rxjs';
+import { Config } from '../../providers/config';
+import { ServerProvider } from '../../providers/server';
+import { Settings } from '../../providers/settings';
+import { Utils } from '../../providers/utils';
+import { ScanSessionsPage } from '../scan-sessions/scan-sessions';
+import { ScanModel } from './../../models/scan.model';
+import { ServerModel } from './../../models/server.model';
 
 /*
   Generated class for the Welcome page.
@@ -43,6 +42,7 @@ export class WelcomePage {
     private firebaseAnalytics: FirebaseAnalytics,
     private barcodeScanner: BarcodeScanner,
     private utils: Utils,
+    private iab: InAppBrowser,
   ) { }
 
   ionViewDidEnter() {
@@ -171,7 +171,7 @@ export class WelcomePage {
             {
               text: 'View instructions',
               handler: () => {
-                window.open(Config.URL_INSTRUCTIONS, '_blank');
+                this.iab.create(Config.URL_INSTRUCTIONS, '_system');
               }
             }
           ]

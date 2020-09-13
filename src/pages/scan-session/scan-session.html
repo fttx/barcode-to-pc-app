@@ -5,7 +5,7 @@
 
 		<ion-buttons end>
 			<button ion-button icon-only (click)="onShareClick()">
-				<ion-icon name="share"></ion-icon>
+				<ion-icon [name]="platform.is('ios') ? 'ios-share' : 'md-share'"></ion-icon>
 			</button>
 
 			<button [hidden]="!(repeatingStatus == 'stopped')" ion-button icon-only (click)="onRepeatAllClick()">

@@ -1,10 +1,11 @@
 import { Component, HostListener, NgZone, ViewChild } from '@angular/core';
 import { Device } from '@ionic-native/device';
 import { FirebaseAnalytics } from '@ionic-native/firebase-analytics';
+import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 import { NativeAudio } from '@ionic-native/native-audio';
 import { SocialSharing } from '@ionic-native/social-sharing';
 import { Promise as BluebirdPromise } from 'bluebird';
-import { ActionSheetController, AlertController, ModalController, NavController, NavParams } from 'ionic-angular';
+import { ActionSheetController, AlertController, ModalController, NavController, NavParams, Platform } from 'ionic-angular';
 import { Subscription } from 'rxjs';
 import { KeyboardInputComponent } from '../../components/keyboard-input/keyboard-input';
 import { requestModelDeleteScan, requestModelPutScanSessions, requestModelUpdateScanSession } from '../../models/request.model';
@@ -66,6 +67,8 @@ export class ScanSessionPage {
     public device: Device,
     private utils: Utils,
     public scanProvider: ScanProvider,
+    public platform: Platform, // required from the templates
+    private iab: InAppBrowser,
   ) {
     this.scanSession = navParams.get('scanSession');
     if (!this.scanSession) {
@@ -289,11 +292,11 @@ export class ScanSessionPage {
       }
     });
 
-    if (scanString.indexOf('http') == 0) {
+    if (scanString.toLocaleLowerCase().trim().startsWith('http')) {
       buttons.push({
         text: 'Open in browser', icon: 'open', handler: () => {
           this.firebaseAnalytics.logEvent('open_browser', {});
-          window.open(scanString, '_blank');
+          this.iab.create(scanString, '_system');
         }
       });
     }

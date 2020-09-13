@@ -17,13 +17,13 @@
 
     <ion-item>
       <ion-label>Website</ion-label>
-      <a item-content [href]="websiteUrl">{{ websiteName }}</a>
+      <a item-content (click)="onWebSiteClick()">{{ websiteName }}</a>
     </ion-item>
 
 
     <ion-item>
       <ion-label>Support e-mail</ion-label>
-      <a item-content (click)="onSupportClick()">{{ getSupportEmail() }}</a>
+      <a item-content (click)="onContactSupportClick()">{{ getSupportEmail() }}</a>
     </ion-item>
   </ion-list>
 </ion-content>

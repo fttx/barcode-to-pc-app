@@ -27,7 +27,7 @@
 
   <h1>Connection problem/Unable to connect error</h1>
   If it's the first time that you connect the app to the server your firewall or your antivirus may block the server,
-  consult the <a [href]="faqUrl">Frequently Asked Questions</a>.
+  consult the <a (click)="onFaqClick()">Frequently Asked Questions</a>.
 
 
   <h1>Icons and buttons lengend</h1>
@@ -96,7 +96,7 @@
 
 
   <h1>Other problems</h1>
-  See the <a [href]="faqUrl">Frequently Asked Questions</a>.<br> If you're still unable to fix your problem, or for
+  See the <a (click)="onFaqClick()">Frequently Asked Questions</a>.<br> If you're still unable to fix your problem, or for
   other
-  enquiries contact <a (click)="contactSupportClick()">{{ getSupportEmail() }}</a>
+  enquiries contact <a (click)="onContactSupportClick()">{{ getSupportEmail() }}</a>
 </ion-content>

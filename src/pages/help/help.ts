@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 import { NavController, NavParams } from 'ionic-angular';
 import { Config } from '../../providers/config';
 
@@ -14,17 +15,24 @@ import { Config } from '../../providers/config';
   templateUrl: 'help.html',
 })
 export class HelpPage {
-  public faqUrl = Config.URL_FAQ;
 
 
-  constructor(public navCtrl: NavController, public navParams: NavParams) {
+  constructor(
+    public navCtrl: NavController,
+    public navParams: NavParams,
+    private iab: InAppBrowser,
+  ) {
   }
 
   ionViewDidLoad() {
   }
 
-  contactSupportClick() {
-    window.open('mailto:' + Config.EMAIL_SUPPORT, '_system');
+  onFaqClick() {
+    this.iab.create(Config.URL_FAQ, '_system');
+  }
+
+  onContactSupportClick() {
+    this.iab.create('mailto:' + Config.EMAIL_SUPPORT, '_system');
   }
 
   getSupportEmail() {

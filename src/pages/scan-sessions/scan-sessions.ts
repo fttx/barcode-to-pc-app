@@ -102,10 +102,9 @@ export class ScanSessionsPage {
               }
             });
           } else {
-            let store = this.utils.isAndroid() ? 'PlayStore' : 'Appstore';
             this.alertCtrl.create({
               title: 'Rate Barcode to PC',
-              message: 'Is Barcode to PC helping you transfer barcodes?<br><br>Let the world know by rating it on the ' + store + ', it would be appreciated!',
+              message: 'Let other users know what you achieved with Barcode to PC',
               buttons: [
                 { text: 'Remind me later', role: 'cancel' },
                 { text: 'No', handler: () => { this.settings.setRated(true); } }, {

@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { BarcodeScanner } from '@fttx/barcode-scanner';
 import { FirebaseAnalytics } from '@ionic-native/firebase-analytics';
+import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 import { Promise as BluebirdPromise } from 'bluebird';
 import { ActionSheetController, AlertController, NavController, Platform, ViewController } from 'ionic-angular';
 import { ScanModel } from '../../models/scan.model';
@@ -36,6 +37,7 @@ export class SelectServerPage {
     private utils: Utils,
     public actionSheetCtrl: ActionSheetController,
     public platform: Platform,
+    private iab: InAppBrowser,
   ) { }
 
   public isVisible = false;
@@ -136,7 +138,7 @@ export class SelectServerPage {
           }, {
             text: 'Help',
             handler: () => {
-              window.open('mailto:' + Config.EMAIL_SUPPORT, '_system');
+              this.iab.create('mailto:' + Config.EMAIL_SUPPORT, '_system');
             }
           }, {
             text: 'Scan again',

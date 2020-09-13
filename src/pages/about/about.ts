@@ -1,21 +1,21 @@
-import { AppVersion } from '@ionic-native/app-version';
-import { Config } from '../../providers/config';
 import { Component } from '@angular/core';
+import { AppVersion } from '@ionic-native/app-version';
 import { FirebaseAnalytics } from '@ionic-native/firebase-analytics';
+import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
+import { Config } from '../../providers/config';
+
 @Component({
   selector: 'page-about',
   templateUrl: 'about.html'
 })
 export class AboutPage {
-
-  public websiteUrl = Config.URL_WEBSITE;
   public websiteName = Config.WEBSITE_NAME;
   public version = "";
-
 
   constructor(
     private firebaseAnalytics: FirebaseAnalytics,
     private appVersion: AppVersion,
+    private iab: InAppBrowser,
   ) { }
 
   ionViewDidEnter() {
@@ -26,8 +26,12 @@ export class AboutPage {
     this.appVersion.getVersionNumber().then(version => this.version = version);
   }
 
-  onSupportClick() {
-    window.open('mailto:' + Config.EMAIL_SUPPORT, '_system');
+  onWebSiteClick() {
+    this.iab.create(Config.URL_WEBSITE, '_system');
+  }
+
+  onContactSupportClick() {
+    this.iab.create('mailto:' + Config.EMAIL_SUPPORT, '_system');
   }
 
   getSupportEmail() {
