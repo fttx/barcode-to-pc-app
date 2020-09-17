@@ -246,6 +246,10 @@ export class ScanProvider {
           // run the OutputProfile
           for (let i = 0; i < scan.outputBlocks.length; i++) {
             let outputBlock = scan.outputBlocks[i];
+
+            // Inject variables in label
+            if (outputBlock.label) outputBlock.label = new Supplant().text(outputBlock.label, variables);
+
             switch (outputBlock.type) {
               // some components like 'key' and 'text', do not need any processing from the
               // app side, so we just skip them
