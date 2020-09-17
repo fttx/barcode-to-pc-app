@@ -233,8 +233,12 @@ export class ScanSessionPage {
         if (!this.isNewSession && this.scanSession.scannings.length == 0) {
           this.navCtrl.pop()
         }
+      },
+      // complete
+      () => {
+        this.scanProviderSubscription.unsubscribe();
+        this.scanProviderSubscription = null;
       }
-      // the manual mode can't a have a complete() event
     )
   }
 

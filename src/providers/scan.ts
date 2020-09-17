@@ -209,7 +209,7 @@ export class ScanProvider {
             // when the if contains a syntax error.
             let wantToContinue = await this.showPreventInfiniteLoopDialog();
             if (!wantToContinue) {
-              // this code fragment is duplicated for the 'number', 'text', 'if' and 'barcode' blocks and in the againCount condition
+              // this code fragment is duplicated for the 'number', 'text', 'if' and 'barcode' blocks. It's also present in the againCount condition, and in the remoteComponent() method.
               observer.complete();
               return; // returns the again() function
             }
@@ -270,7 +270,7 @@ export class ScanProvider {
                     try {
                       outputBlock.value = await this.getField(outputBlock.label, 'number', outputBlock.defaultValue, outputBlock.filter, outputBlock.errorMessage);
                     } catch (err) {
-                      // this code fragment is duplicated for the 'number', 'text', 'if' and 'barcode' blocks and in the againCount condition
+                      // this code fragment is duplicated for the 'number', 'text', 'if' and 'barcode' blocks. It's also present in the againCount condition, and in the remoteComponent() method.
                       observer.complete();
                       return; // returns the again() function
                     }
@@ -285,7 +285,7 @@ export class ScanProvider {
                     try {
                       outputBlock.value = await this.getField(outputBlock.label, 'text', outputBlock.defaultValue, outputBlock.filter, outputBlock.errorMessage);
                     } catch (err) {
-                      // this code fragment is duplicated for the 'number', 'text', 'if' and 'barcode' blocks and in the againCount condition
+                      // this code fragment is duplicated for the 'number', 'text', 'if' and 'barcode' blocks. It's also present in the againCount condition, and in the remoteComponent() method.
                       observer.complete();
                       return; // returns the again() function
                     }
@@ -350,7 +350,7 @@ export class ScanProvider {
                   // variables.barcodes.push(barcode);
                   outputBlock.value = barcode;
                 } catch (err) {
-                  // this code fragment is duplicated for the 'number', 'text', 'if' and 'barcode' blocks and in the againCount condition
+                  // this code fragment is duplicated for the 'number', 'text', 'if' and 'barcode' blocks. It's also present in the againCount condition, and in the remoteComponent() method.
                   observer.complete();
                   return; // returns the again() function
                 }
@@ -374,12 +374,19 @@ export class ScanProvider {
                 if (this.serverProvider.serverVersion != null && lt(this.serverProvider.serverVersion, new SemVer('3.12.0'))) break;
 
                 this.keyboardInput.lock('Executing ' + outputBlock.name.toUpperCase() + ', please wait...');
-                let newOutputBlock = await this.remoteComponent(outputBlock);
-                this.keyboardInput.unlock();
 
-                // For some reason the assigment isn't working (UI doesn't update)
-                Object.assign(outputBlock, newOutputBlock);
-                variables[outputBlock.type] = outputBlock.value;
+                try {
+                  let newOutputBlock = await this.remoteComponent(outputBlock);
+                  this.keyboardInput.unlock();
+                  // For some reason the assigment isn't working (UI doesn't update)
+                  Object.assign(outputBlock, newOutputBlock);
+                  variables[outputBlock.type] = outputBlock.value;
+                } catch {
+                  this.keyboardInput.unlock();
+                  // this code fragment is duplicated for the 'number', 'text', 'if' and 'barcode' blocks. It's also present in the againCount condition, and in the remoteComponent() method.
+                  observer.complete();
+                  return; // returns the again() function
+                }
                 break;
               }
               case 'beep': {
@@ -407,7 +414,7 @@ export class ScanProvider {
                   // if the condition cannot be evaluated we must stop
                   // TODO stop only if the acusitionMode is manual? Or pop-back?
 
-                  // this code fragment is duplicated for the 'number', 'text', 'if' and 'barcode' blocks and in the againCount condition
+                  // this code fragment is duplicated for the 'number', 'text', 'if' and 'barcode' blocks. It's also present in the againCount condition, and in the remoteComponent() method.
                   observer.complete();
                   return; // returns the again() function
                 }
@@ -705,7 +712,7 @@ export class ScanProvider {
   }
 
   private remoteComponent(outputBlock: OutputBlockModel): Promise<OutputBlockModel> {
-    return new Promise((resolve) => { // sorrund by try/catch the await calls before rejecting
+    return new Promise((resolve, reject) => {
       if (!this.serverProvider.isConnected()) {
         this.alertCtrl.create({
           title: 'Execution error',
@@ -713,7 +720,7 @@ export class ScanProvider {
                     Please make sure that the smartphone is connected to the server',
           buttons: [{ text: 'Ok', handler: () => { } }]
         }).present();
-        resolve(outputBlock);
+        reject();
         return;
       }
 
@@ -725,23 +732,32 @@ export class ScanProvider {
       let ackSubscription = this.serverProvider.onMessage().subscribe(message => {
         if (message.action == responseModel.ACTION_REMOTE_COMPONENT_RESPONSE) {
           let response: responseModelRemoteComponentResponse = message;
+
+          // Listen only for responses directed to this request
           if (id == response.id) {
+
             if (response.errorMessage == null) {
+              // Success
               ackSubscription.unsubscribe();
               resolve(response.outputBlock);
             } else {
+              // Error
               if (this.remoteComponentErrorDialog != null) this.remoteComponentErrorDialog.dismiss();
               this.remoteComponentErrorDialog = this.alertCtrl.create({
                 title: 'Error',
                 message: response.errorMessage,
                 buttons: [{ text: 'OK', handler: () => { resolve(response.outputBlock); } }],
               });
+              reject();
+              // Present the dialog only after the rejection, so that it'll be on top
+              // of other eventual dialogs
               this.remoteComponentErrorDialog.present();
             }
           }
         }
       });
-      // Send to execute the command to the server
+
+      // Send the remote component execution command to the server
       this.serverProvider.send(wsRequest);
     });
   }
