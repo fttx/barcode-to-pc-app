@@ -383,9 +383,9 @@ export class ScanProvider {
                   variables[outputBlock.type] = outputBlock.value;
                 } catch {
                   this.keyboardInput.unlock();
-                  // this code fragment is duplicated for the 'number', 'text', 'if' and 'barcode' blocks. It's also present in the againCount condition, and in the remoteComponent() method.
-                  observer.complete();
-                  return; // returns the again() function
+                  // Quirk: the manual mode never stops
+                  if (this.acqusitionMode == 'manual') again();
+                  return;
                 }
                 break;
               }
@@ -746,7 +746,7 @@ export class ScanProvider {
               this.remoteComponentErrorDialog = this.alertCtrl.create({
                 title: 'Error',
                 message: response.errorMessage,
-                buttons: [{ text: 'OK', handler: () => { resolve(response.outputBlock); } }],
+                buttons: [{ text: 'OK', handler: () => { } }],
               });
               reject();
               // Present the dialog only after the rejection, so that it'll be on top
