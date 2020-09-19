@@ -8,13 +8,13 @@ Ionic:
 Cordova:
 
    Cordova CLI       : 9.0.0 (cordova-lib@9.0.1)
-   Cordova Platforms : android 8.1.0, ios 5.1.1
+   Cordova Platforms : android 8.1.0, ios 6.1.0
    Cordova Plugins   : cordova-plugin-ionic-keyboard 2.2.0, cordova-plugin-ionic-webview 4.2.0, (and 21 other plugins)
 
 Utility:
 
    cordova-res : 0.8.1 (update available: 0.15.1)
-   native-run  : 0.2.8 (update available: 1.0.0)
+   native-run  : 0.2.8 (update available: 1.1.0)
 
 System:
 
@@ -24,5 +24,5 @@ System:
    NodeJS            : v10.16.2 (/usr/local/bin/node)
    npm               : 6.14.4
    OS                : macOS Catalina
-   Xcode             : Xcode 11.5 Build version 11E608c
+   Xcode             : Xcode 11.6 Build version 11E708
 
