@@ -336,3 +336,5 @@ export class Utils {
     }
   }
 }
+
+export type AlertButtonType = 'discard_scan' | 'scan_again' | 'ok';

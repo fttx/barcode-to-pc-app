@@ -113,4 +113,13 @@ $colors: (
   .alert-big-buttons .alert-button-group {
     padding-bottom: 24px !important;
   }
+
+  /* ALERT component */
+  .button-alert {
+    margin-top: 20px !important;
+  }
+
+  .button-alert * {
+    justify-content: center !important;
+  }
 }

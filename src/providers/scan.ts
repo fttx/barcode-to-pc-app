@@ -17,7 +17,7 @@ import { SelectScanningModePage } from '../pages/scan-session/select-scanning-mo
 import { Config } from './config';
 import { ServerProvider } from './server';
 import { Settings } from './settings';
-import { Utils } from './utils';
+import { AlertButtonType, Utils } from './utils';
 
 /**
  * The job of this class is to generate a ScanModel by talking with the native
@@ -445,6 +445,25 @@ export class ScanProvider {
                 i--;
                 break;
               }
+              case 'alert': {
+                // Inject variables in Title and Message
+                if (outputBlock.value) outputBlock.value = new Supplant().text(outputBlock.value, variables);
+                if (outputBlock.alertTitle) outputBlock.alertTitle = new Supplant().text(outputBlock.alertTitle, variables);
+
+                // Show Alert and wait for a button press
+                let pressedButton = await this.showAlert(outputBlock);
+
+                switch (pressedButton) {
+                  case 'discard_scan': {
+                    // Quirk: the manual mode never stops
+                    if (this.acqusitionMode == 'manual') again();
+                    return;
+                  }
+                  case 'scan_again': { again(); return; }
+                  case 'ok': { break; }
+                }
+                break;
+              } // end MESSAGE component
 
             } // switch outputBlock.type
           } // for
@@ -759,6 +778,21 @@ export class ScanProvider {
 
       // Send the remote component execution command to the server
       this.serverProvider.send(wsRequest);
+    });
+  }
+
+  private showAlert(outputBlock: OutputBlockModel): Promise<AlertButtonType> {
+    return new Promise<AlertButtonType>((resolve, reject) => {
+      let buttons = [];
+      let pressedButton: AlertButtonType = 'ok';
+
+      if (outputBlock.alertDiscardScanButton) buttons.push({ text: outputBlock.alertDiscardScanButton, cssClass: this.platform.is('android') ? 'button-outline-md button-alert' : null, handler: () => { pressedButton = 'discard_scan'; } })
+      if (outputBlock.alertScanAgainButton) buttons.push({ text: outputBlock.alertScanAgainButton, cssClass: this.platform.is('android') ? 'button-outline-md button-alert' : null, handler: () => { pressedButton = 'scan_again'; } })
+      if (outputBlock.alertOkButton) buttons.push({ text: outputBlock.alertOkButton, cssClass: this.platform.is('android') ? 'button-outline-md button-alert button-ok' : null, handler: () => { pressedButton = 'ok'; } })
+
+      let alert = this.alertCtrl.create({ title: outputBlock.alertTitle, message: outputBlock.value, buttons: buttons, cssClass: this.platform.is('android') ? 'alert-big-buttons' : null, });
+      alert.onDidDismiss(() => { resolve(pressedButton) });
+      alert.present();
     });
   }
 
