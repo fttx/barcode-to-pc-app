@@ -247,8 +247,12 @@ export class ScanProvider {
           for (let i = 0; i < scan.outputBlocks.length; i++) {
             let outputBlock = scan.outputBlocks[i];
 
-            // Inject variables in label
+            // Injects variables (interpolation)
+            // Example: 'http://localhost/?a={{ barcode }}' becomes 'http://localhost/?a=123456789'
+            // label, errorMessage and value are shared between multiple components
             if (outputBlock.label) outputBlock.label = new Supplant().text(outputBlock.label, variables);
+            if (outputBlock.errorMessage) outputBlock.errorMessage = new Supplant().text(outputBlock.errorMessage, variables);
+            if (outputBlock.value) outputBlock.value = new Supplant().text(outputBlock.value, variables);
 
             switch (outputBlock.type) {
               // some components like 'key' and 'text', do not need any processing from the
@@ -296,7 +300,6 @@ export class ScanProvider {
                 break;
               }
               case 'select_option': {
-                outputBlock.value = new Supplant().text(outputBlock.value, variables);
                 outputBlock.value = await this.showSelectOption(outputBlock.value);
                 variables.select_option = outputBlock.value;
                 break;
@@ -311,6 +314,8 @@ export class ScanProvider {
               }
               case 'barcode': {
                 try {
+                  if (outputBlock.filter) outputBlock.filter = new Supplant().text(outputBlock.filter, variables);
+
                   // Prepare the label for an eventual barcode acqusition
                   this.pluginOptions.prompt = outputBlock.label || Config.DEFAULT_ACQUISITION_LABEL;
                   this.keyboardInput.setError(false);
@@ -359,9 +364,8 @@ export class ScanProvider {
               case 'http':
               case 'run':
               case 'csv_lookup': {
-                // Injects variables (interpolation)
-                // Example: 'http://localhost/?a={{ barcode }}' becomes 'http://localhost/?a=123456789'
-                outputBlock.value = new Supplant().text(outputBlock.value, variables);
+                if (outputBlock.notFoundValue) outputBlock.notFoundValue = new Supplant().text(outputBlock.notFoundValue, variables);
+
 
                 // If the app isn't connected we can't execute the remote component
                 if (!this.serverProvider.isConnected()) {
@@ -447,7 +451,6 @@ export class ScanProvider {
               }
               case 'alert': {
                 // Inject variables in Title and Message
-                if (outputBlock.value) outputBlock.value = new Supplant().text(outputBlock.value, variables);
                 if (outputBlock.alertTitle) outputBlock.alertTitle = new Supplant().text(outputBlock.alertTitle, variables);
 
                 // Show Alert and wait for a button press
