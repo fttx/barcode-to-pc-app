@@ -365,6 +365,9 @@ export class ScanProvider {
               case 'run':
               case 'csv_lookup': {
                 if (outputBlock.notFoundValue) outputBlock.notFoundValue = new Supplant().text(outputBlock.notFoundValue, variables);
+                if (outputBlock.httpData) outputBlock.httpData = new Supplant().text(outputBlock.httpData, variables);
+                if (outputBlock.httpHeaders) outputBlock.httpHeaders = new Supplant().text(outputBlock.httpHeaders, variables);
+                if (outputBlock.httpParams) outputBlock.httpParams = new Supplant().text(outputBlock.httpParams, variables);
 
 
                 // If the app isn't connected we can't execute the remote component
