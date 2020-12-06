@@ -98,6 +98,7 @@ export class ScanModel {
                         outputBlock.type != 'key' &&
                         outputBlock.type != 'delay' &&
                         outputBlock.type != 'beep' &&
+                        outputBlock.type != 'alert' &&
                         // 'if' and 'endif' bloks never reach
                         // the server because they're stripped on the app side
 
