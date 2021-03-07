@@ -1,7 +1,7 @@
 
 Ionic:
 
-   Ionic CLI          : 5.4.6 (/usr/local/lib/node_modules/ionic)
+   Ionic CLI          : 6.12.2 (/usr/local/lib/node_modules/@ionic/cli)
    Ionic Framework    : ionic-angular 3.9.10
    @ionic/app-scripts : 3.2.4
 
@@ -13,16 +13,16 @@ Cordova:
 
 Utility:
 
-   cordova-res : 0.8.1 (update available: 0.15.1)
-   native-run  : 0.2.8 (update available: 1.1.0)
+   cordova-res (update available: 0.15.3) : 0.8.1
+   native-run (update available: 1.3.0)   : 0.2.8
 
 System:
 
-   Android SDK Tools : 26.1.1 (/Users/filippo/Library/Android/sdk/)
+   Android SDK Tools : 26.1.1 (/Users/filippo/Library/Android/sdk)
    ios-deploy        : 1.9.4
    ios-sim           : 8.0.2
    NodeJS            : v10.16.2 (/usr/local/bin/node)
    npm               : 6.14.4
-   OS                : macOS Catalina
-   Xcode             : Xcode 11.6 Build version 11E708
+   OS                : macOS Big Sur
+   Xcode             : Xcode 12.3 Build version 12C33
 
