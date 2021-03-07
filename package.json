@@ -1,7 +1,7 @@
 {
   "name": "barcode-to-pc-app",
   "author": "Filippo Tortomasi",
-  "version": "3.13.1",
+  "version": "3.13.2",
   "homepage": "https://barcodetopc.com/",
   "private": true,
   "scripts": {
