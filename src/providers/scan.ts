@@ -253,6 +253,7 @@ export class ScanProvider {
             if (outputBlock.label) outputBlock.label = new Supplant().text(outputBlock.label, variables);
             if (outputBlock.errorMessage) outputBlock.errorMessage = new Supplant().text(outputBlock.errorMessage, variables);
             if (outputBlock.value) outputBlock.value = new Supplant().text(outputBlock.value, variables);
+            if (outputBlock.defaultValue) outputBlock.defaultValue = new Supplant().text(outputBlock.defaultValue, variables);
 
             switch (outputBlock.type) {
               // some components like 'key' and 'text', do not need any processing from the
