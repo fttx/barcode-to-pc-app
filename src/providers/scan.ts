@@ -227,8 +227,8 @@ export class ScanProvider {
 
           // variables that can be used in the Output Components
           let variables = {
+            barcodes: [],
             barcode: '',
-            // barcodes: [],
             quantity: null, // deprecated
             number: null,
             text: null,
@@ -353,7 +353,7 @@ export class ScanProvider {
                   delete outputBlock['filter'];
                   delete outputBlock['errorMessage'];
                   variables.barcode = barcode;
-                  // variables.barcodes.push(barcode);
+                  variables.barcodes.push(barcode);
                   outputBlock.value = barcode;
                 } catch (err) {
                   // this code fragment is duplicated for the 'number', 'text', 'if' and 'barcode' blocks. It's also present in the againCount condition, and in the remoteComponent() method.
@@ -406,7 +406,7 @@ export class ScanProvider {
                   case 'fast': beepSpeed = 250; break;
                 }
                 let beep = () => {
-                  return new Promise((resolve, reject) => {
+                  return new Promise<void>((resolve, reject) => {
                     this.nativeAudio.play(outputBlock.value);
                     setTimeout(() => { resolve() }, beepSpeed);
                   });
