@@ -5,6 +5,7 @@ import { NativeAudio } from '@ionic-native/native-audio';
 import { Alert, AlertController, Events, Platform } from 'ionic-angular';
 import { AlertInputOptions } from 'ionic-angular/components/alert/alert-options';
 import { Observable, Subscriber, Subscription } from 'rxjs';
+import { isNumeric } from 'rxjs/util/isNumeric';
 import { lt, SemVer } from 'semver';
 import * as Supplant from 'supplant';
 import { KeyboardInputComponent } from '../components/keyboard-input/keyboard-input';
@@ -252,7 +253,7 @@ export class ScanProvider {
             // label, errorMessage and value are shared between multiple components
             if (outputBlock.label) outputBlock.label = new Supplant().text(outputBlock.label, variables);
             if (outputBlock.errorMessage) outputBlock.errorMessage = new Supplant().text(outputBlock.errorMessage, variables);
-            if (outputBlock.value) outputBlock.value = new Supplant().text(outputBlock.value, variables);
+            if (outputBlock.value && !isNumeric(outputBlock.value)) outputBlock.value = new Supplant().text(outputBlock.value, variables);
             if (outputBlock.defaultValue) outputBlock.defaultValue = new Supplant().text(outputBlock.defaultValue, variables);
 
             switch (outputBlock.type) {
