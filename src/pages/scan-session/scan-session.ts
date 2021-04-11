@@ -440,6 +440,9 @@ export class ScanSessionPage {
   onPauseRepeatingClick() {
     this.repeatingStatus = 'paused';
     if (this.repeatAllTimeout) clearTimeout(this.repeatAllTimeout)
+
+    // Waits for the ACK and saves the scan.ack attribute to the scan storage
+    setTimeout(() => { this.save() }, 1500);
   }
 
   onResumeRepeatingClick() {
@@ -454,6 +457,9 @@ export class ScanSessionPage {
     this.repeatingStatus = 'stopped';
     this.scanSession.scannings.forEach(scan => scan.repeated = false);
     this.skipAlreadySent = false;
+
+    // Waits for the ACK and saves the scan.ack attribute to the scan storage
+    setTimeout(() => { this.save() }, 1500);
   }
 
   onEnterClick(event = null) {
