@@ -62,7 +62,7 @@
 			<button [hidden]="platform.is('ios')" class="btn-send-manual-input" ion-button strong (touchstart)="$event.preventDefault(); $event.stopPropagation();" (touchend)="onOCRClick($event);">
 				<img src="assets/ocr/ocr.gif" class="ocr-icon" />
 			</button>
-			<button class="btn-send-manual-input" ion-button strong (touchstart)="$event.preventDefault(); $event.stopPropagation();" (touchend)="onEnterClick($event);">
+			<button class="btn-send-manual-input" ion-button strong (touchstart)="$event.preventDefault(); $event.stopPropagation();" (touchend)="$event.preventDefault(); $event.stopPropagation(); onEnterClick($event);">
 				<ion-icon name="send" icon-only color="primary"></ion-icon>
 			</button>
 		</ion-buttons>

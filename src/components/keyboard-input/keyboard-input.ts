@@ -1,4 +1,5 @@
 import { Component, ViewChild } from '@angular/core';
+import { Platform } from 'ionic-angular';
 import { Subject } from 'rxjs';
 
 
@@ -18,6 +19,7 @@ export class KeyboardInputComponent {
   private locked = false;
 
   constructor(
+    public platform: Platform,
   ) {
   }
 
@@ -28,7 +30,8 @@ export class KeyboardInputComponent {
     //
     // When delay is 0 it means that we're sure that the element can be focused
     // rightaway so we skip the first setFocus and only do the second immediatelly
-    setTimeout(() => this.ionInput.setFocus(), delay ? 900 : 0)
+    let ms = this.platform.is('ios') ? 100 : 900;
+    setTimeout(() => this.ionInput.setFocus(), delay ? ms : 0);
   }
 
   public submit() {
