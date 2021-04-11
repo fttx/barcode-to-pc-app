@@ -14,6 +14,7 @@ export class Config {
   public static URL_INSTRUCTIONS = 'https://barcodetopc.com/frequently-asked-questions/#app-doesnt-find-computer';
   public static URL_FAQ = 'https://barcodetopc.com/frequently-asked-questions/';
   public static URL_GITHUB_CHANGELOG = 'https://raw.githubusercontent.com/fttx/barcode-to-pc-server/master/CHANGELOG.md';
+  public static URL_ANDROID_PDA = 'https://barcodetopc.com/hardware-devices/send-barcodes-from-an-android-pda-scanner-to-a-computer/';
 
   public static SERVER_PORT = 57891;
   public static WEBSITE_NAME = 'barcodetopc.com';
@@ -21,6 +22,7 @@ export class Config {
   public static DEFAULT_CONTINUE_MODE_TIMEOUT = 0;
   public static NO_RUNNINGS_BEFORE_SHOW_RATING = 5;
   public static NO_RUNNINGS_BEFORE_SHOW_SOUND_FEEDBACK_OR_DIALOG = 2;
+  public static NO_RUNNINGS_MAX_TO_SHOW_IS_PDA_DEVICE_DIALOG = 4;
   public static SHOW_CANNOT_FIND_DIALOG_TIMEOUT = 90 * 1000;
   public static DEFAULT_REPEAT_INVERVAL = 500;
   public static DEFAULT_ACQUISITION_LABEL = "Place a barcode inside the scan area.\nPress the back button to exit.";

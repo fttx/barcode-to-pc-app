@@ -122,6 +122,14 @@ $colors: (
   .button-alert * {
     justify-content: center !important;
   }
+
+  .dialog-pda-icon {
+    height: 128px;
+    margin: 0 auto;
+    text-align: center;
+    display: block;
+    padding: 0;
+  }
 }
 
 .ios {

@@ -1,6 +1,7 @@
 import { Injectable, NgZone } from '@angular/core';
 import { BarcodeScanner, BarcodeScannerOptions, BarcodeScanResult } from '@fttx/barcode-scanner';
 import { FirebaseAnalytics } from '@ionic-native/firebase-analytics';
+import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 import { NativeAudio } from '@ionic-native/native-audio';
 import { Alert, AlertController, Events, Platform } from 'ionic-angular';
 import { AlertInputOptions } from 'ionic-angular/components/alert/alert-options';
@@ -68,6 +69,7 @@ export class ScanProvider {
     private settings: Settings,
     public serverProvider: ServerProvider,
     public events: Events,
+    private iab: InAppBrowser,
   ) {
     this.events.subscribe(responseModel.ACTION_UPDATE_SETTINGS, (responseModelUpdateSettings: responseModelUpdateSettings) => {
       this.outputProfile = responseModelUpdateSettings.outputProfiles[this.outputProfileIndex];
@@ -555,6 +557,7 @@ export class ScanProvider {
           case 'mixed_continue': {
             let barcodeScanResult: BarcodeScanResult = await this.barcodeScanner.scan(this.pluginOptions).first().toPromise();
             if (!barcodeScanResult || barcodeScanResult.cancelled) {
+              this.showIsPDADeviceDialog();
               reject('cancelled');
               return;
             }
@@ -589,6 +592,7 @@ export class ScanProvider {
                 if (!barcodeScanResult || barcodeScanResult.cancelled) {
                   this.continuosScanSubscription.unsubscribe();
                   this.continuosScanSubscription = null;
+                  this.showIsPDADeviceDialog();
                   this.lastReject();
                   return; // returns the promise executor function
                 }
@@ -857,6 +861,36 @@ export class ScanProvider {
           }
         }]
       }).present();
+    });
+  }
+
+  private showIsPDADeviceDialog(): Promise<void> {
+    return new Promise(async (resolve, reject) => {
+      let isPDADevicedialogShown = await this.settings.getIsPDADeviceDialogShown();
+      let noRunnings = await this.settings.getNoRunnings();
+      if (this.platform.is('android') && !isPDADevicedialogShown && noRunnings < Config.NO_RUNNINGS_MAX_TO_SHOW_IS_PDA_DEVICE_DIALOG) {
+        this.alertCtrl.create({
+          title: 'Is your device a PDA?',
+          message: '<img src="assets/scan/pda.png" class="dialog-pda-icon">If your device has an integrated barcode scanner, please use the MANUAL INPUT mode, and enable the [CR][LF] suffix.',
+          buttons: [
+            {
+              text: 'No', handler: () => {
+                this.settings.setIsPDADeviceDialogShown(true);
+                resolve();
+              }
+            },
+            { text: 'Show later', role: 'cancel', handler: () => { resolve() } },
+            {
+              text: 'More info', handler: () => {
+                this.settings.setIsPDADeviceDialogShown(true);
+                this.iab.create(Config.URL_ANDROID_PDA, '_system');
+                resolve();
+              }
+            }]
+        }).present();
+      } else {
+        resolve();
+      }
     });
   }
 

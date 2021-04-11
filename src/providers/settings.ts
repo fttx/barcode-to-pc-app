@@ -45,6 +45,7 @@ export class Settings {
   private static OPEN_SCAN_ON_START = 'open_scan_on_start';
   private static EVENT_ON_SMARTPHONE_CHARGE_ENABLED = 'event_on_smartphone_charge_enabled';
   private static OFFLINE_MODE_ENABLED = 'offline_mode_enabled';
+  private static IS_PDA_DEVICE_DIALOG_SHOWN = 'is_pda_device_dialog_shown';
 
   constructor(
     public storage: Storage,
@@ -81,6 +82,14 @@ export class Settings {
 
   getEverConnected(): Promise<boolean> {
     return this.storage.get(Settings.EVER_CONNECTED);
+  }
+
+  setIsPDADeviceDialogShown(shown: boolean) {
+    return this.storage.set(Settings.IS_PDA_DEVICE_DIALOG_SHOWN, shown);
+  }
+
+  getIsPDADeviceDialogShown(): Promise<boolean> {
+    return this.storage.get(Settings.IS_PDA_DEVICE_DIALOG_SHOWN);
   }
 
   setAlwaysSkipWelcomePage(alwaysSkipWelcomePage: boolean) {
