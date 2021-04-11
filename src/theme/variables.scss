@@ -96,7 +96,7 @@ $colors: (
 
 .md {
   .button-ok {
-    color: white  !important;
+    color: white !important;
     background-color: map-get($colors, primary) !important;
     min-width: 10rem;
     text-align: center !important;
@@ -121,5 +121,13 @@ $colors: (
 
   .button-alert * {
     justify-content: center !important;
+  }
+}
+
+.ios {
+  ion-fab {
+    margin-right: 25px !important;
+    margin-bottom: 30px !important;
+    filter: drop-shadow(6px 6px 10px #00000058);
   }
 }
