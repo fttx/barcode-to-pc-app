@@ -58,7 +58,11 @@ export class ScanSessionsPage {
     });
 
     this.unregisterBackButton = this.platform.registerBackButtonAction(() => {
-      this.unselectAll();
+      if (this.selectedScanSessions.length != 0) {
+        this.unselectAll();
+      } else {
+        this.platform.exitApp();
+      }
     }, 0);
 
     // WelcomePage and SelectServerPage can affect the connection status, so we
@@ -89,6 +93,37 @@ export class ScanSessionsPage {
       this.everConnected = true;
       this.serverProvider.stopWatchForServers();
       this.isWatching = false;
+
+
+      // // Detect unsynced scan sessions
+      // let affectedIndexes = [];
+      // for (let i = 0; i < this.scanSessions.length; i++) {
+      //   const scanSession = this.scanSessions[i];
+      //   const containsUnsynced = scanSession.scannings.findIndex(x => x.ack !== true) != -1;
+      //   if (containsUnsynced) {
+      //     affectedIndexes.push(i);
+      //   }
+      // }
+
+      // if (affectedIndexes.length > 0) {
+      //   const lastIndex = affectedIndexes[affectedIndexes.length - 1];
+      //   const lastScanSession = this.scanSessions[lastIndex];
+      //   this.alertCtrl.create({
+      //     title: 'Unsynced scans',
+      //     message: 'The following scan sessions contain unsynced scans:<br><br>' + affectedIndexes.map(x => '• ' + this.scanSessions[x].name).join('<br>') + '<br><br>Open the scan session and tap the Sync button to send them.',
+      //     buttons: [
+      //       {
+      //         text: 'Open ' + lastScanSession.name,
+      //         handler: () => {
+      //           this.onScanSessionClick(lastScanSession, lastIndex);
+      //         }
+      //       },
+      //       { text: 'Dismiss', role: 'cancel' },
+      //     ]
+      //   }).present();
+      // }
+
+
       // Rating dialog
       BluebirdPromise.join(this.settings.getNoRunnings(), this.settings.getRated(), (runnings, rated) => {
         if (runnings >= Config.NO_RUNNINGS_BEFORE_SHOW_RATING && !rated) {
