@@ -367,8 +367,10 @@ export class ScanProvider {
               case 'delay': break;
               case 'http':
               case 'run':
-              case 'csv_lookup': {
+              case 'csv_lookup':
+              case 'csv_update': {
                 if (outputBlock.notFoundValue) outputBlock.notFoundValue = new Supplant().text(outputBlock.notFoundValue, variables);
+                if (outputBlock.newValue) outputBlock.newValue = new Supplant().text(outputBlock.newValue, variables);
                 if (outputBlock.httpData) outputBlock.httpData = new Supplant().text(outputBlock.httpData, variables);
                 if (outputBlock.httpHeaders) outputBlock.httpHeaders = new Supplant().text(outputBlock.httpHeaders, variables);
                 if (outputBlock.httpParams) outputBlock.httpParams = new Supplant().text(outputBlock.httpParams, variables);

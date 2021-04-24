@@ -45,7 +45,7 @@ export class OutputBlockModel {
      *
      * Warning: remeber to update also edit-output-block-pop-over.ts/onHelpClick() method when chaning this field.
      */
-    type: 'key' | 'text' | 'variable' | 'function' | 'barcode' | 'delay' | 'if' | 'endif' | 'http' | 'run' | 'select_option' | 'beep' | 'csv_lookup' | 'alert';
+    type: 'key' | 'text' | 'variable' | 'function' | 'barcode' | 'delay' | 'if' | 'endif' | 'http' | 'run' | 'select_option' | 'beep' | 'csv_lookup' | 'csv_update' | 'alert';
     /**
      * When true means that the user doesn't want to type or append to files
      * the component value but instead he wants to acquire the data, and use it
@@ -99,7 +99,7 @@ export class OutputBlockModel {
     errorMessage?: string;
 
     /**
-     * Parameters for the CSV_LOOKUP component
+     * Parameters for the CSV_LOOKUP and CSV_UPDATE component
      */
     csvFile?: string;
     searchColumn?: number;
@@ -108,12 +108,23 @@ export class OutputBlockModel {
     delimiter?: string;
 
     /**
+     * Parameters for the CSV_UPDATE component
+     */
+    columnToUpdate?: number;
+    newValue?: string;
+
+    /**
      * Parameters for the ALERT component
      */
     alertTitle?: string;
     alertDiscardScanButton?: string;
     alertScanAgainButton?: string;
     alertOkButton?: string;
+
+    /**
+     * Parameters for RUN and HTTP component
+     */
+    timeout?: number;
 
     static FindEndIfIndex(outputBlocks: OutputBlockModel[], startFrom = 0): number {
         let skip = 0;
