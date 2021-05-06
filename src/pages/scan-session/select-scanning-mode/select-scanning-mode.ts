@@ -131,11 +131,7 @@ export class SelectScanningModePage {
 
           buttons.push({
             text: 'Acquire Barcode', handler: async data => {
-              try {
-                resolve(await this.getBarcodetScanSessionName());
-              } catch {
-                resolve(await this.getScanSessionName());
-              }
+              resolve(await this.getScanSessionName());
             }, cssClass: this.platform.is('android') ? 'button-outline-md' + buttonClasses : null,
           });
         }
