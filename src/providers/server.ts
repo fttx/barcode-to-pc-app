@@ -497,7 +497,7 @@ export class ServerProvider {
     if (!this.isVersionMismatchDialogVisible) {
       let dialog = this.alertCtrl.create({
         title: 'Server/app version mismatch',
-        message: 'Please update both app and server, otherwise they may not work properly.<br><br>Server can be downloaded at <a href="' + Config.URL_WEBSITE + '">' + Config.WEBSITE_NAME + '</a>',
+        message: 'Please update both app and server, otherwise they may not work properly.<br><br>Server can be downloaded at ' + Config.WEBSITE_NAME,
         buttons: [
           {
             text: 'Ok',
