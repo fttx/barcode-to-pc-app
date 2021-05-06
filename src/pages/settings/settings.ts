@@ -30,6 +30,7 @@ export class SettingsPage {
   public availableRepeatIntervals = [];
   public scanMode = '';
   public alwaysUseDefaultScanSessionName = false;
+  public alwaysUseCameraForScanSessionName = false;
   public preferFrontCamera = false;
   public torchOn = false;
   public keepDisplayOn = false;
@@ -96,6 +97,10 @@ export class SettingsPage {
       this.alwaysUseDefaultScanSessionName = alwaysUseDefaultScanSessionName;
     });
 
+    this.settings.getAlwaysUseCameraForScanSessionName().then(alwaysUseCameraForScanSessionName => {
+      this.alwaysUseCameraForScanSessionName = alwaysUseCameraForScanSessionName;
+    });
+
     this.settings.getPreferFrontCamera().then(preferFrontCamera => {
       this.preferFrontCamera = preferFrontCamera;
     });
@@ -152,6 +157,7 @@ export class SettingsPage {
     this.settings.setDeviceName(this.deviceName);
     this.settings.setScanSessionName(this.scanSessionName);
     this.settings.setAlwaysUseDefaultScanSessionName(this.alwaysUseDefaultScanSessionName);
+    this.settings.setAlwaysUseCameraForScanSessionName(this.alwaysUseCameraForScanSessionName);
     this.settings.setPreferFrontCamera(this.preferFrontCamera);
     this.settings.setTorchOn(this.torchOn);
     this.settings.setKeepDisplayOn(this.keepDisplayOn);

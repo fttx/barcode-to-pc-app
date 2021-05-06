@@ -1,10 +1,11 @@
 import { Component, ViewChild } from '@angular/core';
-import { AlertController, Content, NavParams, ViewController, Platform } from 'ionic-angular';
+import { BarcodeScanner, BarcodeScanResult } from '@fttx/barcode-scanner';
+import { AlertButton, AlertController, Content, NavParams, Platform, ViewController } from 'ionic-angular';
 import * as Supplant from 'supplant';
 import { OutputProfileModel } from '../../../models/output-profile.model';
-import { Settings } from './../../../providers/settings';
 import { ScanSessionModel } from '../../../models/scan-session.model';
 import { ScanSessionsStorage } from '../../../providers/scan-sessions-storage';
+import { Settings } from './../../../providers/settings';
 
 
 @Component({
@@ -31,6 +32,7 @@ export class SelectScanningModePage {
     private scanSessionsStorage: ScanSessionsStorage,
     public navParams: NavParams,
     private platform: Platform,
+    private barcodeScanner: BarcodeScanner,
     // public ngZone: NgZone,
   ) {
     this.scanSession = navParams.get('scanSession');
@@ -88,6 +90,18 @@ export class SelectScanningModePage {
     });
   }
 
+  getBarcodetScanSessionName(): Promise<string> {
+    return new Promise(async (resolve, reject) => {
+      this.barcodeScanner.scan({ "showFlipCameraButton": true }).subscribe(async (scan: BarcodeScanResult) => {
+        if (scan && scan.text) {
+          resolve(scan.text);
+        } else {
+          reject()
+        }
+      }, async err => { reject() });
+    });
+  }
+
   getScanSessionName(): Promise<string> {
     return new Promise(async (resolve, reject) => {
       let defaultName = await this.settings.getScanSessionName();
@@ -102,25 +116,48 @@ export class SelectScanningModePage {
       if (alwaysUseDefaultScanSessionName) {
         resolve(defaultName);
       } else {
+        let alwaysUseCameraForScanSessionName = await this.settings.getAlwaysUseCameraForScanSessionName();
+        let buttonClasses = alwaysUseCameraForScanSessionName ? ' alert-button-stacked' : '';
+        let buttons: any = [{ text: 'Cancel', handler: () => { reject() }, cssClass: this.platform.is('android') ? 'button-outline-md' + buttonClasses : null }];
+
+        if (alwaysUseCameraForScanSessionName) {
+          buttonClasses += " alert-button-stacked";
+          try {
+            // Try to get the a barcode value
+            let scanSessionName = await this.getBarcodetScanSessionName();
+            resolve(scanSessionName);
+            return;
+          } catch { }
+
+          buttons.push({
+            text: 'Acquire Barcode', handler: async data => {
+              try {
+                resolve(await this.getBarcodetScanSessionName());
+              } catch {
+                resolve(await this.getScanSessionName());
+              }
+            }, cssClass: this.platform.is('android') ? 'button-outline-md' + buttonClasses : null,
+          });
+        }
+
+        buttons.push({
+          text: 'Ok', handler: data => {
+            if (data.name != "") {
+              resolve(data.name)
+            } else {
+              resolve(defaultName)
+            }
+          }, cssClass: this.platform.is('android') ? 'button-outline-md button-ok' + buttonClasses : null,
+        });
+
+        // If the barcode acquisition failed, or wasn't never requested:
         let alert = this.alertCtrl.create({
-          title: 'Name', message: 'Insert a name for this scan session',
+          title: 'Scan session name',
           inputs: [{ name: 'name', placeholder: defaultName }],
-          buttons: [
-            { text: 'Cancel', handler: () => { reject() }, cssClass: this.platform.is('android') ? 'button-outline-md' : null },
-            { text: 'Ok', handler: data => { }, cssClass: this.platform.is('android') ? 'button-outline-md button-ok' : null, }
-          ],
+          buttons: buttons,
           enableBackdropDismiss: false,
           cssClass: this.platform.is('android') ? 'alert-big-buttons' : null,
         });
-
-        alert.onDidDismiss((data) => {
-          if (data.name != "") {
-            resolve(data.name)
-          } else {
-            resolve(defaultName)
-          }
-        })
-
         alert.present();
       }
     });

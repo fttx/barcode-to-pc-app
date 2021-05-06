@@ -46,6 +46,7 @@ export class Settings {
   private static EVENT_ON_SMARTPHONE_CHARGE_ENABLED = 'event_on_smartphone_charge_enabled';
   private static OFFLINE_MODE_ENABLED = 'offline_mode_enabled';
   private static IS_PDA_DEVICE_DIALOG_SHOWN = 'is_pda_device_dialog_shown';
+  private static ALWAYS_USE_CAMERA_FOR_SCAN_SESSION_NAME = 'always_use_camera_for_scan_session_name';
 
   constructor(
     public storage: Storage,
@@ -255,6 +256,14 @@ export class Settings {
 
   getAlwaysUseDefaultScanSessionName(): Promise<boolean> {
     return this.storage.get(Settings.ALWAYS_USE_DEFAULT_SCAN_SESSION_NAME).then(result => { return result === true });
+  }
+
+  setAlwaysUseCameraForScanSessionName(alwaysUseCameraForScanSessionName: boolean) {
+    return this.storage.set(Settings.ALWAYS_USE_CAMERA_FOR_SCAN_SESSION_NAME, alwaysUseCameraForScanSessionName);
+  }
+
+  getAlwaysUseCameraForScanSessionName(): Promise<boolean> {
+    return this.storage.get(Settings.ALWAYS_USE_CAMERA_FOR_SCAN_SESSION_NAME).then(result => { return result === true });
   }
 
   setPreferFrontCamera(preferFrontCamera: boolean) {

@@ -69,9 +69,17 @@
       <ion-input [(ngModel)]="deviceName" placeholder="The name of this device" text-right>{{ deviceName }}</ion-input>
     </ion-item>
 
-    <ion-item>
+    <ion-item no-lines>
       <ion-label color="dark">Always use the default Scan session name</ion-label>
       <ion-toggle [(ngModel)]="alwaysUseDefaultScanSessionName"></ion-toggle>
+    </ion-item>
+    <ion-item text-wrap>
+      <p>If enabled, you won't be asked to choose a name when creating a new scan session</p>
+    </ion-item>
+
+    <ion-item>
+      <ion-label color="dark">Acquire the Scan session name as barcode</ion-label>
+      <ion-toggle [(ngModel)]="alwaysUseCameraForScanSessionName"></ion-toggle>
     </ion-item>
 
     <ion-item>

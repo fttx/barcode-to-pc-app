@@ -1,5 +1,5 @@
 import { Component, NgZone, ViewChild } from '@angular/core';
-import { BarcodeScanner } from '@fttx/barcode-scanner';
+import { BarcodeScanner, BarcodeScanResult } from '@fttx/barcode-scanner';
 import { FirebaseAnalytics } from '@ionic-native/firebase-analytics';
 import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 import { AlertController, NavController, Slides, ViewController } from 'ionic-angular';
@@ -9,7 +9,6 @@ import { ServerProvider } from '../../providers/server';
 import { Settings } from '../../providers/settings';
 import { Utils } from '../../providers/utils';
 import { ScanSessionsPage } from '../scan-sessions/scan-sessions';
-import { ScanModel } from './../../models/scan.model';
 import { ServerModel } from './../../models/server.model';
 
 /*
@@ -107,7 +106,7 @@ export class WelcomePage {
     this.barcodeScanner.scan({
       "showFlipCameraButton": true, // iOS and Android
       formats: "QR_CODE"
-    }).subscribe((scan: ScanModel) => {
+    }).subscribe((scan: BarcodeScanResult) => {
       if (scan && scan.text) {
         let servers = ServerModel.serversFromJSON(scan.text);
         servers.forEach(server => {
