@@ -281,15 +281,12 @@ export class ScanSessionsPage {
     slidingItem.close();
     this.alertCtrl.create({
       title: 'Are you sure?',
-      message: 'The scan session "' + scanSession.name + '" will be permanently deleted from both smartphone and server.\n\nIf instead you want to keep it only on the smartphone, use the archive button.',
+      message: 'The scan session "' + scanSession.name + '" will be permanently deleted.\n\nIf instead you want to keep it on the smartphone, use the archive button.',
       buttons: [{
         text: 'Cancel', role: 'cancel'
       }, {
         text: 'Delete', handler: () => {
-          if (!this.connected) {
-            this.utils.showCannotPerformActionOffline();
-            return;
-          }
+          if (this.blockOfflineOperationIfcontainsSyncedScans([this.scanSessions[index]])) return;
 
           this.removeScanSession(index);
           this.save();
@@ -324,10 +321,7 @@ export class ScanSessionsPage {
   }
 
   onArchiveSelectedClick() {
-    if (!this.connected) {
-      this.utils.showCannotPerformActionOffline();
-      return;
-    }
+    if (this.blockOfflineOperationIfcontainsSyncedScans(this.selectedScanSessions)) return;
 
     let wsRequest = new requestModelDeleteScanSessions().fromObject({
       scanSessionIds: this.selectedScanSessions.map(x => x.id)
@@ -348,10 +342,7 @@ export class ScanSessionsPage {
         text: 'Cancel', role: 'cancel'
       }, {
         text: 'Delete', handler: () => {
-          if (!this.connected) {
-            this.utils.showCannotPerformActionOffline();
-            return;
-          }
+          if (this.blockOfflineOperationIfcontainsSyncedScans(this.selectedScanSessions)) return;
 
           this.sendDeleteScanSessions(this.selectedScanSessions);
           this.scanSessions = this.scanSessions.filter(x => !x.selected);
@@ -407,5 +398,25 @@ export class ScanSessionsPage {
     } else {
       this.scanSessions.splice(index, 1);
     }
+  }
+
+  private blockOfflineOperationIfcontainsSyncedScans(scanSessions: ScanSessionModel[], alert: boolean = true) {
+    for (let i = 0; i < scanSessions.length; i++) {
+      const scanSession = scanSessions[i];
+      const ackIndex = scanSession.scannings.findIndex(x => x.ack);
+      if (ackIndex != -1 && !this.connected) {
+        if (alert) {
+          this.alertCtrl.create({
+            title: 'Cannot perform this action while offline',
+            message: 'The selected scan session(s) has already been partially synced. Please connect the app to the server',
+            buttons: [{
+              text: 'Ok', role: 'cancel'
+            }]
+          }).present();
+        }
+        return true;
+      }
+    }
+    return false;
   }
 }

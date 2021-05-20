@@ -8,6 +8,8 @@ import { ScanSessionsStorage } from '../../providers/scan-sessions-storage';
 import { ServerProvider } from '../../providers/server';
 import { Settings } from '../../providers/settings';
 import { Utils } from '../../providers/utils';
+import { Subscription } from 'rxjs';
+import { responseModel, responseModelPutScanAck } from '../../models/response.model';
 
 /**
  * Generated class for the ArchivedPage page.
@@ -23,7 +25,6 @@ import { Utils } from '../../providers/utils';
 export class ArchivedPage {
   public archivedScanSessions: ScanSessionModel[] = [];
   public selectedScanSessions: ScanSessionModel[] = [];
-
 
   constructor(
     public navCtrl: NavController,
@@ -50,7 +51,7 @@ export class ArchivedPage {
   ionViewDidLoad() {
   }
 
-  onScanSessionClick(scanSession, index: number) {
+  onScanSessionClick(scanSession: ScanSessionModel, index: number) {
     let alert = this.actionSheetCtrl.create({
       buttons: [
         {
@@ -65,21 +66,24 @@ export class ArchivedPage {
           text: 'Restore',
           icon: 'refresh',
           handler: () => {
-            if (!this.serverProvider.isConnected()) {
-              this.utils.showCannotPerformActionOffline();
-              return;
-            }
-
             let wsRequest = new requestModelPutScanSessions().fromObject({
               scanSessions: [scanSession],
               sendKeystrokes: false,
               deviceId: this.device.uuid,
             });
-            this.serverProvider.send(wsRequest);
+
+            if (this.serverProvider.isConnected()) {
+              scanSession.scannings = scanSession.scannings.map(x => {
+                x.ack = true;
+                return x;
+              })
+            }
 
             this.scanSessionsStorage.updateScanSession(scanSession);
             this.archivedScanSessions = this.archivedScanSessions.filter(x => x != scanSession);
             this.scanSessionsStorage.setArchivedScanSessions(this.archivedScanSessions);
+
+            this.serverProvider.send(wsRequest);
           }
         },
         {

@@ -310,16 +310,6 @@ export class Utils {
     return result;
   }
 
-  showCannotPerformActionOffline() {
-    this.alertCtrl.create({
-      title: 'Cannot perform this action while offline',
-      message: 'Please connect the app to the server',
-      buttons: [{
-        text: 'Ok', role: 'cancel'
-      }]
-    }).present();
-  }
-
   askWiFiEnableIfDisabled() {
     if (this.network.type != 'ethernet' && this.network.type != 'wifi' && !this.enableWifiShown) {
       this.alertCtrl.create({
