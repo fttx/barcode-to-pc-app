@@ -72,13 +72,6 @@ export class ArchivedPage {
               deviceId: this.device.uuid,
             });
 
-            if (this.serverProvider.isConnected()) {
-              scanSession.scannings = scanSession.scannings.map(x => {
-                x.ack = true;
-                return x;
-              })
-            }
-
             this.scanSessionsStorage.updateScanSession(scanSession);
             this.archivedScanSessions = this.archivedScanSessions.filter(x => x != scanSession);
             this.scanSessionsStorage.setArchivedScanSessions(this.archivedScanSessions);
