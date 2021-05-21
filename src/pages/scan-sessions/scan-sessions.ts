@@ -403,6 +403,8 @@ export class ScanSessionsPage {
   // Call this method whenever the user wants to delete/archive a scan session.
   // If the user deletes a scan sessions while offline it won't get deleted from the server
   // resulting in an inconsistency between the app and the server UI.
+  // If the server never received the scan sessions (meaning that all scans ack = false),
+  // we can safely remove the scan session from the smartphone.
   private blockOfflineOperationIfcontainsSyncedScans(scanSessions: ScanSessionModel[], alert: boolean = true) {
     for (let i = 0; i < scanSessions.length; i++) {
       const scanSession = scanSessions[i];
