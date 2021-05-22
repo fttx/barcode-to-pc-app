@@ -65,18 +65,44 @@ export class ArchivedPage {
         {
           text: 'Restore',
           icon: 'refresh',
-          handler: () => {
-            let wsRequest = new requestModelPutScanSessions().fromObject({
-              scanSessions: [scanSession],
-              sendKeystrokes: false,
-              deviceId: this.device.uuid,
-            });
-
+          handler: async () => {
             this.scanSessionsStorage.updateScanSession(scanSession);
             this.archivedScanSessions = this.archivedScanSessions.filter(x => x != scanSession);
             this.scanSessionsStorage.setArchivedScanSessions(this.archivedScanSessions);
 
-            this.serverProvider.send(wsRequest);
+            if (this.serverProvider.isConnected()) {
+              let wsRequest = new requestModelPutScanSessions().fromObject({
+                scanSessions: [scanSession],
+                sendKeystrokes: false,
+                deviceId: this.device.uuid,
+              });
+              this.serverProvider.send(wsRequest);
+            } else {
+              // Undo the archieved flag for the scan session, so it won't get delete from the server
+              for (let i = 0; i < scanSession.syncedWith.length; i++) {
+                const serverUUID = scanSession.syncedWith[i];
+                let deletedIds = await this.settings.getUnsyncedDeletedScanSesions(serverUUID);
+                deletedIds = deletedIds.filter(x => x != scanSession.id);
+                this.settings.setUnsyncedDeletedScanSesions(serverUUID, deletedIds);
+              }
+
+              // Add the scan session to the unsynced restored list, so that it'll be restored automatically
+              // once the app connects to the first server that is available
+              let restoredIds = await this.settings.getUnsyncedRestoredScanSesions();
+              restoredIds.push(scanSession.id);
+              this.settings.setUnsyncedRestoredScanSesions(restoredIds);
+
+              let alert = this.alertCtrl.create({
+                title: 'Offline mode',
+                message: 'The scan sessions will be restored also on the server when it will be connected.\n\nTo trigger the Keyboard Emulation and the CSV output, use the Sync button inside the scan session page.',
+                buttons: [
+                  {
+                    text: 'Ok',
+                    role: 'cancel'
+                  }]
+              });
+              alert.present();
+            }
           }
         },
         {

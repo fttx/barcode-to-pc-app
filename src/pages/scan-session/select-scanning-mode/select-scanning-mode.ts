@@ -181,6 +181,7 @@ export class SelectScanningModePage {
           date: date,
           scannings: [],
           selected: false,
+          syncedWith: [],
         };
         resolve(newScanSession)
       } else {

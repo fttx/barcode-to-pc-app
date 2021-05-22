@@ -47,6 +47,8 @@ export class Settings {
   private static OFFLINE_MODE_ENABLED = 'offline_mode_enabled';
   private static IS_PDA_DEVICE_DIALOG_SHOWN = 'is_pda_device_dialog_shown';
   private static ALWAYS_USE_CAMERA_FOR_SCAN_SESSION_NAME = 'always_use_camera_for_scan_session_name';
+  private static UNSYNCED_DELETED_SCAN_SESIONS = 'unsynced_deleted_scan_sesions';
+  private static UNSYNCED_RESTORED_SCAN_SESIONS = 'unsynced_restored_scan_sesions';
 
   constructor(
     public storage: Storage,
@@ -54,6 +56,47 @@ export class Settings {
     public ngZone: NgZone,
     public splashScreen: SplashScreen,
   ) {
+  }
+
+  /**
+   * Used for both deleted and archived scan sessions
+   */
+  setUnsyncedDeletedScanSesions(serverUUID: string, scanSessionIds: number[]) {
+    return this.storage.set(Settings.UNSYNCED_DELETED_SCAN_SESIONS + serverUUID, JSON.stringify(scanSessionIds));
+  }
+
+  /**
+   * Used for both deleted and archived scan sessions
+   */
+  getUnsyncedDeletedScanSesions(serverUUID: string): Promise<number[]> {
+    return new Promise((resolve, reject) => {
+      return this.storage.get(Settings.UNSYNCED_DELETED_SCAN_SESIONS + serverUUID).then(data => {
+        if (data) {
+          let scanSessionsIds = JSON.parse(data);
+          resolve(scanSessionsIds)
+        } else {
+          resolve([]);
+        }
+      });
+    });
+  }
+
+
+  setUnsyncedRestoredScanSesions(scanSessionIds: number[]) {
+    return this.storage.set(Settings.UNSYNCED_RESTORED_SCAN_SESIONS, JSON.stringify(scanSessionIds));
+  }
+
+  getUnsyncedRestoredScanSesions(): Promise<number[]> {
+    return new Promise((resolve, reject) => {
+      return this.storage.get(Settings.UNSYNCED_RESTORED_SCAN_SESIONS).then(data => {
+        if (data) {
+          let scanSessionsIds = JSON.parse(data);
+          resolve(scanSessionsIds)
+        } else {
+          resolve([]);
+        }
+      });
+    });
   }
 
   setDefaultServer(server: ServerModel) {
@@ -418,7 +461,7 @@ export class Settings {
    * new enableQuantity response is received
    */
   setQuantityEnabled(enabled: boolean) {
-    return new Promise((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
       this.storage.set(Settings.QUANTITY_ENABLED, enabled).then(async () => { // store QUANTITY_ENABLED anyways
         // update the OutputProfiles accordinghly
         let defaultOutputProfiles = await this.generateDefaultOutputProfiles();

@@ -133,7 +133,7 @@ export class MyApp {
   }
 
   upgrade() {
-    return new Promise((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
       Promise.all([this.settings.getLastVersion(), this.appVersion.getVersionNumber(), this.settings.getBarcodeFormats()]).then(async (results: any[]) => {
         let lastVersion = new SemVer(results[0]);
         let currentVersion = new SemVer(results[1]);
@@ -193,47 +193,62 @@ export class MyApp {
             console.log('updating... new = ', scanSessions)
             await this.scanSessionsStorage.setScanSessions(scanSessions);
           }
-        }
-        // Upgrade output profiles end
+          // Upgrade output profiles end
 
 
-        // Upgrade displayValue
-        let displayValue = await this.settings.getUpgradedDisplayValue();
-        if (
-          // if it's upgrading from an older version, and the upgrade was never started (null)
-          (lastVersion.compare('3.1.5') == -1 && displayValue == null)
-          || // or
-          // if the update has been started, but not completed (null)
-          displayValue === false) {
+          // Upgrade displayValue
+          let displayValue = await this.settings.getUpgradedDisplayValue();
+          if (
+            // if it's upgrading from an older version, and the upgrade was never started (null)
+            (lastVersion.compare('3.1.5') == -1 && displayValue == null)
+            || // or
+            // if the update has been started, but not completed (null)
+            displayValue === false) {
 
-          // mark the update as "started"
-          await this.settings.setUpgradedDisplayValue(false);
+            // mark the update as "started"
+            await this.settings.setUpgradedDisplayValue(false);
 
-          let alert = this.alertCtrl.create({
-            title: 'Updating database',
-            message: 'The app database is updating, <b>do not close</b> it.<br><br>It may take few minutes, please wait...',
-            enableBackdropDismiss: false,
-          });
+            let alert = this.alertCtrl.create({
+              title: 'Updating database',
+              message: 'The app database is updating, <b>do not close</b> it.<br><br>It may take few minutes, please wait...',
+              enableBackdropDismiss: false,
+            });
 
-          // upgrade db
-          alert.present();
-          let scanSessions = await this.scanSessionsStorage.getScanSessions();
-          for (let scanSession of scanSessions) {
-            for (let scan of scanSession.scannings) {
-              scan.displayValue = ScanModel.ToString(scan);
+            // upgrade db
+            alert.present();
+            let scanSessions = await this.scanSessionsStorage.getScanSessions();
+            for (let scanSession of scanSessions) {
+              for (let scan of scanSession.scannings) {
+                scan.displayValue = ScanModel.ToString(scan);
+              }
             }
-          }
-          await this.scanSessionsStorage.setScanSessions(scanSessions);
-          alert.dismiss();
+            await this.scanSessionsStorage.setScanSessions(scanSessions);
+            alert.dismiss();
 
-          // mark the update as "finished" (true)
-          await this.settings.setUpgradedDisplayValue(true);
-        } // Upgrade displayName end
+            // mark the update as "finished" (true)
+            await this.settings.setUpgradedDisplayValue(true);
+          } // Upgrade displayName end
 
-        if (currentVersion.compare('3.11.0') == 0) {
-          await this.settings.setEnableVibrationFeedback(true);
-        } // 3.11.0
+          if (currentVersion.compare('3.11.0') == 0) {
+            await this.settings.setEnableVibrationFeedback(true);
+          } // 3.11.0
 
+          // Upgrade syncedWith (UUID)
+          if (currentVersion.compare('3.15.0') == 0) {
+            let alert = this.alertCtrl.create({
+              title: 'Updating database',
+              message: 'The app database is updating, <b>do not close</b> it.<br><br>It may take few minutes, please wait...',
+              enableBackdropDismiss: false,
+            });
+            alert.present();
+            let scanSessions = await this.scanSessionsStorage.getScanSessions();
+            for (let scanSession of scanSessions) {
+              scanSession.syncedWith = [];
+            }
+            await this.scanSessionsStorage.setScanSessions(scanSessions);
+            alert.dismiss();
+          } // Upgrade syncedWith (UUID) end
+        }
         await this.settings.setLastVersion(currentVersion.version);
         resolve(); // always resolve at the end (note the awaits!)
       })

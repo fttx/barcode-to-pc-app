@@ -286,8 +286,6 @@ export class ScanSessionsPage {
         text: 'Cancel', role: 'cancel'
       }, {
         text: 'Delete', handler: () => {
-          if (this.blockOfflineOperationIfcontainsSyncedScans([this.scanSessions[index]])) return;
-
           this.removeScanSession(index);
           this.save();
           this.sendDeleteScanSessions([scanSession]);
@@ -321,17 +319,11 @@ export class ScanSessionsPage {
   }
 
   onArchiveSelectedClick() {
-    if (this.blockOfflineOperationIfcontainsSyncedScans(this.selectedScanSessions)) return;
-
-    let wsRequest = new requestModelDeleteScanSessions().fromObject({
-      scanSessionIds: this.selectedScanSessions.map(x => x.id)
-    });
-    this.serverProvider.send(wsRequest);
-
     this.scanSessions = this.scanSessions.filter(x => !x.selected);
     this.scanSessionsStorage.pushArchivedScanSessions(this.selectedScanSessions)
-    this.unselectAll();
     this.save();
+    this.sendDeleteScanSessions(this.selectedScanSessions);
+    this.unselectAll();
   }
 
   onDeleteSelectedClick() {
@@ -342,12 +334,10 @@ export class ScanSessionsPage {
         text: 'Cancel', role: 'cancel'
       }, {
         text: 'Delete', handler: () => {
-          if (this.blockOfflineOperationIfcontainsSyncedScans(this.selectedScanSessions)) return;
-
-          this.sendDeleteScanSessions(this.selectedScanSessions);
           this.scanSessions = this.scanSessions.filter(x => !x.selected);
-          this.unselectAll();
           this.save();
+          this.sendDeleteScanSessions(this.selectedScanSessions);
+          this.unselectAll();
         }
       }]
     }).present();
@@ -380,15 +370,37 @@ export class ScanSessionsPage {
   //   this.serverProvider.send(new requestModelClearScanSessions().fromObject({}));
   // }
 
-  private sendDeleteScanSessions(scanSessions: ScanSessionModel[]) {
-    let wsRequest = new requestModelDeleteScanSessions().fromObject({
-      scanSessionIds: scanSessions.map(x => { return x.id })
-    });
-    this.serverProvider.send(wsRequest);
+  private async sendDeleteScanSessions(scanSessions: ScanSessionModel[]) {
+    if (this.connected) {
+      let wsRequest = new requestModelDeleteScanSessions().fromObject({
+        scanSessionIds: scanSessions.map(x => { return x.id })
+      });
+      this.serverProvider.send(wsRequest);
+    } else {
+      // If the user deletes a scan sessions while offline it won't get deleted from the server
+      // resulting in an inconsistency between the app and the server UI. Solution => Save the scan session id to sync it later
+
+      // Get the affected servers UUID that need to be notified later
+      // .reduce(...) is like .flat()
+      // .filter(...) is like .unique()
+      let serverUUIDs = scanSessions.map(x => x.syncedWith).reduce((accumulator, value) => accumulator.concat(value), []).filter((value, index, self) => { return self.indexOf(value) === index; })
+      for (let i = 0; i < serverUUIDs.length; i++) {
+        const serverUUID = serverUUIDs[i];
+
+        // Add the scanSession id to the server' unsynced list
+        let deletedIds = await this.settings.getUnsyncedDeletedScanSesions(serverUUID);
+        deletedIds.push(...scanSessions.filter(x => x.syncedWith.indexOf(serverUUID) != -1).map(x => x.id));
+        this.settings.setUnsyncedDeletedScanSesions(serverUUID, deletedIds);
+      }
+
+      // Since we're deleting the scan session doesn't matter if it was previously restored => clear the list
+      let restoredIds = await this.settings.getUnsyncedRestoredScanSesions();
+      restoredIds = restoredIds.filter(x => scanSessions.map(y => y.id).indexOf(x) == -1)
+      this.settings.setUnsyncedRestoredScanSesions(restoredIds);
+    }
   }
 
   private save() {
-    console.log('[storage] setScanSessions() 1')
     this.scanSessionsStorage.setScanSessions(this.scanSessions);
   }
 
@@ -398,30 +410,5 @@ export class ScanSessionsPage {
     } else {
       this.scanSessions.splice(index, 1);
     }
-  }
-
-  // Call this method whenever the user wants to delete/archive a scan session.
-  // If the user deletes a scan sessions while offline it won't get deleted from the server
-  // resulting in an inconsistency between the app and the server UI.
-  // If the server never received the scan sessions (meaning that all scans ack = false),
-  // we can safely remove the scan session from the smartphone.
-  private blockOfflineOperationIfcontainsSyncedScans(scanSessions: ScanSessionModel[], alert: boolean = true) {
-    for (let i = 0; i < scanSessions.length; i++) {
-      const scanSession = scanSessions[i];
-      const ackIndex = scanSession.scannings.findIndex(x => x.ack);
-      if (ackIndex != -1 && !this.connected) {
-        if (alert) {
-          this.alertCtrl.create({
-            title: 'Cannot perform this action while offline',
-            message: 'The selected scan session(s) has already been partially synced. Please connect the app to the server',
-            buttons: [{
-              text: 'Ok', role: 'cancel'
-            }]
-          }).present();
-        }
-        return true;
-      }
-    }
-    return false;
   }
 }

@@ -51,6 +51,7 @@ export class ScanSessionsStorage {
               date: x.date,
               scannings: x.scannings,
               selected: false,
+              syncedWith: x.syncedWith || []
             }
             return scanSession;
           });
@@ -101,6 +102,7 @@ export class ScanSessionsStorage {
               date: x.date,
               scannings: x.scannings,
               selected: false,
+              syncedWith: x.syncedWith || []
             }
             return scanSession;
           });

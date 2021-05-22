@@ -95,6 +95,7 @@ export class ScanSessionPage {
           for (let i = (len - 1); i >= 0; i--) {
             if (this.scanSession.scannings[i].id == response.scanId) {
               this.scanSession.scannings[i].ack = true;
+              if (response.serverUUID && this.scanSession.syncedWith.indexOf(response.serverUUID) == -1) this.scanSession.syncedWith.push(response.serverUUID);
               if (response.outputBlocks && response.outputBlocks.length != 0) {
                 this.scanSession.scannings[i].outputBlocks = response.outputBlocks;
                 this.scanSession.scannings[i].displayValue = ScanModel.ToString(this.scanSession.scannings[i]);

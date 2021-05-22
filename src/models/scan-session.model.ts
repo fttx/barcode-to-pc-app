@@ -2,7 +2,7 @@ import { ScanModel } from './scan.model'
 
 /**
  * When editing this interface make you sure to update also the
- * ScanSessionsStorage methods
+ * app/ScanSessionsStorage methods
  */
 export interface ScanSessionModel {
     id: number;
@@ -10,4 +10,8 @@ export interface ScanSessionModel {
     date: number;
     scannings: ScanModel[];
     selected: boolean;
+    /**
+     * Array of the servers' UUIDs where the scan session has been pushed
+     */
+    syncedWith: string[];
 }

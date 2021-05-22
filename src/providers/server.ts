@@ -8,7 +8,7 @@ import * as ipUtils from 'ip-utils';
 import { Observable, Subject } from 'rxjs';
 import { SemVer } from 'semver';
 import { discoveryResultModel } from '../models/discovery-result';
-import { requestModel, requestModelGetVersion, requestModelHelo, requestModelPing } from '../models/request.model';
+import { requestModel, requestModelDeleteScanSessions, requestModelGetVersion, requestModelHelo, requestModelPing, requestModelPutScanSessions } from '../models/request.model';
 import { responseModel, responseModelEnableQuantity, responseModelHelo, responseModelKick, responseModelPopup, responseModelUpdateSettings } from '../models/response.model';
 import { wsEvent } from '../models/ws-event.model';
 import { HelpPage } from '../pages/help/help';
@@ -16,6 +16,7 @@ import { Settings } from '../providers/settings';
 import { ServerModel } from './../models/server.model';
 import { Config } from './config';
 import { LastToastProvider } from './last-toast/last-toast';
+import { ScanSessionsStorage } from './scan-sessions-storage';
 // Warning: do not import ScanProvider to prevent circular dependency
 // To communicate with ScanProvider use global events.
 
@@ -66,8 +67,8 @@ export class ServerProvider {
     private networkInterface: NetworkInterface,
     public events: Events,
     private appVersion: AppVersion,
+    private scanSessionsStorage: ScanSessionsStorage,
   ) {
-
   }
 
   onMessage(): Observable<any> {
@@ -212,6 +213,28 @@ export class ServerProvider {
         } else {
           // deprecated
           this.settings.setQuantityEnabled(heloResponse.quantityEnabled);
+        }
+
+        // Send the request to delete the pending scan sessions already deleted from the app
+        let deletedIds = await this.settings.getUnsyncedDeletedScanSesions(heloResponse.serverUUID);
+        if (deletedIds) {
+          let wsDeleteRequest = new requestModelDeleteScanSessions().fromObject({
+            scanSessionIds: deletedIds
+          });
+          this.send(wsDeleteRequest);
+          this.settings.setUnsyncedDeletedScanSesions(heloResponse.serverUUID, []); // Clear the list
+        }
+
+        // Send the request to restore the pending scan sessions already restored from the app
+        let restoredIds = await this.settings.getUnsyncedRestoredScanSesions();
+        if (restoredIds) {
+          let wsRestoreRequest = new requestModelPutScanSessions().fromObject({
+            scanSessions: (await this.scanSessionsStorage.getScanSessions()).filter(x => restoredIds.indexOf(x.id) != -1),
+            sendKeystrokes: false,
+            deviceId: this.device.uuid,
+          });
+          this.send(wsRestoreRequest);
+          this.settings.setUnsyncedRestoredScanSesions([]); // Clear the list
         }
       } else if (messageData.action == responseModel.ACTION_PONG) {
         //console.log('[S]: WS: pong received, stop waiting 5 secs')
