@@ -90,7 +90,7 @@ export class SelectScanningModePage {
     });
   }
 
-  getBarcodetScanSessionName(): Promise<string> {
+  getBarcodeScanSessionName(): Promise<string> {
     return new Promise(async (resolve, reject) => {
       this.barcodeScanner.scan({ "showFlipCameraButton": true }).subscribe(async (scan: BarcodeScanResult) => {
         if (scan && scan.text) {
@@ -124,7 +124,7 @@ export class SelectScanningModePage {
           buttonClasses += " alert-button-stacked";
           try {
             // Try to get the a barcode value
-            let scanSessionName = await this.getBarcodetScanSessionName();
+            let scanSessionName = await this.getBarcodeScanSessionName();
             resolve(scanSessionName);
             return;
           } catch { }
