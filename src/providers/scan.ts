@@ -244,6 +244,7 @@ export class ScanProvider {
             http: null,
             run: null,
             csv_lookup: null,
+            csv_update: null,
           }
 
           // run the OutputProfile
