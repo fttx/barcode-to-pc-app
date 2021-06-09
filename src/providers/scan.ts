@@ -305,7 +305,7 @@ export class ScanProvider {
                 break;
               }
               case 'select_option': {
-                outputBlock.value = await this.showSelectOption(outputBlock.value);
+                outputBlock.value = await this.showSelectOption(outputBlock);
                 variables.select_option = outputBlock.value;
                 break;
               }
@@ -656,9 +656,9 @@ export class ScanProvider {
     });
   }
 
-  private showSelectOption(csvSelectOptions: string): Promise<string> {
+  private showSelectOption(outputBlock: OutputBlockModel): Promise<string> {
     return new Promise((resolve, reject) => {
-      let options = csvSelectOptions.split(',');
+      let options = outputBlock.value.split(',');
       let optionIndex = 0;
       let inputs: AlertInputOptions[] = options.map(option => {
         let input: AlertInputOptions = {
@@ -673,8 +673,14 @@ export class ScanProvider {
         return input;
       });
 
+      let title = null;
+      let message = null;
+      if (outputBlock.title && outputBlock.title.length >= 1) title = outputBlock.title;
+      if (outputBlock.message && outputBlock.message.length >= 1) message = outputBlock.message;
+
       let alert = this.alertCtrl.create({
-        title: 'Select an option',
+        title: title,
+        message: message,
         inputs: inputs,
         enableBackdropDismiss: false,
         buttons: [{
