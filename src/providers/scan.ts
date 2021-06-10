@@ -245,6 +245,7 @@ export class ScanProvider {
             run: null,
             csv_lookup: null,
             csv_update: null,
+            javascript_function: null,
           }
 
           // run the OutputProfile
@@ -317,6 +318,7 @@ export class ScanProvider {
                 } catch (error) {
                   outputBlock.value = '';
                 }
+                variables.javascript_function = outputBlock.value;
                 break;
               }
               case 'barcode': {
