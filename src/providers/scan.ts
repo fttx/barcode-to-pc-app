@@ -305,6 +305,8 @@ export class ScanProvider {
                 break;
               }
               case 'select_option': {
+                if (outputBlock.message) outputBlock.message = new Supplant().text(outputBlock.message, variables);
+                if (outputBlock.title) outputBlock.title = new Supplant().text(outputBlock.title, variables);
                 outputBlock.value = await this.showSelectOption(outputBlock);
                 variables.select_option = outputBlock.value;
                 break;
