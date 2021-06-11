@@ -54,7 +54,6 @@ ionic cordova run android
 
 ```bash
 # iOS
-# File > Workspace Settings... > Select "Legacy Build System"
 # Select Any iOS device as Build Target
 # Barcode to PC > Build Phases > Remove "[CP] Copy Pods Resources"
 # Barcode to PC > Build Settings > Signing > Set Code Signign Identity to "iOS Developer"
