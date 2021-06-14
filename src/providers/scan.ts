@@ -823,6 +823,11 @@ export class ScanProvider {
 
   private showAddMoreDialog(timeoutSeconds): Promise<boolean> {
     return new Promise((resolve, reject) => {
+      if (timeoutSeconds == 0) {
+        resolve(true);
+        return;
+      }
+
       let interval = null;
       let alert = this.alertCtrl.create({
         title: 'Continue scanning?',
