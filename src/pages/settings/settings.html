@@ -21,7 +21,7 @@
 <ion-content>
   <ion-list>
     <ion-item>
-      <ion-label color="dark">Continue mode timeout (seconds)</ion-label>
+      <ion-label color="dark">Continuous mode timeout (seconds)</ion-label>
       <ion-select [(ngModel)]="continueModeTimeout">
         <ion-option *ngFor="let second of availableContinueModeTimeouts" [value]="second">{{ second }}</ion-option>
       </ion-select>
