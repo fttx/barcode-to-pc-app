@@ -5,6 +5,7 @@ import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 import { NativeAudio } from '@ionic-native/native-audio';
 import { Alert, AlertController, Events, Platform } from 'ionic-angular';
 import { AlertInputOptions } from 'ionic-angular/components/alert/alert-options';
+import moment from 'moment';
 import { Observable, Subscriber, Subscription } from 'rxjs';
 import { isNumeric } from 'rxjs/util/isNumeric';
 import { lt, SemVer } from 'semver';
@@ -232,12 +233,20 @@ export class ScanProvider {
           let variables = {
             barcodes: [],
             barcode: '',
-            quantity: null, // deprecated
+            quantity: null, // @deprecated
             number: null,
             text: null,
-            timestamp: (scan.date * 1000),
-            date: new Date(scan.date).toLocaleDateString(),
-            time: new Date(scan.date).toLocaleTimeString(),
+            /**
+              * We always force the variable to exists, since it is a 'variable'
+              * type and can't be assigned from the output template.
+              *
+              * Note that in the CSV it's handled differently, using the scan
+              * session date instead.
+             */
+            timestamp: (now * 1000),
+            date: new Date(now).toLocaleDateString(), // @deprecated
+            time: new Date(now).toLocaleTimeString(), // @deprecated
+            date_time: null,
             scan_session_name: scanSession.name,
             device_name: this.deviceName,
             select_option: null,
@@ -265,15 +274,25 @@ export class ScanProvider {
               // app side, so we just skip them
               case 'key': break;
               case 'text': break;
-              // while other components like 'variable' need to be filled with data, that is
-              // acquired from the smartphone
+              // while other components like 'variable' need to be filled with data,
+              // here, at the smartphone side.
               case 'variable': {
                 switch (outputBlock.value) {
+                  case 'timestamp': outputBlock.value = (now * 1000) + ''; break;
+
+                  /**
+                   * date, time, date_time are @deprecated as 'variable' type.
+                   *
+                   * From v3.17.0+ the date_time variable is availableb as 'date_time' type (see below).
+                   *
+                   * The code is still here to support older output templates created
+                   * with older versions of the server.
+                   */
+                  case 'date': outputBlock.value = new Date(now).toLocaleDateString(); break;
+                  case 'time': outputBlock.value = new Date(now).toLocaleTimeString(); break;
+                  case 'date_time': outputBlock.value = new Date(now).toLocaleTimeString() + ' ' + new Date(scan.date).toLocaleDateString(); break;
+
                   case 'deviceName': outputBlock.value = this.deviceName; break;
-                  case 'timestamp': outputBlock.value = (scan.date * 1000) + ''; break;
-                  case 'date': outputBlock.value = new Date(scan.date).toLocaleDateString(); break;
-                  case 'time': outputBlock.value = new Date(scan.date).toLocaleTimeString(); break;
-                  case 'date_time': outputBlock.value = new Date(scan.date).toLocaleTimeString() + ' ' + new Date(scan.date).toLocaleDateString(); break;
                   case 'scan_session_name': outputBlock.value = scanSession.name; break;
                   case 'quantity': // deprecated
                   case 'number': {
@@ -303,6 +322,11 @@ export class ScanProvider {
                     break;
                   }
                 } // switch outputBlock.value
+                break;
+              }
+              case 'date_time' : {
+                outputBlock.value = moment(new Date(now)).format(outputBlock.format);
+                variables.date_time = outputBlock.value;
                 break;
               }
               case 'select_option': {
