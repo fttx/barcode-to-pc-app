@@ -221,10 +221,24 @@ export class ScanProvider {
 
           // scan result
           let scan = new ScanModel();
+
+          /**
+           * Warning: DO NOT use this variable below.
+           *
+           * The Output template always neeeds fresh Date values, since it may
+           * get stuck with a blocking component such as BARCODE.
+           *
+           */
           let now = new Date().getTime();
-          // cloning the the outputProfile object is important since the if/endif
-          // blocks may remove elements
+
+          /*
+           * Clone the Output template object.
+
+           * This is important since the if/endif
+           * blocks may remove elements
+           */
           scan.outputBlocks = JSON.parse(JSON.stringify(this.outputProfile.outputBlocks))
+
           scan.id = now;
           scan.repeated = false;
           scan.date = now;
@@ -240,8 +254,11 @@ export class ScanProvider {
               * We always force the variable to exists, since it is a 'variable'
               * type and can't be assigned from the output template.
               *
-              * Note that in the CSV it's handled differently, using the scan
-              * session date instead.
+              * This is not optimal since the now variable can be outdated at
+              * the time it's injected.
+              *
+              * Note that in the CSV file path injection (server side) it's
+              * handled differently, using the scan session date instead.
              */
             timestamp: (now * 1000),
             date: new Date(now).toLocaleDateString(), // @deprecated
@@ -278,7 +295,7 @@ export class ScanProvider {
               // here, at the smartphone side.
               case 'variable': {
                 switch (outputBlock.value) {
-                  case 'timestamp': outputBlock.value = (now * 1000) + ''; break;
+                  case 'timestamp': outputBlock.value = (new Date().getTime() * 1000) + ''; break;
 
                   /**
                    * date, time, date_time are @deprecated as 'variable' type.
@@ -288,9 +305,9 @@ export class ScanProvider {
                    * The code is still here to support older output templates created
                    * with older versions of the server.
                    */
-                  case 'date': outputBlock.value = new Date(now).toLocaleDateString(); break;
-                  case 'time': outputBlock.value = new Date(now).toLocaleTimeString(); break;
-                  case 'date_time': outputBlock.value = new Date(now).toLocaleTimeString() + ' ' + new Date(scan.date).toLocaleDateString(); break;
+                  case 'date': outputBlock.value = new Date().toLocaleDateString(); break;
+                  case 'time': outputBlock.value = new Date().toLocaleTimeString(); break;
+                  case 'date_time': outputBlock.value = new Date().toLocaleTimeString() + ' ' + new Date().toLocaleDateString(); break;
 
                   case 'deviceName': outputBlock.value = this.deviceName; break;
                   case 'scan_session_name': outputBlock.value = scanSession.name; break;
@@ -324,8 +341,8 @@ export class ScanProvider {
                 } // switch outputBlock.value
                 break;
               }
-              case 'date_time' : {
-                outputBlock.value = moment(new Date(now)).format(outputBlock.format);
+              case 'date_time': {
+                outputBlock.value = moment(new Date()).format(outputBlock.format);
                 variables.date_time = outputBlock.value;
                 break;
               }
