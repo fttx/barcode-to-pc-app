@@ -50,6 +50,10 @@ export class ScanSessionPage {
   private skipAlreadySent = false;
   private selectedOutputProfileIndex: number;
   private enableBeep = true;
+  private unregisterBackButton = null;
+  private resumeSubscription: Subscription = null;
+  private pauseSubscription: Subscription = null;
+  private isPaused: boolean = false;
 
   constructor(
     public navParams: NavParams,
@@ -74,6 +78,18 @@ export class ScanSessionPage {
     if (!this.scanSession) {
       this.isNewSession = true;
     }
+
+    // Use to detect wether the webview is visible or if the scanner plugin is
+    // covering it instead.
+    if (this.resumeSubscription != null) {
+      this.resumeSubscription.unsubscribe();
+      this.resumeSubscription = null;
+
+      this.pauseSubscription.unsubscribe();
+      this.pauseSubscription = null;
+    }
+    this.resumeSubscription = this.platform.resume.subscribe(() => { setTimeout(() => { this.isPaused = false; }, 2000); });
+    this.pauseSubscription = this.platform.pause.subscribe(() => { this.isPaused = true; });
   }
 
   @HostListener('window:keyup', ['$event'])
@@ -106,6 +122,13 @@ export class ScanSessionPage {
         }
       }
     });
+
+    // Enable back button only if the webview is visible.
+    // Otherwise it will go back to the previous page when using the back button
+    // to exit the scanner plugin
+    this.unregisterBackButton = this.platform.registerBackButtonAction(() => {
+      if (!this.isPaused) this.navCtrl.pop();
+    }, 0);
   }
 
   ionViewDidLoad() {
@@ -140,6 +163,11 @@ export class ScanSessionPage {
 
     if (this.scanProviderSubscription && this.scanProviderSubscription != null) {
       this.scanProviderSubscription.unsubscribe();
+    }
+
+    if (this.unregisterBackButton != null) {
+      this.unregisterBackButton();
+      this.unregisterBackButton = null;
     }
   }
 
