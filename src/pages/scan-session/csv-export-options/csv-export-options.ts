@@ -27,7 +27,6 @@ export class CSVExportOptionsPage {
 
   onExportClick() {
     let csv = ScanModel.ToCSV(this.scanSession.scannings, this.exportOnlyText, this.enableQuotes, this.csvDelimiter, this.newLineCharacter.replace('CR', '\r').replace('LF', '\n'));
-    let data = btoa(csv);
-    this.viewCtrl.dismiss(data);
+    this.viewCtrl.dismiss(csv);
   }
 }

@@ -1,5 +1,6 @@
 import { Component, HostListener, NgZone, ViewChild } from '@angular/core';
 import { Device } from '@ionic-native/device';
+import { File } from '@ionic-native/file';
 import { FirebaseAnalytics } from '@ionic-native/firebase-analytics';
 import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 import { NativeAudio } from '@ionic-native/native-audio';
@@ -73,6 +74,7 @@ export class ScanSessionPage {
     public scanProvider: ScanProvider,
     public platform: Platform, // required from the templates
     private iab: InAppBrowser,
+    private file: File,
   ) {
     this.scanSession = navParams.get('scanSession');
     if (!this.scanSession) {
@@ -520,8 +522,18 @@ export class ScanSessionPage {
 
   onShareClick() {
     let editModal = this.modalCtrl.create(CSVExportOptionsPage, this.scanSession);
-    editModal.onDidDismiss(base64CSV => {
-      if (!base64CSV) return;
+    editModal.onDidDismiss(csv => {
+
+      // Convert the csv string to base64 encoded data
+      let base64CSV = null;
+      try {
+        base64CSV = btoa(csv);
+        if (!base64CSV) { this.onShareClickFallBack(csv); return; }
+      } catch (error) {
+        this.onShareClickFallBack(csv);
+      }
+
+      // Share using base64 method
       if (this.utils.isAndroid()) {
         this.socialSharing.share(null, this.scanSession.name, "data:text/csv;base64," + base64CSV, null)
       } else {
@@ -530,6 +542,25 @@ export class ScanSessionPage {
       }
     });
     editModal.present();
+  }
+
+  async onShareClickFallBack(csv: string) {
+    // Remove previous files
+    const fileName = this.scanSession.name + '.csv';
+    try {
+      await this.file.removeFile(this.file.cacheDirectory, fileName)
+    } catch { }
+
+    // Save to file system
+    let result = await this.file.writeFile(this.file.cacheDirectory, fileName, csv);
+    if (result && result.nativeURL) {
+
+      // Share the file
+      this.socialSharing.share(null, this.scanSession.name, result.nativeURL, null);
+    } else {
+      // Should happen only if the cache dir si not writable or the disk is full.
+      this.alertCtrl.create({ title: 'Error', message: 'Cannot export the file. Please make you sure that there is enough space. If the error persists, please report the issue at ' + Config.EMAIL_SUPPORT + ', including a sample barcode that you are currently scanning.' }).present();
+    }
   }
 
   onOCRClick() {

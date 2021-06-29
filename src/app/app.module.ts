@@ -6,6 +6,7 @@ import { AppVersion } from '@ionic-native/app-version';
 import { BatteryStatus } from '@ionic-native/battery-status';
 import { Camera } from '@ionic-native/camera';
 import { Device } from '@ionic-native/device';
+import { File } from '@ionic-native/file';
 import { FirebaseAnalytics } from '@ionic-native/firebase-analytics';
 import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 import { Insomnia } from '@ionic-native/insomnia';
@@ -115,6 +116,7 @@ import { MyApp } from './app.component';
     BarcodeScanner,
     Zeroconf,
     Camera,
+    File,
     NetworkInterface,
     Network,
     NativeAudio,
