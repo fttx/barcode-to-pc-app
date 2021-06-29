@@ -33,7 +33,7 @@
 </ion-header>
 
 <ion-content>
-	<ion-list [virtualScroll]="scanSession && scanSession.scannings" [approxItemHeight]="'47px'" [bufferRatio]="5">
+	<ion-list [virtualScroll]="(scanSession && scanSession.scannings) || []" [approxItemHeight]="'47px'" [bufferRatio]="5">
 		<button ion-item *virtualItem="let scan; let i = index" (click)="onItemClicked(scan, i)" (press)="onItemPressed(scan, i)" [color]="scan.repeated ? 'light' : 'default'">
 			<ion-grid no-padding>
 				<ion-row>
