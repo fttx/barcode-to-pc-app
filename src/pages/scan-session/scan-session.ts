@@ -158,7 +158,6 @@ export class ScanSessionPage {
   }
 
   ionViewDidLeave() {
-    this.nativeAudio.unload('beep');
     if (this.responseSubscription != null && this.responseSubscription) {
       this.responseSubscription.unsubscribe();
     }
