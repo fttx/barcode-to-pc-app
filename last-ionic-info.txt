@@ -9,7 +9,7 @@ Cordova:
 
    Cordova CLI       : 9.0.0 (cordova-lib@9.0.1)
    Cordova Platforms : android 8.1.0, ios 6.1.0
-   Cordova Plugins   : cordova-plugin-ionic-keyboard 2.2.0, cordova-plugin-ionic-webview 4.2.0, (and 21 other plugins)
+   Cordova Plugins   : cordova-plugin-ionic-keyboard 2.2.0, cordova-plugin-ionic-webview 4.2.0, (and 22 other plugins)
 
 Utility:
 
