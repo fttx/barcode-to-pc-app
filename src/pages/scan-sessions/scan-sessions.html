@@ -4,7 +4,7 @@
 			<ion-icon name="menu"></ion-icon>
 		</button>
 
-		<ion-title *ngIf="selectedScanSessions.length == 0">Scan sessions</ion-title>
+		<ion-title *ngIf="selectedScanSessions.length == 0">{{ 'scanSessionsTitle' | translate }}</ion-title>
 
 		<ion-buttons end *ngIf="selectedScanSessions.length == 0">
 			<button ion-button icon-only (click)="onSelectServerClick()">
@@ -75,7 +75,7 @@
 		</button>
 		<ion-fab-list side="top">
 			<button color="primary" ion-fab>
-			    <img src="assets/select-scanning-mode/continue.png">
+					<img src="assets/select-scanning-mode/continue.png">
 			</button>
 			<button color="primary" ion-fab>
 				<img src="assets/select-scanning-mode/single.png">

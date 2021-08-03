@@ -22,6 +22,7 @@ import { ScanSessionsStorage } from '../providers/scan-sessions-storage';
 import { Settings } from '../providers/settings';
 import { Utils } from '../providers/utils';
 import { SelectServerPage } from './../pages/select-server/select-server';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   templateUrl: 'app.html',
@@ -49,10 +50,18 @@ export class MyApp {
     private insomnia: Insomnia,
     public nativeAudio: NativeAudio,
     private eventsReporterProvider: EventsReporterProvider,
+    private translate: TranslateService,
   ) {
     platform.ready().then(() => {
 
-      this.firebaseAnalytics.setEnabled(!Config.DEBUG)
+      this.firebaseAnalytics.setEnabled(!Config.DEBUG);
+
+      this.translate.setDefaultLang('en');
+      if (this.translate.getBrowserLang() !== undefined) {
+        this.translate.use(this.translate.getBrowserLang());
+      } else {
+        this.translate.use('en');
+      }
 
       this.nativeAudio.preloadSimple('beep_high', 'assets/audio/beep_high.ogg');
       this.nativeAudio.preloadSimple('beep_low', 'assets/audio/beep_low.ogg');
