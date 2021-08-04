@@ -185,9 +185,9 @@ export class ScanSessionsPage {
           if (this.serverProvider.isConnected()) return;
           this.alertCtrl.create({
             title: await this.utils.text('reconnectDialogTitle'),
-            message: await this.utils.text('reconnectDialogMessage', {"defaultServerName" : defaultServer.name, "defaultServerAddress": defaultServer.address, "discoveryServerAddress" : discoveryResult.server.address  }),
+            message: await this.utils.text('reconnectDialogMessage', { "defaultServerName": defaultServer.name, "defaultServerAddress": defaultServer.address, "discoveryServerAddress": discoveryResult.server.address }),
             buttons: [{ text: await this.utils.text('reconnectDialogNoButton'), role: 'cancel', handler: () => { } }, {
-              text: await this.utils.text('reconnectDialogTitle'),
+              text: await this.utils.text('reconnectDialogReconnectButton'),
               handler: () => {
                 this.settings.setDefaultServer(discoveryResult.server); // override the defaultServer
                 this.settings.getSavedServers().then(savedServers => {
@@ -285,7 +285,7 @@ export class ScanSessionsPage {
     slidingItem.close();
     this.alertCtrl.create({
       title: await this.utils.text('scanSessionDeleteDialogTitle'),
-      message: await this.utils.text('scanSessionDialogMessage',{"scanSessionName" : scanSession.name }),
+      message: await this.utils.text('scanSessionDialogMessage', { "scanSessionName": scanSession.name }),
       buttons: [{
         text: await this.utils.text('scanSessionDialogCancelButton'), role: 'cancel'
       }, {
@@ -333,7 +333,7 @@ export class ScanSessionsPage {
   async onDeleteSelectedClick() {
     this.alertCtrl.create({
       title: await this.utils.text('scanSessionPermanentDeleteDialogTitle'),
-      message: (await this.utils.text('scanSessionPermanentDeleteDialogMessage') ),
+      message: (await this.utils.text('scanSessionPermanentDeleteDialogMessage')),
       buttons: [{
         text: await this.utils.text('scanSessionPermanentDeleteCancelButton'), role: 'cancel'
       }, {
