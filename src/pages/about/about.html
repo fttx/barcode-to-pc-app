@@ -2,7 +2,7 @@
   <ion-navbar color="primary">
 
     <ion-title>
-      About
+      {{ 'aboutTitle' | translate }}
     </ion-title>
 
   </ion-navbar>
@@ -11,18 +11,18 @@
 <ion-content>
   <ion-list>
     <ion-item>
-      <ion-label>App version</ion-label>
+      <ion-label>{{ 'appVersionLabel' | translate }}</ion-label>
       <div item-content>v{{ version }}</div>
     </ion-item>
 
     <ion-item>
-      <ion-label>Website</ion-label>
+      <ion-label>{{ 'websiteLabel' | translate }}</ion-label>
       <a item-content (click)="onWebSiteClick()">{{ websiteName }}</a>
     </ion-item>
 
 
     <ion-item>
-      <ion-label>Support e-mail</ion-label>
+      <ion-label>{{ 'supportEmailLabel' | translate }}</ion-label>
       <a item-content (click)="onContactSupportClick()">{{ getSupportEmail() }}</a>
     </ion-item>
   </ion-list>

@@ -10,6 +10,8 @@ import { Config } from './../../providers/config';
 import { Settings } from './../../providers/settings';
 import { AppVersion } from '@ionic-native/app-version';
 import { Insomnia } from '@ionic-native/insomnia';
+import { Utils } from '../../providers/utils';
+import { TranslateService } from '@ngx-translate/core';
 
 /*
   Generated class for the Settings page.
@@ -43,6 +45,8 @@ export class SettingsPage {
   public barcodeFormats: barcodeFormatModel[] = barcodeFormatModel.supportedBarcodeFormats
   public enableLimitBarcodeFormats: boolean = false;
 
+  public static MODE_LABELS: any = {};
+
   constructor(
     public viewCtrl: ViewController,
     public navCtrl: NavController,
@@ -52,10 +56,23 @@ export class SettingsPage {
     private device: Device,
     public platform: Platform, // required from the template
     private insomnia: Insomnia,
+    private translateService: TranslateService,
   ) {
     for (let i = 0; i <= 15000; i += 250) {
       this.availableRepeatIntervals.push(i);
     }
+
+    SettingsPage.MODE_LABELS[SelectScanningModePage.SCAN_MODE_ASK] = '';
+    SettingsPage.MODE_LABELS[SelectScanningModePage.SCAN_MODE_CONTINUE] = '';
+    SettingsPage.MODE_LABELS[SelectScanningModePage.SCAN_MODE_SINGLE] = '';
+    SettingsPage.MODE_LABELS[SelectScanningModePage.SCAN_MODE_ENTER_MAUALLY] = '';
+  }
+
+  async ngOnInit() {
+    SettingsPage.MODE_LABELS[SelectScanningModePage.SCAN_MODE_ASK] = this.translateService.instant('askEveryTimeLabel');
+    SettingsPage.MODE_LABELS[SelectScanningModePage.SCAN_MODE_CONTINUE] = this.translateService.instant('continuousModeLabel');
+    SettingsPage.MODE_LABELS[SelectScanningModePage.SCAN_MODE_SINGLE] = this.translateService.instant('singleModeLabel');
+    SettingsPage.MODE_LABELS[SelectScanningModePage.SCAN_MODE_ENTER_MAUALLY] = this.translateService.instant('enterManuallyLabel');
   }
 
   ionViewDidLoad() {
@@ -198,12 +215,6 @@ export class SettingsPage {
   }
 
   public getScanModeName(scanMode: string) {
-    switch (scanMode) {
-      case SelectScanningModePage.SCAN_MODE_ASK: return 'Ask every time'
-      case SelectScanningModePage.SCAN_MODE_CONTINUE: return 'Continuous mode'
-      case SelectScanningModePage.SCAN_MODE_SINGLE: return 'Single mode'
-      case SelectScanningModePage.SCAN_MODE_ENTER_MAUALLY: return 'Enter manually'
-      default: break;
-    }
+    return SettingsPage.MODE_LABELS[scanMode];
   }
 }

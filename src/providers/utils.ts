@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Device } from '@ionic-native/device';
 import { Network } from '@ionic-native/network';
+import { TranslateService } from '@ngx-translate/core';
 import { AlertController } from 'ionic-angular';
 import 'rxjs/add/operator/map';
 import { barcodeFormatModel } from '../models/barcode-format.model';
@@ -21,6 +22,7 @@ export class Utils {
     private network: Network,
     private alertCtrl: AlertController,
     private device: Device,
+    private translateService: TranslateService,
   ) { }
 
   public static getUrlParameterValue(url, parameterName) {
@@ -310,14 +312,14 @@ export class Utils {
     return result;
   }
 
-  askWiFiEnableIfDisabled() {
+  async askWiFiEnableIfDisabled() {
     if (this.network.type != 'ethernet' && this.network.type != 'wifi' && !this.enableWifiShown) {
       this.alertCtrl.create({
-        title: 'Wi-Fi is disabled',
-        message: 'Please connect your smartphone to a Wi-Fi network (or ethernet)',
+        title: await this.text('askWifiEnableIfDisableDialogTitle'),
+        message: await this.text('askWifiEnableIfDisableDialogMessage'),
         buttons: [
           {
-            text: 'Ok',
+            text: await this.text('askWifiEnableIfDisableDialogOkButton'),
             handler: () => { }
           }
         ]
@@ -325,6 +327,18 @@ export class Utils {
       this.enableWifiShown = true;
     }
   }
+
+  /**
+* Gets the translated value of a key (or an array of keys)
+* @param key
+* @param interpolateParams
+* @returns {string} the translated key, or an object of translated keys
+*/
+  public async text(key: string | Array<string>, interpolateParams?: Object): Promise<string> {
+    return await this.translateService.get(key, interpolateParams).toPromise();
+  }
+
+
 }
 
 export type AlertButtonType = 'discard_scan' | 'scan_again' | 'ok';

@@ -17,6 +17,7 @@ import { ServerModel } from './../models/server.model';
 import { Config } from './config';
 import { LastToastProvider } from './last-toast/last-toast';
 import { ScanSessionsStorage } from './scan-sessions-storage';
+import { Utils } from './utils';
 // Warning: do not import ScanProvider to prevent circular dependency
 // To communicate with ScanProvider use global events.
 
@@ -68,6 +69,7 @@ export class ServerProvider {
     public events: Events,
     private appVersion: AppVersion,
     private scanSessionsStorage: ScanSessionsStorage,
+    private utils: Utils,
   ) {
   }
 
@@ -87,11 +89,11 @@ export class ServerProvider {
     return this._onDisconnect.asObservable();
   }
 
-  connect(server: ServerModel, skipQueue: boolean = false) {
+  async connect(server: ServerModel, skipQueue: boolean = false) {
     console.log('[S-c] connect(server=', server, 'skipQueue=', skipQueue);
     if (!this.webSocket || this.webSocket.readyState != WebSocket.OPEN || this.webSocket.url.indexOf(server.address) == -1) {
       console.log('[S-c]: not connected or new server selected, creating a new WS connection...');
-      this.wsConnect(server, skipQueue);
+      await this.wsConnect(server, skipQueue);
     } else if (this.webSocket.readyState == WebSocket.OPEN) {
       console.log('[S-c]: already connected to a server, no action taken');
       this.serverQueue = [];
@@ -101,10 +103,10 @@ export class ServerProvider {
     //console.log('[S]: queue: ', this.serverQueue);
   }
 
-  disconnect() {
+  async disconnect() {
     if (this.heartBeatInterval) clearTimeout(this.heartBeatInterval);
     if (this.pongTimeout) clearTimeout(this.pongTimeout);
-    this.wsDisconnect(false);
+    await this.wsDisconnect(false);
   }
 
   isConnected() {
@@ -115,7 +117,7 @@ export class ServerProvider {
     return this.reconnecting;
   }
 
-  private wsDisconnect(reconnect = false) {
+  private async wsDisconnect(reconnect = false) {
     console.log('[S-wd]: wsDisconnect(reconnect=' + reconnect + ')', this.webSocket);
 
     if (this.webSocket) {
@@ -124,7 +126,7 @@ export class ServerProvider {
       // Also emit the _onDisconnect event to prevent triggering another
       // watchForServers from the scanSesison Page subscription.
       if (this.everConnected && !this.reconnecting) {
-        this.lastToast.present('Connection lost');
+        this.lastToast.present(await this.utils.text('connectionLostToastTitle'));
         this.connected = false;
         this.wsEventObservable.next({ name: wsEvent.EVENT_ERROR, ws: this.webSocket });
         this._onDisconnect.next();
@@ -143,7 +145,7 @@ export class ServerProvider {
     return this.webSocket && (this.webSocket.readyState == WebSocket.CLOSING || this.webSocket.readyState == WebSocket.CONNECTING);
   }
 
-  private wsConnect(server: ServerModel, skipQueue: boolean = false) {
+  private async wsConnect(server: ServerModel, skipQueue: boolean = false) {
     console.log('[S-wc]: wsConnect(' + server.address + ')', new Date())
 
     if (skipQueue) {
@@ -161,17 +163,17 @@ export class ServerProvider {
         //console.log('[S]: WS: the server is already in the connections queue');
       }
 
-      setTimeout(() => {
+      setTimeout(async () => {
         if (this.isTransitioningState()/* && this.webSocket.url.indexOf(server.address) != -1*/) {
           //console.log('[S]: the server ' + server.address + ' is still in transitiong state after 5 secs of connect(), closing the connection...')
-          this.wsDisconnect();
+          await this.wsDisconnect();
           this.webSocket = null;
         }
       }, 5000);
       return;
     }
 
-    this.wsDisconnect();
+    await this.wsDisconnect();
 
     let wsUrl = 'ws://' + server.address + ':' + Config.SERVER_PORT + '/';
     this.webSocket = new WebSocket(wsUrl);
@@ -247,7 +249,7 @@ export class ServerProvider {
         this.popup = this.alertCtrl.create({
           title: responseModelPopup.title,
           message: responseModelPopup.message,
-          buttons: ['Ok']
+          buttons: [await this.utils.text('responseModalDialogOkButton')]
         });
         this.popup.present();
       } else if (messageData.action == responseModel.ACTION_UPDATE_SETTINGS) {
@@ -270,8 +272,9 @@ export class ServerProvider {
 
         if (responseModelKick.message != '') {
           this.alertCtrl.create({
-            title: 'Limit raeched', message: responseModelKick.message,
-            buttons: [{ text: 'Close', role: 'cancel' }]
+            title: await this.utils.text('responseModelKickDialogTitle'),
+            message: responseModelKick.message,
+            buttons: [{ text: await this.utils.text('responseModelKickDialogCloseButton'), role: 'cancel' }]
           }).present();
         }
       }
@@ -280,7 +283,7 @@ export class ServerProvider {
       })
     }
 
-    this.webSocket.onopen = () => {
+    this.webSocket.onopen = async () => {
       //console.log('[S]: onopen')
       this.connectionProblemAlert = false;
       this.everConnected = true; // for current instance
@@ -296,7 +299,7 @@ export class ServerProvider {
       this.connected = true;
       this.wsEventObservable.next({ name: 'open', ws: this.webSocket });
       this._onConnect.next(server);
-      this.lastToast.present('Connection established with ' + server.name)
+      this.lastToast.present(await this.utils.text('connectionEstablishedToastTitle', { "serverName": server.name }));
 
       //console.log('[S]: WS: new heartbeat started');
       if (this.heartBeatInterval) clearInterval(this.heartBeatInterval);
@@ -306,10 +309,10 @@ export class ServerProvider {
         this.send(request);
         //console.log('[S]: WS: waiting 5 secs before starting the connection again')
         if (this.pongTimeout) clearTimeout(this.pongTimeout);
-        this.pongTimeout = setTimeout(() => { // do 5 secondi per rispondere
+        this.pongTimeout = setTimeout(async () => { // do 5 secondi per rispondere
           console.log('[S-wc]: WS pong not received, closing connection...')
-          this.wsDisconnect(false);
-          this.scheduleNewWsConnection(server); // se il timeout non è stato fermato prima da una risposta, allora schedulo una nuova connessione
+          await this.wsDisconnect(false);
+          await this.scheduleNewWsConnection(server); // se il timeout non è stato fermato prima da una risposta, allora schedulo una nuova connessione
         }, 1000 * 5);
       }, 1000 * 60); // ogni 60 secondi invio ping
 
@@ -354,26 +357,26 @@ export class ServerProvider {
       });
     };
 
-    this.webSocket.onerror = err => {
+    this.webSocket.onerror = async err => {
       console.log('[S]: WS: onerror ')
 
       if (!this.reconnecting) {
-        this.lastToast.present('Unable to connect. Select Help from the app menu in order to determine the cause');
+        this.lastToast.present(await this.utils.text('unableToConnectToastTitle'));
       }
       this.connected = false;
       this.wsEventObservable.next({ name: wsEvent.EVENT_ERROR, ws: this.webSocket });
       this._onDisconnect.next();
-      this.scheduleNewWsConnection(server);
+      await this.scheduleNewWsConnection(server);
     }
 
-    this.webSocket.onclose = (ev: CloseEvent) => {
+    this.webSocket.onclose = async (ev: CloseEvent) => {
       console.log('[S]: onclose')
 
       if (this.everConnected && !this.reconnecting) {
-        this.lastToast.present('Connection closed');
+        this.lastToast.present(await this.utils.text('connectionClosedToastTitle'));
       }
       if (ev.code != ServerProvider.EVENT_CODE_DO_NOT_ATTEMP_RECCONECTION) {
-        this.scheduleNewWsConnection(server);
+        await this.scheduleNewWsConnection(server);
       }
 
       this.connected = false;
@@ -383,7 +386,7 @@ export class ServerProvider {
     }
   } // wsConnect() end
 
-  send(request: requestModel) {
+  async send(request: requestModel) {
     if (this.kickedOut) {
       return;
     }
@@ -395,12 +398,15 @@ export class ServerProvider {
       } else if (!this.connectionProblemAlert) {
         this.connectionProblemAlert = true;
         this.alertCtrl.create({
-          title: 'Connection problem', message: 'To determine the cause check the help page',
-          buttons: [{ text: 'Close', role: 'cancel' }, {
-            text: 'Help page', handler: () => {
-              this.events.publish('setPage', HelpPage);
-            }
-          }]
+          title: await this.utils.text('connectionProblemDialogTitle'),
+          message: await this.utils.text('connectionProblemDialogMessage'),
+          buttons: [
+            { text: await this.utils.text('connectionProblemDialogCloseButton'), role: 'cancel' },
+            {
+              text: await this.utils.text('connectionProblemDialogHelpPageButton'), handler: () => {
+                this.events.publish('setPage', HelpPage);
+              }
+            }]
         }).present();
       }
     } else {
@@ -496,7 +502,7 @@ export class ServerProvider {
     }
   }
 
-  private scheduleNewWsConnection(server) {
+  private async scheduleNewWsConnection(server) {
     console.log('[S-snwc]: scheduleNewWsConnection()->')
     this.reconnecting = true;
     if (this.pongTimeout) clearTimeout(this.pongTimeout);
@@ -505,25 +511,25 @@ export class ServerProvider {
       if (this.serverQueue.length) {
         console.log('[S-snwc]:    server queue is not empty, attemping a new reconnection whithout waiting')
         server = this.serverQueue.shift(); // Removes the first element from an array and returns it
-        this.wsConnect(server);
+        await this.wsConnect(server);
       } else {
         console.log('[S-snwc]:    server queue is empty, attemping a new reconnection to the same server in ' + ServerProvider.RECONNECT_INTERVAL + ' secs');
-        this.reconnectInterval = setInterval(() => {
-          this.wsConnect(server);
+        this.reconnectInterval = setInterval(async () => {
+          await this.wsConnect(server);
         }, ServerProvider.RECONNECT_INTERVAL);
       }
     }
   }
 
   private isVersionMismatchDialogVisible = false;
-  private showVersionMismatch() {
+  private async showVersionMismatch() {
     if (!this.isVersionMismatchDialogVisible) {
       let dialog = this.alertCtrl.create({
-        title: 'Server/app version mismatch',
-        message: 'Please update both app and server, otherwise they may not work properly.<br><br>Server can be downloaded at ' + Config.WEBSITE_NAME,
+        title: await this.utils.text('showVersionMisMatchDialogTitle'),
+        message: await this.utils.text('showVersionMisMatchDialogMessage', { "websiteName": Config.WEBSITE_NAME }),
         buttons: [
           {
-            text: 'Ok',
+            text: await this.utils.text('showVersionMisMatchDialogOkButton'),
             role: 'cancel'
           }
         ]

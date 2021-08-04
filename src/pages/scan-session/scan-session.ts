@@ -138,17 +138,17 @@ export class ScanSessionPage {
       this.scan();
     } else {
       // It will be shown only once because ioViewDidLoad is always called only once
-      BluebirdPromise.join(this.settings.getNoRunnings(), this.settings.getSoundFeedbackOrDialogShown(), this.settings.getEnableBeep(), (runnings, soundFeedbackOrDialogShown, enableBeep) => {
+      BluebirdPromise.join(this.settings.getNoRunnings(), this.settings.getSoundFeedbackOrDialogShown(), this.settings.getEnableBeep(), async (runnings, soundFeedbackOrDialogShown, enableBeep) => {
         this.enableBeep = enableBeep;
         if (!soundFeedbackOrDialogShown && runnings >= Config.NO_RUNNINGS_BEFORE_SHOW_SOUND_FEEDBACK_OR_DIALOG) {
           this.alertCtrl.create({
-            title: 'Beep sound',
-            message: 'If you want to hear a beep sound after the scan, raise your Media volume <b>and</b> also make you sure that the Do not disturb mode is disabled.<br><br>If you want to customize the beep sound, please use the BEEP component in the server settings. <br><br>If instead you want to put a delay between the scans you can set a <b>timeout</b> in the Settings page',
+            title: await this.utils.text('beepSoundDialogTitle'),
+            message: await this.utils.text('beepSoundDialogMessage'),
             buttons: [
-              { text: 'Open Settings', handler: () => { this.navCtrl.push(SettingsPage) } },
-              { text: 'Show later', role: 'cancel', handler: () => { } },
+              { text: await this.utils.text('beepSoundDialogOpenSettingsButton'), handler: () => { this.navCtrl.push(SettingsPage) } },
+              { text: await this.utils.text('beepSoundDialogShowLaterButton'), role: 'cancel', handler: () => { } },
               {
-                text: 'Ok, I understand', role: 'cancel', handler: () => { this.settings.setSoundFeedbackOrDialogShown(true); }
+                text: await this.utils.text('beepSoundDialogUnderstandButton'), role: 'cancel', handler: () => { this.settings.setSoundFeedbackOrDialogShown(true); }
               }]
           }).present();
 
@@ -279,13 +279,13 @@ export class ScanSessionPage {
     this.sendPutScan(scan);
   }
 
-  onItemClicked(scan: ScanModel, scanIndex: number) {
+  async onItemClicked(scan: ScanModel, scanIndex: number) {
     if (scan.ack == true) {
       this.alertCtrl.create({
-        title: 'The server has already received this scan',
-        message: 'Do you want to send it again?',
-        buttons: [{ text: 'Cancel', role: 'cancel', handler: () => { } },
-        { text: 'Send again', handler: () => { this.repeat(scan); } }]
+        title: await this.utils.text('alreadyReceivedScanDialogTitle'),
+        message: await this.utils.text('alreadyReceivedScanDialogMessage'),
+        buttons: [{ text: await this.utils.text('alreadyReceivedScanCancelButton'), role: 'cancel', handler: () => { } },
+        { text: await this.utils.text('alreadyReceivedScanDialogSendAgainButton'), handler: () => { this.repeat(scan); } }]
       }).present();
     } else {
       this.repeat(scan);
@@ -293,19 +293,19 @@ export class ScanSessionPage {
     this.firebaseAnalytics.logEvent('repeat', {});
   }
 
-  onItemPressed(scan: ScanModel, scanIndex: number) {
+  async onItemPressed(scan: ScanModel, scanIndex: number) {
     let buttons = [];
 
     buttons.push({
-      text: 'Delete', icon: 'trash', role: 'destructive', handler: () => {
+      text: await this.utils.text('scanDeleteOnlySmartphoneDeleteButton'), icon: 'trash', role: 'destructive', handler: async () => {
         this.firebaseAnalytics.logEvent('delete', {});
         this.alertCtrl.create({
-          title: 'Are you sure?',
-          message: 'The the scan will be deleted only from the smartphone.',
+          title: await this.utils.text('scanDeleteOnlySmartphoneDialogTitle'),
+          message: await this.utils.text('scanDeleteOnlySmartphoneDialogMessage'),
           buttons: [{
-            text: 'Cancel', role: 'cancel'
+            text: await this.utils.text('scanDeleteOnlySmartphoneDialogCancelButton'), role: 'cancel'
           }, {
-            text: 'Delete', handler: () => {
+            text: await this.utils.text('scanDeleteOnlySmartphoneDialogDeleteButton'), handler: () => {
               this.scanSession.scannings.splice(scanIndex, 1);
               this.save();
               this.sendDeleteScan(scan);
@@ -320,7 +320,7 @@ export class ScanSessionPage {
 
     let scanString = ScanModel.ToString(scan);
     buttons.push({
-      text: 'Share', icon: 'share', handler: () => {
+      text: await this.utils.text('shareButton'), icon: 'share', handler: () => {
         this.firebaseAnalytics.logEvent('share', {});
         this.socialSharing.share(scanString, "", "", "")
       }
@@ -328,7 +328,7 @@ export class ScanSessionPage {
 
     if (scanString.toLocaleLowerCase().trim().startsWith('http')) {
       buttons.push({
-        text: 'Open in browser', icon: 'open', handler: () => {
+        text: await this.utils.text('openInBrowserButton'), icon: 'open', handler: () => {
           this.firebaseAnalytics.logEvent('open_browser', {});
           this.iab.create(scanString, '_system');
         }
@@ -336,7 +336,7 @@ export class ScanSessionPage {
     }
 
     buttons.push({
-      text: 'Repeat from here', icon: 'refresh',
+      text: await this.utils.text('repeatHereButton'), icon: 'refresh',
       handler: () => {
         this.firebaseAnalytics.logEvent('repeatAll', {});
         if (this.repeatingStatus == 'stopped') {
@@ -345,19 +345,19 @@ export class ScanSessionPage {
       }
     });
 
-    buttons.push({ text: 'Cancel', role: 'cancel' });
+    buttons.push({ text: await this.utils.text('cancelButton'), role: 'cancel' });
 
     let actionSheet = this.actionSheetCtrl.create({ buttons: buttons });
     actionSheet.present();
   } // onItemClick
 
-  onEditClick() {
+  async onEditClick() {
     if (!this.serverProvider.isConnected()) {
       this.alertCtrl.create({
-        title: 'Cannot perform this action offline',
-        message: 'Please connect the app to the computer',
+        title: await this.utils.text('actionOnlyOnlineDialogTitle'),
+        message: await this.utils.text('actionOnlyOnlineDialogMessage'),
         buttons: [{
-          text: 'Close',
+          text: await this.utils.text('actionOnlyOnlineDialogCloseButton'),
           role: 'cancel',
         }]
       }).present();
@@ -435,17 +435,17 @@ export class ScanSessionPage {
     }
   }
 
-  onRepeatAllClick() {
+  async onRepeatAllClick() {
     this.alertCtrl.create({
-      title: 'Send all barcodes again',
+      title: await this.utils.text('sendBarcodeAgainDialogTitle'),
       inputs: [{
         type: 'checkbox',
-        label: 'Skip the already sent ones',
+        label: await this.utils.text('sendBarcodeAgainDialogMessage'),
         value: 'skipAlreadySent',
         checked: true
       }],
       buttons: [{
-        text: 'Cancel', role: 'cancel', handler: data => { }
+        text: await this.utils.text('sendBarcodeAgainDialogCancelButton'), role: 'cancel', handler: data => { }
       }, {
         text: 'Send', handler: data => {
           this.firebaseAnalytics.logEvent('repeatAll', {});
@@ -558,7 +558,10 @@ export class ScanSessionPage {
       this.socialSharing.share(null, this.scanSession.name, result.nativeURL, null);
     } else {
       // Should happen only if the cache dir si not writable or the disk is full.
-      this.alertCtrl.create({ title: 'Error', message: 'Cannot export the file. Please make you sure that there is enough space. If the error persists, please report the issue at ' + Config.EMAIL_SUPPORT + ', including a sample barcode that you are currently scanning.' }).present();
+      this.alertCtrl.create({
+        title: await this.utils.text('exportErrorDialogButton'),
+        message: await this.utils.text('exportErrorDialogMessage', { "config.email_support": Config.EMAIL_SUPPORT })
+      }).present();
     }
   }
 

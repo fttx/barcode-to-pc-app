@@ -1,10 +1,10 @@
 <ion-header>
   <ion-navbar color="primary">
-    <ion-title>OCR Acquiring</ion-title>
+    <ion-title>{{ 'ocrAcquiringTitle' | translate }}</ion-title>
 
     <ion-buttons end>
       <button ion-button icon-only (click)="start()">
-        Take again
+        {{ 'takeAgainButton' | translate }}
         <ion-icon name="refresh"></ion-icon>
       </button>
     </ion-buttons>
@@ -18,5 +18,5 @@
     <canvas #canvas (touchend)="onCanvasTouchEnd($event)"></canvas>
   </div>
 
-  <span class="suggestion">Tap a text to insert it</span>
+  <span class="suggestion">{{ 'tapATextSpan' | translate }}</span>
 </ion-content>

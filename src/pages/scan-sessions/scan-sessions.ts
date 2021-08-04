@@ -125,7 +125,7 @@ export class ScanSessionsPage {
 
 
       // Rating dialog
-      BluebirdPromise.join(this.settings.getNoRunnings(), this.settings.getRated(), (runnings, rated) => {
+      BluebirdPromise.join(this.settings.getNoRunnings(), this.settings.getRated(), async (runnings, rated) => {
         if (runnings >= Config.NO_RUNNINGS_BEFORE_SHOW_RATING && !rated) {
           // rating = In app native rating (iOS 10.3+ only)
           // launch = Android and iOS 10.3-
@@ -138,12 +138,12 @@ export class ScanSessionsPage {
             });
           } else {
             this.alertCtrl.create({
-              title: 'Rate Barcode to PC',
-              message: 'Let other users know what you achieved with Barcode to PC',
+              title: await this.utils.text('rateBarcodeToPcDialogTitle'),
+              message: await this.utils.text('rateBarcodeToPcDialogMessage'),
               buttons: [
-                { text: 'Remind me later', role: 'cancel' },
-                { text: 'No', handler: () => { this.settings.setRated(true); } }, {
-                  text: 'Rate',
+                { text: await this.utils.text('rateBarcodeToPcDialogremindMeLaterButton'), role: 'cancel' },
+                { text: await this.utils.text('rateBarcodeToPcDialogNoButton'), handler: () => { this.settings.setRated(true); } }, {
+                  text: await this.utils.text('rateBarcodeToPcDialogRateButton'),
                   handler: () => {
                     this.launchReview.launch().then(() => {
                       this.settings.setRated(true);
@@ -174,16 +174,16 @@ export class ScanSessionsPage {
       if (this.connected) return;
       // if the server has the same name, but a different ip => ask to reconnect
       if (defaultServer != null && defaultServer.name == discoveryResult.server.name && discoveryResult.server.name.length && defaultServer.address != discoveryResult.server.address) {
-        setTimeout(() => {
+        setTimeout(async () => {
           // We add a 3s delay just in case the defaultServer address gets announced
           // later, this way it has enough time to connect to it before prompting
           // the user.
           if (this.serverProvider.isConnected()) return;
           this.alertCtrl.create({
-            title: "Reconnect",
-            message: "It seems that the computer " + defaultServer.name + " changed ip address from " + defaultServer.address + " to " + discoveryResult.server.address + ", do you want to reconnect?",
-            buttons: [{ text: 'No', role: 'cancel', handler: () => { } }, {
-              text: 'Reconnect',
+            title: await this.utils.text('reconnectDialogTitle'),
+            message: await this.utils.text('reconnectDialogMessage', {"defaultServerName" : defaultServer.name, "defaultServerAddress": defaultServer.address, "discoveryServerAddress" : discoveryResult.server.address  }),
+            buttons: [{ text: await this.utils.text('reconnectDialogNoButton'), role: 'cancel', handler: () => { } }, {
+              text: await this.utils.text('reconnectDialogTitle'),
               handler: () => {
                 this.settings.setDefaultServer(discoveryResult.server); // override the defaultServer
                 this.settings.getSavedServers().then(savedServers => {
@@ -277,15 +277,15 @@ export class ScanSessionsPage {
     this.unselectAll();
   }
 
-  onDeleteClick(scanSession: ScanSessionModel, index: number, slidingItem: ItemSliding) {
+  async onDeleteClick(scanSession: ScanSessionModel, index: number, slidingItem: ItemSliding) {
     slidingItem.close();
     this.alertCtrl.create({
-      title: 'Are you sure?',
-      message: 'The scan session "' + scanSession.name + '" will be permanently deleted.\n\nIf instead you want to keep it on the smartphone, use the archive button.',
+      title: await this.utils.text('scanSessionDeleteDialogTitle'),
+      message: await this.utils.text('scanSessionDialogMessage',{"scanSessionName" : scanSession.name }),
       buttons: [{
-        text: 'Cancel', role: 'cancel'
+        text: await this.utils.text('scanSessionDialogCancelButton'), role: 'cancel'
       }, {
-        text: 'Delete', handler: () => {
+        text: await this.utils.text('scanSessionDialogDeleteButton'), handler: () => {
           this.removeScanSession(index);
           this.save();
           this.sendDeleteScanSessions([scanSession]);
@@ -326,14 +326,14 @@ export class ScanSessionsPage {
     this.unselectAll();
   }
 
-  onDeleteSelectedClick() {
+  async onDeleteSelectedClick() {
     this.alertCtrl.create({
-      title: 'Are you sure?',
-      message: 'The scan session will be permanently deleted from both smartphone and server.\n\nIf instead you want to keep it only on the smartphone, use the archive button.',
+      title: await this.utils.text('scanSessionPermanentDeleteDialogTitle'),
+      message: (await this.utils.text('scanSessionPermanentDeleteDialogMessage') ),
       buttons: [{
-        text: 'Cancel', role: 'cancel'
+        text: await this.utils.text('scanSessionPermanentDeleteCancelButton'), role: 'cancel'
       }, {
-        text: 'Delete', handler: () => {
+        text: await this.utils.text('scanSessionPermanentDeleteDeleteButton'), handler: () => {
           this.scanSessions = this.scanSessions.filter(x => !x.selected);
           this.save();
           this.sendDeleteScanSessions(this.selectedScanSessions);

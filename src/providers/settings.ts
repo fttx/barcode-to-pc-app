@@ -5,6 +5,7 @@ import { Storage } from '@ionic/storage';
 import { barcodeFormatModel } from '../models/barcode-format.model';
 import { OutputProfileModel } from '../models/output-profile.model';
 import { ServerModel } from '../models/server.model';
+import { Utils } from './utils';
 
 
 /*
@@ -55,6 +56,7 @@ export class Settings {
     public device: Device,
     public ngZone: NgZone,
     public splashScreen: SplashScreen,
+    public utils: Utils,
   ) {
   }
 
@@ -277,7 +279,7 @@ export class Settings {
     return new Promise(resolve => {
       this.storage.get(Settings.SCAN_SESSION_NAME).then(scanSessionName => {
         if (!scanSessionName) {
-          resolve("Scan session {{ scan_session_number }}");
+          resolve(this.utils.text('scanSessionName') + " {{ scan_session_number }}");
         } else {
           resolve(scanSessionName)
         }

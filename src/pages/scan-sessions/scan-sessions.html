@@ -23,11 +23,11 @@
 			</button>
 
 			<button ion-button icon-only (click)="onSelectAllClick()">
-				Select all
+				{{ 'selectAllButton' | translate }}
 			</button>
 
 			<button ion-button icon-right color="royal" (click)="onCancelSelectionClick()">
-				Cancel
+				{{ 'cancelButton' | translate }}
 			</button>
 		</ion-buttons>
 	</ion-navbar>
@@ -40,11 +40,11 @@
 			<ion-item-options side="right">
 				<button color="danger" ion-button (click)="onDeleteClick(scanSession, i, slidingItem)">
 					<ion-icon name="trash"></ion-icon>
-					Delete
+					{{ 'deleteButton' | translate }}
 				</button>
 				<button color="archived" expandable ion-button (click)="onScanSessionPress(scanSession, i); onArchiveSelectedClick()">
 					<ion-icon name="archive"></ion-icon>
-					Archive
+					{{ 'archiveButton' | translate }}
 				</button>
 			</ion-item-options>
 
@@ -56,16 +56,16 @@
 					<circle-text [value]="scanSession.name" [checked]="scanSession.selected">{{ scanSession.name }}</circle-text>
 				</ion-avatar>
 				<h2>{{ scanSession.name }}</h2>
-				<p>Created: {{ scanSession.date | amDateFormat:"YYYY/MM/DD HH:mm" }}</p>
-				<p>Number of scannings: {{ scanSession.scannings.length }}</p>
+				<p>{{ 'created' | translate }}: {{ scanSession.date | amDateFormat:"YYYY/MM/DD HH:mm" }}</p>
+				<p>{{ 'numberOfScannings' | translate }}: {{ scanSession.scannings.length }}</p>
 			</button>
 		</ion-item-sliding>
 	</ion-list>
 
 	<div class="empty" *ngIf="scanSessions.length == 0">
 		<img src="assets/welcome/a5fsa.jpg" alt="logo" class="desaturate-img" />
-		<br /> Scan sessions list is empty
-		<br /> Click on the camera button to start scanning
+		<br /> {{ 'scanSessionListEmpty' | translate }}
+		<br />{{ 'clickToStartScan' | translate }}
 	</div>
 
 	<!--Other possible implementation-->

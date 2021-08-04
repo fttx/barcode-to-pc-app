@@ -7,7 +7,7 @@
 <ion-header>
 
   <ion-navbar color="primary">
-    <ion-title>Settings</ion-title>
+    <ion-title>{{ 'settingsTitle' | translate }}</ion-title>
     <ion-buttons end>
       <button ion-button icon-only (click)="dismiss()">
         <ion-icon name="checkmark"></ion-icon>
@@ -21,21 +21,21 @@
 <ion-content>
   <ion-list>
     <ion-item>
-      <ion-label color="dark">Continuous mode timeout (seconds)</ion-label>
+      <ion-label color="dark">{{ 'continiousModeTimeoutLabel' | translate }}</ion-label>
       <ion-select [(ngModel)]="continueModeTimeout">
         <ion-option *ngFor="let second of availableContinueModeTimeouts" [value]="second">{{ second }}</ion-option>
       </ion-select>
     </ion-item>
 
     <ion-item>
-      <ion-label color="dark">Repeat interval (milliseconds)</ion-label>
+      <ion-label color="dark">{{ 'repeatIntervalLabel' | translate }}</ion-label>
       <ion-select [(ngModel)]="repeatInterval">
         <ion-option *ngFor="let ms of availableRepeatIntervals" [value]="ms">{{ ms }}</ion-option>
       </ion-select>
     </ion-item>
 
     <ion-item no-lines>
-      <ion-label color="dark">Scan mode</ion-label>
+      <ion-label color="dark">{{ 'scanModeLabel' | translate }}</ion-label>
       <ion-select [(ngModel)]="scanMode">
         <ion-option *ngFor="let scanMode of getScanModeList()" [value]="scanMode">{{ getScanModeName(scanMode) }}
         </ion-option>
@@ -44,80 +44,79 @@
 
     <ion-item text-wrap>
       <p>
-        Note: if you use more Output Templates select "{{ getScanModeName(getScanModeList()[0]) }}"
+        {{ 'moreOutputTemplate' | translate }} "{{ getScanModeName(getScanModeList()[0]) }}"
       </p>
     </ion-item>
 
     <ion-item no-lines>
-      <ion-label color="dark">Scan session name</ion-label>
+      <ion-label color="dark">{{ 'scanSessionNameLabel' | translate }}</ion-label>
 
-      <ion-input [(ngModel)]="scanSessionName" placeholder="Scan session name" text-right>
+      <ion-input [(ngModel)]="scanSessionName" [placeholder]="'scanSessionNameInputPlaceholder' | translate" text-right>
         {{ scanSessionName }}</ion-input>
     </ion-item>
 
     <ion-item text-wrap>
       <p>
-        You can use the following variables (lowercase):
+        {{ 'useFollowingVariablesInfo' | translate }}:
         <code>device_name, scan_session_number, date.</code><br><br>
 
-        Example: <code ngNonBindable>{{ date }}_acquisitions</code><br>
+        {{ 'example' | translate }}: <code ngNonBindable>{{ date }}_acquisitions</code><br>
       </p>
     </ion-item>
 
     <ion-item>
-      <ion-label color="dark">Device name</ion-label>
-      <ion-input [(ngModel)]="deviceName" placeholder="The name of this device" text-right>{{ deviceName }}</ion-input>
+      <ion-label color="dark">{{ 'deviceNameLabel' | translate }}</ion-label>
+      <ion-input [(ngModel)]="deviceName" [placeholder]="'deviceNameLabelPlaceholder' | translate" text-right>{{ deviceName }}</ion-input>
     </ion-item>
 
     <ion-item no-lines>
-      <ion-label color="dark">Always use the default Scan session name</ion-label>
+      <ion-label color="dark">{{ 'useDefaultScanSessionNameLabel' | translate }}</ion-label>
       <ion-toggle [(ngModel)]="alwaysUseDefaultScanSessionName"></ion-toggle>
     </ion-item>
     <ion-item text-wrap>
-      <p>If enabled, you won't be asked to choose a name when creating a new scan session</p>
+      <p>{{ 'createNewScanSessionChoiceItem' | translate }}</p>
     </ion-item>
 
     <ion-item>
-      <ion-label color="dark">Acquire the Scan session name as barcode</ion-label>
+      <ion-label color="dark">{{ 'acquireScansessionAsBarcodeLabel' | translate }}</ion-label>
       <ion-toggle [(ngModel)]="alwaysUseCameraForScanSessionName"></ion-toggle>
     </ion-item>
 
     <ion-item>
-      <ion-label color="dark">Prefer front camera</ion-label>
+      <ion-label color="dark">{{ 'preferFrontCameraLabel' | translate }}</ion-label>
       <ion-toggle [(ngModel)]="preferFrontCamera"></ion-toggle>
     </ion-item>
 
     <ion-item [hidden]="platform.is('ios')">
-      <ion-label color="dark">Turn the torch on automatically</ion-label>
+      <ion-label color="dark">{{ 'turnTorchOnLabel' | translate }}</ion-label>
       <ion-toggle [(ngModel)]="torchOn"></ion-toggle>
     </ion-item>
 
     <ion-item>
-      <ion-label color="dark">Keep display always on</ion-label>
+      <ion-label color="dark">{{ 'keepDisplayAlwaysOnLabel' | translate }}</ion-label>
       <ion-toggle [(ngModel)]="keepDisplayOn"></ion-toggle>
     </ion-item>
 
     <ion-item>
-      <ion-label color="dark">Enable camera beep</ion-label>
+      <ion-label color="dark">{{ 'enableCameraBeepLabel' | translate }}</ion-label>
       <ion-toggle [(ngModel)]="enableBeep"></ion-toggle>
     </ion-item>
 
     <ion-item [hidden]="platform.is('ios')">
-      <ion-label color="dark">Enable vibration feedback</ion-label>
+      <ion-label color="dark">{{ 'enableVibrationFeedbackLabel' | translate }}</ion-label>
       <ion-toggle [(ngModel)]="enableVibrationFeedback"></ion-toggle>
     </ion-item>
 
     <ion-item>
-      <ion-label color="dark">Open the app in Scan mode</ion-label>
+      <ion-label color="dark">{{ 'openAppScanModeLabel' | translate }}</ion-label>
       <ion-toggle [(ngModel)]="openScanOnStart"></ion-toggle>
     </ion-item>
 
     <ion-item text-wrap>
       <ion-label>
-        <h2 color="dark">Limit barcode formats</h2>
+        <h2 color="dark">{{ 'limitBarcodeFormatsTitle' | translate }}</h2>
         <p>
-          Use this setting to keep enabled only the barcode formats that you scan.
-          It may improve the scanning speed and the overall reliability.
+          {{ 'limitBarcodeFormatsDescription' | translate }}
         </p>
       </ion-label>
       <ion-toggle [(ngModel)]="enableLimitBarcodeFormats"></ion-toggle>

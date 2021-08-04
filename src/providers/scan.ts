@@ -71,14 +71,15 @@ export class ScanProvider {
     public serverProvider: ServerProvider,
     public events: Events,
     private iab: InAppBrowser,
+    private utils: Utils,
   ) {
-    this.events.subscribe(responseModel.ACTION_UPDATE_SETTINGS, (responseModelUpdateSettings: responseModelUpdateSettings) => {
+    this.events.subscribe(responseModel.ACTION_UPDATE_SETTINGS, async (responseModelUpdateSettings: responseModelUpdateSettings) => {
       this.outputProfile = responseModelUpdateSettings.outputProfiles[this.outputProfileIndex];
       if (this.settingsUpdatedDialog != null) this.settingsUpdatedDialog.dismiss();
       this.settingsUpdatedDialog = this.alertCtrl.create({
-        title: 'Settings updated',
-        message: 'The server settings have been updated. To apply the changes also to the app side tap on the camera button.',
-        buttons: ['Ok'],
+        title: await this.utils.text('settingsUpdatedDialogTitle'),
+        message: await this.utils.text('settingsUpdatedDialogMessage'),
+        buttons: [await this.utils.text('settingsUpdatedDialogOkButton')],
       });
       this.settingsUpdatedDialog.present();
     });
@@ -355,7 +356,7 @@ export class ScanProvider {
               }
               case 'function': {
                 try {
-                  outputBlock.value = this.evalCode(outputBlock.value, variables);
+                  outputBlock.value = await this.evalCode(outputBlock.value, variables);
                 } catch (error) {
                   outputBlock.value = '';
                 }
@@ -468,7 +469,7 @@ export class ScanProvider {
               case 'if': {
                 let condition = false;
                 try {
-                  condition = this.evalCode(outputBlock.value, variables);
+                  condition = await this.evalCode(outputBlock.value, variables);
                 } catch (error) {
                   // if the condition cannot be evaluated we must stop
                   // TODO stop only if the acusitionMode is manual? Or pop-back?
@@ -702,7 +703,7 @@ export class ScanProvider {
   }
 
   private showSelectOption(outputBlock: OutputBlockModel): Promise<string> {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       let options = outputBlock.value.split(',');
       let optionIndex = 0;
       let inputs: AlertInputOptions[] = options.map(option => {
@@ -729,7 +730,7 @@ export class ScanProvider {
         inputs: inputs,
         enableBackdropDismiss: false,
         buttons: [{
-          text: 'Ok',
+          text: await this.utils.text('showSelectOptionDialogOkButton'),
           handler: (data: any) => {
             resolve(data);
           }
@@ -752,7 +753,7 @@ export class ScanProvider {
       }
     }
     return new Promise((resolve, reject) => {
-      let again = (showError = false) => {
+      let again = async (showError = false) => {
         // quantityType is deprecated, it's always 'number' in the newest versions,
         // but we still keep it for backwards compatibility
         if (this.quantityType && fieldType == 'number') {
@@ -770,11 +771,11 @@ export class ScanProvider {
           cssClass: this.platform.is('android') ? 'alert-get-field alert-big-buttons' : null,
           inputs: [{ name: 'value', type: fieldType, placeholder: placeholder }],
           buttons: [{
-            role: 'cancel', text: 'Cancel',
+            role: 'cancel', text: await this.utils.text('getFieldDialogCancelButton'),
             handler: () => { reject('cancelled'); },
             cssClass: this.platform.is('android') ? 'button-outline-md' : null,
           }, {
-            text: 'Ok',
+            text: await this.utils.text('getFieldDialogOkButton'),
             handler: data => {
               if (data.value) { // && isNumber(data.value)
                 if (filter != null && !data.value.match(filter)) {
@@ -797,13 +798,12 @@ export class ScanProvider {
   }
 
   private remoteComponent(outputBlock: OutputBlockModel): Promise<OutputBlockModel> {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       if (!this.serverProvider.isConnected()) {
         this.alertCtrl.create({
-          title: 'Execution error',
-          message: 'Cannot execute the ' + outputBlock.type.toUpperCase() + ' component.<br><br>\
-                    Please make sure that the smartphone is connected to the server',
-          buttons: [{ text: 'Ok', handler: () => { } }]
+          title: await this.utils.text('remoteComponentDialogTitle'),
+          message: await this.utils.text('remoteComponentDialogMessage', { "outputBlockType": outputBlock.type.toUpperCase() }),
+          buttons: [{ text: await this.utils.text('remoteComponentDialogOkButton'), handler: () => { } }]
         }).present();
         reject();
         return;
@@ -814,7 +814,7 @@ export class ScanProvider {
       let wsRequest = new requestModelRemoteComponent().fromObject({ id: id, outputBlock: outputBlock });
 
       // Before sending the request, start listening fo the upcoming ACK response
-      let ackSubscription = this.serverProvider.onMessage().subscribe(message => {
+      let ackSubscription = this.serverProvider.onMessage().subscribe(async message => {
         if (message.action == responseModel.ACTION_REMOTE_COMPONENT_RESPONSE) {
           let response: responseModelRemoteComponentResponse = message;
 
@@ -829,9 +829,9 @@ export class ScanProvider {
               // Error
               if (this.remoteComponentErrorDialog != null) this.remoteComponentErrorDialog.dismiss();
               this.remoteComponentErrorDialog = this.alertCtrl.create({
-                title: 'Error',
+                title: await this.utils.text('remoteComponentErrorDialogTitle'),
                 message: response.errorMessage,
-                buttons: [{ text: 'OK', handler: () => { } }],
+                buttons: [{ text: await this.utils.text('remoteComponentErrorDialogOkButton'), handler: () => { } }],
               });
               reject();
               // Present the dialog only after the rejection, so that it'll be on top
@@ -863,7 +863,7 @@ export class ScanProvider {
   }
 
   private showAddMoreDialog(timeoutSeconds): Promise<boolean> {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       if (timeoutSeconds == 0) {
         resolve(true);
         return;
@@ -871,16 +871,16 @@ export class ScanProvider {
 
       let interval = null;
       let alert = this.alertCtrl.create({
-        title: 'Continue scanning?',
-        message: 'Do you want to add another item to this scan session?',
+        title: await this.utils.text('addMoreDialogTitle'),
+        message: await this.utils.text('addMoreDialogMessage'),
         buttons: [{
-          text: 'Stop', role: 'cancel',
+          text: await this.utils.text('addMoreDialogStopButton'), role: 'cancel',
           handler: () => {
             if (interval) clearInterval(interval);
             resolve(false);
           }
         }, {
-          text: 'Continue', handler: () => {
+          text: await this.utils.text('addMoreDialogContinueButton'), handler: () => {
             if (interval) clearInterval(interval);
             resolve(true);
           }
@@ -903,12 +903,12 @@ export class ScanProvider {
   }
 
   private showPreventInfiniteLoopDialog(): Promise<boolean> {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       this.alertCtrl.create({
-        title: 'Infinite loop detected',
-        message: 'Perhaps you forgot to put the BARCODE component, or you have a condition that is always false. Check your Output template. Do you want to continue?',
+        title: await this.utils.text('preventInfiniteLoopDialogTitle'),
+        message: await this.utils.text('preventInfiniteLoopDialogMessage'),
         buttons: [{
-          text: 'Stop', role: 'cancel',
+          text: await this.utils.text('preventInfiniteLoopStopButton'), role: 'cancel',
           handler: () => {
             let wsRequest = new requestModelUndoInfiniteLoop().fromObject({ count: ScanProvider.INFINITE_LOOP_DETECT_THRESHOLD });
             this.serverProvider.send(wsRequest);
@@ -929,18 +929,18 @@ export class ScanProvider {
       let noRunnings = await this.settings.getNoRunnings();
       if (this.platform.is('android') && !isPDADevicedialogShown && noRunnings < Config.NO_RUNNINGS_MAX_TO_SHOW_IS_PDA_DEVICE_DIALOG) {
         this.alertCtrl.create({
-          title: 'Is your device a PDA?',
-          message: '<img src="assets/scan/pda.png" class="dialog-pda-icon">If your device has an integrated barcode scanner, please use the MANUAL INPUT mode, and enable the [CR][LF] suffix.',
+          title: await this.utils.text('isPDADeviceDialogTitle'),
+          message: await this.utils.text('isPDADeviceDialogMessage'),
           buttons: [
             {
-              text: 'No', handler: () => {
+              text: await this.utils.text('isPDADeviceDialogNoButton'), handler: () => {
                 this.settings.setIsPDADeviceDialogShown(true);
                 resolve();
               }
             },
-            { text: 'Show later', role: 'cancel', handler: () => { resolve() } },
+            { text: await this.utils.text('isPDADeviceDialogShowLaterButton'), role: 'cancel', handler: () => { resolve() } },
             {
-              text: 'More info', handler: () => {
+              text: await this.utils.text('isPDADeviceDialogMoreInfoButton'), handler: () => {
                 this.settings.setIsPDADeviceDialogShown(true);
                 this.iab.create(Config.URL_ANDROID_PDA, '_system');
                 resolve();
@@ -957,7 +957,7 @@ export class ScanProvider {
    * Injects variables like barcode, device_name, date and evaluates
    * the string parameter
    */
-  private evalCode(code: string, variables: any) {
+  private async evalCode(code: string, variables: any) {
     // Inject variables
     let randomInt = this.getRandomInt() + '';
     // Typescript transpiles local variables such **barcode** and changes their name.
@@ -981,9 +981,9 @@ export class ScanProvider {
       return eval(code);
     } catch (error) {
       this.alertCtrl.create({
-        title: 'Error',
-        message: 'An error occurred while executing your Output template: ' + error,
-        buttons: [{ text: 'Ok', role: 'cancel', }]
+        title: await this.utils.text('evalCodeDialogTitle'),
+        message: await this.utils.text('evalCodeDialogMessage', { "error": error }),
+        buttons: [{ text: await this.utils.text('evalCodeDialogOkButton'), role: 'cancel', }]
       }).present();
       throw new Error(error);
     } finally {

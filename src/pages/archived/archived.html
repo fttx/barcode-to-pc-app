@@ -4,7 +4,7 @@
       <ion-icon name="menu"></ion-icon>
     </button>
 
-    <ion-title>Archived</ion-title>
+    <ion-title>{{ 'archivedTitle' | translate }}</ion-title>
 
     <ion-buttons end>
       <button ion-button icon-only (click)="onDeleteSelectedClick()">
@@ -25,15 +25,15 @@
           <circle-text [value]="scanSession.name" [checked]="scanSession.selected">{{ scanSession.name }}</circle-text>
         </ion-avatar>
         <h2>{{ scanSession.name }}</h2>
-        <p>Created: {{ scanSession.date | amDateFormat:"YYYY/MM/DD HH:mm" }}</p>
-        <p>Number of scannings: {{ scanSession.scannings.length }}</p>
+        <p>{{'createdInfo'}}: {{ scanSession.date | amDateFormat:"YYYY/MM/DD HH:mm" }}</p>
+        <p>{{ 'numberOfScannings' | translate }}: {{ scanSession.scannings.length }}</p>
       </button>
     </ion-item-sliding>
   </ion-list>
 
   <div class="empty" *ngIf="archivedScanSessions.length == 0">
     <img src="assets/welcome/a5fsa.jpg" alt="logo" class="desaturate-img" />
-    <br /> There aren't archived scan sessions
+    <br /> {{ 'noArchivedScanSessions' | translate }}
   </div>
 
 </ion-content>

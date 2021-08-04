@@ -51,11 +51,11 @@ export class ArchivedPage {
   ionViewDidLoad() {
   }
 
-  onScanSessionClick(scanSession: ScanSessionModel, index: number) {
+  async onScanSessionClick(scanSession: ScanSessionModel, index: number) {
     let alert = this.actionSheetCtrl.create({
       buttons: [
         {
-          text: 'Delete permanently',
+          text: await this.utils.text('deletePermanentlyButton'),
           icon: 'trash',
           handler: () => {
             this.archivedScanSessions = this.archivedScanSessions.filter(x => x != scanSession);
@@ -63,7 +63,7 @@ export class ArchivedPage {
           }
         },
         {
-          text: 'Restore',
+          text: await this.utils.text('restoreButton'),
           icon: 'refresh',
           handler: async () => {
             this.scanSessionsStorage.updateScanSession(scanSession);
@@ -93,11 +93,11 @@ export class ArchivedPage {
               this.settings.setUnsyncedRestoredScanSesions(restoredIds);
 
               let alert = this.alertCtrl.create({
-                title: 'Offline mode',
-                message: 'The scan sessions will be restored also on the server when it will be connected.\n\nTo trigger the Keyboard Emulation and the CSV output, use the Sync button inside the scan session page.',
+                title: await this.utils.text('offlineModeDialogTitle'),
+                message: await this.utils.text('scanSessionWillBeRestoredDialogMessage'),
                 buttons: [
                   {
-                    text: 'Ok',
+                    text: await this.utils.text('offlineModeDialogOkButton'),
                     role: 'cancel'
                   }]
               });
@@ -106,7 +106,7 @@ export class ArchivedPage {
           }
         },
         {
-          text: 'Cancel',
+          text: await this.utils.text('offlineModeDialogCancelButton'),
           role: 'cancel',
           handler: () => { }
         },
@@ -115,15 +115,15 @@ export class ArchivedPage {
     alert.present();
   }
 
-  onDeleteSelectedClick() {
+  async onDeleteSelectedClick() {
     this.alertCtrl.create({
-      title: 'Are you sure',
-      message: 'The scan sessions will be deleted permanetly',
+      title: await this.utils.text('scanSessionDeleteDialogTitle'),
+      message: await this.utils.text('scanSessionDeleteDialogMessage'),
       buttons: [{
-        text: 'Cancel',
+        text: await this.utils.text('scanSessionDeleteDialogCancelButton'),
         role: 'cancel'
       }, {
-        text: 'Delete',
+        text: await this.utils.text('scanSessionDeleteDialogDeleteButton'),
         handler: () => {
           this.archivedScanSessions = [];
           this.scanSessionsStorage.setArchivedScanSessions(this.archivedScanSessions);

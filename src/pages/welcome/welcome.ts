@@ -2,6 +2,7 @@ import { Component, NgZone, ViewChild } from '@angular/core';
 import { BarcodeScanner, BarcodeScanResult } from '@fttx/barcode-scanner';
 import { FirebaseAnalytics } from '@ionic-native/firebase-analytics';
 import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
+import { TranslateService } from '@ngx-translate/core';
 import { AlertController, NavController, Slides, ViewController } from 'ionic-angular';
 import { Subscription } from 'rxjs';
 import { Config } from '../../providers/config';
@@ -71,21 +72,21 @@ export class WelcomePage {
     clearTimeout(this.troubleshootingDialogTimeout);
   }
 
-  onSkipClicked() {
+  async onSkipClicked() {
     this.firebaseAnalytics.logEvent('welcome', {});
 
     let alert = this.alertCtrl.create({
       inputs: [
         {
           type: 'checkbox',
-          label: 'Do not show anymore',
+          label: await this.utils.text('dontShowAnymoreDialogLabel'),
           value: 'alwaysSkipWelcomePage',
           checked: false
         }
       ],
       buttons: [
         {
-          text: 'Skip',
+          text: await this.utils.text('dontShowAnymoreSkipButton'),
           handler: data => {
             if (data == 'alwaysSkipWelcomePage') {
               this.settings.setAlwaysSkipWelcomePage(true);
@@ -145,19 +146,19 @@ export class WelcomePage {
   scheduleShowTroubleshootingDialog() {
     if (this.troubleshootingDialogTimeout) clearTimeout(this.troubleshootingDialogTimeout);
 
-    this.troubleshootingDialogTimeout = setTimeout(() => {
+    this.troubleshootingDialogTimeout = setTimeout(async () => {
       if (this.connecting) {
         let alert = this.alertCtrl.create({
-          title: 'The connection is taking too long',
-          message: 'Your firewall/antivirus may keep the app from connecting, would you like to see the instructions to configure your computer?',
+          title: await this.utils.text('connectionTakingTooLongDialogTitle'),
+          message: await this.utils.text('connectionTakingTooLongDialogMessage'),
           buttons: [
             {
-              text: 'Cancel',
+              text: await this.utils.text('connectionTakingTooLongCancelButton'),
               role: 'cancel',
               handler: () => { }
             },
             {
-              text: 'Try again',
+              text: await this.utils.text('connectionTakingTooLongTryAgainButton'),
               handler: () => {
                 // This code is duplicated in ionViewDidEnter
                 this.serverProvider.watchForServers().subscribe(data => {
@@ -168,7 +169,7 @@ export class WelcomePage {
               }
             },
             {
-              text: 'View instructions',
+              text: await this.utils.text('connectionTakingTooLongViewInstructionsButton'),
               handler: () => {
                 this.iab.create(Config.URL_INSTRUCTIONS, '_system');
               }

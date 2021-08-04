@@ -5,6 +5,7 @@ import * as Supplant from 'supplant';
 import { OutputProfileModel } from '../../../models/output-profile.model';
 import { ScanSessionModel } from '../../../models/scan-session.model';
 import { ScanSessionsStorage } from '../../../providers/scan-sessions-storage';
+import { Utils } from '../../../providers/utils';
 import { Settings } from './../../../providers/settings';
 
 
@@ -33,6 +34,7 @@ export class SelectScanningModePage {
     public navParams: NavParams,
     private platform: Platform,
     private barcodeScanner: BarcodeScanner,
+    private utils: Utils,
     // public ngZone: NgZone,
   ) {
     this.scanSession = navParams.get('scanSession');
@@ -118,7 +120,7 @@ export class SelectScanningModePage {
       } else {
         let alwaysUseCameraForScanSessionName = await this.settings.getAlwaysUseCameraForScanSessionName();
         let buttonClasses = alwaysUseCameraForScanSessionName ? ' alert-button-stacked' : '';
-        let buttons: any = [{ text: 'Cancel', handler: () => { reject() }, cssClass: this.platform.is('android') ? 'button-outline-md' + buttonClasses : null }];
+        let buttons: any = [{ text: await this.utils.text('getScanSessionNameDialogCancelButton'), handler: () => { reject() }, cssClass: this.platform.is('android') ? 'button-outline-md' + buttonClasses : null }];
 
         if (alwaysUseCameraForScanSessionName) {
           buttonClasses += " alert-button-stacked";
@@ -130,14 +132,14 @@ export class SelectScanningModePage {
           } catch { }
 
           buttons.push({
-            text: 'Acquire Barcode', handler: async data => {
+            text: await this.utils.text('acquireBarcodeButton'), handler: async data => {
               resolve(await this.getScanSessionName());
             }, cssClass: this.platform.is('android') ? 'button-outline-md' + buttonClasses : null,
           });
         }
 
         buttons.push({
-          text: 'Ok', handler: data => {
+          text: await this.utils.text('getScanSessionNameDialogOkButton'), handler: data => {
             if (data.name != "") {
               resolve(data.name)
             } else {
@@ -148,8 +150,8 @@ export class SelectScanningModePage {
 
         // If the barcode acquisition failed, or wasn't never requested:
         let alert = this.alertCtrl.create({
-          title: 'Scan session name',
-          inputs: [{ name: 'name', placeholder: defaultName }],
+          title: await this.utils.text('scanSessionDialogTitle'),
+          inputs: [{ name: await this.utils.text('nameInputLabel'), placeholder: defaultName }],
           buttons: buttons,
           enableBackdropDismiss: false,
           cssClass: this.platform.is('android') ? 'alert-big-buttons' : null,

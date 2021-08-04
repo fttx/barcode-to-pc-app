@@ -6,7 +6,7 @@
 -->
 <ion-header>
   <ion-navbar color="primary">
-    <ion-title>Export as CSV</ion-title>
+    <ion-title>{{ 'exportCSVTitle' | translate }}</ion-title>
   </ion-navbar>
 </ion-header>
 
@@ -14,22 +14,22 @@
   <ion-list>
 
     <ion-item>
-      <ion-label color="dark">Export only readable components</ion-label>
+      <ion-label color="dark">{{ 'exportReadableComponentsOnlyLabel' | translate }}</ion-label>
       <ion-toggle [(ngModel)]="exportOnlyText"></ion-toggle>
     </ion-item>
 
     <ion-item>
-      <ion-label color="dark">Enable quotes</ion-label>
+      <ion-label color="dark">{{ 'enableQuotesLabel' | translate }}</ion-label>
       <ion-toggle [(ngModel)]="enableQuotes"></ion-toggle>
     </ion-item>
 
     <ion-item no-lines>
-      <ion-label color="dark">Separator character (delimiter)</ion-label>
-      <ion-input [(ngModel)]="csvDelimiter" placeholder="Eg. ," text-right></ion-input>
+      <ion-label color="dark">{{ 'seperatorCharacterLabel' | translate }}</ion-label>
+      <ion-input [(ngModel)]="csvDelimiter" [placeholder]="'seperatorCharacterLabelPlaceholder' | translate" text-right></ion-input>
     </ion-item>
 
     <ion-item>
-      <ion-label color="dark">New line character</ion-label>
+      <ion-label color="dark">{{ 'newLineCharacterLabel' | translate }}</ion-label>
       <ion-select [(ngModel)]="newLineCharacter">
         <ion-option value="CRLF">&#92;r&#92;n</ion-option>
         <ion-option value="LF">&#92;n</ion-option>
@@ -39,6 +39,6 @@
   </ion-list>
 
   <button ion-button full color="primary" (click)="onExportClick()">
-    Export
+    {{ 'exportButton' | translate }}
   </button>
 </ion-content>

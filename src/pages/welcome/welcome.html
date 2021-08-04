@@ -7,11 +7,11 @@
 <ion-header>
 
 	<ion-navbar color="primary">
-		<ion-title>Welcome</ion-title>
+		<ion-title>{{ 'welcomeTitle' | translate }}</ion-title>
 
 		<ion-buttons end>
 			<button ion-button (click)="onSkipClicked()">
-				Skip
+				{{ 'skipButton' | translate }}
 			</button>
 		</ion-buttons>
 	</ion-navbar>
@@ -25,10 +25,10 @@
 		<ion-slide>
 			<img src="assets/welcome/a5fsa.jpg" class="slide-image" />
 			<h2 class="slide-title">
-				Welcome to<br> Barcode to PC Wi-Fi remote!
+				{{ 'barcodeToPcRemoteIntro' | translate }}<br> {{ 'barcodeToPcRemoteDescription' | translate }}
 			</h2>
 			<p>
-				Let's connect to the PC and turn your smartphone into a real barcode scanner.
+				{{ 'barcodeToPcRemoteDescription2' | translate }}
 			</p>
 		</ion-slide>
 
@@ -36,38 +36,38 @@
 			<img src="assets/welcome/downloadserver.png" class="slide-image" />
 			<div class="connection-steps">
 				<h4 class="slide-title">
-					1) Download server
+					1) {{ 'downloadServerTitle' | translate }}
 				</h4>
 				<p>
-					Download and install Barcode to PC server from
+					{{ 'downloadServerDescription' | translate }}
 					<span class="link">{{ getWebSiteName() }}</span>
 				</p>
 
 				<h4 class="slide-title">
-					2) Connect to the server
+					2){{ 'connectToServerTitle' | translate }}
 				</h4>
 				<p>
-					If it doesn't connect automatically scan the QR Code shown in the server welcome page.
+					{{ 'connectToServerDescription' | translate }}
 				</p>
 			</div>
 			<button ion-button icon-left (click)="onScanQRCodeClicked()">
 				<ion-icon name="qr-scanner"></ion-icon>
-				Scan QR Code
+				{{ 'scanQrCodeButton' | translate }}
 			</button>
 		</ion-slide>
 
 		<ion-slide>
 			<div [hidden]="!connecting">
 				<ion-spinner color="primary" class="slide-image spinner"></ion-spinner>
-				<h2 class="slide-title">Connecting to PC</h2>
-				<p>Make you sure that <b>Barcode to PC server</b> is running on your computer</p>
-				<p [hidden]="!currentAttemptingServer">Connecting to {{ currentAttemptingServer?.name }}...</p>
+				<h2 class="slide-title">{{ 'connectToPcTitle' | translate }}</h2>
+				<p>{{ 'barcodeToPcIsRunning1' | translate }} <b>{{ 'barcodeToPcIsRunning2' | translate }}</b> {{ 'barcodeToPcIsRunning3' | translate }}</p>
+				<p [hidden]="!currentAttemptingServer">{{ 'connectingToTitle' | translate }} {{ currentAttemptingServer?.name }}...</p>
 			</div>
 			<div [hidden]="connecting">
 				<ion-icon name="checkmark-circle-outline" class="done"></ion-icon>
-				<h2 class="slide-title">Connection established</h2>
+				<h2 class="slide-title">{{ 'connectionEstablishedTitle' | translate }}</h2>
 				<button ion-button large clear icon-right (click)="startScanningClicked()">
-					Start scanning
+					{{ 'startScanningButton' | translate }}
 					<ion-icon name="arrow-forward"></ion-icon>
 				</button>
 			</div>
@@ -80,7 +80,7 @@
 	<ion-toolbar no-border>
 		<ion-buttons right>
 			<button ion-button [hidden]="!showNext" (click)="onNextClicked()">
-				Next
+				{{ 'nextButton' | translate }}
 				<ion-icon name="arrow-forward"></ion-icon>
 			</button>
 		</ion-buttons>

@@ -78,22 +78,22 @@ export class SelectServerPage {
     }, err => { });
   }
 
-  onAddManuallyClicked() {
+  async onAddManuallyClicked() {
     this.init(false);
     let alert = this.alertCtrl.create({
-      title: 'Add manually',
+      title: await this.utils.text('addManuallyDialogButton'),
       inputs: [{
-        name: 'name',
-        placeholder: 'Name (optional)'
+        name: await this.utils.text('addManuallyDialogNameInput'),
+        placeholder: await this.utils.text('addManuallyDialogInputPlaceholder')
       }, {
-        name: 'address',
-        placeholder: 'Address (eg: 192.168.0.123)',
+        name: await this.utils.text('addManuallyDialogAddressInput'),
+        placeholder: await this.utils.text('addManuallyDialogAddressInputPlaceholder'),
       }],
       buttons: [{
-        text: 'Cancel',
+        text: await this.utils.text('addManuallyDialogCancelButton'),
         role: 'cancel'
       }, {
-        text: 'Add',
+        text: await this.utils.text('addManuallyDialogAddButton'),
         handler: input => {
           if (!input.address) {
             return;
@@ -120,28 +120,23 @@ export class SelectServerPage {
     });
 
     if (this.cannotFindServerTimeout) clearTimeout(this.cannotFindServerTimeout);
-    this.cannotFindServerTimeout = setTimeout(() => {
+    this.cannotFindServerTimeout = setTimeout(async () => {
       let onlineServers = this.servers.find(x => x.online != 'offline');
       if (!onlineServers) {
         let alert = this.alertCtrl.create({
-          title: "Cannot find the server",
-          message: "Make you sure that the server is running on your computer.<br><br>\
-                        If you're still unable to connect do the following:<br>\
-                        <ul text-center>\
-                          <li>Add Barcode to PC server to Windows Firewall exceptions\
-                          <li>Try to temporarily disable your antivirus\
-                        </ul>",
+          title: await this.utils.text('cantFindServerDialogTitle'),
+          message: await this.utils.text('cantFindServerDialogMessage'),
           buttons: [{
-            text: 'Close',
+            text: await this.utils.text('cantFindServerCloseButton'),
             role: 'cancel',
             handler: () => { }
           }, {
-            text: 'Help',
+            text: await this.utils.text('cantFindServerHelpButton'),
             handler: () => {
               this.iab.create('mailto:' + Config.EMAIL_SUPPORT, '_system');
             }
           }, {
-            text: 'Scan again',
+            text: await this.utils.text('cantFindServerScanAgainButton'),
             handler: () => {
               this.servers.forEach(x => x.online = 'offline');
               this.init(false);
@@ -259,17 +254,17 @@ export class SelectServerPage {
     }
   }
 
-  rename(server: ServerModel) {
+  async rename(server: ServerModel) {
     this.alertCtrl.create({
-      title: 'Rename',
+      title: await this.utils.text('renameDialogTitle'),
       // message: 'Inse',
       enableBackdropDismiss: false,
-      inputs: [{ name: 'name', type: 'text', placeholder: 'Server name', value: server.name }],
+      inputs: [{ name: await this.utils.text('renameDialogNameInput'), type: 'text', placeholder: await this.utils.text('renameDialogNameInputPlaceholder'), value: server.name }],
       buttons: [{
-        role: 'cancel', text: 'Cancel',
+        role: 'cancel', text: await this.utils.text('renameDialogCancelButton'),
         handler: () => { }
       }, {
-        text: 'Ok',
+        text: await this.utils.text('renameDialogOkButton'),
         handler: data => {
           if (data.name != "") {
             server.name = data.name;
@@ -280,21 +275,21 @@ export class SelectServerPage {
     }).present();
   }
 
-  info(server: ServerModel) {
+  async info(server: ServerModel) {
     let status = 'offline';
     if (server.online == 'online') {
-      status = ' online, tap on it to connect.';
+      status = await this.utils.text('onlineStatusInfo');
     } else if (server.online == 'connected') {
-      status = 'connected with this smartphone.'
+      status = await this.utils.text('onlineStatusConnectedInfo')
     }
     this.alertCtrl.create({
-      title: 'Info',
-      message: 'The server ' + (server.name || server.address) + ' is ' + status,
-      buttons: ['Ok'],
+      title: await this.utils.text('infoDialogTitle'),
+      message: await this.utils.text('serverLabel', { "server": (server.name || server.address), "status": status }),
+      buttons: [await this.utils.text('infoDialogOkButton')],
     }).present();
   }
 
-  onItemPressed(server: ServerModel, i: number) {
+  async onItemPressed(server: ServerModel, i: number) {
     // if (this.platform.is('ios')) {
     //   // Use sliding item
     //   return;
@@ -303,10 +298,10 @@ export class SelectServerPage {
     this.actionSheetCtrl.create({
       title: server.name || server.address,
       buttons: [
-        { text: 'Remove', icon: 'trash', role: 'destructive', handler: () => { this.deleteServer(server); } },
-        { text: 'Rename', icon: 'create', handler: () => { this.rename(server); } },
-        { text: 'Info', icon: 'information-circle', handler: () => { this.info(server); } },
-        { text: 'Close', role: 'cancel', handler: () => { } }]
+        { text: await this.utils.text('removeButton'), icon: 'trash', role: 'destructive', handler: () => { this.deleteServer(server); } },
+        { text: await this.utils.text('renameButton'), icon: 'create', handler: () => { this.rename(server); } },
+        { text: await this.utils.text('infoButton'), icon: 'information-circle', handler: () => { this.info(server); } },
+        { text: await this.utils.text('closeButton'), role: 'cancel', handler: () => { } }]
     }).present();
   }
 

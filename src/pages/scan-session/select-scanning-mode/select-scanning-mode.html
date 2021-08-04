@@ -1,10 +1,10 @@
 <ion-header>
   <ion-navbar color="primary">
-    <ion-title [hidden]="outputProfiles.length == 1">Select an Output Template</ion-title>
-    <ion-title [hidden]="outputProfiles.length != 1">Select scanning mode</ion-title>
+    <ion-title [hidden]="outputProfiles.length == 1">{{ 'selectOutputTemplateTitle' | translate }}</ion-title>
+    <ion-title [hidden]="outputProfiles.length != 1">{{ 'selectScanningModeTitle' | translate }}</ion-title>
     <ion-buttons end>
       <button ion-button icon-right color="royal" (click)="dismiss()">
-        Cancel
+        {{ 'cancelButton' | translate }}
       </button>
     </ion-buttons>
   </ion-navbar>
@@ -23,21 +23,21 @@
       <button ion-button clear class="btn-mode btn-scan-mode-vertical" (click)="dismiss('keyboard')">
         <img src="assets/select-scanning-mode/keyboard.png" alt="keyboard" />
         <p class="btn-description">
-          Manual input
+          {{ 'manualInput' | translate }}
         </p>
       </button>
 
       <button ion-button clear class="btn-mode btn-scan-mode-vertical" (click)="dismiss('single')">
         <img src="assets/select-scanning-mode/single.png" alt="single" />
         <p class="btn-description">
-          Single scan
+          {{ 'singleScan' | translate }}
         </p>
       </button>
 
       <button ion-button clear class="btn-mode btn-scan-mode-vertical" (click)="dismiss('continue')">
         <img src="assets/select-scanning-mode/continue.png" alt="continue" />
         <p class="btn-description">
-          Multiple scans
+          {{ 'multipleScans' | translate }}
         </p>
       </button>
     </div>
@@ -54,21 +54,21 @@
         <button ion-button class="btn-mode btn-scan-mode-horizontal" (click)="dismiss('keyboard')">
           <img src="assets/select-scanning-mode/keyboard.png" alt="keyboard" />
           <p class="btn-description">
-            Manual input
+            {{ 'manualInput' | translate }}
           </p>
         </button>
 
         <button ion-button class="btn-mode btn-scan-mode-horizontal" (click)="dismiss('single')">
           <img src="assets/select-scanning-mode/single.png" alt="single" />
           <p class="btn-description">
-            Single scan
+            {{ 'singleScan' | translate }}
           </p>
         </button>
 
         <button ion-button class="btn-mode  btn-scan-mode-horizontal" (click)="dismiss('continue')">
           <img src="assets/select-scanning-mode/continue.png" alt="continue" />
           <p class="btn-description">
-            Multiple scans
+            {{ 'multipleScans' | translate }}
           </p>
         </button>
       </div>
@@ -76,7 +76,7 @@
   </ion-toolbar>
 
   <ion-toolbar [class.set-default-fix]="outputProfiles.length != 1">
-    <ion-title>Set as default mode</ion-title>
+    <ion-title>{{ 'setDefaultModeTitle' | translate }}</ion-title>
     <ion-buttons right>
       <ion-checkbox margin-right [(ngModel)]="setAsDefaultMode"></ion-checkbox>
     </ion-buttons>

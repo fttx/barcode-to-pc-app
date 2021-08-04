@@ -3,6 +3,7 @@ import { Camera, CameraOptions } from '@ionic-native/camera';
 import { AlertController, NavController, NavParams, Platform, ViewController } from 'ionic-angular';
 import { Subscription } from 'rxjs';
 import { Settings } from '../../../providers/settings';
+import { Utils } from '../../../providers/utils';
 declare var window: any;
 
 @Component({
@@ -27,6 +28,7 @@ export class OcrPage {
     public settings: Settings,
     public platform: Platform,
     public alertCtrl: AlertController,
+    private utils: Utils,
   ) {
   }
 
@@ -68,15 +70,15 @@ export class OcrPage {
       return;
     }
 
-    window.textocr.recText(0 /* NORMFILEURI */, this.imageFilePath, (ocrResult) => {
+    window.textocr.recText(0 /* NORMFILEURI */, this.imageFilePath, async (ocrResult) => {
       this.ocrResult = ocrResult;
       if (ocrResult.foundText) {
         this.renderOCRResult();
       } else {
         this.alertCtrl.create({
-          title: 'No text found',
-          message: 'Cannot find any text on the captured image',
-          buttons: ['Cancel', { text: 'Try again', handler: () => { this.start() } }],
+          title: await this.utils.text('noTextFoundDialogTitle'),
+          message: await this.utils.text('noTextFoundDialogMessage'),
+          buttons: [await this.utils.text('noTextFoundDialogCancelButton'), { text: await this.utils.text('tryAgainButton'), handler: () => { this.start() } }],
         }).present();
       }
     }), (ocrErr) => {

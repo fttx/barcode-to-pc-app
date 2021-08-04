@@ -7,7 +7,7 @@
 <ion-header>
 
   <ion-navbar color="primary">
-    <ion-title>Edit</ion-title>
+    <ion-title>{{ 'editTitle' | translate }}</ion-title>
     <ion-buttons end>
       <button ion-button icon-only (click)="dismiss()">
         <ion-icon name="checkmark"></ion-icon>
@@ -21,14 +21,14 @@
 <ion-content>
 
 
-    <ion-item>
-      <ion-label color="primary" stacked>Scan session name</ion-label>
-      <ion-input type="text" [(ngModel)]="scanSession.name"></ion-input>
-    </ion-item>
+  <ion-item>
+    <ion-label color="primary" stacked>{{ 'scanSessionNameLabel' | translate }}</ion-label>
+    <ion-input type="text" [(ngModel)]="scanSession.name"></ion-input>
+  </ion-item>
 
-    <ion-item>
-      <ion-label>Date</ion-label>
-      <ion-datetime displayFormat="YYYY/MM/DD HH:mm" [(ngModel)]="date"></ion-datetime>
-    </ion-item>
+  <ion-item>
+    <ion-label>{{ 'dateLabel' | translate }}</ion-label>
+    <ion-datetime displayFormat="YYYY/MM/DD HH:mm" [(ngModel)]="date"></ion-datetime>
+  </ion-item>
 
 </ion-content>

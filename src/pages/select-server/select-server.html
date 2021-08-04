@@ -1,7 +1,7 @@
 <ion-header>
 
   <ion-navbar color="primary">
-    <ion-title>Select server</ion-title>
+    <ion-title>{{ 'selectServerTitle' | translate }}</ion-title>
 
     <ion-buttons end>
       <button ion-button icon-only [hidden]="servers.length == 0">
@@ -13,19 +13,19 @@
 </ion-header>
 
 <ion-content>
-  <ion-item-divider color="light">Server list</ion-item-divider>
+  <ion-item-divider color="light">{{ 'serverlistItemDivider' | translate }}</ion-item-divider>
 
   <ion-spinner class="main-spinner" color="primary" [hidden]="servers.length != 0 || offlineMode"></ion-spinner>
 
   <div [hidden]="!offlineMode" text-center class="offline-mode">
-    <h1>Offline mode</h1>
-    <p>To find servers switch to the Online mode</p>
-    <button ion-button color="primary" (click)="init(false)">Online mode</button>
+    <h1>{{ 'switchOnlineModeTitle' | translate }}</h1>
+    <p>{{ 'switchOnlineMode' | translate }}</p>
+    <button ion-button color="primary" (click)="init(false)">{{ 'onlineModeTitle' | translate }}</button>
   </div>
 
   <ion-list [hidden]="servers.length == 0 || offlineMode" radio-group [(ngModel)]="selectedServer" class="server-list">
     <ion-item *ngIf="!servers">
-      Empty
+      {{ 'emptyItemTitle' | translate }}
     </ion-item>
     <ion-item-sliding *ngFor="let server of servers; let i = index;">
       <ion-item (press)="onItemPressed(server,i )">
@@ -44,17 +44,17 @@
       <ion-item-options side="right">
         <button ion-button color="info" (click)="info(server)">
           <ion-icon name="information-circle"></ion-icon>
-          Info
+          {{ 'infoButton' | translate }}
         </button>
 
         <button ion-button color="edit" (click)="rename(server)">
           <ion-icon name="create"></ion-icon>
-          Rename
+          {{ 'renameButton' | translate }}
         </button>
 
         <button ion-button color="danger" (click)="deleteServer(server)">
           <ion-icon name="trash"></ion-icon>
-          Delete
+          {{ 'deleteButton' | translate }}
         </button>
       </ion-item-options>
 
@@ -67,13 +67,13 @@
   <ion-item-divider color="light"></ion-item-divider>
 
   <button class="action-button" ion-button icon-start text-center (click)="onScanQRCodeClicked()">
-    <ion-icon name="qr-scanner"></ion-icon> QR Code Pairing
+    <ion-icon name="qr-scanner"></ion-icon> {{ 'qrPairingButton' | translate }}
   </button>
   <button class="action-button" ion-button icon-start text-center (click)="onAddManuallyClicked()">
-    <ion-icon name="add"></ion-icon> Add server
+    <ion-icon name="add"></ion-icon> {{ 'addServerButton' | translate }}
   </button>
   <button class="action-button" ion-button outline icon-start text-center (click)="init(true)" [disabled]="offlineMode">
-    <ion-icon name="remove-circle-outline"></ion-icon> Offline mode
+    <ion-icon name="remove-circle-outline"></ion-icon> {{ 'offlineModeButton' | translate }}
   </button>
 
 </ion-content>
