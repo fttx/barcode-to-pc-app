@@ -160,8 +160,12 @@ export class ScanSessionsPage {
   }
 
   ionViewWillUnload() {
-    this.onConnectSubscription.unsubscribe();
-    this.onDisconnectSubscription.unsubscribe();
+    if (this.onConnectSubscription != null) {
+      this.onConnectSubscription.unsubscribe();
+    }
+    if (this.onDisconnectSubscription != null) {
+      this.onDisconnectSubscription.unsubscribe();
+    }
   }
 
   async reconnect() {
