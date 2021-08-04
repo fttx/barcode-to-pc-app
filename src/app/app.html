@@ -2,45 +2,45 @@
     <ion-content>
         <ion-list>
             <ion-list-header>
-                Main
+                {{ 'mainHeader' | translate}}
             </ion-list-header>
 
             <button ion-item (click)="scanSessions()">
                 <ion-icon name="list" item-left></ion-icon>
-                Scan sessions
+                {{ 'scanSessions' | translate}}
             </button>
 
             <button ion-item (click)="archived()">
                 <ion-icon name="archive" item-left></ion-icon>
-                Archived
+                {{ 'archived' | translate}}
             </button>
 
             <ion-list-header>
-                Settings
+                {{ 'settingsHeader' | translate}}
             </ion-list-header>
 
             <button ion-item (click)="selectServer()">
                 <ion-icon name="ios-wifi" item-left></ion-icon>
-                Select server
+                {{ 'selectServer' | translate}}
             </button>
 
             <button ion-item (click)="settingsPage()">
                 <ion-icon name="settings" item-left></ion-icon>
-                Settings
+                {{ 'settings' | translate}}
             </button>
 
             <ion-list-header>
-                Other
+                {{ 'otherHeader' | translate}}
             </ion-list-header>
 
             <button ion-item (click)="help()">
                 <ion-icon name="help-circle" item-left></ion-icon>
-                Help
+                {{ 'help' | translate}}
             </button>
 
             <button ion-item (click)="about()">
                 <ion-icon name="information-circle" item-left></ion-icon>
-                About
+                {{ 'about' | translate}}
             </button>
         </ion-list>
     </ion-content>

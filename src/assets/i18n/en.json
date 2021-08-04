@@ -253,5 +253,15 @@
   "connectionLostToastTitle": "Connection lost",
   "unableToConnectToastTitle": "Unable to connect. Select Help from the app menu in order to determine the cause",
   "connectionEstablishedToastTitle": "Connection established with {{ serverName }}",
-  "connectionClosedToastTitle": "Connection closed"
+  "connectionClosedToastTitle": "Connection closed",
+  "MENU": "=========================================",
+  "mainHeader": "Main",
+  "scanSessions": "Scan sessions",
+  "archived": "Archived",
+  "settingsHeader": "Settings",
+  "selectServer": "Select server",
+  "settings": "Settings",
+  "otherHeader": "Other",
+  "help": "Help",
+  "about": "About"
 }
