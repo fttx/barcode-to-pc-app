@@ -25,10 +25,10 @@
 		<ion-slide>
 			<img src="assets/welcome/a5fsa.jpg" class="slide-image" />
 			<h2 class="slide-title">
-				{{ 'barcodeToPcRemoteIntro' | translate }}<br> {{ 'barcodeToPcRemoteDescription' | translate }}
+				{{ 'barcodeToPcRemoteDescription1' | translate }}<br> {{ 'appName' | translate }} {{ 'barcodeToPcRemoteDescription2' | translate }}
 			</h2>
 			<p>
-				{{ 'barcodeToPcRemoteDescription2' | translate }}
+				{{ 'barcodeToPcRemoteDescription3' | translate }}
 			</p>
 		</ion-slide>
 
@@ -39,7 +39,9 @@
 					1) {{ 'downloadServerTitle' | translate }}
 				</h4>
 				<p>
-					{{ 'downloadServerDescription' | translate }}
+					{{ 'downloadServerDescription1' | translate }}
+					{{ 'barcodeToPcServer' | translate }}
+					{{ 'downloadServerDescription2' | translate }}
 					<span class="link">{{ getWebSiteName() }}</span>
 				</p>
 
@@ -60,7 +62,7 @@
 			<div [hidden]="!connecting">
 				<ion-spinner color="primary" class="slide-image spinner"></ion-spinner>
 				<h2 class="slide-title">{{ 'connectToPcTitle' | translate }}</h2>
-				<p>{{ 'barcodeToPcIsRunning1' | translate }} <b>{{ 'barcodeToPcIsRunning2' | translate }}</b> {{ 'barcodeToPcIsRunning3' | translate }}</p>
+				<p>{{ 'barcodeToPcIsRunning1' | translate }} <b>{{ 'barcodeToPcServer' | translate }}</b> {{ 'barcodeToPcIsRunning3' | translate }}</p>
 				<p [hidden]="!currentAttemptingServer">{{ 'connectingToTitle' | translate }} {{ currentAttemptingServer?.name }}...</p>
 			</div>
 			<div [hidden]="connecting">

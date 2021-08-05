@@ -4,6 +4,7 @@ import { FirebaseAnalytics } from '@ionic-native/firebase-analytics';
 import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 import { Promise as BluebirdPromise } from 'bluebird';
 import { ActionSheetController, AlertController, NavController, Platform, ViewController } from 'ionic-angular';
+import { MyApp } from '../../app/app.component';
 import { ScanModel } from '../../models/scan.model';
 import { wsEvent } from '../../models/ws-event.model';
 import { Config } from '../../providers/config';
@@ -125,7 +126,9 @@ export class SelectServerPage {
       if (!onlineServers) {
         let alert = this.alertCtrl.create({
           title: await this.utils.text('cantFindServerDialogTitle'),
-          message: await this.utils.text('cantFindServerDialogMessage'),
+          message: await this.utils.text('cantFindServerDialogMessage', {
+            "serverProgramName": MyApp.SERVER_PROGRAM_NAME
+          }),
           buttons: [{
             text: await this.utils.text('cantFindServerCloseButton'),
             role: 'cancel',

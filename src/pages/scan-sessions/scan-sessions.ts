@@ -138,8 +138,12 @@ export class ScanSessionsPage {
             });
           } else {
             this.alertCtrl.create({
-              title: await this.utils.text('rateBarcodeToPcDialogTitle'),
-              message: await this.utils.text('rateBarcodeToPcDialogMessage'),
+              title: await this.utils.text('rateBarcodeToPcDialogTitle', {
+                "appName": await this.utils.text('appName'),
+              }),
+              message: await this.utils.text('rateBarcodeToPcDialogMessage', {
+                "appName": await this.utils.text('appName'),
+              }),
               buttons: [
                 { text: await this.utils.text('rateBarcodeToPcDialogremindMeLaterButton'), role: 'cancel' },
                 { text: await this.utils.text('rateBarcodeToPcDialogNoButton'), handler: () => { this.settings.setRated(true); } }, {

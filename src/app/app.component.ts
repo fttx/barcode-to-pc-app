@@ -31,6 +31,7 @@ export class MyApp {
   @ViewChild('mainMenu') nav: NavController
 
   public rootPage;
+  public static SERVER_PROGRAM_NAME: string;
 
   constructor(
     public platform: Platform,
@@ -52,7 +53,7 @@ export class MyApp {
     private eventsReporterProvider: EventsReporterProvider,
     private translate: TranslateService,
   ) {
-    platform.ready().then(() => {
+    platform.ready().then(async () => {
 
       this.firebaseAnalytics.setEnabled(!Config.DEBUG);
 
@@ -62,6 +63,7 @@ export class MyApp {
       } else {
         this.translate.use('en');
       }
+      MyApp.SERVER_PROGRAM_NAME = await this.utils.text('barcodeToPcServer');
 
       this.nativeAudio.preloadSimple('beep_high', 'assets/audio/beep_high.ogg');
       this.nativeAudio.preloadSimple('beep_low', 'assets/audio/beep_low.ogg');
