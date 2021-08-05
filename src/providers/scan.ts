@@ -58,6 +58,11 @@ export class ScanProvider {
 
   private remoteComponentErrorDialog: Alert = null;
 
+  // Used to detect duplicated barcodes scanned one after another
+  private static lastBarcode: string = null;
+  private acceptDuplicateBarcodeDialog: Alert = null;
+  private rememberDuplicatedBarcodeChoiceDialog: Alert = null;
+
   public static INFINITE_LOOP_DETECT_THRESHOLD = 30;
 
   constructor(
@@ -380,6 +385,7 @@ export class ScanProvider {
                   }
 
                   let barcode = await this.getBarcode(outputBlock.label, outputBlock.filter, outputBlock.errorMessage);
+                  ScanProvider.lastBarcode = barcode;
 
                   // Context:
                   //
@@ -597,8 +603,8 @@ export class ScanProvider {
     this.awaitingForBarcode = true;
 
     let promise = new Promise<string>((resolve, reject) => {
-      let again = async (showError = false) => {
-        if (showError && errorMessage) {
+      let again = async (showFilterError = false) => {
+        if (showFilterError && errorMessage) {
           this.pluginOptions.prompt = 'Error: ' + errorMessage;
         }
         switch (this.acqusitionMode) {
@@ -610,15 +616,27 @@ export class ScanProvider {
               reject('cancelled');
               return;
             }
+
             // CODE_39 fix (there is a copy of this fix in the CONTINUE mode part, if you change this then you have to change also the other one )
             if (barcodeScanResult.text && barcodeScanResult.format == 'CODE_39' && this.barcodeFormats.findIndex(x => x.enabled && x.name == 'CODE_32') != -1) {
               barcodeScanResult.text = Utils.convertCode39ToCode32(barcodeScanResult.text);
             }
             // END CODE_39 fix
+
+            // Check for duplicated barcodes
+            if (ScanProvider.lastBarcode && barcodeScanResult.text == ScanProvider.lastBarcode) {
+              let acceptBarcode = await this.showAcceptDuplicateDetectedDialog();
+              if (!acceptBarcode) {
+                again();
+                return;
+              }
+            }
+
             if (filter != null && !barcodeScanResult.text.match(filter)) {
               again(true);
               return;
             } else {
+              ScanProvider.lastBarcode = barcodeScanResult.text;
               resolve(barcodeScanResult.text);
             }
             break;
@@ -637,7 +655,7 @@ export class ScanProvider {
             this.lastReject = reject;
 
             if (this.continuosScanSubscription == null) {
-              this.continuosScanSubscription = this.barcodeScanner.scan(this.pluginOptions).subscribe(barcodeScanResult => {
+              this.continuosScanSubscription = this.barcodeScanner.scan(this.pluginOptions).subscribe(async barcodeScanResult => {
                 if (!barcodeScanResult || barcodeScanResult.cancelled) {
                   this.continuosScanSubscription.unsubscribe();
                   this.continuosScanSubscription = null;
@@ -652,7 +670,16 @@ export class ScanProvider {
                 }
                 // END CODE_39 fix
 
+                // Check for duplicated barcodes
+                if (ScanProvider.lastBarcode && barcodeScanResult.text == ScanProvider.lastBarcode) {
+                  let acceptBarcode = await this.showAcceptDuplicateDetectedDialog();
+                  if (!acceptBarcode) {
+                    return;
+                  }
+                }
+
                 if (filter == null || (filter != null && barcodeScanResult.text.match(filter))) {
+                  ScanProvider.lastBarcode = barcodeScanResult.text;
                   this.lastResolve(barcodeScanResult.text);
                 }
               }, error => {
@@ -667,14 +694,25 @@ export class ScanProvider {
           case 'manual': {
             this.keyboardInput.focus(true);
             this.keyboardInput.setPlaceholder(label);
-            if (showError && errorMessage) this.keyboardInput.setError(errorMessage);
+            if (showFilterError && errorMessage) this.keyboardInput.setError(errorMessage);
             // here we don't wrap the promise inside a try/catch statement because there
             // isn't a way to cancel a manual barcode acquisition
             let barcode = await this.keyboardInput.onSubmit.first().toPromise();
+
+            // Check for duplicated barcodes
+            if (ScanProvider.lastBarcode && barcode == ScanProvider.lastBarcode) {
+              let acceptBarcode = await this.showAcceptDuplicateDetectedDialog();
+              if (!acceptBarcode) {
+                again();
+                return;
+              }
+            }
+
             if (filter != null && !barcode.match(filter)) {
               again(true);
               return;
             } else {
+              ScanProvider.lastBarcode = barcode;
               resolve(barcode);
             }
             break;
@@ -950,6 +988,82 @@ export class ScanProvider {
       } else {
         resolve();
       }
+    });
+  }
+
+  private showRememberDuplicatedBarcodeChoiceDialog(): Promise<boolean> {
+    // Aprire un altro dialog che spiega che spiega se si vuole fare della scelta l'opzione predifinita
+    // Se l'opzione scelta è Ask every time => forzare mixed_continue
+    return new Promise<boolean>(async (resolve, reject) => {
+
+      // If the user has already answered this dialog return
+      let duplicateBarcodeSaveChoiceShown = await this.settings.getDuplicateBarcodeSaveChoiceShown();
+      if (duplicateBarcodeSaveChoiceShown) {
+        resolve(true);
+        return;
+      }
+
+      // Show the dialog
+      if (this.rememberDuplicatedBarcodeChoiceDialog != null) this.rememberDuplicatedBarcodeChoiceDialog.dismiss();
+      this.rememberDuplicatedBarcodeChoiceDialog = this.alertCtrl.create({
+        title: await this.utils.text('saveAsDefaultChoiceDialogTitle'),
+        message: await this.utils.text('saveAsDefaultChoiceDialogMessage'),
+        buttons: [
+          {
+            text: await this.utils.text('saveAsDefaultChoiceDialogAlwaysAskButton'),
+            role: 'cancel', handler: () => {
+              resolve(false);
+            },
+            cssClass: this.platform.is('android') ? 'button-outline-md button-alert' : null
+          },
+          {
+            text: await this.utils.text('saveAsDefaultChoiceDialogSaveButton'),
+            handler: () => {
+              this.settings.setDuplicateBarcodeChoice('accept');
+              resolve(true)
+            },
+            cssClass: this.platform.is('android') ? 'button-outline-md button-alert button-ok' : null
+          },
+        ]
+      })
+      this.rememberDuplicatedBarcodeChoiceDialog.onDidDismiss(() => {
+        this.settings.setDuplicateBarcodeSaveChoiceShown(true);
+      });
+      this.rememberDuplicatedBarcodeChoiceDialog.present();
+    });
+  };
+
+  private showAcceptDuplicateDetectedDialog(): Promise<boolean> {
+    return new Promise<boolean>(async (resolve, reject) => {
+
+      // If there is a default action return it (simulates a button press)
+      let defaultChoice = await this.settings.getDuplicateBarcodeChoice();
+      if (defaultChoice != 'ask') {
+        resolve(defaultChoice == 'accept'); // converts accept/discard to true/false
+        return;
+      }
+
+      // Show dialog
+      if (this.rememberDuplicatedBarcodeChoiceDialog != null) this.rememberDuplicatedBarcodeChoiceDialog.dismiss();
+      if (this.acceptDuplicateBarcodeDialog != null) this.acceptDuplicateBarcodeDialog.dismiss();
+      this.acceptDuplicateBarcodeDialog = this.alertCtrl.create({
+        title: await this.utils.text('duplicatedBarcodesDialogTitle'),
+        message: await this.utils.text('duplicatedBarcodesDialogMessage'),
+        buttons: [
+          {
+            text: await this.utils.text('duplicatedBarcodesAcceptButton'),
+            handler: () => { resolve(true) },
+            cssClass: this.platform.is('android') ? 'button-outline-md button-alert button-ok' : null
+          },
+          {
+            text: await this.utils.text('duplicatedBarcodesDiscardButton'),
+            role: 'cancel', handler: () => { resolve(false); },
+            cssClass: this.platform.is('android') ? 'button-outline-md button-alert' : null
+          },
+        ]
+      });
+      this.acceptDuplicateBarcodeDialog.onDidDismiss(() => { this.showRememberDuplicatedBarcodeChoiceDialog(); });
+      this.acceptDuplicateBarcodeDialog.present();
     });
   }
 

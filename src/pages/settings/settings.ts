@@ -31,6 +31,7 @@ export class SettingsPage {
   public availableContinueModeTimeouts = Array.from(Array(30).keys());
   public availableRepeatIntervals = [];
   public scanMode = '';
+  public duplicateBarcodeChoice: 'ask' | 'accept' | 'discard' = 'ask';
   public alwaysUseDefaultScanSessionName = false;
   public alwaysUseCameraForScanSessionName = false;
   public preferFrontCamera = false;
@@ -45,7 +46,8 @@ export class SettingsPage {
   public barcodeFormats: barcodeFormatModel[] = barcodeFormatModel.supportedBarcodeFormats
   public enableLimitBarcodeFormats: boolean = false;
 
-  public static MODE_LABELS: any = {};
+  public static SCAN_MODE_LABELS: any = {};
+  public static DUPLICATE_BARCODE_LABELS: any = {};
 
   constructor(
     public viewCtrl: ViewController,
@@ -62,17 +64,25 @@ export class SettingsPage {
       this.availableRepeatIntervals.push(i);
     }
 
-    SettingsPage.MODE_LABELS[SelectScanningModePage.SCAN_MODE_ASK] = '';
-    SettingsPage.MODE_LABELS[SelectScanningModePage.SCAN_MODE_CONTINUE] = '';
-    SettingsPage.MODE_LABELS[SelectScanningModePage.SCAN_MODE_SINGLE] = '';
-    SettingsPage.MODE_LABELS[SelectScanningModePage.SCAN_MODE_ENTER_MAUALLY] = '';
+    SettingsPage.SCAN_MODE_LABELS[SelectScanningModePage.SCAN_MODE_ASK] = '';
+    SettingsPage.SCAN_MODE_LABELS[SelectScanningModePage.SCAN_MODE_CONTINUE] = '';
+    SettingsPage.SCAN_MODE_LABELS[SelectScanningModePage.SCAN_MODE_SINGLE] = '';
+    SettingsPage.SCAN_MODE_LABELS[SelectScanningModePage.SCAN_MODE_ENTER_MAUALLY] = '';
+
+    SettingsPage.DUPLICATE_BARCODE_LABELS['ask'] = '';
+    SettingsPage.DUPLICATE_BARCODE_LABELS['accept'] = '';
+    SettingsPage.DUPLICATE_BARCODE_LABELS['discard'] = '';
   }
 
   async ngOnInit() {
-    SettingsPage.MODE_LABELS[SelectScanningModePage.SCAN_MODE_ASK] = this.translateService.instant('askEveryTimeLabel');
-    SettingsPage.MODE_LABELS[SelectScanningModePage.SCAN_MODE_CONTINUE] = this.translateService.instant('continuousModeLabel');
-    SettingsPage.MODE_LABELS[SelectScanningModePage.SCAN_MODE_SINGLE] = this.translateService.instant('singleModeLabel');
-    SettingsPage.MODE_LABELS[SelectScanningModePage.SCAN_MODE_ENTER_MAUALLY] = this.translateService.instant('enterManuallyLabel');
+    SettingsPage.SCAN_MODE_LABELS[SelectScanningModePage.SCAN_MODE_ASK] = this.translateService.instant('askEveryTimeLabel');
+    SettingsPage.SCAN_MODE_LABELS[SelectScanningModePage.SCAN_MODE_CONTINUE] = this.translateService.instant('continuousModeLabel');
+    SettingsPage.SCAN_MODE_LABELS[SelectScanningModePage.SCAN_MODE_SINGLE] = this.translateService.instant('singleModeLabel');
+    SettingsPage.SCAN_MODE_LABELS[SelectScanningModePage.SCAN_MODE_ENTER_MAUALLY] = this.translateService.instant('enterManuallyLabel');
+
+    SettingsPage.DUPLICATE_BARCODE_LABELS['ask'] = this.translateService.instant('askLabel');
+    SettingsPage.DUPLICATE_BARCODE_LABELS['accept'] = this.translateService.instant('acceptLabel');
+    SettingsPage.DUPLICATE_BARCODE_LABELS['discard'] = this.translateService.instant('discardLabel');
   }
 
   ionViewDidLoad() {
@@ -85,6 +95,12 @@ export class SettingsPage {
     this.settings.getDefaultMode().then(scanMode => {
       if (scanMode) {
         this.scanMode = scanMode;
+      }
+    })
+
+    this.settings.getDuplicateBarcodeChoice().then(duplicateBarcodeChoice => {
+      if (duplicateBarcodeChoice) {
+        this.duplicateBarcodeChoice = duplicateBarcodeChoice;
       }
     })
 
@@ -171,6 +187,7 @@ export class SettingsPage {
     this.settings.setContinueModeTimeout(this.continueModeTimeout);
     this.settings.setRepeatInterval(this.repeatInterval);
     this.settings.setDefaultMode(this.scanMode);
+    this.settings.setDuplicateBarcodeChoice(this.duplicateBarcodeChoice);
     this.settings.setDeviceName(this.deviceName);
     this.settings.setScanSessionName(this.scanSessionName);
     this.settings.setAlwaysUseDefaultScanSessionName(this.alwaysUseDefaultScanSessionName);
@@ -215,6 +232,10 @@ export class SettingsPage {
   }
 
   public getScanModeName(scanMode: string) {
-    return SettingsPage.MODE_LABELS[scanMode];
+    return SettingsPage.SCAN_MODE_LABELS[scanMode];
+  }
+
+  public duplicateBarcodeChoiceName(choice: ('ask' | 'accept' | 'discard')) {
+    return SettingsPage.DUPLICATE_BARCODE_LABELS[choice];
   }
 }

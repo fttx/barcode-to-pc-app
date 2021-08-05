@@ -50,6 +50,8 @@ export class Settings {
   private static ALWAYS_USE_CAMERA_FOR_SCAN_SESSION_NAME = 'always_use_camera_for_scan_session_name';
   private static UNSYNCED_DELETED_SCAN_SESIONS = 'unsynced_deleted_scan_sesions';
   private static UNSYNCED_RESTORED_SCAN_SESIONS = 'unsynced_restored_scan_sesions';
+  private static DUPLICATE_BARCODE_SAVE_CHOICE_SHOWN = 'duplicate_barcode_save_choice_shown';
+  private static DUPLICATE_BARCODE_CHOICE = 'duplicate_barcode_choice';
 
   constructor(
     public storage: Storage,
@@ -277,9 +279,9 @@ export class Settings {
 
   getScanSessionName(): Promise<string> {
     return new Promise(resolve => {
-      this.storage.get(Settings.SCAN_SESSION_NAME).then(scanSessionName => {
+      this.storage.get(Settings.SCAN_SESSION_NAME).then(async scanSessionName => {
         if (!scanSessionName) {
-          resolve(this.utils.text('scanSessionName') + " {{ scan_session_number }}");
+          resolve((await this.utils.text('scanSessionName')) + " {{ scan_session_number }}");
         } else {
           resolve(scanSessionName)
         }
@@ -332,6 +334,20 @@ export class Settings {
   }
   getKeepDisplayOn(): Promise<boolean> {
     return this.storage.get(Settings.KEEP_DISPLAY_ON).then(result => { return result === true });
+  }
+
+  setDuplicateBarcodeSaveChoiceShown(duplicateBarcodeSaveChoiceShown: boolean) {
+    return this.storage.set(Settings.DUPLICATE_BARCODE_SAVE_CHOICE_SHOWN, duplicateBarcodeSaveChoiceShown);
+  }
+  getDuplicateBarcodeSaveChoiceShown(): Promise<boolean> {
+    return this.storage.get(Settings.DUPLICATE_BARCODE_SAVE_CHOICE_SHOWN).then(result => { return result === true });
+  }
+
+  setDuplicateBarcodeChoice(choice: ('ask' | 'accept' | 'discard')) {
+    return this.storage.set(Settings.DUPLICATE_BARCODE_CHOICE, choice);
+  }
+  getDuplicateBarcodeChoice(): Promise<('ask' | 'accept' | 'discard')> {
+    return this.storage.get(Settings.DUPLICATE_BARCODE_CHOICE).then(result => { return result || 'ask' });
   }
 
   setEnableBeep(enableBeep: boolean) {
