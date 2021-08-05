@@ -38,7 +38,7 @@ page-welcome {
   }
 
   .link {
-      color: darkred
+      color: map-get($colors, secondary);
   }
 
   .spinner {
