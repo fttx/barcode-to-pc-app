@@ -114,7 +114,7 @@ $colors: (
   }
 
   .alert-get-field .alert-message {
-    color: red !important;
+    color: map-get($colors, dager) !important;
   }
 
   .alert-big-buttons .alert-button-group {
