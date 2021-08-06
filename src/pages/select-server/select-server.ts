@@ -279,16 +279,17 @@ export class SelectServerPage {
   }
 
   async info(server: ServerModel) {
-    let status = 'offline';
+    let status = await this.utils.text('serverStatusOffline');
     if (server.online == 'online') {
-      status = await this.utils.text('onlineStatusInfo');
+      status = await this.utils.text('serverStatusOnline');
     } else if (server.online == 'connected') {
-      status = await this.utils.text('onlineStatusConnectedInfo')
+      status = await this.utils.text('serverStatusConnected')
     }
     this.alertCtrl.create({
-      title: await this.utils.text('infoDialogTitle'),
-      message: await this.utils.text('serverLabel', { "server": (server.name || server.address), "status": status }),
-      buttons: [await this.utils.text('infoDialogOkButton')],
+      title: await this.utils.text('serverInfoDialogTitle'),
+      message: await this.utils.text('serverInfoDialogMessage', { "server": (server.name || server.address), "status": status }),
+
+      buttons: [await this.utils.text('serverInfoDialogOkButton')],
     }).present();
   }
 
