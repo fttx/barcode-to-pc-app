@@ -84,10 +84,10 @@ export class SelectServerPage {
     let alert = this.alertCtrl.create({
       title: await this.utils.text('addManuallyDialogButton'),
       inputs: [{
-        name: await this.utils.text('addManuallyDialogNameInput'),
+        name: 'name',
         placeholder: await this.utils.text('addManuallyDialogInputPlaceholder')
       }, {
-        name: await this.utils.text('addManuallyDialogAddressInput'),
+        name: 'address',
         placeholder: await this.utils.text('addManuallyDialogAddressInputPlaceholder'),
       }],
       buttons: [{
@@ -262,7 +262,7 @@ export class SelectServerPage {
       title: await this.utils.text('renameDialogTitle'),
       // message: 'Inse',
       enableBackdropDismiss: false,
-      inputs: [{ name: await this.utils.text('renameDialogNameInput'), type: 'text', placeholder: await this.utils.text('renameDialogNameInputPlaceholder'), value: server.name }],
+      inputs: [{ name: 'name', type: 'text', placeholder: await this.utils.text('renameDialogNameInputPlaceholder'), value: server.name }],
       buttons: [{
         role: 'cancel', text: await this.utils.text('renameDialogCancelButton'),
         handler: () => { }

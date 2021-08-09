@@ -151,7 +151,7 @@ export class SelectScanningModePage {
         // If the barcode acquisition failed, or wasn't never requested:
         let alert = this.alertCtrl.create({
           title: await this.utils.text('scanSessionDialogTitle'),
-          inputs: [{ name: await this.utils.text('nameInputLabel'), placeholder: defaultName }],
+          inputs: [{ name: 'name', placeholder: defaultName }],
           buttons: buttons,
           enableBackdropDismiss: false,
           cssClass: this.platform.is('android') ? 'alert-big-buttons' : null,
