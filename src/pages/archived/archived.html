@@ -25,7 +25,7 @@
           <circle-text [value]="scanSession.name" [checked]="scanSession.selected">{{ scanSession.name }}</circle-text>
         </ion-avatar>
         <h2>{{ scanSession.name }}</h2>
-        <p>{{'createdInfo'}}: {{ scanSession.date | amDateFormat:"YYYY/MM/DD HH:mm" }}</p>
+        <p>{{ 'created' | translate }}: {{ scanSession.date | amDateFormat:"YYYY/MM/DD HH:mm" }}</p>
         <p>{{ 'numberOfScannings' | translate }}: {{ scanSession.scannings.length }}</p>
       </button>
     </ion-item-sliding>

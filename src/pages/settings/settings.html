@@ -65,7 +65,7 @@
 
     <ion-item text-wrap>
       <p>
-        {{ 'useFollowingVariablesInfo' | translate }}:
+        {{ 'useFollowingVariables' | translate }}
         <code>device_name, scan_session_number, date.</code><br><br>
 
         {{ 'example' | translate }}: <code ngNonBindable>{{ date }}_acquisitions</code><br>
@@ -78,7 +78,7 @@
     </ion-item>
 
     <ion-item no-lines>
-      <ion-label color="dark">{{ 'useDefaultScanSessionNameLabel' | translate }}</ion-label>
+      <ion-label color="dark" text-wrap>{{ 'useDefaultScanSessionNameLabel' | translate }}</ion-label>
       <ion-toggle [(ngModel)]="alwaysUseDefaultScanSessionName"></ion-toggle>
     </ion-item>
     <ion-item text-wrap>
@@ -86,7 +86,7 @@
     </ion-item>
 
     <ion-item>
-      <ion-label color="dark">{{ 'acquireScansessionAsBarcodeLabel' | translate }}</ion-label>
+      <ion-label color="dark" text-wrap>{{ 'acquireScansessionAsBarcodeLabel' | translate }}</ion-label>
       <ion-toggle [(ngModel)]="alwaysUseCameraForScanSessionName"></ion-toggle>
     </ion-item>
 
