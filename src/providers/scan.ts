@@ -430,6 +430,8 @@ export class ScanProvider {
 
 
                 // If the app isn't connected we can't execute the remote component
+                // This check will prevent the remoteComponent to be executed in the future
+                // causing unreachable code (See #UC1)
                 if (!this.serverProvider.isConnected()) {
                   outputBlock.value = outputBlock.notFoundValue;
                   break;
@@ -838,6 +840,7 @@ export class ScanProvider {
   private remoteComponent(outputBlock: OutputBlockModel): Promise<OutputBlockModel> {
     return new Promise(async (resolve, reject) => {
       if (!this.serverProvider.isConnected()) {
+        // Unreachable code #UC1
         this.alertCtrl.create({
           title: await this.utils.text('remoteComponentDialogTitle'),
           message: await this.utils.text('remoteComponentDialogMessage', { "outputBlockType": outputBlock.type.toUpperCase() }),
