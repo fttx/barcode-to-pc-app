@@ -112,6 +112,8 @@ export class ScanProvider {
     }
     this._scanCallId = new Date().getTime();
 
+    ScanProvider.lastBarcode = null;
+
     this.keyboardInput = keyboardInput;
     this.outputProfileIndex = outputProfileIndex;
 
@@ -994,7 +996,7 @@ export class ScanProvider {
     });
   }
 
-  private showRememberDuplicatedBarcodeChoiceDialog(): Promise<boolean> {
+  private showRememberDuplicatedBarcodeChoiceDialog(acceptDuplicated: boolean): Promise<boolean> {
     // Aprire un altro dialog che spiega che spiega se si vuole fare della scelta l'opzione predifinita
     // Se l'opzione scelta è Ask every time => forzare mixed_continue
     return new Promise<boolean>(async (resolve, reject) => {
@@ -1022,7 +1024,7 @@ export class ScanProvider {
           {
             text: await this.utils.text('saveAsDefaultChoiceDialogSaveButton'),
             handler: () => {
-              this.settings.setDuplicateBarcodeChoice('accept');
+              this.settings.setDuplicateBarcodeChoice(acceptDuplicated ? 'accept' : 'discard');
               resolve(true)
             },
             cssClass: this.platform.is('android') ? 'button-outline-md button-alert button-ok' : null
@@ -1036,6 +1038,7 @@ export class ScanProvider {
     });
   };
 
+  private acceptDuplicateBarcodeDialogVisible = false;
   private showAcceptDuplicateDetectedDialog(): Promise<boolean> {
     return new Promise<boolean>(async (resolve, reject) => {
 
@@ -1046,27 +1049,46 @@ export class ScanProvider {
         return;
       }
 
-      // Show dialog
+      // Prevent multiple overlays
+      if (this.acceptDuplicateBarcodeDialog != null) {
+        if (this.acceptDuplicateBarcodeDialogVisible) {
+          // Not calling resolve(true) will cause memory leak, but it doesn't
+          // matter since we want to show to the user only one dialog
+          return;
+          // this.acceptDuplicateBarcodeDialog.dismiss();
+        }
+      }
       if (this.rememberDuplicatedBarcodeChoiceDialog != null) this.rememberDuplicatedBarcodeChoiceDialog.dismiss();
-      if (this.acceptDuplicateBarcodeDialog != null) this.acceptDuplicateBarcodeDialog.dismiss();
+
+      // Show dialog
       this.acceptDuplicateBarcodeDialog = this.alertCtrl.create({
         title: await this.utils.text('duplicatedBarcodesDialogTitle'),
         message: await this.utils.text('duplicatedBarcodesDialogMessage'),
         buttons: [
           {
             text: await this.utils.text('duplicatedBarcodesAcceptButton'),
-            handler: () => { resolve(true) },
+            handler: () => {
+              resolve(true)
+              this.showRememberDuplicatedBarcodeChoiceDialog(true);
+            },
+
             cssClass: this.platform.is('android') ? 'button-outline-md button-alert button-ok' : null
           },
           {
             text: await this.utils.text('duplicatedBarcodesDiscardButton'),
-            role: 'cancel', handler: () => { resolve(false); },
+            role: 'cancel', handler: () => {
+              resolve(false);
+              this.showRememberDuplicatedBarcodeChoiceDialog(false);
+            },
             cssClass: this.platform.is('android') ? 'button-outline-md button-alert' : null
           },
         ]
       });
-      this.acceptDuplicateBarcodeDialog.onDidDismiss(() => { this.showRememberDuplicatedBarcodeChoiceDialog(); });
+      this.acceptDuplicateBarcodeDialog.onDidDismiss((data) => {
+        this.acceptDuplicateBarcodeDialogVisible = false;
+      });
       this.acceptDuplicateBarcodeDialog.present();
+      this.acceptDuplicateBarcodeDialogVisible = true;
     });
   }
 
