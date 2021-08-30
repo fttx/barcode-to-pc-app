@@ -57,9 +57,12 @@ export class MyApp {
 
       this.firebaseAnalytics.setEnabled(!Config.DEBUG);
 
-      this.translate.setDefaultLang('en');
-      this.translate.use(this.translate.getBrowserLang());
-
+      this.translate.use('en');
+      this.translate.addLangs(['es']);
+      const lang = this.translate.getBrowserLang();
+      if (lang !== undefined && this.translate.getLangs().indexOf(lang) != -1) {
+        this.translate.use(lang);
+      }
       MyApp.SERVER_PROGRAM_NAME = await this.utils.text('barcodeToPcServer');
 
       this.nativeAudio.preloadSimple('beep_high', 'assets/audio/beep_high.ogg');
