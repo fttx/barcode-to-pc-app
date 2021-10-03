@@ -17,4 +17,15 @@ page-scan-session {
       height: 26px;
       opacity: .7;
     }
+
+    ion-row {
+      align-items: center !important;
+    }
+
+    .status-icon {
+      align-self: unset !important;
+      margin: 0 !important;
+      font-size: 2rem !important;
+      line-height: 2rem !important;
+    }
 }

@@ -37,10 +37,10 @@
 		<button ion-item *virtualItem="let scan; let i = index" (click)="onItemClicked(scan, i)" (press)="onItemPressed(scan, i)" [color]="scan.repeated ? 'light' : 'default'">
 			<ion-grid no-padding>
 				<ion-row>
-					<ion-col align-self-start col-1>
+					<ion-col align-self-start col-1 class="status-icon">
 						<ion-icon [name]="scan.ack ? 'checkmark-circle' : 'alert'" [style.color]="scan.ack ? 'green' : 'red'"></ion-icon>
 					</ion-col>
-					<ion-col>
+					<ion-col text-wrap>
 						{{ scan.displayValue }}
 					</ion-col>
 				</ion-row>
