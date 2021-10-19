@@ -4,13 +4,14 @@ import { FirebaseAnalytics } from '@ionic-native/firebase-analytics';
 import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 import { TranslateService } from '@ngx-translate/core';
 import { AlertController, NavController, Slides, ViewController } from 'ionic-angular';
-import { Subscription } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { Config } from '../../providers/config';
 import { ServerProvider } from '../../providers/server';
 import { Settings } from '../../providers/settings';
 import { Utils } from '../../providers/utils';
 import { ScanSessionsPage } from '../scan-sessions/scan-sessions';
 import { ServerModel } from './../../models/server.model';
+declare var window: any;
 
 /*
   Generated class for the Welcome page.
@@ -56,6 +57,22 @@ export class WelcomePage {
       });
       this.connected = true;
       this.serverProvider.stopWatchForServers();
+    });
+
+    window.installReferrer.getReferrer((data: any) => {
+      // Attempt to connect using referrer parameter from PlayStore
+      if (data && data.a) {
+        let addresses = data.a.split('-');
+        let hostName = data.h || '';
+        Observable.from(addresses)
+          .zip(Observable.timer(0, 2000), x => x)
+          .subscribe((address: string) => {
+            // console.log('[installReferrer]', address);
+            this.attempConnection(new ServerModel(address, hostName));
+          });
+      }
+    }, (error) => {
+      // console.log('[installReferrer] error');
     });
 
     // this code is kind of duplicated for the "Try again" button
