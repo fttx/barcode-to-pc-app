@@ -68,7 +68,21 @@
         {{ 'useFollowingVariables' | translate }}
         <code>device_name, scan_session_number, date.</code><br><br>
 
-        {{ 'example' | translate }}: <code ngNonBindable>{{ date }}_acquisitions</code><br>
+        {{ 'example' | translate }}: <code>{{ date }}_acquisitions</code><br>
+      </p>
+    </ion-item>
+
+    <ion-item no-lines>
+      <ion-label color="dark">{{ 'scanSessionFilterLabel' | translate }}</ion-label>
+
+      <ion-input [(ngModel)]="scanSessionFilter" [placeholder]="'scanSessionFilterInputPlaceholder' | translate" text-right>
+        {{ scanSessionFilter }}</ion-input>
+    </ion-item>
+
+    <ion-item text-wrap>
+      <p>
+        {{ 'scanSessionFilterExample' | translate }}
+        <code>&#94;&#92;w&#92;w-&#92;d&#92;d&#92;d&#36;</code><br><br>
       </p>
     </ion-item>
 

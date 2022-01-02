@@ -52,6 +52,7 @@ export class Settings {
   private static UNSYNCED_RESTORED_SCAN_SESIONS = 'unsynced_restored_scan_sesions';
   private static DUPLICATE_BARCODE_SAVE_CHOICE_SHOWN = 'duplicate_barcode_save_choice_shown';
   private static DUPLICATE_BARCODE_CHOICE = 'duplicate_barcode_choice';
+  private static SCAN_SESSION_FILTER = 'scan_session_filter';
 
   constructor(
     public storage: Storage,
@@ -284,6 +285,22 @@ export class Settings {
           resolve((await this.utils.text('scanSessionName')) + " {{ scan_session_number }}");
         } else {
           resolve(scanSessionName)
+        }
+      });
+    });
+  }
+
+  setScanSessionFilter(scanSessionFilter: string) {
+    return this.storage.set(Settings.SCAN_SESSION_FILTER, scanSessionFilter);
+  }
+
+  getScanSessionFilter(): Promise<string> {
+    return new Promise(resolve => {
+      this.storage.get(Settings.SCAN_SESSION_FILTER).then(async scanSessionFilter => {
+        if (!scanSessionFilter) {
+          resolve('');
+        } else {
+          resolve(scanSessionFilter)
         }
       });
     });
