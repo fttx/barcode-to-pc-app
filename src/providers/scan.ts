@@ -420,6 +420,7 @@ export class ScanProvider {
                 }
               }
               case 'delay': break;
+              case 'woocommerce':
               case 'http':
               case 'run':
               case 'csv_lookup':
@@ -429,6 +430,7 @@ export class ScanProvider {
                 if (outputBlock.httpData) outputBlock.httpData = new Supplant().text(outputBlock.httpData, variables);
                 if (outputBlock.httpHeaders) outputBlock.httpHeaders = new Supplant().text(outputBlock.httpHeaders, variables);
                 if (outputBlock.httpParams) outputBlock.httpParams = new Supplant().text(outputBlock.httpParams, variables);
+                if (outputBlock.fields) outputBlock.fields = outputBlock.fields.map(x => { x.value = new Supplant().text(x.value, variables); return x; });
 
 
                 // If the app isn't connected we can't execute the remote component
