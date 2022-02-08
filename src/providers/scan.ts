@@ -901,7 +901,7 @@ export class ScanProvider {
       if (outputBlock.alertScanAgainButton) buttons.push({ text: outputBlock.alertScanAgainButton, cssClass: this.platform.is('android') ? 'button-outline-md button-alert' : null, handler: () => { pressedButton = 'scan_again'; } })
       if (outputBlock.alertOkButton) buttons.push({ text: outputBlock.alertOkButton, cssClass: this.platform.is('android') ? 'button-outline-md button-alert button-ok' : null, handler: () => { pressedButton = 'ok'; } })
 
-      let alert = this.alertCtrl.create({ title: outputBlock.alertTitle, message: outputBlock.value, buttons: buttons, cssClass: this.platform.is('android') ? 'alert-big-buttons' : null, });
+      let alert = this.alertCtrl.create({ title: outputBlock.alertTitle, message: outputBlock.value, buttons: buttons, enableBackdropDismiss: false, cssClass: this.platform.is('android') ? 'alert-big-buttons' : null, });
       alert.onDidDismiss(() => { resolve(pressedButton) });
       alert.present();
     });
