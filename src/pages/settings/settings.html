@@ -20,6 +20,49 @@
 
 <ion-content>
   <ion-list>
+    <ion-list-header>
+      {{ 'generalDivider' | translate }}
+    </ion-list-header>
+
+    <ion-item>
+      <ion-label color="dark">{{ 'scanModeLabel' | translate }}</ion-label>
+      <ion-select [(ngModel)]="scanMode" (ionChange)="allowOutputTemplateSelection = scanMode == '' ? true : allowOutputTemplateSelection">
+        <ion-option *ngFor="let scanMode of getScanModeList()" [value]="scanMode">{{ getScanModeName(scanMode) }}
+        </ion-option>
+      </ion-select>
+    </ion-item>
+
+    <ion-item no-lines>
+      <ion-label color="dark" text-wrap>{{ 'allowOutputTemplateSelection' | translate }}</ion-label>
+      <ion-toggle [(ngModel)]="allowOutputTemplateSelection" [disabled]="scanMode == ''"></ion-toggle>
+    </ion-item>
+    <ion-item text-wrap [style.opacity]="scanMode == '' ? '.5' : '1'">
+      <p>
+        {{ 'moreOutputTemplate' | translate }}
+      </p>
+    </ion-item>
+
+    <ion-item no-lines>
+      <ion-label color="dark">{{ 'acceptDuplicateBarcodes' | translate }}</ion-label>
+      <ion-select [(ngModel)]="duplicateBarcodeChoice">
+        <ion-option *ngFor="let choice of ['ask', 'accept', 'discard']" [value]="choice">{{ duplicateBarcodeChoiceName(choice) }}
+        </ion-option>
+      </ion-select>
+    </ion-item>
+    <ion-item text-wrap>
+      <p>{{ 'duplicateBarcodeLabel' | translate }}</p>
+    </ion-item>
+
+    <ion-item>
+      <ion-label color="dark">{{ 'keepDisplayAlwaysOnLabel' | translate }}</ion-label>
+      <ion-toggle [(ngModel)]="keepDisplayOn"></ion-toggle>
+    </ion-item>
+
+    <ion-item>
+      <ion-label color="dark">{{ 'openAppScanModeLabel' | translate }}</ion-label>
+      <ion-toggle [(ngModel)]="openScanOnStart"></ion-toggle>
+    </ion-item>
+
     <ion-item>
       <ion-label color="dark">{{ 'continiousModeTimeoutLabel' | translate }}</ion-label>
       <ion-select [(ngModel)]="continueModeTimeout">
@@ -34,30 +77,14 @@
       </ion-select>
     </ion-item>
 
-    <ion-item no-lines>
-      <ion-label color="dark">{{ 'scanModeLabel' | translate }}</ion-label>
-      <ion-select [(ngModel)]="scanMode" (ionChange)="allowOutputTemplateSelection = scanMode == '' ? true : allowOutputTemplateSelection">
-        <ion-option *ngFor="let scanMode of getScanModeList()" [value]="scanMode">{{ getScanModeName(scanMode) }}
-        </ion-option>
-      </ion-select>
-    </ion-item>
-    <ion-item no-lines>
-      <ion-label color="dark" text-wrap>{{ 'allowOutputTemplateSelection' | translate }}</ion-label>
-      <ion-toggle [(ngModel)]="allowOutputTemplateSelection" [disabled]="scanMode == ''"></ion-toggle>
-    </ion-item>
-    <ion-item text-wrap>
-      <p>
-        {{ 'moreOutputTemplate' | translate }}
-      </p>
+    <ion-item>
+      <ion-label color="dark">{{ 'deviceNameLabel' | translate }}</ion-label>
+      <ion-input [(ngModel)]="deviceName" [placeholder]="'deviceNameLabelPlaceholder' | translate" text-right>{{ deviceName }}</ion-input>
     </ion-item>
 
-    <ion-item no-lines>
-      <ion-label color="dark">{{ 'acceptDuplicateBarcodes' | translate }}</ion-label>
-      <ion-select [(ngModel)]="duplicateBarcodeChoice">
-        <ion-option *ngFor="let choice of ['ask', 'accept', 'discard']" [value]="choice">{{ duplicateBarcodeChoiceName(choice) }}
-        </ion-option>
-      </ion-select>
-    </ion-item>
+    <ion-list-header>
+      {{ 'scanSessionNameDivider' | translate }}
+    </ion-list-header>
 
     <ion-item no-lines>
       <ion-label color="dark">{{ 'scanSessionNameLabel' | translate }}</ion-label>
@@ -98,10 +125,9 @@
       <ion-toggle [(ngModel)]="alwaysUseCameraForScanSessionName" [disabled]="alwaysUseDefaultScanSessionName == true"></ion-toggle>
     </ion-item>
 
-    <ion-item>
-      <ion-label color="dark">{{ 'deviceNameLabel' | translate }}</ion-label>
-      <ion-input [(ngModel)]="deviceName" [placeholder]="'deviceNameLabelPlaceholder' | translate" text-right>{{ deviceName }}</ion-input>
-    </ion-item>
+    <ion-list-header>
+      {{ 'cameraDivider' | translate }}
+    </ion-list-header>
 
     <ion-item>
       <ion-label color="dark">{{ 'preferFrontCameraLabel' | translate }}</ion-label>
@@ -114,11 +140,6 @@
     </ion-item>
 
     <ion-item>
-      <ion-label color="dark">{{ 'keepDisplayAlwaysOnLabel' | translate }}</ion-label>
-      <ion-toggle [(ngModel)]="keepDisplayOn"></ion-toggle>
-    </ion-item>
-
-    <ion-item>
       <ion-label color="dark">{{ 'enableCameraBeepLabel' | translate }}</ion-label>
       <ion-toggle [(ngModel)]="enableBeep"></ion-toggle>
     </ion-item>
@@ -128,10 +149,9 @@
       <ion-toggle [(ngModel)]="enableVibrationFeedback"></ion-toggle>
     </ion-item>
 
-    <ion-item>
-      <ion-label color="dark">{{ 'openAppScanModeLabel' | translate }}</ion-label>
-      <ion-toggle [(ngModel)]="openScanOnStart"></ion-toggle>
-    </ion-item>
+    <ion-list-header>
+      {{ 'otherDivider' | translate }}
+    </ion-list-header>
 
     <ion-item text-wrap>
       <ion-label>
