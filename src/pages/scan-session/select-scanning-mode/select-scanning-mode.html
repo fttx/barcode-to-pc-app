@@ -3,7 +3,7 @@
     <ion-title [hidden]="outputProfiles.length == 1">{{ 'selectOutputTemplateTitle' | translate }}</ion-title>
     <ion-title [hidden]="outputProfiles.length != 1">{{ 'selectScanningModeTitle' | translate }}</ion-title>
     <ion-buttons end>
-      <button ion-button icon-right color="royal" (click)="dismiss()">
+      <button ion-button icon-right color="royal" (click)="onModeClick()">
         {{ 'cancelButton' | translate }}
       </button>
     </ion-buttons>
@@ -14,27 +14,27 @@
   <ion-list radio-group [(ngModel)]="selectedOutputProfile" [hidden]="outputProfiles.length == 1">
     <ion-item *ngFor="let outputProfile of outputProfiles; let i = index;">
       <ion-label>{{ outputProfile.name }}</ion-label>
-      <ion-radio [value]="outputProfile" [checked]="i == selectedOutputProfile"></ion-radio>
+      <ion-radio [value]="outputProfile" [checked]="i == selectedOutputProfile" (click)="onOutputProfileClick(outputProfile, i)"></ion-radio>
     </ion-item>
   </ion-list>
 
   <div [hidden]="outputProfiles.length != 1">
     <div text-center>
-      <button ion-button clear class="btn-mode btn-scan-mode-vertical" (click)="dismiss('keyboard')">
+      <button ion-button clear class="btn-mode btn-scan-mode-vertical" (click)="onModeClick('keyboard')">
         <img src="assets/select-scanning-mode/keyboard.png" alt="keyboard" />
         <p class="btn-description">
           {{ 'manualInput' | translate }}
         </p>
       </button>
 
-      <button ion-button clear class="btn-mode btn-scan-mode-vertical" (click)="dismiss('single')">
+      <button ion-button clear class="btn-mode btn-scan-mode-vertical" (click)="onModeClick('single')">
         <img src="assets/select-scanning-mode/single.png" alt="single" />
         <p class="btn-description">
           {{ 'singleScan' | translate }}
         </p>
       </button>
 
-      <button ion-button clear class="btn-mode btn-scan-mode-vertical" (click)="dismiss('continue')">
+      <button ion-button clear class="btn-mode btn-scan-mode-vertical" (click)="onModeClick('continue')">
         <img src="assets/select-scanning-mode/continue.png" alt="continue" />
         <p class="btn-description">
           {{ 'multipleScans' | translate }}
@@ -51,21 +51,24 @@
   <ion-toolbar [hidden]="outputProfiles.length == 1">
     <ion-buttons align-self-center>
       <div text-center class="btn-line-container">
-        <button ion-button class="btn-mode btn-scan-mode-horizontal" (click)="dismiss('keyboard')">
+        <button ion-button class="btn-mode btn-scan-mode-horizontal" (click)="onModeClick('keyboard')">
+          <ion-badge class="default-badge" [class.default-badge-visible]="defaultMode && defaultMode === 'keyboard'">DEFAULT</ion-badge>
           <img src="assets/select-scanning-mode/keyboard.png" alt="keyboard" />
           <p class="btn-description">
             {{ 'manualInput' | translate }}
           </p>
         </button>
 
-        <button ion-button class="btn-mode btn-scan-mode-horizontal" (click)="dismiss('single')">
+        <button ion-button class="btn-mode btn-scan-mode-horizontal" (click)="onModeClick('single')">
+          <ion-badge class="default-badge" [class.default-badge-visible]="defaultMode && defaultMode === 'single'">DEFAULT</ion-badge>
           <img src="assets/select-scanning-mode/single.png" alt="single" />
           <p class="btn-description">
             {{ 'singleScan' | translate }}
           </p>
         </button>
 
-        <button ion-button class="btn-mode  btn-scan-mode-horizontal" (click)="dismiss('continue')">
+        <button ion-button class="btn-mode  btn-scan-mode-horizontal" (click)="onModeClick('continue')">
+          <ion-badge class="default-badge" [class.default-badge-visible]="defaultMode && defaultMode === 'continue'">DEFAULT</ion-badge>
           <img src="assets/select-scanning-mode/continue.png" alt="continue" />
           <p class="btn-description">
             {{ 'multipleScans' | translate }}

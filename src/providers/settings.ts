@@ -53,6 +53,7 @@ export class Settings {
   private static DUPLICATE_BARCODE_SAVE_CHOICE_SHOWN = 'duplicate_barcode_save_choice_shown';
   private static DUPLICATE_BARCODE_CHOICE = 'duplicate_barcode_choice';
   private static SCAN_SESSION_FILTER = 'scan_session_filter';
+  private static ALLOW_OUTPUT_TEMPLATE_SELECTION = 'allow_output_template_selection';
 
   constructor(
     public storage: Storage,
@@ -320,6 +321,20 @@ export class Settings {
 
   getAlwaysUseDefaultScanSessionName(): Promise<boolean> {
     return this.storage.get(Settings.ALWAYS_USE_DEFAULT_SCAN_SESSION_NAME).then(result => { return result === true });
+  }
+
+  setAllowOutputTemplateSelection(allowOutputTemplateSelection: boolean) {
+    return this.storage.set(Settings.ALLOW_OUTPUT_TEMPLATE_SELECTION, allowOutputTemplateSelection);
+  }
+
+  getAllowOutputTemplateSelection(): Promise<boolean> {
+    return this.storage.get(Settings.ALLOW_OUTPUT_TEMPLATE_SELECTION).then(result => {
+      if (result === true || result === false) {
+        return result;
+      } else {
+        return true;
+      }
+    });
   }
 
   setAlwaysUseCameraForScanSessionName(alwaysUseCameraForScanSessionName: boolean) {

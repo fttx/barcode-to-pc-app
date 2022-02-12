@@ -1,5 +1,17 @@
 page-select-scanning-mode {
 
+    .default-badge {
+      box-shadow: 5px 5px 5px rgba(0,0,0,0.2);
+      opacity: 0;
+      position: absolute;
+      top: -2px;
+      right: -7px;
+    }
+
+    .default-badge-visible {
+      opacity: 1;
+    }
+
     // horizontal
     .btn-scan-mode-horizontal img {
         max-height: 100%;

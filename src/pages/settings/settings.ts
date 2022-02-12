@@ -41,6 +41,7 @@ export class SettingsPage {
   public enableBeep = true;
   public enableVibrationFeedback = true;
   public openScanOnStart = false;
+  public allowOutputTemplateSelection = true;
   private changesSaved = false;
   public quantityType: string = 'number'; // deprecated
 
@@ -163,6 +164,10 @@ export class SettingsPage {
       this.openScanOnStart = openScanOnStart;
     });
 
+    this.settings.getAllowOutputTemplateSelection().then(allowOutputTemplateSelection => {
+      this.allowOutputTemplateSelection = allowOutputTemplateSelection;
+    });
+
     /**
      * @deprecated For backwards compatibility, for the user who still have a
      * QUANTITY component in the Output template.
@@ -204,6 +209,7 @@ export class SettingsPage {
     this.settings.setEnableBeep(this.enableBeep);
     this.settings.setEnableVibrationFeedback(this.enableVibrationFeedback);
     this.settings.setOpenScanOnStart(this.openScanOnStart);
+    this.settings.setAllowOutputTemplateSelection(this.allowOutputTemplateSelection);
     this.settings.setBarcodeFormats(this.barcodeFormats);
     this.settings.setEnableLimitBarcodeFormats(this.enableLimitBarcodeFormats);
     this.settings.setQuantityType(this.quantityType);

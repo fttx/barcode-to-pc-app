@@ -36,15 +36,18 @@
 
     <ion-item no-lines>
       <ion-label color="dark">{{ 'scanModeLabel' | translate }}</ion-label>
-      <ion-select [(ngModel)]="scanMode">
+      <ion-select [(ngModel)]="scanMode" (ionChange)="allowOutputTemplateSelection = scanMode == '' ? true : allowOutputTemplateSelection">
         <ion-option *ngFor="let scanMode of getScanModeList()" [value]="scanMode">{{ getScanModeName(scanMode) }}
         </ion-option>
       </ion-select>
     </ion-item>
-
+    <ion-item no-lines>
+      <ion-label color="dark" text-wrap>{{ 'allowOutputTemplateSelection' | translate }}</ion-label>
+      <ion-toggle [(ngModel)]="allowOutputTemplateSelection" [disabled]="scanMode == ''"></ion-toggle>
+    </ion-item>
     <ion-item text-wrap>
       <p>
-        {{ 'moreOutputTemplate' | translate }} "{{ getScanModeName(getScanModeList()[0]) }}"
+        {{ 'moreOutputTemplate' | translate }}
       </p>
     </ion-item>
 
@@ -62,13 +65,10 @@
       <ion-input [(ngModel)]="scanSessionName" [placeholder]="'scanSessionNameInputPlaceholder' | translate" text-right>
         {{ scanSessionName }}</ion-input>
     </ion-item>
-
     <ion-item text-wrap>
       <p>
         {{ 'useFollowingVariables' | translate }}
-        <code>device_name, scan_session_number, date.</code><br><br>
-
-        {{ 'example' | translate }}: <code>{{ date }}_acquisitions</code><br>
+        <code>scan_session_number, device_name, date.</code><br><br>
       </p>
     </ion-item>
 
@@ -78,7 +78,6 @@
       <ion-input [(ngModel)]="scanSessionFilter" [placeholder]="'scanSessionFilterInputPlaceholder' | translate" text-right>
         {{ scanSessionFilter }}</ion-input>
     </ion-item>
-
     <ion-item text-wrap>
       <p>
         {{ 'scanSessionFilterExample' | translate }}
@@ -86,14 +85,9 @@
       </p>
     </ion-item>
 
-    <ion-item>
-      <ion-label color="dark">{{ 'deviceNameLabel' | translate }}</ion-label>
-      <ion-input [(ngModel)]="deviceName" [placeholder]="'deviceNameLabelPlaceholder' | translate" text-right>{{ deviceName }}</ion-input>
-    </ion-item>
-
     <ion-item no-lines>
       <ion-label color="dark" text-wrap>{{ 'useDefaultScanSessionNameLabel' | translate }}</ion-label>
-      <ion-toggle [(ngModel)]="alwaysUseDefaultScanSessionName"></ion-toggle>
+      <ion-toggle [(ngModel)]="alwaysUseDefaultScanSessionName" (ionChange)="alwaysUseCameraForScanSessionName = (alwaysUseDefaultScanSessionName ? false : alwaysUseCameraForScanSessionName)"></ion-toggle>
     </ion-item>
     <ion-item text-wrap>
       <p>{{ 'createNewScanSessionChoiceItem' | translate }}</p>
@@ -101,7 +95,12 @@
 
     <ion-item>
       <ion-label color="dark" text-wrap>{{ 'acquireScansessionAsBarcodeLabel' | translate }}</ion-label>
-      <ion-toggle [(ngModel)]="alwaysUseCameraForScanSessionName"></ion-toggle>
+      <ion-toggle [(ngModel)]="alwaysUseCameraForScanSessionName" [disabled]="alwaysUseDefaultScanSessionName == true"></ion-toggle>
+    </ion-item>
+
+    <ion-item>
+      <ion-label color="dark">{{ 'deviceNameLabel' | translate }}</ion-label>
+      <ion-input [(ngModel)]="deviceName" [placeholder]="'deviceNameLabelPlaceholder' | translate" text-right>{{ deviceName }}</ion-input>
     </ion-item>
 
     <ion-item>
