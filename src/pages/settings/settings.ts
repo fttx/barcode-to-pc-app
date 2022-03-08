@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { Device } from '@ionic-native/device';
-import { NavController, ViewController, Platform } from 'ionic-angular';
+import { NavController, ViewController, Platform, Events } from 'ionic-angular';
 
 import { barcodeFormatModel } from '../../models/barcode-format.model';
 import { requestModelHelo } from '../../models/request.model';
@@ -47,6 +47,7 @@ export class SettingsPage {
 
   public barcodeFormats: barcodeFormatModel[] = barcodeFormatModel.supportedBarcodeFormats
   public enableLimitBarcodeFormats: boolean = false;
+  public enableRealtimeSend: boolean = true;
 
   public static SCAN_MODE_LABELS: any = {};
   public static DUPLICATE_BARCODE_LABELS: any = {};
@@ -61,6 +62,7 @@ export class SettingsPage {
     public platform: Platform, // required from the template
     private insomnia: Insomnia,
     private translateService: TranslateService,
+    public events: Events,
   ) {
     for (let i = 0; i <= 15000; i += 250) {
       this.availableRepeatIntervals.push(i);
@@ -132,6 +134,10 @@ export class SettingsPage {
       this.enableLimitBarcodeFormats = enableLimitBarcodeFormats;
     })
 
+    this.settings.getRealtimeSendEnabled().then(enableRealtimeSend => {
+      this.enableRealtimeSend = enableRealtimeSend;
+    });
+
     this.settings.getAlwaysUseDefaultScanSessionName().then(alwaysUseDefaultScanSessionName => {
       this.alwaysUseDefaultScanSessionName = alwaysUseDefaultScanSessionName;
     });
@@ -187,9 +193,10 @@ export class SettingsPage {
     }
   }
 
-  dismiss() {
+  dismissClick() {
     this.changesSaved = true;
     this.saveChanges();
+    this.events.publish('settings:save');
     this.viewCtrl.dismiss();
   }
 
@@ -212,6 +219,7 @@ export class SettingsPage {
     this.settings.setAllowOutputTemplateSelection(this.allowOutputTemplateSelection);
     this.settings.setBarcodeFormats(this.barcodeFormats);
     this.settings.setEnableLimitBarcodeFormats(this.enableLimitBarcodeFormats);
+    this.settings.setRealtimeSendEnabled(this.enableRealtimeSend);
     this.settings.setQuantityType(this.quantityType);
 
     if (this.keepDisplayOn) {

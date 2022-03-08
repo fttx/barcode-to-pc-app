@@ -9,7 +9,7 @@
   <ion-navbar color="primary">
     <ion-title>{{ 'settingsTitle' | translate }}</ion-title>
     <ion-buttons end>
-      <button ion-button icon-only (click)="dismiss()">
+      <button ion-button icon-only (click)="dismissClick()">
         <ion-icon name="checkmark"></ion-icon>
       </button>
     </ion-buttons>
@@ -30,6 +30,16 @@
         <ion-option *ngFor="let scanMode of getScanModeList()" [value]="scanMode">{{ getScanModeName(scanMode) }}
         </ion-option>
       </ion-select>
+    </ion-item>
+
+    <ion-item no-lines>
+      <ion-label color="dark" text-wrap>{{ 'enableRealtimeSend' | translate }}</ion-label>
+      <ion-toggle [(ngModel)]="enableRealtimeSend"></ion-toggle>
+    </ion-item>
+    <ion-item text-wrap>
+      <p>
+        {{ 'enableRealtimeSendDescription' | translate }}
+      </p>
     </ion-item>
 
     <ion-item no-lines>

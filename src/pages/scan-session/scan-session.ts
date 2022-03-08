@@ -6,7 +6,7 @@ import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 import { NativeAudio } from '@ionic-native/native-audio';
 import { SocialSharing } from '@ionic-native/social-sharing';
 import { Promise as BluebirdPromise } from 'bluebird';
-import { ActionSheetController, AlertController, ModalController, NavController, NavParams, Platform } from 'ionic-angular';
+import { ActionSheetController, AlertController, Events, ModalController, NavController, NavParams, Platform } from 'ionic-angular';
 import { Subscription } from 'rxjs';
 import { KeyboardInputComponent } from '../../components/keyboard-input/keyboard-input';
 import { requestModelDeleteScan, requestModelPutScanSessions, requestModelUpdateScanSession } from '../../models/request.model';
@@ -55,6 +55,7 @@ export class ScanSessionPage {
   private resumeSubscription: Subscription = null;
   private pauseSubscription: Subscription = null;
   private isPaused: boolean = false;
+  private realtimeSend: boolean = true;
 
   constructor(
     public navParams: NavParams,
@@ -75,6 +76,7 @@ export class ScanSessionPage {
     public platform: Platform, // required from the templates
     private iab: InAppBrowser,
     private file: File,
+    public events: Events,
   ) {
     this.scanSession = navParams.get('scanSession');
     if (!this.scanSession) {
@@ -155,6 +157,10 @@ export class ScanSessionPage {
         }
       })
     }
+
+    this.events.subscribe('settings:save', async () => {
+      this.realtimeSend = await this.settings.getRealtimeSendEnabled();
+    });
   }
 
   ionViewDidLeave() {
@@ -174,6 +180,7 @@ export class ScanSessionPage {
 
   async ionViewWillEnter() {
     this.selectedOutputProfileIndex = await this.settings.getSelectedOutputProfile();
+    this.realtimeSend = await this.settings.getRealtimeSendEnabled();
   }
 
   scan() { // Called when the user want to scan
@@ -276,7 +283,7 @@ export class ScanSessionPage {
     this.firebaseAnalytics.logEvent('scan', {});
     this.scanSession.scannings.unshift(scan);
     this.save();
-    this.sendPutScan(scan);
+    if (this.realtimeSend) this.sendPutScan(scan);
   }
 
   async onItemClicked(scan: ScanModel, scanIndex: number) {
@@ -421,11 +428,6 @@ export class ScanSessionPage {
   }
 
   repeat(scan: ScanModel, setRepeated: boolean = true) {
-    // let repeatedScan: ScanModel = Object.assign({}, scan);
-    // repeatedScan.repeated = true;
-    if (this.skipAlreadySent && scan.ack) {
-      return;
-    }
     if (setRepeated) {
       scan.repeated = true;
     }
@@ -505,7 +507,14 @@ export class ScanSessionPage {
     this.repeatingStatus = 'repeating';
     let scan = this.scanSession.scannings[startFrom];
 
-    this.repeat(scan);
+    let waitTime = this.repeatInterval;
+    if (this.skipAlreadySent && scan.ack) {
+      // if the scan is already sent, we skip waiting and repeat the next item
+      waitTime = 0;
+    } else {
+      this.repeat(scan);
+    }
+
     this.next = startFrom - 1;
 
     if (this.repeatAllTimeout) clearTimeout(this.repeatAllTimeout)
@@ -516,7 +525,7 @@ export class ScanSessionPage {
       } else {
         this.stopRepeatingClick();
       }
-    }, this.repeatInterval);
+    }, waitTime);
   }
 
   onShareClick() {

@@ -54,6 +54,7 @@ export class Settings {
   private static DUPLICATE_BARCODE_CHOICE = 'duplicate_barcode_choice';
   private static SCAN_SESSION_FILTER = 'scan_session_filter';
   private static ALLOW_OUTPUT_TEMPLATE_SELECTION = 'allow_output_template_selection';
+  private static ENABLE_REALTIME_SEND = 'enable_realtime_send';
 
   constructor(
     public storage: Storage,
@@ -541,5 +542,18 @@ export class Settings {
   }
   getOfflineModeEnabled(): Promise<boolean> {
     return this.storage.get(Settings.OFFLINE_MODE_ENABLED).then(result => { return result === true });
+  }
+
+  setRealtimeSendEnabled(enabled: boolean) {
+    return this.storage.set(Settings.ENABLE_REALTIME_SEND, enabled);
+  }
+  getRealtimeSendEnabled(): Promise<boolean> {
+    return this.storage.get(Settings.ENABLE_REALTIME_SEND).then(result => {
+      if (result === true || result === false) {
+        return result;
+      } else {
+        return true;
+      }
+    });
   }
 }
