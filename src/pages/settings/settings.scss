@@ -3,4 +3,13 @@ page-settings{
         font-style: italic;
     }
 
+    ion-list-header{
+      font-size: 1.9rem !important;
+      font-weight: 700 !important;
+      color: black !important;
+      border-bottom: 1px solid rgb(219, 219, 219);
+      border-top: none !important;
+      margin-top: 20px !important;
+      text-transform: none !important;
+    }
 }
