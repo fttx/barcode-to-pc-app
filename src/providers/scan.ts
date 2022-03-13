@@ -1099,23 +1099,8 @@ export class ScanProvider {
    * the string parameter
    */
   private async evalCode(code: string, variables: any) {
-    // Inject variables
-    let randomInt = this.getRandomInt() + '';
-    // Typescript transpiles local variables such **barcode** and changes their name.
-    // When eval() gets called it doesn't find the **barcode** variable and throws a syntax error.
-    // To prevent that we store the barcode as a property of the **window** variable which doesn't change.
-    // We use the randomInt as index insted of a fixed string to prevent collisions
-    Object.defineProperty(window, randomInt, { value: {}, writable: true });
-    Object.keys(variables).forEach(key => {
-      // We use the hashedKey instead of the clear key to prevent the Regex below
-      // replacing multiple times the variables with a similar name: eg. time and timestamp, barcode and barcodes, etc.
-      // Warning: this approach can create issues when the user uses similar variable names in his/her code.
-      let hashedKey = btoa(key);
-      window[randomInt][hashedKey] = variables[key]; // We put the index like a literal, since randomInt can be transpiled too
-      // 'barcode' = X2JhcmNvZGU=
-      // replace each variable: eg. barcode, timestamp, quantity, etc. with window[0000001]['X2JhcmNvZGU=']
-      code = code.replace(new RegExp(key, 'g'), 'window["' + randomInt + '"]["' + hashedKey + '"]');
-    });
+    const variablesAssignments = Object.keys(variables).map(key => `${key} = ${JSON.stringify(variables[key])}`).join(',');
+    code = `let ${variablesAssignments}; ${code}`;
 
     // Run code
     try {
@@ -1127,21 +1112,7 @@ export class ScanProvider {
         buttons: [{ text: await this.utils.text('evalCodeDialogOkButton'), role: 'cancel', }]
       }).present();
       throw new Error(error);
-    } finally {
-      // executed in either case before returning
-      delete window[randomInt];
     }
-
-    // Note:
-    //     The previous solution: stringComponent.value.replace('barcode', '"' + barcode + '"');
-    //     didn't always work because the **barcode** value is treated as a string immediately.
-    //
-    //  ie:
-    //
-    //     "this is
-    //        as test".replace(...)
-    //
-    //     doesn't work because the first line doesn't have the ending \ character.
   }
 
   getRandomInt(max = Number.MAX_SAFE_INTEGER) {
