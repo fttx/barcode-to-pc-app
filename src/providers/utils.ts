@@ -329,16 +329,66 @@ export class Utils {
   }
 
   /**
-* Gets the translated value of a key (or an array of keys)
-* @param key
-* @param interpolateParams
-* @returns {string} the translated key, or an object of translated keys
-*/
+   * Injects variables like barcode, device_name, date then evaluates the code
+   * parameter
+   */
+  public async evalCode(code: string, variables: any) {
+    const variablesAssignments = Object.keys(variables).map(key => `${key} = ${JSON.stringify(variables[key])}`).join(',');
+    code = `let ${variablesAssignments}; ${code}`;
+
+    // Run code
+    try {
+      return eval(code);
+    } catch (error) {
+      this.alertCtrl.create({
+        title: await this.text('evalCodeDialogTitle'),
+        message: await this.text('evalCodeDialogMessage', { "error": error }),
+        buttons: [{ text: await this.text('evalCodeDialogOkButton'), role: 'cancel', }]
+      }).present();
+      throw new Error(error);
+    }
+  }
+
+  /**
+   * Replaces variables in the input string with their runtime value
+   *
+   * Example:
+   *    input = "{{ barcode + barcode.toUpperCase() }} {{ number }}"
+   *    variables = { barcode: "aa", ..., number: "1", ... }
+   *
+   *    supplant(input, variables) // "aaAA 1"
+   */
+  public async supplant(input: string, variables: any) {
+    // Define a commono double-curly braches regex
+    const dcbRegex = new RegExp(/\{\{(.*?)\}\}/ig);
+
+    // Fiend the brackets content
+    const brackets = input.match(dcbRegex);
+    if (!brackets) return input;
+    const codeResults = [];
+    for (const bracket of brackets) {
+      const content = bracket.slice(2, bracket.length - 2)
+      // eval the content
+      codeResults.push(await this.evalCode(content, variables));
+    }
+
+    // Replace the evaluted content inside each bracket pair
+    let index = 0;
+    return input.replace(dcbRegex, (a, b) => {
+      console.log(a, b)
+      return codeResults[index++];
+    });
+  }
+
+  /**
+  * Gets the translated value of a key (or an array of keys)
+  * @param key
+  * @param interpolateParams
+  * @returns {string} the translated key, or an object of translated keys
+  */
   public async text(key: string | Array<string>, interpolateParams?: Object): Promise<string> {
     return await this.translateService.get(key, interpolateParams).toPromise();
   }
-
-
 }
 
 export type AlertButtonType = 'discard_scan' | 'scan_again' | 'ok';

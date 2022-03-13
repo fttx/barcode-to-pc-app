@@ -9,7 +9,6 @@ import moment from 'moment';
 import { Observable, Subscriber, Subscription } from 'rxjs';
 import { isNumeric } from 'rxjs/util/isNumeric';
 import { lt, SemVer } from 'semver';
-import * as Supplant from 'supplant';
 import { KeyboardInputComponent } from '../components/keyboard-input/keyboard-input';
 import { OutputBlockModel } from '../models/output-block.model';
 import { OutputProfileModel } from '../models/output-profile.model';
@@ -289,10 +288,10 @@ export class ScanProvider {
             // Injects variables (interpolation)
             // Example: 'http://localhost/?a={{ barcode }}' becomes 'http://localhost/?a=123456789'
             // label, errorMessage and value are shared between multiple components
-            if (outputBlock.label) outputBlock.label = new Supplant().text(outputBlock.label, variables);
-            if (outputBlock.errorMessage) outputBlock.errorMessage = new Supplant().text(outputBlock.errorMessage, variables);
-            if (outputBlock.value && !isNumeric(outputBlock.value)) outputBlock.value = new Supplant().text(outputBlock.value, variables);
-            if (outputBlock.defaultValue) outputBlock.defaultValue = new Supplant().text(outputBlock.defaultValue, variables);
+            if (outputBlock.label) outputBlock.label = await this.utils.supplant(outputBlock.label, variables);
+            if (outputBlock.errorMessage) outputBlock.errorMessage = await this.utils.supplant(outputBlock.errorMessage, variables);
+            if (outputBlock.value && !isNumeric(outputBlock.value)) outputBlock.value = await this.utils.supplant(outputBlock.value, variables);
+            if (outputBlock.defaultValue) outputBlock.defaultValue = await this.utils.supplant(outputBlock.defaultValue, variables);
 
             switch (outputBlock.type) {
               // some components like 'key' and 'text', do not need any processing from the
@@ -355,15 +354,15 @@ export class ScanProvider {
                 break;
               }
               case 'select_option': {
-                if (outputBlock.message) outputBlock.message = new Supplant().text(outputBlock.message, variables);
-                if (outputBlock.title) outputBlock.title = new Supplant().text(outputBlock.title, variables);
+                if (outputBlock.message) outputBlock.message = await this.utils.supplant(outputBlock.message, variables);
+                if (outputBlock.title) outputBlock.title = await this.utils.supplant(outputBlock.title, variables);
                 outputBlock.value = await this.showSelectOption(outputBlock);
                 variables.select_option = outputBlock.value;
                 break;
               }
               case 'function': {
                 try {
-                  outputBlock.value = await this.evalCode(outputBlock.value, variables);
+                  outputBlock.value = await this.utils.evalCode(outputBlock.value, variables);
                 } catch (error) {
                   outputBlock.value = '';
                 }
@@ -372,7 +371,7 @@ export class ScanProvider {
               }
               case 'barcode': {
                 try {
-                  if (outputBlock.filter) outputBlock.filter = new Supplant().text(outputBlock.filter, variables);
+                  if (outputBlock.filter) outputBlock.filter = await this.utils.supplant(outputBlock.filter, variables);
 
                   // Prepare the label for an eventual barcode acqusition
                   this.pluginOptions.prompt = outputBlock.label || Config.DEFAULT_ACQUISITION_LABEL;
@@ -425,12 +424,16 @@ export class ScanProvider {
               case 'run':
               case 'csv_lookup':
               case 'csv_update': {
-                if (outputBlock.notFoundValue) outputBlock.notFoundValue = new Supplant().text(outputBlock.notFoundValue, variables);
-                if (outputBlock.newValue) outputBlock.newValue = new Supplant().text(outputBlock.newValue, variables);
-                if (outputBlock.httpData) outputBlock.httpData = new Supplant().text(outputBlock.httpData, variables);
-                if (outputBlock.httpHeaders) outputBlock.httpHeaders = new Supplant().text(outputBlock.httpHeaders, variables);
-                if (outputBlock.httpParams) outputBlock.httpParams = new Supplant().text(outputBlock.httpParams, variables);
-                if (outputBlock.fields) outputBlock.fields = outputBlock.fields.map(x => { x.value = new Supplant().text(x.value, variables); return x; });
+                if (outputBlock.notFoundValue) outputBlock.notFoundValue = await this.utils.supplant(outputBlock.notFoundValue, variables);
+                if (outputBlock.newValue) outputBlock.newValue = await this.utils.supplant(outputBlock.newValue, variables);
+                if (outputBlock.httpData) outputBlock.httpData = await this.utils.supplant(outputBlock.httpData, variables);
+                if (outputBlock.httpHeaders) outputBlock.httpHeaders = await this.utils.supplant(outputBlock.httpHeaders, variables);
+                if (outputBlock.httpParams) outputBlock.httpParams = await this.utils.supplant(outputBlock.httpParams, variables);
+                if (outputBlock.fields) {
+                  for (let i = 0; i < outputBlock.fields.length; i++) {
+                    outputBlock.fields[i].value = await this.utils.supplant(outputBlock.fields[i].value, variables);
+                  }
+                }
 
 
                 // If the app isn't connected we can't execute the remote component
@@ -481,7 +484,7 @@ export class ScanProvider {
               case 'if': {
                 let condition = false;
                 try {
-                  condition = await this.evalCode(outputBlock.value, variables);
+                  condition = await this.utils.evalCode(outputBlock.value, variables);
                 } catch (error) {
                   // if the condition cannot be evaluated we must stop
                   // TODO stop only if the acusitionMode is manual? Or pop-back?
@@ -519,7 +522,7 @@ export class ScanProvider {
               }
               case 'alert': {
                 // Inject variables in Title and Message
-                if (outputBlock.alertTitle) outputBlock.alertTitle = new Supplant().text(outputBlock.alertTitle, variables);
+                if (outputBlock.alertTitle) outputBlock.alertTitle = await this.utils.supplant(outputBlock.alertTitle, variables);
 
                 // Show Alert and wait for a button press
                 let pressedButton = await this.showAlert(outputBlock);
@@ -1094,26 +1097,6 @@ export class ScanProvider {
     });
   }
 
-  /**
-   * Injects variables like barcode, device_name, date and evaluates
-   * the string parameter
-   */
-  private async evalCode(code: string, variables: any) {
-    const variablesAssignments = Object.keys(variables).map(key => `${key} = ${JSON.stringify(variables[key])}`).join(',');
-    code = `let ${variablesAssignments}; ${code}`;
-
-    // Run code
-    try {
-      return eval(code);
-    } catch (error) {
-      this.alertCtrl.create({
-        title: await this.utils.text('evalCodeDialogTitle'),
-        message: await this.utils.text('evalCodeDialogMessage', { "error": error }),
-        buttons: [{ text: await this.utils.text('evalCodeDialogOkButton'), role: 'cancel', }]
-      }).present();
-      throw new Error(error);
-    }
-  }
 
   getRandomInt(max = Number.MAX_SAFE_INTEGER) {
     return Math.floor(Math.random() * Math.floor(max));

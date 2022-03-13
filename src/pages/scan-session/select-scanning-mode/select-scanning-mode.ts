@@ -2,7 +2,6 @@ import { Component, ViewChild } from '@angular/core';
 import { BarcodeScanner, BarcodeScanResult } from '@fttx/barcode-scanner';
 import { TranslateService } from '@ngx-translate/core';
 import { AlertButton, AlertController, Content, NavParams, Platform, ViewController } from 'ionic-angular';
-import * as Supplant from 'supplant';
 import { OutputProfileModel } from '../../../models/output-profile.model';
 import { ScanSessionModel } from '../../../models/scan-session.model';
 import { ScanSessionsStorage } from '../../../providers/scan-sessions-storage';
@@ -130,7 +129,7 @@ export class SelectScanningModePage {
     const acquireScanSessionName = (): Promise<string> => {
       return new Promise(async (resolve, reject) => {
         let defaultName = await this.settings.getScanSessionName();
-        defaultName = new Supplant().text(defaultName, {
+        defaultName = await this.utils.supplant(defaultName, {
           scan_session_number: await this.scanSessionsStorage.getNextScanSessionNumber(),
           device_name: await this.settings.getDeviceName(),
           date: new Date().toISOString().slice(0, 10).replace(/-/g, "")
