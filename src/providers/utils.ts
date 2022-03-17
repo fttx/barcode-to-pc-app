@@ -329,8 +329,8 @@ export class Utils {
   }
 
   /**
-   * Injects variables like barcode, device_name, date then evaluates the code
-   * parameter
+   * Injects variables like barcode, device_name, date, and then evaluates the
+   * code parameter
    */
   public async evalCode(code: string, variables: any) {
     const variablesAssignments = Object.keys(variables).map(key => `${key} = ${JSON.stringify(variables[key])}`).join(',');
@@ -359,8 +359,8 @@ export class Utils {
    *    supplant(input, variables) // "aaAA 1"
    */
   public async supplant(input: string, variables: any) {
-    // Define a commono double-curly braches regex
-    const dcbRegex = new RegExp(/\{\{(.*?)\}\}/ig);
+    // Match double-curly braches, eg. {{ content1 }} {{content2}} { { content3 } }
+    const dcbRegex = new RegExp(/\{\s*\{(.*?)\}\s*\}/ig);
 
     // Fiend the brackets content
     const brackets = input.match(dcbRegex);
@@ -369,19 +369,23 @@ export class Utils {
     for (const bracket of brackets) {
       const content = bracket.slice(2, bracket.length - 2)
       // eval the content
-      codeResults.push(await this.evalCode(content, variables));
+      try{
+        codeResults.push(await this.evalCode(content, variables));
+      } catch (e) {
+        codeResults.push('error');
+      }
     }
 
     // Replace the evaluted content inside each bracket pair
     let index = 0;
     return input.replace(dcbRegex, (a, b) => {
-      console.log(a, b)
       return codeResults[index++];
     });
   }
 
   /**
   * Gets the translated value of a key (or an array of keys)
+  *
   * @param key
   * @param interpolateParams
   * @returns {string} the translated key, or an object of translated keys
