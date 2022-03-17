@@ -58,7 +58,7 @@ export class ScanProvider {
   private remoteComponentErrorDialog: Alert = null;
 
   // Used to detect duplicated barcodes scanned one after another
-  private static lastBarcode: string = null;
+  public static lastBarcode: string = null;
   private acceptDuplicateBarcodeDialog: Alert = null;
   private rememberDuplicatedBarcodeChoiceDialog: Alert = null;
 
@@ -110,8 +110,6 @@ export class ScanProvider {
       this.lastObserver.complete();
     }
     this._scanCallId = new Date().getTime();
-
-    ScanProvider.lastBarcode = null;
 
     this.keyboardInput = keyboardInput;
     this.outputProfileIndex = outputProfileIndex;
@@ -645,7 +643,6 @@ export class ScanProvider {
               again(true);
               return;
             } else {
-              ScanProvider.lastBarcode = barcodeScanResult.text;
               resolve(barcodeScanResult.text);
             }
             break;
@@ -688,7 +685,6 @@ export class ScanProvider {
                 }
 
                 if (filter == null || (filter != null && barcodeScanResult.text.match(filter))) {
-                  ScanProvider.lastBarcode = barcodeScanResult.text;
                   this.lastResolve(barcodeScanResult.text);
                 }
               }, error => {
@@ -721,7 +717,6 @@ export class ScanProvider {
               again(true);
               return;
             } else {
-              ScanProvider.lastBarcode = barcode;
               resolve(barcode);
             }
             break;
