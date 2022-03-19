@@ -1,28 +1,27 @@
 
 Ionic:
 
-   Ionic CLI          : 6.12.2 (/usr/local/lib/node_modules/@ionic/cli)
+   Ionic CLI          : 6.19.0 (/Users/filippo/.nvm/versions/node/v14.17.6/lib/node_modules/@ionic/cli)
    Ionic Framework    : ionic-angular 3.9.10
    @ionic/app-scripts : 3.2.4
 
 Cordova:
 
    Cordova CLI       : 9.0.0 (cordova-lib@9.0.1)
-   Cordova Platforms : android 8.1.0, ios 6.1.0
-   Cordova Plugins   : cordova-plugin-ionic-keyboard 2.2.0, cordova-plugin-ionic-webview 4.2.0, (and 22 other plugins)
+   Cordova Platforms : android 8.1.0
+   Cordova Plugins   : cordova-plugin-ionic-keyboard 2.2.0, cordova-plugin-ionic-webview 4.2.0, (and 23 other plugins)
 
 Utility:
 
-   cordova-res (update available: 0.15.3) : 0.8.1
-   native-run (update available: 1.4.1)   : 0.2.8
+   cordova-res (update available: 0.15.4) : 0.15.3
+   native-run                             : 1.5.0
 
 System:
 
-   Android SDK Tools : 26.1.1 (/Users/filippo/Library/Android/sdk)
-   ios-deploy        : 1.9.4
-   ios-sim           : 8.0.2
-   NodeJS            : v10.16.2 (/usr/local/bin/node)
-   npm               : 6.14.4
-   OS                : macOS Big Sur
-   Xcode             : Xcode 12.5 Build version 12E262
+   ios-deploy : 1.11.4
+   ios-sim    : 8.0.2
+   NodeJS     : v14.17.6 (/Users/filippo/.nvm/versions/node/v14.17.6/bin/node)
+   npm        : 8.5.5
+   OS         : macOS Monterey
+   Xcode      : Xcode 13.3 Build version 13E113
 

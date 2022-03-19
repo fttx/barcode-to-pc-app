@@ -24,7 +24,8 @@
 
 - Install ionic and cordova
     - See: <https://ionicframework.com/docs/intro/installation/>
-    - And also [last-ionic-info.txt](last-ionic-info.txt)
+    - Run `cordova requirements` to see if there is something missing
+    - And also check [last-ionic-info.txt](last-ionic-info.txt)
 
 - Put the Firebase config files in the root folder (GoogleService-Info.plist and google-services.json)
 
@@ -66,7 +67,8 @@ open "platforms/ios/Barcode to PC.xcworkspace"
 ionic cordova build android --prod --release
 APK_PATH="platforms/android/app/build/outputs/apk/release/app-release-unsigned.apk"
 JKS_PATH="barcode-to-pc-keystore.jks"
-jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore $JKS_PATH $APK_PATH keystore
+JKS_PASS="pass.txt"
 zipalign -v 4 $APK_PATH out.apk
+apksigner sign --ks $JKS_PATH --ks-pass file:$JKS_PASS --v1-signing-enabled true --v2-signing-enabled true out.apk
 ionic info > last-ionic-info.txt
 ```
