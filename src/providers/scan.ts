@@ -427,6 +427,7 @@ export class ScanProvider {
                 if (outputBlock.httpData) outputBlock.httpData = await this.utils.supplant(outputBlock.httpData, variables);
                 if (outputBlock.httpHeaders) outputBlock.httpHeaders = await this.utils.supplant(outputBlock.httpHeaders, variables);
                 if (outputBlock.httpParams) outputBlock.httpParams = await this.utils.supplant(outputBlock.httpParams, variables);
+                if (outputBlock.csvFile) outputBlock.csvFile = await this.utils.supplant(outputBlock.csvFile, variables);
                 if (outputBlock.fields) {
                   for (let i = 0; i < outputBlock.fields.length; i++) {
                     outputBlock.fields[i].value = await this.utils.supplant(outputBlock.fields[i].value, variables);
