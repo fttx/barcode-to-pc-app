@@ -11,6 +11,7 @@ import { Settings } from '../../providers/settings';
 import { Utils } from '../../providers/utils';
 import { ScanSessionsPage } from '../scan-sessions/scan-sessions';
 import { ServerModel } from './../../models/server.model';
+import { debounce } from 'helpful-decorators';
 declare var window: any;
 
 /*
@@ -68,7 +69,7 @@ export class WelcomePage {
           .zip(Observable.timer(0, 2000), x => x)
           .subscribe((address: string) => {
             // console.log('[installReferrer]', address);
-            this.attempConnection(new ServerModel(address, hostName));
+            this.attempConnection(new ServerModel(address, hostName), true);
           });
       }
     }, (error) => {
@@ -151,11 +152,12 @@ export class WelcomePage {
     return Config.WEBSITE_NAME;
   }
 
-  attempConnection(server: ServerModel) {
+  @debounce(2000)
+  attempConnection(server: ServerModel, skipQueue = false) {
     if (this.connecting) {
       this.slider.slideTo(this.slider.length() - 1);
       this.currentAttemptingServer = server;
-      this.serverProvider.connect(server)
+      this.serverProvider.connect(server, skipQueue)
       this.scheduleShowTroubleshootingDialog();
     }
   }

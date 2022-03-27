@@ -78,6 +78,7 @@
     "es6-promise-plugin": "^4.2.2",
     "fttx-cordova-plugin-zeroconf": "1.4.1",
     "fttx-phonegap-plugin-barcodescanner": "^8.2.10",
+    "helpful-decorators": "^2.1.0",
     "ionic-angular": "^3.9.10",
     "ionicons": "^4.6.3",
     "ip-utils": "^2.4.0",
