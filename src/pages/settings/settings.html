@@ -73,18 +73,16 @@
       <ion-toggle [(ngModel)]="openScanOnStart"></ion-toggle>
     </ion-item>
 
-    <ion-item>
-      <ion-label color="dark">{{ 'continiousModeTimeoutLabel' | translate }}</ion-label>
-      <ion-select [(ngModel)]="continueModeTimeout">
-        <ion-option *ngFor="let second of availableContinueModeTimeouts" [value]="second">{{ second }}</ion-option>
-      </ion-select>
-    </ion-item>
-
-    <ion-item>
+    <ion-item no-lines>
       <ion-label color="dark">{{ 'repeatIntervalLabel' | translate }}</ion-label>
       <ion-select [(ngModel)]="repeatInterval">
         <ion-option *ngFor="let ms of availableRepeatIntervals" [value]="ms">{{ ms }}</ion-option>
       </ion-select>
+    </ion-item>
+    <ion-item text-wrap>
+      <p>
+        {{ 'repeatIntervaDescription' | translate }}
+      </p>
     </ion-item>
 
     <ion-item>
@@ -157,6 +155,18 @@
     <ion-item [hidden]="platform.is('ios')">
       <ion-label color="dark">{{ 'enableVibrationFeedbackLabel' | translate }}</ion-label>
       <ion-toggle [(ngModel)]="enableVibrationFeedback"></ion-toggle>
+    </ion-item>
+
+    <ion-item no-lines>
+      <ion-label color="dark">{{ 'continiousModeTimeoutLabel' | translate }}</ion-label>
+      <ion-select [(ngModel)]="continueModeTimeout">
+        <ion-option *ngFor="let second of availableContinueModeTimeouts" [value]="second">{{ second }}</ion-option>
+      </ion-select>
+    </ion-item>
+    <ion-item text-wrap>
+      <p>
+        {{ 'continiousModeTimeoutDescription' | translate }}
+      </p>
     </ion-item>
 
     <ion-list-header>
