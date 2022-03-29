@@ -161,8 +161,6 @@ export class ScanSessionPage {
     this.events.subscribe('settings:save', async () => {
       this.realtimeSend = await this.settings.getRealtimeSendEnabled();
     });
-
-    ScanProvider.lastBarcode = null;
   }
 
   ionViewDidLeave() {

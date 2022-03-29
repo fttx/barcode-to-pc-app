@@ -55,12 +55,13 @@
     <ion-item no-lines>
       <ion-label color="dark">{{ 'acceptDuplicateBarcodes' | translate }}</ion-label>
       <ion-select [(ngModel)]="duplicateBarcodeChoice">
-        <ion-option *ngFor="let choice of ['ask', 'accept', 'discard']" [value]="choice">{{ duplicateBarcodeChoiceName(choice) }}
+        <ion-option *ngFor="let choice of ['ask', 'always_accept', 'discard_adjacent', 'discard_scan_session']" [value]="choice">{{ duplicateBarcodeChoiceName(choice) }}
         </ion-option>
       </ion-select>
     </ion-item>
     <ion-item text-wrap>
-      <p>{{ 'duplicateBarcodeLabel' | translate }}</p>
+      <p>{{ 'duplicateBarcodeLabel1' | translate }}</p><br>
+      <p>{{ 'duplicateBarcodeLabel2' | translate }}</p>
     </ion-item>
 
     <ion-item>

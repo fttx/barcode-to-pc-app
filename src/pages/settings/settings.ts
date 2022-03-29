@@ -32,7 +32,7 @@ export class SettingsPage {
   public availableContinueModeTimeouts = Array.from(Array(30).keys());
   public availableRepeatIntervals = [];
   public scanMode = '';
-  public duplicateBarcodeChoice: 'ask' | 'accept' | 'discard' = 'ask';
+  public duplicateBarcodeChoice: 'ask' | 'always_accept' | 'discard_adjacent' | 'discard_scan_session';
   public alwaysUseDefaultScanSessionName = false;
   public alwaysUseCameraForScanSessionName = false;
   public preferFrontCamera = false;
@@ -74,8 +74,9 @@ export class SettingsPage {
     SettingsPage.SCAN_MODE_LABELS[SelectScanningModePage.SCAN_MODE_ENTER_MAUALLY] = '';
 
     SettingsPage.DUPLICATE_BARCODE_LABELS['ask'] = '';
-    SettingsPage.DUPLICATE_BARCODE_LABELS['accept'] = '';
-    SettingsPage.DUPLICATE_BARCODE_LABELS['discard'] = '';
+    SettingsPage.DUPLICATE_BARCODE_LABELS['always_accept'] = '';
+    SettingsPage.DUPLICATE_BARCODE_LABELS['discard_adjacent'] = '';
+    SettingsPage.DUPLICATE_BARCODE_LABELS['discard_scan_session'] = '';
   }
 
   async ngOnInit() {
@@ -85,8 +86,9 @@ export class SettingsPage {
     SettingsPage.SCAN_MODE_LABELS[SelectScanningModePage.SCAN_MODE_ENTER_MAUALLY] = this.translateService.instant('enterManuallyLabel');
 
     SettingsPage.DUPLICATE_BARCODE_LABELS['ask'] = this.translateService.instant('askLabel');
-    SettingsPage.DUPLICATE_BARCODE_LABELS['accept'] = this.translateService.instant('acceptLabel');
-    SettingsPage.DUPLICATE_BARCODE_LABELS['discard'] = this.translateService.instant('discardLabel');
+    SettingsPage.DUPLICATE_BARCODE_LABELS['always_accept'] = this.translateService.instant('acceptLabel');
+    SettingsPage.DUPLICATE_BARCODE_LABELS['discard_adjacent'] = this.translateService.instant('discardAdjacentLabel');
+    SettingsPage.DUPLICATE_BARCODE_LABELS['discard_scan_session'] = this.translateService.instant('discardSessionLabel');
   }
 
   ionViewDidLoad() {
@@ -255,7 +257,7 @@ export class SettingsPage {
     return SettingsPage.SCAN_MODE_LABELS[scanMode];
   }
 
-  public duplicateBarcodeChoiceName(choice: ('ask' | 'accept' | 'discard')) {
+  public duplicateBarcodeChoiceName(choice: ('ask' | 'always_accept' | 'discard_adjacent' | 'discard_scan_session')) {
     return SettingsPage.DUPLICATE_BARCODE_LABELS[choice];
   }
 }

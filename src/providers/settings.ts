@@ -376,10 +376,10 @@ export class Settings {
     return this.storage.get(Settings.DUPLICATE_BARCODE_SAVE_CHOICE_SHOWN).then(result => { return result === true });
   }
 
-  setDuplicateBarcodeChoice(choice: ('ask' | 'accept' | 'discard')) {
+  setDuplicateBarcodeChoice(choice: ('ask' | 'always_accept' | 'discard_adjacent' | 'discard_scan_session')) {
     return this.storage.set(Settings.DUPLICATE_BARCODE_CHOICE, choice);
   }
-  getDuplicateBarcodeChoice(): Promise<('ask' | 'accept' | 'discard')> {
+  getDuplicateBarcodeChoice(): Promise<('ask' | 'always_accept' | 'discard_adjacent' | 'discard_scan_session')> {
     return this.storage.get(Settings.DUPLICATE_BARCODE_CHOICE).then(result => { return result || 'ask' });
   }
 

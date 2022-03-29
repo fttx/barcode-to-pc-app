@@ -14,6 +14,7 @@ import { OutputBlockModel } from '../models/output-block.model';
 import { OutputProfileModel } from '../models/output-profile.model';
 import { requestModelRemoteComponent, requestModelUndoInfiniteLoop } from '../models/request.model';
 import { responseModel, responseModelRemoteComponentResponse, responseModelUpdateSettings } from '../models/response.model';
+import { ScanSessionModel } from '../models/scan-session.model';
 import { ScanModel } from '../models/scan.model';
 import { SelectScanningModePage } from '../pages/scan-session/select-scanning-mode/select-scanning-mode';
 import { Config } from './config';
@@ -58,9 +59,9 @@ export class ScanProvider {
   private remoteComponentErrorDialog: Alert = null;
 
   // Used to detect duplicated barcodes scanned one after another
-  public static lastBarcode: string = null;
-  private acceptDuplicateBarcodeDialog: Alert = null;
+  private acceptOrDiscardDialog: Alert = null;
   private rememberDuplicatedBarcodeChoiceDialog: Alert = null;
+  private scanSession: ScanSessionModel;
 
   public static INFINITE_LOOP_DETECT_THRESHOLD = 30;
 
@@ -113,6 +114,7 @@ export class ScanProvider {
 
     this.keyboardInput = keyboardInput;
     this.outputProfileIndex = outputProfileIndex;
+    this.scanSession = scanSession;
 
     return new Observable(observer => {
       this.lastObserver = observer;
@@ -127,6 +129,7 @@ export class ScanProvider {
         this.settings.getTorchOn(), // 7
         this.settings.getEnableBeep(), // 8
         this.settings.getEnableVibrationFeedback(), // 9
+        this.settings.getDuplicateBarcodeChoice(), // 10
       ]).then(async result => {
         // parameters
         let preferFrontCamera = result[0];
@@ -142,6 +145,7 @@ export class ScanProvider {
         const blockingComponents = OutputProfileModel.ContainsBlockingComponents(this.outputProfile);
         // const containsMixedBarcodeFormats = OutputProfileModel.ContainsMixedBarcodeFormats(this.outputProfile);
         const containsMultipleBarcodeFormats = OutputProfileModel.ContainsMultipleBarcodeFormats(this.outputProfile);
+        const duplicateBarcodeChoice = result[10];
 
         // other computed parameters
         if (quantityType && quantityType == 'text') {
@@ -156,7 +160,7 @@ export class ScanProvider {
           case SelectScanningModePage.SCAN_MODE_SINGLE: this.acqusitionMode = 'single'; break;
           case SelectScanningModePage.SCAN_MODE_CONTINUE: {
             this.acqusitionMode = 'continue';
-            if (blockingComponents || !this.platform.is('android') || continueModeTimeout || containsMultipleBarcodeFormats) {
+            if (blockingComponents || !this.platform.is('android') || continueModeTimeout || containsMultipleBarcodeFormats || duplicateBarcodeChoice == 'ask') {
               // Note: we force mixed_continue also when there are mutliple barcodes to allow the Label to be update
               // containsMixedBarcodeFormats will scan ok, but the user won't have much feedback, and the label
               // won't update
@@ -384,7 +388,6 @@ export class ScanProvider {
                   }
 
                   let barcode = await this.getBarcode(outputBlock.label, outputBlock.filter, outputBlock.errorMessage);
-                  ScanProvider.lastBarcode = barcode;
 
                   // Context:
                   //
@@ -632,12 +635,10 @@ export class ScanProvider {
             // END CODE_39 fix
 
             // Check for duplicated barcodes
-            if (ScanProvider.lastBarcode && barcodeScanResult.text == ScanProvider.lastBarcode) {
-              let acceptBarcode = await this.showAcceptDuplicateDetectedDialog();
-              if (!acceptBarcode) {
-                again();
-                return;
-              }
+            let acceptBarcode = await this.showAcceptDuplicateDetectedDialog(barcodeScanResult.text);
+            if (!acceptBarcode) {
+              again();
+              return;
             }
 
             if (filter != null && !barcodeScanResult.text.match(filter)) {
@@ -678,11 +679,9 @@ export class ScanProvider {
                 // END CODE_39 fix
 
                 // Check for duplicated barcodes
-                if (ScanProvider.lastBarcode && barcodeScanResult.text == ScanProvider.lastBarcode) {
-                  let acceptBarcode = await this.showAcceptDuplicateDetectedDialog();
-                  if (!acceptBarcode) {
-                    return;
-                  }
+                let acceptBarcode = await this.showAcceptDuplicateDetectedDialog(barcodeScanResult.text);
+                if (!acceptBarcode) {
+                  return;
                 }
 
                 if (filter == null || (filter != null && barcodeScanResult.text.match(filter))) {
@@ -706,12 +705,10 @@ export class ScanProvider {
             let barcode = await this.keyboardInput.onSubmit.first().toPromise();
 
             // Check for duplicated barcodes
-            if (ScanProvider.lastBarcode && barcode == ScanProvider.lastBarcode) {
-              let acceptBarcode = await this.showAcceptDuplicateDetectedDialog();
-              if (!acceptBarcode) {
-                again();
-                return;
-              }
+            let acceptBarcode = await this.showAcceptDuplicateDetectedDialog(barcode);
+            if (!acceptBarcode) {
+              again();
+              return;
             }
 
             if (filter != null && !barcode.match(filter)) {
@@ -998,8 +995,6 @@ export class ScanProvider {
   }
 
   private showRememberDuplicatedBarcodeChoiceDialog(acceptDuplicated: boolean): Promise<boolean> {
-    // Aprire un altro dialog che spiega che spiega se si vuole fare della scelta l'opzione predifinita
-    // Se l'opzione scelta è Ask every time => forzare mixed_continue
     return new Promise<boolean>(async (resolve, reject) => {
 
       // If the user has already answered this dialog return
@@ -1009,7 +1004,7 @@ export class ScanProvider {
         return;
       }
 
-      // Show the dialog
+      // If no default action is set
       if (this.rememberDuplicatedBarcodeChoiceDialog != null) this.rememberDuplicatedBarcodeChoiceDialog.dismiss();
       this.rememberDuplicatedBarcodeChoiceDialog = this.alertCtrl.create({
         title: await this.utils.text('saveAsDefaultChoiceDialogTitle'),
@@ -1025,7 +1020,7 @@ export class ScanProvider {
           {
             text: await this.utils.text('saveAsDefaultChoiceDialogSaveButton'),
             handler: () => {
-              this.settings.setDuplicateBarcodeChoice(acceptDuplicated ? 'accept' : 'discard');
+              this.settings.setDuplicateBarcodeChoice(acceptDuplicated ? 'always_accept' : 'discard_scan_session');
               resolve(true)
             },
             cssClass: this.platform.is('android') ? 'button-outline-md button-alert button-ok' : null
@@ -1040,59 +1035,90 @@ export class ScanProvider {
   };
 
   private acceptDuplicateBarcodeDialogVisible = false;
-  private showAcceptDuplicateDetectedDialog(): Promise<boolean> {
+
+  /**
+   * Asks for an action when a duplicate barcode is detected.
+   * Or if a default action is savedm it will automatically apply it.
+   *
+   * @returns Resolves true only if the barcode should be accepted
+   */
+  private showAcceptDuplicateDetectedDialog(barcode: string): Promise<boolean> {
     return new Promise<boolean>(async (resolve, reject) => {
 
-      // If there is a default action return it (simulates a button press)
+      // If there is a deafault choice execute the duplicate check
       let defaultChoice = await this.settings.getDuplicateBarcodeChoice();
-      if (defaultChoice != 'ask') {
-        resolve(defaultChoice == 'accept'); // converts accept/discard to true/false
-        return;
-      }
 
-      // Prevent multiple overlays
-      if (this.acceptDuplicateBarcodeDialog != null) {
-        if (this.acceptDuplicateBarcodeDialogVisible) {
-          // Not calling resolve(true) will cause memory leak, but it doesn't
-          // matter since we want to show to the user only one dialog
-          return;
-          // this.acceptDuplicateBarcodeDialog.dismiss();
+      const isBarcodeInSession = () => {
+        for (const scan of this.scanSession.scannings) {
+          const scanBarcodes = scan.outputBlocks.filter(x => x.type == 'barcode').map(x => x.value);
+          if (scanBarcodes.indexOf(barcode) != -1) {
+            return true;
+          }
         }
-      }
-      if (this.rememberDuplicatedBarcodeChoiceDialog != null) this.rememberDuplicatedBarcodeChoiceDialog.dismiss();
+        return false;
+      };
 
-      // Show dialog
-      this.acceptDuplicateBarcodeDialog = this.alertCtrl.create({
-        title: await this.utils.text('duplicatedBarcodesDialogTitle'),
-        message: await this.utils.text('duplicatedBarcodesDialogMessage'),
-        buttons: [
-          {
-            text: await this.utils.text('duplicatedBarcodesAcceptButton'),
-            handler: () => {
-              resolve(true)
-              this.showRememberDuplicatedBarcodeChoiceDialog(true);
-            },
+      switch (defaultChoice) {
+        case 'ask':
+          // If there is no duplicate, do nothing and accept.
+          if (!isBarcodeInSession()) {
+            resolve(true);
+            return;
+          }
 
-            cssClass: this.platform.is('android') ? 'button-outline-md button-alert button-ok' : null
-          },
-          {
-            text: await this.utils.text('duplicatedBarcodesDiscardButton'),
-            role: 'cancel', handler: () => {
+          // Once a duplicate is detected ask what to do
+          if (this.acceptOrDiscardDialog != null) {
+            // Prevent multiple overlays
+            if (this.acceptDuplicateBarcodeDialogVisible) {
               resolve(false);
-              this.showRememberDuplicatedBarcodeChoiceDialog(false);
-            },
-            cssClass: this.platform.is('android') ? 'button-outline-md button-alert' : null
-          },
-        ]
-      });
-      this.acceptDuplicateBarcodeDialog.onDidDismiss((data) => {
-        this.acceptDuplicateBarcodeDialogVisible = false;
-      });
-      this.acceptDuplicateBarcodeDialog.present();
-      this.acceptDuplicateBarcodeDialogVisible = true;
+              return;
+            }
+          }
+          if (this.rememberDuplicatedBarcodeChoiceDialog != null) this.rememberDuplicatedBarcodeChoiceDialog.dismiss();
+
+          // Show Accept/Discard dialog
+          this.acceptOrDiscardDialog = this.alertCtrl.create({
+            title: await this.utils.text('duplicatedBarcodesDialogTitle'),
+            message: await this.utils.text('duplicatedBarcodesDialogMessage'),
+            buttons: [
+              {
+                text: await this.utils.text('duplicatedBarcodesAcceptButton'),
+                handler: () => {
+                  resolve(true)
+                  this.showRememberDuplicatedBarcodeChoiceDialog(true);
+                },
+
+                cssClass: this.platform.is('android') ? 'button-outline-md button-alert button-ok' : null
+              },
+              {
+                text: await this.utils.text('duplicatedBarcodesDiscardButton'),
+                role: 'cancel', handler: () => {
+                  resolve(false);
+                  this.showRememberDuplicatedBarcodeChoiceDialog(false);
+                },
+                cssClass: this.platform.is('android') ? 'button-outline-md button-alert' : null
+              },
+            ]
+          });
+          this.acceptOrDiscardDialog.onDidDismiss((data) => {
+            this.acceptDuplicateBarcodeDialogVisible = false;
+          });
+          this.acceptOrDiscardDialog.present();
+          this.acceptDuplicateBarcodeDialogVisible = true;
+          break;
+        case 'always_accept':
+          resolve(true);
+          break;
+        case 'discard_adjacent':
+          const lastBarcode = this.scanSession.scannings[0].outputBlocks.reverse().find(x => x.type == 'barcode').value;
+          resolve(lastBarcode != barcode);
+          break;
+        case 'discard_scan_session':
+          resolve(!isBarcodeInSession());
+          break;
+      }
     });
   }
-
 
   getRandomInt(max = Number.MAX_SAFE_INTEGER) {
     return Math.floor(Math.random() * Math.floor(max));
