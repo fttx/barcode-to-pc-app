@@ -267,6 +267,7 @@
   "evalCodeDialogTitle": "Error",
   "evalCodeDialogMessage": "Se ha producido un error al ejecutar la plantilla de salida: {{ error }}",
   "evalCodeDialogOkButton": "Ok",
+  "duplicateBarcodeDetectedToast": "Código de barras duplicado detectado, omitiendo...",
   "================================SERVER_PROVIDER==============================": "",
   "responseModalDialogOkButton": "Ok",
   "responseModelKickDialogTitle": "Límite alcanzado",

@@ -18,6 +18,7 @@ import { ScanSessionModel } from '../models/scan-session.model';
 import { ScanModel } from '../models/scan.model';
 import { SelectScanningModePage } from '../pages/scan-session/select-scanning-mode/select-scanning-mode';
 import { Config } from './config';
+import { LastToastProvider } from './last-toast/last-toast';
 import { ServerProvider } from './server';
 import { Settings } from './settings';
 import { AlertButtonType, Utils } from './utils';
@@ -77,6 +78,7 @@ export class ScanProvider {
     public events: Events,
     private iab: InAppBrowser,
     private utils: Utils,
+    private lastToast: LastToastProvider,
   ) {
     this.events.subscribe(responseModel.ACTION_UPDATE_SETTINGS, async (responseModelUpdateSettings: responseModelUpdateSettings) => {
       this.outputProfile = responseModelUpdateSettings.outputProfiles[this.outputProfileIndex];
@@ -637,7 +639,12 @@ export class ScanProvider {
             // Check for duplicated barcodes
             let acceptBarcode = await this.showAcceptDuplicateDetectedDialog(barcodeScanResult.text);
             if (!acceptBarcode) {
-              again();
+              if (this.acqusitionMode == 'mixed_continue') {
+                again();
+              }
+              if (!acceptBarcode) {
+                this.lastToast.present(await this.utils.text('duplicateBarcodeDetectedToast'));
+              }
               return;
             }
 
