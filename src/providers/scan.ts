@@ -353,7 +353,7 @@ export class ScanProvider {
                 break;
               }
               case 'date_time': {
-                outputBlock.value = moment(new Date()).format(outputBlock.format);
+                outputBlock.value = moment(new Date()).format(outputBlock.format); // Duplicate code for the 'barcode' case, for the matchBarcodeDate feature
                 variables.date_time = outputBlock.value;
                 break;
               }
@@ -390,6 +390,13 @@ export class ScanProvider {
                   }
 
                   let barcode = await this.getBarcode(outputBlock.label, outputBlock.filter, outputBlock.errorMessage);
+
+                  // Match the DATE_TIME components to the barcode acquisition date
+                  const dateTimeBloks = scan.outputBlocks.filter(x => x.type == 'date_time' && x.matchBarcodeDate);
+                  for (const dateTimeBlok of dateTimeBloks) {
+                    dateTimeBlok.value = moment(new Date()).format(dateTimeBlok.format); // Duplicate code in the switch(outputBlock.type)/date_time case
+                    variables.date_time = dateTimeBlok.value;
+                  }
 
                   // Context:
                   //

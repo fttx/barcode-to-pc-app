@@ -114,6 +114,11 @@ export class OutputBlockModel {
     consumer_secret?: string;
 
     /**
+     * Parameters for the DATE_TIME component
+     */
+    matchBarcodeDate?: boolean;
+
+    /**
      * Parameters for the BARCODE, TEXT and NUMBER components
      */
     filter?: string;
