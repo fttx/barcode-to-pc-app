@@ -207,7 +207,7 @@ export class ScanProvider {
 
           // cancel the previus outputProfile exection. (needed for continue mode?)
           if (_scanCallId != this._scanCallId) {
-            observer.complete()
+            observer.complete();
             return;
           }
 
@@ -389,7 +389,7 @@ export class ScanProvider {
                     this.pluginOptions.formats = initialPluginOptions.formats;
                   }
 
-                  let barcode = await this.getBarcode(outputBlock.label, outputBlock.filter, outputBlock.errorMessage);
+                  let barcode = await this.getBarcode(_scanCallId, outputBlock.label, outputBlock.filter, outputBlock.errorMessage);
 
                   // Match the DATE_TIME components to the barcode acquisition date
                   const dateTimeBloks = scan.outputBlocks.filter(x => x.type == 'date_time' && x.matchBarcodeDate);
@@ -619,11 +619,15 @@ export class ScanProvider {
   private lastReject;
   private continuosScanSubscription: Subscription = null;
 
-  private getBarcode(label = null, filter = null, errorMessage = null): Promise<string> {
+  private getBarcode(scanCallId: number, label = null, filter = null, errorMessage = null): Promise<string> {
     this.awaitingForBarcode = true;
 
     let promise = new Promise<string>((resolve, reject) => {
       let again = async (showFilterError = false) => {
+        if (scanCallId != this._scanCallId) {
+          reject();
+          return;
+        }
         if (showFilterError && errorMessage) {
           this.pluginOptions.prompt = 'Error: ' + errorMessage;
         }
@@ -643,18 +647,19 @@ export class ScanProvider {
             }
             // END CODE_39 fix
 
-            // Check for duplicated barcodes
+            // Check for duplicated barcodes (duplciate on manual mode)
             let acceptBarcode = await this.showAcceptDuplicateDetectedDialog(barcodeScanResult.text);
             if (!acceptBarcode) {
               if (this.acqusitionMode == 'mixed_continue') {
                 again();
               }
               if (!acceptBarcode) {
-                this.lastToast.present(await this.utils.text('duplicateBarcodeDetectedToast'));
+                this.lastToast.present(await this.utils.text('duplicateBarcodeDetectedToast'), 1500, 'top');
               }
               return;
             }
 
+            // check filter
             if (filter != null && !barcodeScanResult.text.match(filter)) {
               again(true);
               return;
@@ -718,9 +723,10 @@ export class ScanProvider {
             // isn't a way to cancel a manual barcode acquisition
             let barcode = await this.keyboardInput.onSubmit.first().toPromise();
 
-            // Check for duplicated barcodes
+            // Check for duplicated barcodes (duplciate on mixed)
             let acceptBarcode = await this.showAcceptDuplicateDetectedDialog(barcode);
             if (!acceptBarcode) {
+              this.lastToast.present(await this.utils.text('duplicateBarcodeDetectedToast'), 1500, 'top');
               again();
               return;
             }
