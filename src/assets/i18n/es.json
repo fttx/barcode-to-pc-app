@@ -296,6 +296,7 @@
   "duplicatedBarcodesDiscardButton": "Descartar código de barras",
   "barcodeToPcServer": "Barcode to PC server",
   "appName": "Barcode to PC",
+  "dontShowUntilNextUpdateLabel": "Don't show until next update",
   "================================MENU=========================================": "",
   "mainHeader": "Principal",
   "scanSessions": "Sesiones de escaneo",
