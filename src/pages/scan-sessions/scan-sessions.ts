@@ -31,7 +31,7 @@ export class ScanSessionsPage {
   private isWatching = false;
   private preventClickTimeout = null;
   private clickDisabled = false;
-
+  private reconnectDialog = null;
   private unregisterBackButton = null;
 
   constructor(
@@ -93,7 +93,10 @@ export class ScanSessionsPage {
       this.everConnected = true;
       this.serverProvider.stopWatchForServers();
       this.isWatching = false;
-
+      if (this.reconnectDialog) {
+        this.reconnectDialog.dismiss();
+        this.reconnectDialog = null;
+      }
 
       // // Detect unsynced scan sessions
       // let affectedIndexes = [];
@@ -183,28 +186,33 @@ export class ScanSessionsPage {
       // if the server has the same name, but a different ip => ask to reconnect
       if (defaultServer != null && defaultServer.name == discoveryResult.server.name && discoveryResult.server.name.length && defaultServer.address != discoveryResult.server.address) {
         setTimeout(async () => {
-          // We add a 3s delay just in case the defaultServer address gets announced
+          // We add a 5s delay just in case the defaultServer address gets announced
           // later, this way it has enough time to connect to it before prompting
           // the user.
           if (this.serverProvider.isConnected()) return;
-          this.alertCtrl.create({
-            title: await this.utils.text('reconnectDialogTitle'),
-            message: await this.utils.text('reconnectDialogMessage', { "defaultServerName": defaultServer.name, "defaultServerAddress": defaultServer.address, "discoveryServerAddress": discoveryResult.server.address }),
-            buttons: [{ text: await this.utils.text('reconnectDialogNoButton'), role: 'cancel', handler: () => { } }, {
-              text: await this.utils.text('reconnectDialogReconnectButton'),
-              handler: () => {
-                this.settings.setDefaultServer(discoveryResult.server); // override the defaultServer
-                this.settings.getSavedServers().then(savedServers => {
-                  this.settings.setSavedServers(
-                    savedServers
-                      .filter(x => x.name != discoveryResult.server.name) // remove the old server
-                      .concat(discoveryResult.server)) // add a new one
-                });
-                this.serverProvider.connect(discoveryResult.server, true);
-              }
-            }]
-          }).present();
-        }, 3000);
+          if (this.reconnectDialog == null) {
+            this.reconnectDialog = this.alertCtrl.create({
+              title: await this.utils.text('reconnectDialogTitle'),
+              message: await this.utils.text('reconnectDialogMessage', { "defaultServerName": defaultServer.name, "defaultServerAddress": defaultServer.address, "discoveryServerAddress": discoveryResult.server.address }),
+              buttons: [{ text: await this.utils.text('reconnectDialogNoButton'), role: 'cancel', handler: () => { this.reconnectDialog = null; } }, {
+                text: await this.utils.text('reconnectDialogReconnectButton'),
+                handler: () => {
+                  this.settings.setDefaultServer(discoveryResult.server); // override the defaultServer
+                  this.settings.getSavedServers().then(savedServers => {
+                    this.settings.setSavedServers(
+                      savedServers
+                        .filter(x => x.name != discoveryResult.server.name) // remove the old server
+                        .concat(discoveryResult.server)) // add a new one
+                  });
+                  this.serverProvider.connect(discoveryResult.server, true);
+                  this.reconnectDialog = null;
+                }
+              }],
+              enableBackdropDismiss: false,
+            });
+            this.reconnectDialog.present();
+          }
+        }, 5000);
       } else if (defaultServer == null || (defaultServer.name == discoveryResult.server.name && defaultServer.address == discoveryResult.server.address && this.everConnected)) {
         // if the server was closed and open again => reconnect whitout asking
         this.serverProvider.connect(discoveryResult.server, true);

@@ -56,6 +56,7 @@ export class ScanSessionPage {
   private pauseSubscription: Subscription = null;
   private isPaused: boolean = false;
   private realtimeSend: boolean = true;
+  private catchUpIOSLag = false;
 
   constructor(
     public navParams: NavParams,
@@ -92,9 +93,26 @@ export class ScanSessionPage {
       this.pauseSubscription.unsubscribe();
       this.pauseSubscription = null;
     }
-    this.resumeSubscription = this.platform.resume.subscribe(() => { setTimeout(() => { this.isPaused = false; }, 2000); });
-    this.pauseSubscription = this.platform.pause.subscribe(() => { this.isPaused = true; });
+    this.resumeSubscription = this.platform.resume.subscribe(() => {
+      setTimeout(() => { this.isPaused = false; }, 2000);
+      setTimeout(() => {
+        // If after 15s it still fails to connect, enable notifications again
+        if (this.repeatingStatus == 'stopped') {
+          this.catchUpIOSLag = false;
+          this.serverProvider.catchUpIOSLag = false;
+        }
+      }, 15000);
+    });
+    this.pauseSubscription = this.platform.pause.subscribe(() => {
+      this.isPaused = true;
+
+      // Pause all toast and dialogs until next resume is called
+      if (this.platform.is('ios')) {
+        this.catchUpIOSLag = true;
+      }
+    });
   }
+
 
   @HostListener('window:keyup', ['$event'])
   keyEvent(event: KeyboardEvent) {
@@ -161,6 +179,12 @@ export class ScanSessionPage {
     this.events.subscribe('settings:save', async () => {
       this.realtimeSend = await this.settings.getRealtimeSendEnabled();
     });
+
+    this.serverProvider.onConnect().subscribe(async () => {
+      if (!this.catchUpIOSLag || !await this.settings.getRealtimeSendEnabled()) return;
+      this.catchUpIOSLag = false;
+      this.onRepeatAllClick(false);
+    })
   }
 
   ionViewDidLeave() {
@@ -437,36 +461,43 @@ export class ScanSessionPage {
     }
   }
 
-  async onRepeatAllClick() {
-    this.alertCtrl.create({
-      title: await this.utils.text('sendBarcodeAgainDialogTitle'),
-      inputs: [{
-        type: 'checkbox',
-        label: await this.utils.text('sendBarcodeAgainDialogMessage'),
-        value: 'skipAlreadySent',
-        checked: true
-      }],
-      buttons: [{
-        text: await this.utils.text('sendBarcodeAgainDialogCancelButton'), role: 'cancel', handler: data => { }
-      }, {
-        text: 'Send', handler: data => {
-          this.firebaseAnalytics.logEvent('repeatAll', {});
-
-          this.skipAlreadySent = (data == 'skipAlreadySent')
-
-          this.settings.getRepeatInterval().then(repeatInterval => {
-            if (repeatInterval != null) {
-              this.repeatInterval = repeatInterval;
-            }
-
-            if (this.repeatingStatus != 'repeating' && this.repeatingStatus != 'paused') {
-              let startFrom = this.scanSession.scannings.length - 1;
-              this.repeatAll(startFrom);
-            }
-          })
+  async onRepeatAllClick(showConfirmDialog = true) {
+    const doRepeat = () => {
+      if (!this.scanSession) return;
+      this.settings.getRepeatInterval().then(repeatInterval => {
+        if (repeatInterval != null) {
+          this.repeatInterval = repeatInterval;
         }
-      }]
-    }).present();
+        if (this.repeatingStatus != 'repeating' && this.repeatingStatus != 'paused') {
+          let startFrom = this.scanSession.scannings.length - 1;
+          this.repeatAll(startFrom);
+        }
+      })
+    };
+
+    if (showConfirmDialog) {
+      this.alertCtrl.create({
+        title: await this.utils.text('sendBarcodeAgainDialogTitle'),
+        inputs: [{
+          type: 'checkbox',
+          label: await this.utils.text('sendBarcodeAgainDialogMessage'),
+          value: 'skipAlreadySent',
+          checked: true
+        }],
+        buttons: [{
+          text: await this.utils.text('sendBarcodeAgainDialogCancelButton'), role: 'cancel', handler: data => { }
+        }, {
+          text: 'Send', handler: data => {
+            this.firebaseAnalytics.logEvent('repeatAll', {});
+            this.skipAlreadySent = (data == 'skipAlreadySent');
+            doRepeat();
+          }
+        }]
+      }).present();
+    } else {
+      this.skipAlreadySent = true;
+      doRepeat();
+    }
   }
 
   onPauseRepeatingClick() {
@@ -582,5 +613,10 @@ export class ScanSessionPage {
       this.keyboardInput.focus();
     });
     ocrPage.present();
+  }
+
+  getTitle() {
+    if (this.repeatingStatus == 'repeating' || this.catchUpIOSLag) return 'Syncing...'
+    return this.scanSession && this.scanSession.name;
   }
 }

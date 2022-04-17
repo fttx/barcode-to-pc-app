@@ -1,7 +1,7 @@
 <ion-header>
 
 	<ion-navbar color="primary">
-		<ion-title>{{ scanSession && scanSession.name }}</ion-title>
+		<ion-title>{{ getTitle() }}</ion-title>
 
 		<ion-buttons end>
 			<button ion-button icon-only (click)="onShareClick()">

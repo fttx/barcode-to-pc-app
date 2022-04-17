@@ -56,6 +56,9 @@ export class ServerProvider {
   private kickedOut = false;
 
   private lastOnResumeSubscription = null;
+  private lastOnPauseSubscription = null;
+
+  public catchUpIOSLag = false;
 
   constructor(
     private settings: Settings,
@@ -301,7 +304,10 @@ export class ServerProvider {
       this.connected = true;
       this.wsEventObservable.next({ name: 'open', ws: this.webSocket });
       this._onConnect.next(server);
-      this.lastToast.present(await this.utils.text('connectionEstablishedToastTitle', { "serverName": server.name }));
+      if (!this.catchUpIOSLag) {
+        this.lastToast.present(await this.utils.text('connectionEstablishedToastTitle', { "serverName": server.name }));
+      }
+      this.catchUpIOSLag = false;
 
       //console.log('[S]: WS: new heartbeat started');
       if (this.heartBeatInterval) clearInterval(this.heartBeatInterval);
@@ -324,18 +330,31 @@ export class ServerProvider {
        * occour.
        * When the next onopen will occour it'll use a new 'server' variable, and
        * it'll try to reconnect to it on every resume event */
+
+      // onResume
       if (this.lastOnResumeSubscription != null) {
         this.lastOnResumeSubscription.unsubscribe();
         this.lastOnResumeSubscription = null;
       }
       this.lastOnResumeSubscription = this.platform.resume.subscribe(next => {
-        console.log('resume()')
+        console.log('resume()');
         if (!this.connected) {
-          console.log('onResume: not connected -> scheduling new connection immediately')
+          console.log('onResume: not connected -> scheduling new connection immediately');
           this.scheduleNewWsConnection(server);
         }
       });
 
+      // onPause
+      if (this.lastOnPauseSubscription != null) {
+        this.lastOnPauseSubscription.unsubscribe();
+        this.lastOnPauseSubscription = null;
+      }
+      this.lastOnPauseSubscription = this.platform.pause.subscribe(next => {
+        console.log('pause()');
+        if (this.platform.is('ios') && this.isConnected()) {
+          this.catchUpIOSLag = true;
+        }
+      });
 
       this.settings.getDeviceName().then(async deviceName => {
         console.log('[S-wc] sending HELO to ' + server.address)
@@ -362,7 +381,7 @@ export class ServerProvider {
     this.webSocket.onerror = async err => {
       console.log('[S]: WS: onerror ')
 
-      if (!this.reconnecting) {
+      if (!this.reconnecting && !this.catchUpIOSLag) {
         this.lastToast.present(await this.utils.text('unableToConnectToastTitle'));
       }
       this.connected = false;
@@ -397,7 +416,7 @@ export class ServerProvider {
       if (this.webSocket.readyState == WebSocket.OPEN) {
         //console.log(request, JSON.stringify(request));
         this.webSocket.send(JSON.stringify(request));
-      } else if (!this.connectionProblemAlert) {
+      } else if (!this.connectionProblemAlert && !this.catchUpIOSLag) {
         this.connectionProblemAlert = true;
         this.alertCtrl.create({
           title: await this.utils.text('connectionProblemDialogTitle'),
