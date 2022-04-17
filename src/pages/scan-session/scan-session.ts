@@ -95,13 +95,6 @@ export class ScanSessionPage {
     }
     this.resumeSubscription = this.platform.resume.subscribe(() => {
       setTimeout(() => { this.isPaused = false; }, 2000);
-      setTimeout(() => {
-        // If after 15s it still fails to connect, enable notifications again
-        if (this.repeatingStatus == 'stopped') {
-          this.catchUpIOSLag = false;
-          this.serverProvider.catchUpIOSLag = false;
-        }
-      }, 15000);
     });
     this.pauseSubscription = this.platform.pause.subscribe(() => {
       this.isPaused = true;
