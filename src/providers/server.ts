@@ -201,14 +201,16 @@ export class ServerProvider {
         // See: https://semver.org/
         let heloResponse: responseModelHelo = messageData;
 
-        this.appVersion.getVersionNumber().then(appVersionString => {
-          let appVersion = new SemVer(appVersionString);
-          let serverVersion = new SemVer(heloResponse.version);
-          this.serverVersion = serverVersion;
-          if (appVersion.major != serverVersion.major) {
-            this.showVersionMismatch();
+        const appVersionString = await this.appVersion.getVersionNumber();
+        let appVersion = new SemVer(appVersionString);
+        let serverVersion = new SemVer(heloResponse.version);
+        this.serverVersion = serverVersion;
+        if (appVersion.major != serverVersion.major || appVersion.minor != serverVersion.minor) {
+          const skipLastMismatchVersion = await this.settings.getLastMismatchVersion();
+          if (appVersionString != skipLastMismatchVersion) {
+            this.showVersionMismatch(appVersionString);
           }
-        });
+        }
 
         if (heloResponse.outputProfiles) {
           this.settings.setOutputProfiles(heloResponse.outputProfiles);
@@ -522,17 +524,25 @@ export class ServerProvider {
   }
 
   private isVersionMismatchDialogVisible = false;
-  private async showVersionMismatch() {
+  private async showVersionMismatch(newVersion = '0.0.0') {
     if (!this.isVersionMismatchDialogVisible) {
       let dialog = this.alertCtrl.create({
         title: await this.utils.text('showVersionMisMatchDialogTitle'),
         message: await this.utils.text('showVersionMisMatchDialogMessage', { "websiteName": Config.WEBSITE_NAME }),
-        buttons: [
-          {
-            text: await this.utils.text('showVersionMisMatchDialogOkButton'),
-            role: 'cancel'
+        inputs: [{
+          type: 'checkbox',
+          label: await this.utils.text('dontShowUntilNextUpdateLabel'),
+          value: 'dontShowUntilNextUpdate',
+          checked: false,
+        }],
+        buttons: [{
+          text: await this.utils.text('showVersionMisMatchDialogOkButton'),
+          handler: data => {
+            if (data == 'dontShowUntilNextUpdate') {
+              this.settings.setLastMismatchVersion(newVersion);
+            }
           }
-        ]
+        }]
       });
       dialog.didLeave.subscribe(() => {
         this.isVersionMismatchDialogVisible = false;

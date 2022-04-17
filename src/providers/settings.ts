@@ -55,6 +55,7 @@ export class Settings {
   private static SCAN_SESSION_FILTER = 'scan_session_filter';
   private static ALLOW_OUTPUT_TEMPLATE_SELECTION = 'allow_output_template_selection';
   private static ENABLE_REALTIME_SEND = 'enable_realtime_send';
+  private static LAST_MISMATCH_VERSION = 'last_mismatch_version';
 
   constructor(
     public storage: Storage,
@@ -173,6 +174,14 @@ export class Settings {
 
   getLastVersion(): Promise<string> {
     return this.storage.get(Settings.LAST_VERSION).then(version => version || '0.0.0');
+  }
+
+  setLastMismatchVersion(lastVersion: string) {
+    return this.storage.set(Settings.LAST_MISMATCH_VERSION, lastVersion);
+  }
+
+  getLastMismatchVersion(): Promise<string> {
+    return this.storage.get(Settings.LAST_MISMATCH_VERSION).then(version => version || '0.0.0');
   }
 
   setUpgradedDisplayValue(upgradedDisplayValue: boolean) {
