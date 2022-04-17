@@ -259,6 +259,16 @@ export class MyApp {
             await this.scanSessionsStorage.setScanSessions(scanSessions);
             alert.dismiss();
           } // Upgrade syncedWith (UUID) end
+
+          // v4.0.0
+          if (currentVersion.compare('4.0.0') >= 0) {
+            const oldChoice: any = await this.settings.getDuplicateBarcodeChoice();
+            if (oldChoice == 'accept') {
+              this.settings.setDuplicateBarcodeChoice('always_accept');
+            } else if (oldChoice == 'discard') {
+              this.settings.setDuplicateBarcodeChoice('discard_scan_session');
+            }
+          }
         }
         await this.settings.setLastVersion(currentVersion.version);
         resolve(); // always resolve at the end (note the awaits!)
