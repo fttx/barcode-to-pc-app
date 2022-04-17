@@ -31,7 +31,7 @@ export class LastToastProvider {
     });
   }
 
-  public present(message: string, duartion: number = 6000) {
+  public present(message: string, duartion: number = 6000, position = 'bottom') {
     if (Config.DEBUG) {
       duartion = 2500;
     }
@@ -41,7 +41,7 @@ export class LastToastProvider {
     }
 
     if (!this.paused) {
-      this.toastCtrl.create({ message: message, duration: duartion, showCloseButton: true, closeButtonText: 'DISMISS' }).present();
+      this.toastCtrl.create({ message: message, duration: duartion, showCloseButton: true, closeButtonText: 'DISMISS', position: position }).present();
       this.lastToastMessage = null;
     } else {
       this.lastToastMessage = message;
