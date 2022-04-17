@@ -519,6 +519,7 @@ export class ScanSessionPage {
   }
 
   onEnterClick(event = null) {
+    if (this.repeatingStatus == 'repeating') return;
     this.keyboardInput.submit();
   }
 
