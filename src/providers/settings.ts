@@ -241,10 +241,8 @@ export class Settings {
       const v3Servers = JSON.parse(data);
       if (v3Servers) {
         const v4Servers = v3Servers.map(x => {
-          if (!x.ip) {
+          if (x && x.address) {
             return ServerModel.AddressToServer(x.address, x.name);
-          } else {
-            return new ServerModel(x.ip, Config.SERVER_PORT, x.name);
           }
         });
         await this.setSavedServers(v4Servers);
@@ -254,10 +252,8 @@ export class Settings {
       if (v3DefaultServer && v3DefaultServer != '' && v3DefaultServer != 'null') {
         v3DefaultServer = JSON.parse(v3DefaultServer);
         let v4DefaultServer;
-        if (!v3DefaultServer.ip) {
+        if (v3DefaultServer.address) {
           v4DefaultServer = ServerModel.AddressToServer(v3DefaultServer.address, v3DefaultServer.name);
-        } else {
-          v4DefaultServer = new ServerModel(v3DefaultServer.ip, Config.SERVER_PORT, v3DefaultServer.name);
         }
         await this.setDefaultServer(v4DefaultServer);
       }

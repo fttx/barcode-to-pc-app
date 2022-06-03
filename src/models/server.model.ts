@@ -39,6 +39,7 @@ export class ServerModel {
   }
 
   static AddressToServer(address: string, name: string): ServerModel {
+    if (!address) return null;
     const ip = address.split(':')[0];
     let port = Config.SERVER_PORT;
     if (address.split(':').length == 2) {
