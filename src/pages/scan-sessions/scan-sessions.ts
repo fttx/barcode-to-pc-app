@@ -184,7 +184,7 @@ export class ScanSessionsPage {
       // too late, abort
       if (this.connected) return;
       // if the server has the same name, but a different ip => ask to reconnect
-      if (defaultServer != null && defaultServer.name == discoveryResult.server.name && discoveryResult.server.name.length && defaultServer.address != discoveryResult.server.address) {
+      if (defaultServer != null && defaultServer.name == discoveryResult.server.name && discoveryResult.server.name.length && defaultServer.getAddress() != discoveryResult.server.getAddress()) {
         setTimeout(async () => {
           // We add a 5s delay just in case the defaultServer address gets announced
           // later, this way it has enough time to connect to it before prompting
@@ -193,7 +193,7 @@ export class ScanSessionsPage {
           if (this.reconnectDialog == null) {
             this.reconnectDialog = this.alertCtrl.create({
               title: await this.utils.text('reconnectDialogTitle'),
-              message: await this.utils.text('reconnectDialogMessage', { "defaultServerName": defaultServer.name, "defaultServerAddress": defaultServer.address, "discoveryServerAddress": discoveryResult.server.address }),
+              message: await this.utils.text('reconnectDialogMessage', { "defaultServerName": defaultServer.name, "defaultServerAddress": defaultServer.getAddress(), "discoveryServerAddress": discoveryResult.server.getAddress() }),
               buttons: [{ text: await this.utils.text('reconnectDialogNoButton'), role: 'cancel', handler: () => { this.reconnectDialog = null; } }, {
                 text: await this.utils.text('reconnectDialogReconnectButton'),
                 handler: () => {
@@ -213,7 +213,7 @@ export class ScanSessionsPage {
             this.reconnectDialog.present();
           }
         }, 5000);
-      } else if (defaultServer == null || (defaultServer.name == discoveryResult.server.name && defaultServer.address == discoveryResult.server.address && this.everConnected)) {
+      } else if (defaultServer == null || (defaultServer.name == discoveryResult.server.name && defaultServer.getAddress() == discoveryResult.server.getAddress() && this.everConnected)) {
         // if the server was closed and open again => reconnect whitout asking
         this.serverProvider.connect(discoveryResult.server, true);
       }

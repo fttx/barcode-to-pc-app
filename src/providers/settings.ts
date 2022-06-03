@@ -5,6 +5,7 @@ import { Storage } from '@ionic/storage';
 import { barcodeFormatModel } from '../models/barcode-format.model';
 import { OutputProfileModel } from '../models/output-profile.model';
 import { ServerModel } from '../models/server.model';
+import { Config } from './config';
 import { Utils } from './utils';
 
 
@@ -119,7 +120,7 @@ export class Settings {
       this.storage.get(Settings.DEFAULT_SERVER).then((data) => {
         if (data && data != '' && data != 'null') {
           data = JSON.parse(data);
-          let server = new ServerModel(data.address, data.name);
+          const server = new ServerModel(data.ip, data.port, data.name);
           resolve(server);
         } else {
           resolve(null);
@@ -224,12 +225,43 @@ export class Settings {
     return new Promise((resolve, reject) => {
       return this.storage.get(Settings.MANUALLY_ADDED).then(data => {
         if (data) {
-          let servers = JSON.parse(data).map(x => new ServerModel(x.address, x.name));
+          let servers = JSON.parse(data);
+          servers = servers.map(x => new ServerModel(x.ip, x.port, x.name));
           resolve(servers)
         } else {
           reject();
         }
       });
+    });
+  }
+
+  upgradeV4SavedServers(): Promise<void> {
+    return new Promise<void>(async resolve => {
+      const data = await this.storage.get(Settings.MANUALLY_ADDED);
+      const v3Servers = JSON.parse(data);
+      if (v3Servers) {
+        const v4Servers = v3Servers.map(x => {
+          if (!x.ip) {
+            return ServerModel.AddressToServer(x.address, x.name);
+          } else {
+            return new ServerModel(x.ip, Config.SERVER_PORT, x.name);
+          }
+        });
+        await this.setSavedServers(v4Servers);
+      }
+
+      let v3DefaultServer = await this.storage.get(Settings.DEFAULT_SERVER);
+      if (v3DefaultServer && v3DefaultServer != '' && v3DefaultServer != 'null') {
+        v3DefaultServer = JSON.parse(v3DefaultServer);
+        let v4DefaultServer;
+        if (!v3DefaultServer.ip) {
+          v4DefaultServer = ServerModel.AddressToServer(v3DefaultServer.address, v3DefaultServer.name);
+        } else {
+          v4DefaultServer = new ServerModel(v3DefaultServer.ip, Config.SERVER_PORT, v3DefaultServer.name);
+        }
+        await this.setDefaultServer(v4DefaultServer);
+      }
+      resolve();
     });
   }
 

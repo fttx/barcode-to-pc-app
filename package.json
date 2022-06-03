@@ -75,6 +75,7 @@
     "cordova-sqlite-storage": "^3.2.1",
     "cordova-support-android-plugin": "^1.0.1",
     "cordova-support-google-services": "^1.3.2",
+    "cordova-plugin-play-installreferrer": "^1.0.1",
     "es6-promise-plugin": "^4.2.2",
     "fttx-cordova-plugin-zeroconf": "1.4.1",
     "fttx-phonegap-plugin-barcodescanner": "^8.2.10",
@@ -149,7 +150,9 @@
       "cordova-plugin-mobile-ocr": {},
       "cordova-plugin-inappbrowser": {},
       "cordova-plugin-file": {},
-      "cordova-plugin-play-installreferrer": {}
+      "cordova-plugin-play-installreferrer": {
+        "INSTALL_REFERRER_VERSION": "1.1"
+      }
     },
     "platforms": [
       "android",

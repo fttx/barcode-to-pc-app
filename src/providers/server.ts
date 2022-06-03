@@ -94,7 +94,7 @@ export class ServerProvider {
 
   async connect(server: ServerModel, skipQueue: boolean = false) {
     console.log('[S-c] connect(server=', server, 'skipQueue=', skipQueue);
-    if (!this.webSocket || this.webSocket.readyState != WebSocket.OPEN || this.webSocket.url.indexOf(server.address) == -1) {
+    if (!this.webSocket || this.webSocket.readyState != WebSocket.OPEN || this.webSocket.url.indexOf(server.getAddress()) == -1) {
       console.log('[S-c]: not connected or new server selected, creating a new WS connection...');
       await this.wsConnect(server, skipQueue);
     } else if (this.webSocket.readyState == WebSocket.OPEN) {
@@ -149,7 +149,7 @@ export class ServerProvider {
   }
 
   private async wsConnect(server: ServerModel, skipQueue: boolean = false) {
-    console.log('[S-wc]: wsConnect(' + server.address + ')', new Date())
+    console.log('[S-wc]: wsConnect(' + server.getAddress() + ')', new Date())
 
     if (skipQueue) {
       console.log('[S-wc]: WS: skipQueue is true, skipping the queue and disconnecting from the old one')
@@ -178,7 +178,7 @@ export class ServerProvider {
 
     await this.wsDisconnect();
 
-    let wsUrl = 'ws://' + server.address + ':' + Config.SERVER_PORT + '/';
+    let wsUrl = 'ws://' + server.getAddress() + '/';
     this.webSocket = new WebSocket(wsUrl);
     //console.log('[S]: WS: A new WebSocket has been created')
 
@@ -296,7 +296,7 @@ export class ServerProvider {
       this.serverQueue = [];
 
       if (this.pongTimeout) clearTimeout(this.pongTimeout);
-      console.log("[S-wc]: WS: reconnected successfully with " + server.address)
+      console.log("[S-wc]: WS: reconnected successfully with " + server.getAddress())
       this.clearReconnectInterval();
 
 
@@ -357,7 +357,7 @@ export class ServerProvider {
       });
 
       this.settings.getDeviceName().then(async deviceName => {
-        console.log('[S-wc] sending HELO to ' + server.address)
+        console.log('[S-wc] sending HELO to ' + server.getAddress())
         let request = new requestModelHelo().fromObject({
           version: await this.appVersion.getVersionNumber(),
           deviceName: deviceName,
@@ -449,10 +449,10 @@ export class ServerProvider {
 
     // Dummy server for debugging
     if (!this.platform.is('cordova')) {
-      let dummyServer: discoveryResultModel = { server: new ServerModel('192.168.5.10', 'Server 1'), action: 'added' };
+      let dummyServer: discoveryResultModel = { server: ServerModel.AddressToServer('192.168.5.10', 'Server 1'), action: 'added' };
       this.watchForServersSubject.next(dummyServer);
       setTimeout(() => {
-        dummyServer = { server: new ServerModel('192.168.6.7', 'Server 2'), action: 'added' };
+        dummyServer = { server: ServerModel.AddressToServer('192.168.6.7', 'Server 2'), action: 'added' };
         this.watchForServersSubject.next(dummyServer);
       }, 500)
       return;
@@ -486,7 +486,7 @@ export class ServerProvider {
                 }).findIndex(x => x == true) != -1;
 
                 if (isInSubnets && this.watchForServersSubject != null) {
-                  this.watchForServersSubject.next({ server: new ServerModel(ipv4, service.hostname), action: action });
+                  this.watchForServersSubject.next({ server: ServerModel.AddressToServer(ipv4, service.hostname), action: action });
                 }
               }
             })

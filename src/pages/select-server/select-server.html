@@ -34,7 +34,7 @@
         </ion-avatar>
         <ion-label>
           <h2>{{ server.name }}</h2>
-          <p>{{ server.address }}</p>
+          <p>{{ getReadableAddress(server) }}</p>
           <!-- <p>online: {{ server.online  }} </p> -->
         </ion-label>
         <ion-radio [value]="server" (ionSelect)="onSelectServerChanged()"></ion-radio>

@@ -268,6 +268,7 @@ export class MyApp {
             } else if (oldChoice == 'discard') {
               this.settings.setDuplicateBarcodeChoice('discard_scan_session');
             }
+            await this.settings.upgradeV4SavedServers();
           }
         }
         await this.settings.setLastVersion(currentVersion.version);

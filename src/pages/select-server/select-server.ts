@@ -99,7 +99,7 @@ export class SelectServerPage {
           if (!input.address) {
             return;
           }
-          let server = new ServerModel(input.address, input.name);
+          const server = ServerModel.AddressToServer(input.address, input.name);
           this.addServer(server, false, true);
           // this.settings.setDefaultServer(server);
           // this.setSelectedServer(server);
@@ -237,8 +237,8 @@ export class SelectServerPage {
       })
     }
     this.wsEventsSubscription = this.serverProvider.onWsEvent().subscribe((event: wsEvent) => {
-      if (event.ws.url.indexOf(server.address) == -1) return;
-      if (event.ws.url.indexOf(server.address) != -1) {
+      if (event.ws.url.indexOf(server.getAddress()) == -1) return;
+      if (event.ws.url.indexOf(server.getAddress()) != -1) {
         if (event.name == wsEvent.EVENT_OPEN || event.name == wsEvent.EVENT_ALREADY_OPEN) {
           this.setOnline(server, 'connected');
         } else {
@@ -287,7 +287,7 @@ export class SelectServerPage {
     }
     this.alertCtrl.create({
       title: await this.utils.text('serverInfoDialogTitle'),
-      message: await this.utils.text('serverInfoDialogMessage', { "server": (server.name || server.address), "status": status }),
+      message: await this.utils.text('serverInfoDialogMessage', { "server": (server.name || server.getAddress()), "status": status }),
 
       buttons: [await this.utils.text('serverInfoDialogOkButton')],
     }).present();
@@ -300,7 +300,7 @@ export class SelectServerPage {
     // }
 
     this.actionSheetCtrl.create({
-      title: server.name || server.address,
+      title: server.name || server.getAddress(),
       buttons: [
         { text: await this.utils.text('removeButton'), icon: 'trash', role: 'destructive', handler: () => { this.deleteServer(server); } },
         { text: await this.utils.text('renameButton'), icon: 'create', handler: () => { this.rename(server); } },
@@ -346,5 +346,9 @@ export class SelectServerPage {
     if (server.online == 'offline')
       return 'ios-close-circle-outline'
     return 'desktop';
+  }
+
+  getReadableAddress(server: ServerModel) {
+    return server.getAddress().replace(':' + Config.SERVER_PORT, '');
   }
 }
