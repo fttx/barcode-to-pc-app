@@ -64,7 +64,7 @@ export class KeyboardInputComponent {
   }
 
   public isFocussed() {
-    return this.isFocussed;
+    return this._focussed;
   }
 
   public lock(placeholder: string = null, backgroundColor: string = '') {

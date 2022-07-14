@@ -112,6 +112,8 @@ export class ScanSessionPage {
     this.ngZone.run(() => {
       if (event.keyCode == 13 && this.keyboardInput.value.length > 0) {
         this.onEnterClick();
+      } else if (!this.keyboardInput.isFocussed() && this.scanProvider.awaitingForBarcode) {
+        this.keyboardInputTouchStart(event);
       }
     })
   }
