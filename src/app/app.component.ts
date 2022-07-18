@@ -155,7 +155,7 @@ export class MyApp {
         // MINOR version when you add functionality in a backwards-compatible manner, and
         // PATCH version when you make backwards-compatible bug fixes.
         // see: https://semver.org/
-        console.log('gt(currentVersion, lastVersion)= ', gt(currentVersion, lastVersion), currentVersion, lastVersion)
+        // console.log('gt(currentVersion, lastVersion)= ', gt(currentVersion, lastVersion), currentVersion, lastVersion)
         if (gt(currentVersion, lastVersion) && lastVersion.compare('0.0.0') != 0) { // update detected (the second proposition is to exclude the first start)
           await this.settings.setBarcodeFormats(this.utils.updateBarcodeFormats(savedBarcodeFormats));
 
