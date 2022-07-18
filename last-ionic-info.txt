@@ -14,7 +14,7 @@ Cordova:
 Utility:
 
    cordova-res (update available: 0.15.4) : 0.15.3
-   native-run                             : 1.5.0
+   native-run (update available: 1.6.0)   : 1.5.0
 
 System:
 
@@ -23,5 +23,5 @@ System:
    NodeJS     : v14.17.6 (/Users/filippo/.nvm/versions/node/v14.17.6/bin/node)
    npm        : 8.5.5
    OS         : macOS Monterey
-   Xcode      : Xcode 13.3 Build version 13E113
+   Xcode      : Xcode 13.4.1 Build version 13F100
 
