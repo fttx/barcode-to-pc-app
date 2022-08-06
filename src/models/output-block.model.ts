@@ -1,3 +1,5 @@
+import { NutjsKey } from "./nutjs-key.model";
+
 /**
  * It's an element of the Output template field.
  * It's also called Output component in the UI
@@ -21,11 +23,6 @@ export class OutputBlockModel {
      * enter the data by pressing the OK button
      */
     defaultValue?: string;
-    /**
-     * A block is editable if the user is allowed to edit the component
-     * value through the UI
-     */
-    editable?: boolean;
     /**
      * Defines the type of the value attribute, an thus its behaviour.
      *
@@ -64,8 +61,23 @@ export class OutputBlockModel {
     skipOutput?: boolean;
 
     /**
-     * Modifier keys to press along with the component
+     * NutjsKey identifier (See utils.ts)
      */
+    keyId?: NutjsKey;
+
+    /**
+     * Modifier keys to enable when typing the PRESS KEY component.
+     * The identifiers can be found in the @nut-tree/nut-js/lib/key.enum file
+     *
+     * Rembember to keep the identifiers in sync with
+     * ComponentEditorKeyPage.NUTJS_KEYS when updating the library
+     */
+    modifierKeys?: NutjsKey[];
+
+    /**
+        * @deprecated Use modifierKeys instead
+        * Modifier keys to press along with the component
+        */
     modifiers?: string[];
 
     /**
