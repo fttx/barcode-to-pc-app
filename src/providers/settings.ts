@@ -3,9 +3,9 @@ import { Device } from '@ionic-native/device';
 import { SplashScreen } from '@ionic-native/splash-screen';
 import { Storage } from '@ionic/storage';
 import { barcodeFormatModel } from '../models/barcode-format.model';
+import { NutjsKey } from '../models/nutjs-key.model';
 import { OutputProfileModel } from '../models/output-profile.model';
 import { ServerModel } from '../models/server.model';
-import { Config } from './config';
 import { Utils } from './utils';
 
 
@@ -522,9 +522,9 @@ export class Settings {
             name: "Output template 1",
             version: null,
             outputBlocks: [
-              { name: 'BARCODE', value: 'BARCODE', type: 'barcode', editable: true, skipOutput: false, label: null, enabledFormats: [], filter: null, errorMessage: null },
+              { name: 'BARCODE', value: 'BARCODE', type: 'barcode', skipOutput: false, label: null, enabledFormats: [], filter: null, errorMessage: null },
               { name: 'TAB', value: 'tab', type: 'key', modifiers: [] },
-              { name: 'NUMBER', value: 'number', type: 'variable', editable: true, skipOutput: false, label: null, filter: null, errorMessage: null, defaultValue: '1' },
+              { name: 'NUMBER', value: 'number', type: 'variable', skipOutput: false, label: null, filter: null, errorMessage: null, defaultValue: '1' },
               { name: 'ENTER', value: 'enter', type: 'key', modifiers: [] },
             ]
           }]);
@@ -534,8 +534,8 @@ export class Settings {
             version: null,
             name: "Output template 1",
             outputBlocks: [
-              { name: 'BARCODE', value: 'BARCODE', type: 'barcode', editable: true, skipOutput: false, label: null, enabledFormats: [], filter: null, errorMessage: null },
-              { name: 'ENTER', value: 'enter', type: 'key', modifiers: [] },
+              { name: 'BARCODE', value: 'BARCODE', type: 'barcode', skipOutput: false, label: null, enabledFormats: [], filter: null, errorMessage: null },
+              { name: 'ENTER', value: '', keyId: NutjsKey.Enter, type: 'key', modifierKeys: [] }
             ]
           }]);
         }

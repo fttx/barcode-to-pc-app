@@ -178,7 +178,6 @@ export class MyApp {
                 scan.outputBlocks = [];
 
                 scan.outputBlocks.push({
-                  editable: false,
                   name: 'BARCODE',
                   value: scan.text,
                   type: 'barcode'
@@ -186,7 +185,6 @@ export class MyApp {
 
                 if (scan.quantity) {
                   scan.outputBlocks.push({
-                    editable: false,
                     name: 'NUMBER',
                     value: scan.quantity,
                     type: 'variable'
@@ -194,7 +192,6 @@ export class MyApp {
                 }
 
                 scan.outputBlocks.push({
-                  editable: false,
                   name: 'ENTER',
                   value: 'enter',
                   type: 'key'
