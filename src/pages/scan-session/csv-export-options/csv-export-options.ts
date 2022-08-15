@@ -27,7 +27,7 @@ export class CSVExportOptionsPage {
   }
 
   onExportClick() {
-    let csv = ScanModel.ToCSV(this.scanSession.scannings, this.exportOnlyText, this.enableQuotes, this.csvDelimiter, this.newLineCharacter.replace('CR', '\r').replace('LF', '\n'), this.enableHeaders);
+    let csv = ScanModel.ToCSV(this.scanSession.scannings.reverse(), this.exportOnlyText, this.enableQuotes, this.csvDelimiter, this.newLineCharacter.replace('CR', '\r').replace('LF', '\n'), this.enableHeaders);
     this.viewCtrl.dismiss(csv);
   }
 }

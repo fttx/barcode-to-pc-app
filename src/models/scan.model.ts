@@ -144,8 +144,8 @@ export class ScanModel {
             return scan.outputBlocks.map(outputBlock => outputBlock.value);
         });
 
-        console.log([headers, ...rows])
-        // Merge header and rows and transform them to a CSV string
-        return Papa.unparse([headers, ...rows], papaOptions);
+        // Merge header and rows
+        const data = generateHeaders ? [headers, ...rows] : rows;
+        return Papa.unparse(data, papaOptions);
     }
 }
