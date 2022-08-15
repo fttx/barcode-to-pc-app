@@ -93,10 +93,18 @@ export class ScanModel {
      * @param newLineCharacter must be composed by \n and \r(s). Be carrefoul,
      * because it's stored as 'LF' and 'CR'(s) in the settings.
      */
-    static ToCSV(scannings: ScanModel[], exportOnlyText: boolean, enableQuotes: boolean, csvDelimiter: string, newLineCharacter: string): string {
-        return Papa.unparse(scannings.map(scan => {
+    static ToCSV(scannings: ScanModel[], exportOnlyText: boolean, enableQuotes: boolean, csvDelimiter: string, newLineCharacter: string, generateHeaders: boolean): string {
+        const papaOptions = {
+            quotes: enableQuotes,
+            delimiter: csvDelimiter,
+            newline: newLineCharacter,
+            headers: generateHeaders,
+        };
+
+        // Remove non-readable components
+        scannings = scannings.map(scan => {
             if (exportOnlyText) {
-                return scan.outputBlocks
+                scan.outputBlocks = scan.outputBlocks
                     .filter(outputBlock => (
                         outputBlock.type != 'key' &&
                         outputBlock.type != 'delay' &&
@@ -106,16 +114,38 @@ export class ScanModel {
                         // update also in app.
                         // 'if' and 'endif' bloks never reach
                         // the server because they're stripped on the app side
-
                         !outputBlock.skipOutput
-                    ))
-                    .map(outputBlock => outputBlock.value)
+                    ));
             }
-            return scan.outputBlocks.map(outputBlock => outputBlock.value);
-        }), {
-            quotes: enableQuotes,
-            delimiter: csvDelimiter,
-            newline: newLineCharacter
+            return scan;
         });
+
+        // Duplicate an existing row to transform it into a header row
+        let headers = [];
+        if (generateHeaders) {
+            let dummyRow = scannings[0];
+            // If there is more than an a row, find the one with the most fields
+            for (let i = 0; i < scannings.length; i++) {
+                if (scannings[i].outputBlocks.length > dummyRow.outputBlocks.length) {
+                    dummyRow = scannings[i];
+                }
+            }
+            headers = dummyRow.outputBlocks.map(outputBlock => {
+                if (outputBlock.label && outputBlock.label.length > 0) {
+                    return outputBlock.label;
+                } else {
+                    return outputBlock.name;
+                }
+            });
+        }
+
+        // Extract the outputBloks value
+        const rows = scannings.map(scan => {
+            return scan.outputBlocks.map(outputBlock => outputBlock.value);
+        });
+
+        console.log([headers, ...rows])
+        // Merge header and rows and transform them to a CSV string
+        return Papa.unparse([headers, ...rows], papaOptions);
     }
 }

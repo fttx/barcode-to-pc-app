@@ -49,7 +49,7 @@
   "seekHelpOutro": "If you're still unable to fix your problem, or for other enquiries contact",
   "================================CSV_EXPORT_PAGE==============================": "",
   "exportCSVTitle": "Export as CSV",
-  "exportReadableComponentsOnlyLabel": "Export only readable components",
+  "enableHeaders": "Enable headers",
   "enableQuotesLabel": "Enable quotes",
   "seperatorCharacterLabel": "Separator character (delimiter)",
   "seperatorCharacterLabelPlaceholder": "Eg. ,",

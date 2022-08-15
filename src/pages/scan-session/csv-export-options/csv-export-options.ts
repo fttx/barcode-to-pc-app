@@ -14,6 +14,7 @@ export class CSVExportOptionsPage {
 
   public exportOnlyText: boolean = true;
   public enableQuotes: boolean = false;
+  public enableHeaders: boolean = false;
   public csvDelimiter: string = ",";
   public newLineCharacter: string = 'CRLF';
 
@@ -26,7 +27,7 @@ export class CSVExportOptionsPage {
   }
 
   onExportClick() {
-    let csv = ScanModel.ToCSV(this.scanSession.scannings, this.exportOnlyText, this.enableQuotes, this.csvDelimiter, this.newLineCharacter.replace('CR', '\r').replace('LF', '\n'));
+    let csv = ScanModel.ToCSV(this.scanSession.scannings, this.exportOnlyText, this.enableQuotes, this.csvDelimiter, this.newLineCharacter.replace('CR', '\r').replace('LF', '\n'), this.enableHeaders);
     this.viewCtrl.dismiss(csv);
   }
 }

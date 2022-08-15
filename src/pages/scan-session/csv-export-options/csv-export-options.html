@@ -14,13 +14,13 @@
   <ion-list>
 
     <ion-item>
-      <ion-label color="dark">{{ 'exportReadableComponentsOnlyLabel' | translate }}</ion-label>
-      <ion-toggle [(ngModel)]="exportOnlyText"></ion-toggle>
+      <ion-label color="dark">{{ 'enableQuotesLabel' | translate }}</ion-label>
+      <ion-toggle [(ngModel)]="enableQuotes"></ion-toggle>
     </ion-item>
 
     <ion-item>
-      <ion-label color="dark">{{ 'enableQuotesLabel' | translate }}</ion-label>
-      <ion-toggle [(ngModel)]="enableQuotes"></ion-toggle>
+      <ion-label color="dark">{{ 'enableHeaders' | translate }}</ion-label>
+      <ion-toggle [(ngModel)]="enableHeaders"></ion-toggle>
     </ion-item>
 
     <ion-item no-lines>
