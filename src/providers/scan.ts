@@ -67,6 +67,7 @@ export class ScanProvider {
 
   public static INFINITE_LOOP_DETECT_THRESHOLD = 30;
   private nfcSubscription: Subscription = null;
+  private enableNFC: boolean = false;
 
   constructor(
     private alertCtrl: AlertController,
@@ -152,7 +153,8 @@ export class ScanProvider {
         // const containsMixedBarcodeFormats = OutputProfileModel.ContainsMixedBarcodeFormats(this.outputProfile);
         const containsMultipleBarcodeFormats = OutputProfileModel.ContainsMultipleBarcodeFormats(this.outputProfile);
         const duplicateBarcodeChoice = result[10];
-        const enableNFC = result[11];
+        const enableNFC: any = result[11];
+        this.enableNFC = enableNFC;
 
         // other computed parameters
         if (quantityType && quantityType == 'text') {
@@ -200,13 +202,13 @@ export class ScanProvider {
 
         // NFC plugin
         try {
-          if (enableNFC && this.nfcSubscription == null) {
+          if (this.enableNFC && this.nfcSubscription == null) {
             this.nfcSubscription = this.nfc.addNdefListener(success => {
               console.log('NFC NDEF listener registered sucessfully', success);
             }, error => {
               console.log('NFC cannot register the NDEF listener', error);
             }).subscribe(result => {
-              if (!enableNFC) return;
+              if (!this.enableNFC) return;
               const stringPayload = this.nfc.bytesToString(result.tag.ndefMessage[0].payload);
               const stringPayloadWithoutCountryCode = this.nfc.bytesToString(result.tag.ndefMessage[0].payload).substring(3, stringPayload.length);
               this.keyboardInput.value = stringPayloadWithoutCountryCode;

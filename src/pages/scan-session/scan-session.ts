@@ -4,6 +4,7 @@ import { File } from '@ionic-native/file';
 import { FirebaseAnalytics } from '@ionic-native/firebase-analytics';
 import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 import { NativeAudio } from '@ionic-native/native-audio';
+import { NFC } from '@ionic-native/nfc';
 import { SocialSharing } from '@ionic-native/social-sharing';
 import { Promise as BluebirdPromise } from 'bluebird';
 import { ActionSheetController, AlertController, Events, ModalController, NavController, NavParams, Platform } from 'ionic-angular';
@@ -78,6 +79,7 @@ export class ScanSessionPage {
     private iab: InAppBrowser,
     private file: File,
     public events: Events,
+    private nfc: NFC,
   ) {
     this.scanSession = navParams.get('scanSession');
     if (!this.scanSession) {
@@ -602,6 +604,7 @@ export class ScanSessionPage {
   }
 
   onOCRClick() {
+    // Android Only
     let ocrPage = this.modalCtrl.create(OcrPage);
     ocrPage.onDidDismiss(text => {
       if (!text) return;
@@ -614,5 +617,56 @@ export class ScanSessionPage {
   getTitle() {
     if (this.repeatingStatus == 'repeating' || this.catchUpIOSLag) return 'Syncing...'
     return this.scanSession && this.scanSession.name;
+  }
+
+  async onNFCClick() {
+    // iOS Only
+
+    // Ask to enable the settings
+    const enabled = await this.settings.getEnableNFC();
+    if (!enabled) {
+      this.alertCtrl.create({
+        title: await this.utils.text('nfcDisabledDialogTitle'),
+        message: await this.utils.text('nfcDisabledDialogMessage'),
+        buttons: [
+          { text: await this.utils.text('nfcDisabledDialogCancel'), role: 'cancel', handler: () => { } },
+          {
+            text: await this.utils.text('nfcDisabledDialogEnable'), handler: () => {
+              const trickFn = async () => {
+                this.settings.setEnableNFC(true);
+                this.alertCtrl.create({
+                  title: await this.utils.text('nfcDisabledSuccessDialogTitle'),
+                  message: await this.utils.text('nfcDisabledSuccessDialogMessage'),
+                  buttons: [
+                    {
+                      text: await this.utils.text('nfcDisabledSuccessDialogClose'), handler: () => {
+                        this.settings.setEnableNFC(true);
+                      }
+                    },
+                  ]
+                }).present();
+              };
+              trickFn();
+            }
+          },
+        ]
+      }).present();
+      return;
+    } else {
+      if (this.platform.is('android')) {
+        // Android can scan continuosly, alert the user that there is no need to press the button
+        this.alertCtrl.create({
+          title: await this.utils.text('nfcAndroidInstructionTitle'),
+          message: await this.utils.text('nfcAndroidInstructionMessage'),
+          buttons: [{ text: await this.utils.text('nfcDisabledSuccessDialogClose'), handler: () => { } },]
+        }).present();
+      } else if (this.platform.is('ios')) {
+        // Start the session (system overlay)
+        this.nfc.beginSession(
+          success => { },
+          err => { console.log('NFC session err', err) }
+        ).subscribe((session) => { });
+      }
+    }
   }
 }
