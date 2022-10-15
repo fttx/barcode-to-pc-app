@@ -57,6 +57,7 @@ export class Settings {
   private static ALLOW_OUTPUT_TEMPLATE_SELECTION = 'allow_output_template_selection';
   private static ENABLE_REALTIME_SEND = 'enable_realtime_send';
   private static LAST_MISMATCH_VERSION = 'last_mismatch_version';
+  private static ENABLE_NFC = 'enable_nfc';
 
   constructor(
     public storage: Storage,
@@ -427,6 +428,15 @@ export class Settings {
 
   getEnableBeep(): Promise<boolean> {
     return this.storage.get(Settings.ENABLE_BEEP).then(result => { return result === true });
+  }
+
+  setEnableNFC(enableNfc: boolean) {
+    console.log('save: ', Settings.ENABLE_NFC, enableNfc)
+    return this.storage.set(Settings.ENABLE_NFC, enableNfc);
+  }
+
+  getEnableNFC(): Promise<boolean> {
+    return this.storage.get(Settings.ENABLE_NFC).then(result => { return result === true });
   }
 
   setEnableVibrationFeedback(enableVibrationFeedback: boolean) {

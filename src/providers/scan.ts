@@ -3,6 +3,7 @@ import { BarcodeScanner, BarcodeScannerOptions, BarcodeScanResult } from '@fttx/
 import { FirebaseAnalytics } from '@ionic-native/firebase-analytics';
 import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 import { NativeAudio } from '@ionic-native/native-audio';
+import { Ndef, NFC } from '@ionic-native/nfc';
 import { Alert, AlertController, Events, Platform } from 'ionic-angular';
 import { AlertInputOptions } from 'ionic-angular/components/alert/alert-options';
 import moment from 'moment';
@@ -65,6 +66,7 @@ export class ScanProvider {
   private scanSession: ScanSessionModel;
 
   public static INFINITE_LOOP_DETECT_THRESHOLD = 30;
+  private nfcSubscription: Subscription = null;
 
   constructor(
     private alertCtrl: AlertController,
@@ -79,6 +81,7 @@ export class ScanProvider {
     private iab: InAppBrowser,
     private utils: Utils,
     private lastToast: LastToastProvider,
+    private nfc: NFC, private ndef: Ndef,
   ) {
     this.events.subscribe(responseModel.ACTION_UPDATE_SETTINGS, async (responseModelUpdateSettings: responseModelUpdateSettings) => {
       this.outputProfile = responseModelUpdateSettings.outputProfiles[this.outputProfileIndex];
@@ -132,6 +135,7 @@ export class ScanProvider {
         this.settings.getEnableBeep(), // 8
         this.settings.getEnableVibrationFeedback(), // 9
         this.settings.getDuplicateBarcodeChoice(), // 10
+        this.settings.getEnableNFC(), // 11
       ]).then(async result => {
         // parameters
         let preferFrontCamera = result[0];
@@ -148,6 +152,7 @@ export class ScanProvider {
         // const containsMixedBarcodeFormats = OutputProfileModel.ContainsMixedBarcodeFormats(this.outputProfile);
         const containsMultipleBarcodeFormats = OutputProfileModel.ContainsMultipleBarcodeFormats(this.outputProfile);
         const duplicateBarcodeChoice = result[10];
+        const enableNFC = result[11];
 
         // other computed parameters
         if (quantityType && quantityType == 'text') {
@@ -192,6 +197,25 @@ export class ScanProvider {
           initialPluginOptions.formats = this.barcodeFormats.filter(barcodeFormat => barcodeFormat.enabled).map(barcodeFormat => barcodeFormat.name).join(',');
         }
         this.pluginOptions = initialPluginOptions;
+
+        // NFC plugin
+        try {
+          if (enableNFC && this.nfcSubscription == null) {
+            this.nfcSubscription = this.nfc.addNdefListener(success => {
+              console.log('NFC NDEF listener registered sucessfully', success);
+            }, error => {
+              console.log('NFC cannot register the NDEF listener', error);
+            }).subscribe(result => {
+              if (!enableNFC) return;
+              const stringPayload = this.nfc.bytesToString(result.tag.ndefMessage[0].payload);
+              const stringPayloadWithoutCountryCode = this.nfc.bytesToString(result.tag.ndefMessage[0].payload).substring(3, stringPayload.length);
+              this.keyboardInput.value = stringPayloadWithoutCountryCode;
+              this.keyboardInput.submit();
+            });
+          }
+        } catch (error) {
+          console.log('NFC cannot register the NDEF listener', error);
+        }
 
         // used to prevent infinite loops.
         let resetAgainCountTimer;

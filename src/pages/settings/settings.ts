@@ -39,6 +39,7 @@ export class SettingsPage {
   public torchOn = false;
   public keepDisplayOn = false;
   public enableBeep = true;
+  public enableNFC = true;
   public enableVibrationFeedback = true;
   public openScanOnStart = false;
   public allowOutputTemplateSelection = true;
@@ -164,6 +165,10 @@ export class SettingsPage {
       this.enableBeep = enableBeep;
     });
 
+    this.settings.getEnableNFC().then(enableNFC => {
+      this.enableNFC = enableNFC;
+    });
+
     this.settings.getEnableVibrationFeedback().then(enableVibrationFeedback => {
       this.enableVibrationFeedback = enableVibrationFeedback;
     });
@@ -216,6 +221,7 @@ export class SettingsPage {
     this.settings.setTorchOn(this.torchOn);
     this.settings.setKeepDisplayOn(this.keepDisplayOn);
     this.settings.setEnableBeep(this.enableBeep);
+    this.settings.setEnableNFC(this.enableNFC);
     this.settings.setEnableVibrationFeedback(this.enableVibrationFeedback);
     this.settings.setOpenScanOnStart(this.openScanOnStart);
     this.settings.setAllowOutputTemplateSelection(this.allowOutputTemplateSelection);

@@ -193,6 +193,8 @@
   "scanSessionFilterExample": "Por ejemplo, si desea aceptar solo un nombre que se parezca a este AB-1234, use la siguiente expresión regular:",
   "enableRealtimeSend": "Habilitar envío en Tiempo real",
   "enableRealtimeSendDescription": "Si está deshabilitada, la aplicación no enviará los escaneos inmediatamente. Puede usar el botón Sincronizar para enviar los escaneos al servidor. Esto puede ser útil cuando desea recopilar códigos de barras y enviarlos más tarde",
+  "enableNFC": "Habilitar la lectura de etiquetas NFC",
+  "enableNFCDescription": "Actualmente solo admitimos etiquetas de texto NDEF. Por favor contáctenos para otros formatos",
   "================================WELCOME_PAGE=================================": "",
   "barcodeToPcRemoteDescription1": "Bienvenido a ",
   "barcodeToPcRemoteDescription2": " Wi-Fi remote!",

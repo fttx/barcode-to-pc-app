@@ -47,6 +47,7 @@ import { ServerProvider } from '../providers/server';
 import { Settings } from '../providers/settings';
 import { Utils } from '../providers/utils';
 import { MyApp } from './app.component';
+import { Ndef, NFC } from '@ionic-native/nfc';
 
 // Modules
 // Ionic-native
@@ -127,6 +128,8 @@ import { MyApp } from './app.component';
     Camera,
     File,
     NetworkInterface,
+    NFC,
+    Ndef,
     Network,
     NativeAudio,
     { provide: ErrorHandler, useClass: IonicErrorHandler },

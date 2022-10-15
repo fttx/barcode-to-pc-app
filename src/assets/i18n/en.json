@@ -194,6 +194,8 @@
   "scanSessionFilterExample": "For example, if you want to accept only a name that looks like this AB-1234 use the following regex:",
   "enableRealtimeSend": "Enable Real time send",
   "enableRealtimeSendDescription": "If disabled, the app won't send the scans immediately. You can use the Sync button to send the scans to the server. This can be useful when you want to collect barcodes and send them later",
+  "enableNFC": "Enable NFC tag reading",
+  "enableNFCDescription": "We're currently supporting NDEF text tags only. Please contact us for other formats",
   "================================WELCOME_PAGE=================================": "",
   "barcodeToPcRemoteDescription1": "Welcome to ",
   "barcodeToPcRemoteDescription2": " Wi-Fi remote!",
