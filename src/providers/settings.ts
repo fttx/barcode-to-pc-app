@@ -422,7 +422,6 @@ export class Settings {
   }
 
   setEnableBeep(enableBeep: boolean) {
-    console.log('save: ', Settings.ENABLE_BEEP, enableBeep)
     return this.storage.set(Settings.ENABLE_BEEP, enableBeep);
   }
 
@@ -431,7 +430,6 @@ export class Settings {
   }
 
   setEnableNFC(enableNfc: boolean) {
-    console.log('save: ', Settings.ENABLE_NFC, enableNfc)
     return this.storage.set(Settings.ENABLE_NFC, enableNfc);
   }
 
@@ -440,7 +438,6 @@ export class Settings {
   }
 
   setEnableVibrationFeedback(enableVibrationFeedback: boolean) {
-    console.log('save: ', Settings.ENABLE_VIBRATION_FEEDBACK, enableVibrationFeedback)
     return this.storage.set(Settings.ENABLE_VIBRATION_FEEDBACK, enableVibrationFeedback);
   }
 
