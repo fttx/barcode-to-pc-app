@@ -279,6 +279,7 @@
   "askWifiEnableIfDisableDialogTitle": "Wi-Fi está deshabilitado",
   "askWifiEnableIfDisableDialogMessage": "Conecte su smartphone a una red Wi-Fi (o ethernet)",
   "askWifiEnableIfDisableDialogOkButton": "Ok",
+  "dontShowUntilNextStartLabel": "Don't show until next start",
   "showVersionMisMatchDialogTitle": "No coinciden las versiones del servidor/aplicación",
   "showVersionMisMatchDialogMessage": "Actualice tanto la aplicación como el servidor, de lo contrario es posible que no funcionen correctamente.<br><br>El servidor se puede descargar desde {{ websiteName }}",
   "showVersionMisMatchDialogOkButton": "Ok",
