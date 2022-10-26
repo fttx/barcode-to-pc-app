@@ -455,11 +455,13 @@ export class ScanProvider {
                 }
               }
               case 'delay': break;
+              // remote_components:
               case 'woocommerce':
               case 'http':
               case 'run':
               case 'csv_lookup':
-              case 'csv_update': {
+              case 'csv_update':
+              case 'google_sheets': {
                 if (outputBlock.notFoundValue) outputBlock.notFoundValue = await this.utils.supplant(outputBlock.notFoundValue, variables);
                 if (outputBlock.newValue) outputBlock.newValue = await this.utils.supplant(outputBlock.newValue, variables);
                 if (outputBlock.httpData) outputBlock.httpData = await this.utils.supplant(outputBlock.httpData, variables);
@@ -473,20 +475,11 @@ export class ScanProvider {
                 }
 
 
-                // If the app isn't connected we can't execute the remote component
-                // This check will prevent the remoteComponent to be executed in the future
-                // causing unreachable code (See #UC1)
-                if (!this.serverProvider.isConnected()) {
-                  outputBlock.value = outputBlock.notFoundValue;
-                  break;
-                }
-
                 // For older versions of the server we break here.
                 // The RUN value will be adjusted later with the PUT_SCAN_ACK response
                 if (this.serverProvider.serverVersion != null && lt(this.serverProvider.serverVersion, new SemVer('3.12.0'))) break;
 
                 this.keyboardInput.lock('Executing ' + outputBlock.name.toUpperCase() + ', please wait...');
-
                 try {
                   let newOutputBlock = await this.remoteComponent(outputBlock);
                   this.keyboardInput.unlock();
@@ -883,16 +876,20 @@ export class ScanProvider {
     });
   }
 
-  private remoteComponent(outputBlock: OutputBlockModel): Promise<OutputBlockModel> {
+  public remoteComponent(outputBlock: OutputBlockModel): Promise<OutputBlockModel> {
     return new Promise(async (resolve, reject) => {
       if (!this.serverProvider.isConnected()) {
         // Unreachable code #UC1
-        this.alertCtrl.create({
-          title: await this.utils.text('remoteComponentDialogTitle'),
-          message: await this.utils.text('remoteComponentDialogMessage', { "outputBlockType": outputBlock.type.toUpperCase() }),
-          buttons: [{ text: await this.utils.text('remoteComponentDialogOkButton'), handler: () => { } }]
-        }).present();
-        reject();
+        if (outputBlock.allowOOBExecution === false) {
+          this.alertCtrl.create({
+            title: await this.utils.text('remoteComponentDialogTitle'),
+            message: await this.utils.text('remoteComponentDialogMessage', { "outputBlockType": outputBlock.type.toUpperCase() }),
+            buttons: [{ text: await this.utils.text('remoteComponentDialogOkButton'), handler: () => { } }]
+          }).present();
+          reject();
+        } else {
+          resolve(outputBlock);
+        }
         return;
       }
 

@@ -10,6 +10,7 @@ import { Promise as BluebirdPromise } from 'bluebird';
 import { ActionSheetController, AlertController, Events, ModalController, NavController, NavParams, Platform } from 'ionic-angular';
 import { Subscription } from 'rxjs';
 import { KeyboardInputComponent } from '../../components/keyboard-input/keyboard-input';
+import { OutputBlockModel } from '../../models/output-block.model';
 import { requestModelDeleteScan, requestModelPutScanSessions, requestModelUpdateScanSession } from '../../models/request.model';
 import { responseModel, responseModelPutScanAck } from '../../models/response.model';
 import { ScanSessionModel } from '../../models/scan-session.model';
@@ -316,7 +317,9 @@ export class ScanSessionPage {
         { text: await this.utils.text('alreadyReceivedScanDialogSendAgainButton'), handler: () => { this.repeat(scan); } }]
       }).present();
     } else {
+      this.repeatingStatus = 'repeating';
       this.repeat(scan);
+      this.repeatingStatus = 'stopped';
     }
     this.firebaseAnalytics.logEvent('repeat', {});
   }
@@ -409,9 +412,22 @@ export class ScanSessionPage {
     this.scanSessionsStorage.updateScanSession(this.scanSession);
   }
 
-  sendPutScan(scan: ScanModel, sendKeystrokes = true) {
+  async sendPutScan(scan: ScanModel, sendKeystrokes = true) {
     let scanSession = { ...this.scanSession }; // do a shallow copy (copy only the properties of the object first level)
     scanSession.scannings = [scan];
+
+    if (this.repeatingStatus === 'repeating') {
+      // Remote components OOB Execution
+      for (let i = 0; i < scan.outputBlocks.length; i++) {
+        const block = scan.outputBlocks[i];
+        if (block.allowOOBExecution) {
+          const newOutputBlock = await this.scanProvider.remoteComponent(block);
+          Object.assign(scan.outputBlocks[i], newOutputBlock);
+          scan.displayValue = ScanModel.ToString(scan);
+          this.save();
+        }
+      }
+    }
 
     let wsRequest = new requestModelPutScanSessions().fromObject({
       scanSessions: [scanSession],
