@@ -321,8 +321,8 @@ export class ServerProvider {
           console.log('[S-wc]: WS pong not received, closing connection...')
           await this.wsDisconnect(false);
           await this.scheduleNewWsConnection(server); // se il timeout non è stato fermato prima da una risposta, allora schedulo una nuova connessione
-        }, 1000 * 5);
-      }, 1000 * 60); // ogni 60 secondi invio ping
+        }, 1000 * 4);
+      }, this.platform.is('ios') ? 1000 * 9 : 1000 * 15); // ogni 60 secondi invio ping
 
 
       /** Since we are inside onopen it means that we're connected to a server
