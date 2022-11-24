@@ -473,6 +473,11 @@ export class ScanProvider {
                     outputBlock.fields[i].value = await this.utils.supplant(outputBlock.fields[i].value, variables);
                   }
                 }
+                if (outputBlock.columnsToAppend) {
+                  for (let i = 0; i < outputBlock.columnsToAppend.length; i++) {
+                    outputBlock.columnsToAppend[i] = await this.utils.supplant(outputBlock.columnsToAppend[i], variables);
+                  }
+                }
 
 
                 // For older versions of the server we break here.
@@ -648,7 +653,7 @@ export class ScanProvider {
           return;
         }
         if (showFilterError && errorMessage) {
-          this.pluginOptions.prompt = 'Error: ' + errorMessage;
+          this.pluginOptions.prompt = '❌' + errorMessage;
         }
         switch (this.acqusitionMode) {
           case 'single':
