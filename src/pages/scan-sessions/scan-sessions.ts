@@ -129,7 +129,7 @@ export class ScanSessionsPage {
 
       // Rating dialog
       BluebirdPromise.join(this.settings.getNoRunnings(), this.settings.getRated(), async (runnings, rated) => {
-        if (runnings >= Config.NO_RUNNINGS_BEFORE_SHOW_RATING && !rated) {
+        if (runnings >= Config.NO_RUNNINGS_BEFORE_SHOW_RATING && !rated && !this.serverProvider.catchUpIOSLag) {
           // rating = In app native rating (iOS 10.3+ only)
           // launch = Android and iOS 10.3-
           if (this.launchReview.isRatingSupported()) {
