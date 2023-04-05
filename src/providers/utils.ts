@@ -5,8 +5,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { AlertController } from 'ionic-angular';
 import 'rxjs/add/operator/map';
 import { barcodeFormatModel } from '../models/barcode-format.model';
-
-
+import { BarcodeScanResult, BarcodeScannerOptions } from '@fttx/barcode-scanner';
 
 /*
   Generated class for the Utils provider.
@@ -396,3 +395,11 @@ export class Utils {
 }
 
 export type AlertButtonType = 'discard_scan' | 'scan_again' | 'ok';
+
+export interface BarcodeScannerOptionsExtended extends BarcodeScannerOptions {
+  assumeGS1?: boolean;
+}
+
+export interface BarcodeScanResultExtended extends BarcodeScanResult {
+  rawBytes?: string[];
+}

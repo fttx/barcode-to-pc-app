@@ -22,7 +22,7 @@ import { Config } from './config';
 import { LastToastProvider } from './last-toast/last-toast';
 import { ServerProvider } from './server';
 import { Settings } from './settings';
-import { AlertButtonType, Utils } from './utils';
+import { AlertButtonType, BarcodeScanResultExtended, BarcodeScannerOptionsExtended, Utils } from './utils';
 
 /**
  * The job of this class is to generate a ScanModel by talking with the native
@@ -183,12 +183,13 @@ export class ScanProvider {
         // We init them here, but they can change while the Output template is
         // beign executed, in particular the BARCODE component can override the
         // appPluginOptions.formats property
-        let initialPluginOptions: BarcodeScannerOptions = {
+        let initialPluginOptions: BarcodeScannerOptionsExtended = {
           showFlipCameraButton: true,
           prompt: Config.DEFAULT_ACQUISITION_LABEL, // supported on Android only
           showTorchButton: true,
           preferFrontCamera: preferFrontCamera,
           torchOn: torchOn,
+          assumeGS1: true, // Android only
           continuousMode: this.acqusitionMode == 'continue',
           disableSuccessBeep: !enableBeep,
           vibrationFeedback: enableVibrationFeedback,
@@ -658,7 +659,9 @@ export class ScanProvider {
         switch (this.acqusitionMode) {
           case 'single':
           case 'mixed_continue': {
-            let barcodeScanResult: BarcodeScanResult = await this.barcodeScanner.scan(this.pluginOptions).first().toPromise();
+            let barcodeScanResult: BarcodeScanResultExtended = await this.barcodeScanner.scan(this.pluginOptions).first().toPromise();
+            // console.log('text', barcodeScanResult.text);
+            // console.log('rawBytes', barcodeScanResult.rawBytes);
             if (!barcodeScanResult || barcodeScanResult.cancelled) {
               this.showIsPDADeviceDialog();
               reject('cancelled');
