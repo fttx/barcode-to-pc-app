@@ -16,7 +16,7 @@
     <preference name="UIWebViewBounce" value="false" />
     <preference name="DisallowOverscroll" value="true" />
     <preference name="android-minSdkVersion" value="19" />
-    <preference name="android-targetSdkVersion" value="30" />
+    <preference name="android-targetSdkVersion" value="31" />
     <preference name="BackupWebStorage" value="none" />
     <preference name="HeaderColor" value="#B71C1C" />
     <preference name="StatusBarBackgroundColor" value="#B71C1C" />
@@ -55,6 +55,10 @@
         <edit-config file="app/src/main/AndroidManifest.xml" mode="merge" target="/manifest/application" xmlns:android="http://schemas.android.com/apk/res/android">
             <application android:usesCleartextTraffic="true" />
         </edit-config>
+        <edit-config file="AndroidManifest.xml" mode="merge" target="/manifest/application/activity[@android:name='MainActivity']">
+            <activity android:exported="true" />
+        </edit-config>
+        <hook src="hooks/android/after_prepare.js" type="after_prepare" />
     </platform>
     <platform name="ios">
         <resource-file src="GoogleService-Info.plist" />
