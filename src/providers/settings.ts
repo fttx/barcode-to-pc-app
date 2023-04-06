@@ -426,7 +426,10 @@ export class Settings {
   }
 
   getEnableBeep(): Promise<boolean> {
-    return this.storage.get(Settings.ENABLE_BEEP).then(result => { return result === true });
+    return this.storage.get(Settings.ENABLE_BEEP).then(result => {
+      if (result === false) return false;
+      return true;
+    });
   }
 
   setEnableNFC(enableNfc: boolean) {
@@ -442,7 +445,10 @@ export class Settings {
   }
 
   getEnableVibrationFeedback(): Promise<boolean> {
-    return this.storage.get(Settings.ENABLE_VIBRATION_FEEDBACK).then(result => { return result === true });
+    return this.storage.get(Settings.ENABLE_VIBRATION_FEEDBACK).then(result => {
+      if (result === false) return false;
+      return true;
+     });
   }
 
   setEnableLimitBarcodeFormats(enableLimitBarcodeFormats: boolean) {
