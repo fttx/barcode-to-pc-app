@@ -59,6 +59,7 @@
             <activity android:exported="true" />
         </edit-config>
         <hook src="hooks/android/after_prepare.js" type="after_prepare" />
+        <hook src="hooks/android/after_build.js" type="after_build" />
     </platform>
     <platform name="ios">
         <resource-file src="GoogleService-Info.plist" />

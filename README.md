@@ -65,12 +65,6 @@ open "platforms/ios/Barcode to PC.xcworkspace"
 # Android
 # Increase version code in config.xml
 ionic cordova build android --prod --release
-APK_PATH="platforms/android/app/build/outputs/apk/release/app-release-unsigned.apk"
-JKS_PATH="barcode-to-pc-keystore.jks"
-JKS_PASS="pass.txt"
-zipalign -v 4 $APK_PATH out.apk
-apksigner sign --ks $JKS_PATH --ks-pass file:$JKS_PASS --v1-signing-enabled true --v2-signing-enabled true out.apk
-ionic info > last-ionic-info.txt
 ```
 
 
