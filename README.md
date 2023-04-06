@@ -63,7 +63,7 @@ open "platforms/ios/Barcode to PC.xcworkspace"
 # Product > Archive
 
 # Android
-# Increase version code in config.xml
+# Increase version code in package.json & config.xml
 ionic cordova build android --prod --release
 ```
 

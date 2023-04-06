@@ -21,7 +21,9 @@ if (fs.existsSync(APK_PATH)) {
 
   // Build the output APK file name using the version number
   const outputApkPath = path.join(__dirname, '../..', `barcode-to-pc-app-v${version}.apk`);
-  fs.unlinkSync(outputApkPath);
+  if (fs.existsSync(outputApkPath)) {
+    fs.unlinkSync(outputApkPath);
+  }
 
   // Zipalign the APK file
   exec(`zipalign -v 4 ${APK_PATH} ${outputApkPath}`, (err, stdout, stderr) => {

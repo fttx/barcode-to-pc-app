@@ -5,13 +5,13 @@ const path = require('path');
 const xml2js = require('xml2js');
 
 const activitiesNames = [
-  'com.google.zxing.client.android.CaptureActivity',
-  'com.google.zxing.client.android.encode.EncodeActivity',
+  'MainActivity',
+  // 'com.google.zxing.client.android.CaptureActivity',
+  // 'com.google.zxing.client.android.encode.EncodeActivity',
 ];
 
 const providersNames = [
-  'org.apache.cordova.camera.FileProvider',
-  'nl.xservices.plugins.FileProvider',
+  // 'nl.xservices.plugins.FileProvider',
 ];
 
 
