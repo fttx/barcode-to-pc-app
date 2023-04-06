@@ -36,6 +36,7 @@ export class SettingsPage {
   public alwaysUseDefaultScanSessionName = false;
   public alwaysUseCameraForScanSessionName = false;
   public preferFrontCamera = false;
+  public preferWideLens = false;
   public torchOn = false;
   public keepDisplayOn = false;
   public enableBeep = true;
@@ -153,6 +154,10 @@ export class SettingsPage {
       this.preferFrontCamera = preferFrontCamera;
     });
 
+    this.settings.getPreferWideLens().then(preferWideLens => {
+      this.preferWideLens = preferWideLens;
+    });
+
     this.settings.getTorchOn().then(torchOn => {
       this.torchOn = torchOn;
     });
@@ -218,6 +223,7 @@ export class SettingsPage {
     this.settings.setAlwaysUseDefaultScanSessionName(this.alwaysUseDefaultScanSessionName);
     this.settings.setAlwaysUseCameraForScanSessionName(this.alwaysUseCameraForScanSessionName);
     this.settings.setPreferFrontCamera(this.preferFrontCamera);
+    this.settings.setPreferWideLens(this.preferWideLens);
     this.settings.setTorchOn(this.torchOn);
     this.settings.setKeepDisplayOn(this.keepDisplayOn);
     this.settings.setEnableBeep(this.enableBeep);

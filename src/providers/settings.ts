@@ -29,6 +29,7 @@ export class Settings {
   private static REPEAT_INTERVAL = 'repeat_interval';
   private static ALWAYS_USE_DEFAULT_SCAN_SESSION_NAME = 'always_use_default_scan_session_name';
   private static PREFER_FRONT_CAMERA = 'prefer_front_camera';
+  private static PREFER_WIDE_LENS = 'prefer_wide_lens';
   private static TORCH_ON = 'torch_on';
   private static KEEP_DISPLAY_ON = 'keep_display_on';
   private static ENABLE_BEEP = 'enable_beep';
@@ -390,6 +391,14 @@ export class Settings {
 
   getPreferFrontCamera(): Promise<boolean> {
     return this.storage.get(Settings.PREFER_FRONT_CAMERA).then(result => { return result === true });
+  }
+
+  setPreferWideLens(preferWideLens: boolean) {
+    return this.storage.set(Settings.PREFER_WIDE_LENS, preferWideLens);
+  }
+
+  getPreferWideLens(): Promise<boolean> {
+    return this.storage.get(Settings.PREFER_WIDE_LENS).then(result => { return result === true });
   }
 
   setTorchOn(torchOn: boolean) {

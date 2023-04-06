@@ -143,6 +143,11 @@
       <ion-toggle [(ngModel)]="preferFrontCamera"></ion-toggle>
     </ion-item>
 
+    <ion-item [hidden]="platform.is('android')">
+      <ion-label color="dark">{{ 'preferWideLensLabel' | translate }}</ion-label>
+      <ion-toggle [(ngModel)]="preferWideLens"></ion-toggle>
+    </ion-item>
+
     <ion-item [hidden]="platform.is('ios')">
       <ion-label color="dark">{{ 'turnTorchOnLabel' | translate }}</ion-label>
       <ion-toggle [(ngModel)]="torchOn"></ion-toggle>

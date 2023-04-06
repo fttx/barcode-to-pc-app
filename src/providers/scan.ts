@@ -137,6 +137,7 @@ export class ScanProvider {
         this.settings.getEnableVibrationFeedback(), // 9
         this.settings.getDuplicateBarcodeChoice(), // 10
         this.settings.getEnableNFC(), // 11
+        this.settings.getPreferWideLens(), // 12
       ]).then(async result => {
         // parameters
         let preferFrontCamera = result[0];
@@ -154,6 +155,7 @@ export class ScanProvider {
         const containsMultipleBarcodeFormats = OutputProfileModel.ContainsMultipleBarcodeFormats(this.outputProfile);
         const duplicateBarcodeChoice = result[10];
         const enableNFC: any = result[11];
+        const preferWideLens: any = result[12];
         this.enableNFC = enableNFC;
 
         // other computed parameters
@@ -188,7 +190,7 @@ export class ScanProvider {
           prompt: Config.DEFAULT_ACQUISITION_LABEL, // supported on Android only
           showTorchButton: true,
           preferFrontCamera: preferFrontCamera,
-          preferWideLens: false,
+          preferWideLens: preferWideLens,
           torchOn: torchOn,
           assumeGS1: true, // Android only
           continuousMode: this.acqusitionMode == 'continue',

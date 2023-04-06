@@ -167,6 +167,7 @@
   "createNewScanSessionChoiceItem": "If enabled, you won't be asked to choose a name when creating a new scan session",
   "acquireScansessionAsBarcodeLabel": "Acquire the Scan session name as barcode",
   "preferFrontCameraLabel": "Prefer front camera",
+  "preferWideLensLabel": "Prefer wide lens camera",
   "turnTorchOnLabel": "Turn the torch on automatically",
   "keepDisplayAlwaysOnLabel": "Keep display always on",
   "enableCameraBeepLabel": "Enable camera beep",

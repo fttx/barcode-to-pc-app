@@ -167,6 +167,7 @@
   "createNewScanSessionChoiceItem": "Si está habilitado, no se le pedirá que elija un nombre al crear una nueva sesión de escaneo",
   "acquireScansessionAsBarcodeLabel": "Adquirir el nombre de la sesión de escaneo como código de barras",
   "preferFrontCameraLabel": "Cámara frontal como preferida",
+  "preferWideLensLabel": "Preferir cámara de lente ancha",
   "turnTorchOnLabel": "Encender la linterna automáticamente",
   "keepDisplayAlwaysOnLabel": "Mantener la pantalla siempre activa",
   "enableCameraBeepLabel": "Activar pitido de cámara",
