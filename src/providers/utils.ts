@@ -398,6 +398,7 @@ export type AlertButtonType = 'discard_scan' | 'scan_again' | 'ok';
 
 export interface BarcodeScannerOptionsExtended extends BarcodeScannerOptions {
   assumeGS1?: boolean;
+  preferWideLens?: boolean;
 }
 
 export interface BarcodeScanResultExtended extends BarcodeScanResult {

@@ -188,6 +188,7 @@ export class ScanProvider {
           prompt: Config.DEFAULT_ACQUISITION_LABEL, // supported on Android only
           showTorchButton: true,
           preferFrontCamera: preferFrontCamera,
+          preferWideLens: false,
           torchOn: torchOn,
           assumeGS1: true, // Android only
           continuousMode: this.acqusitionMode == 'continue',

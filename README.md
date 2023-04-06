@@ -72,3 +72,15 @@ zipalign -v 4 $APK_PATH out.apk
 apksigner sign --ks $JKS_PATH --ks-pass file:$JKS_PASS --v1-signing-enabled true --v2-signing-enabled true out.apk
 ionic info > last-ionic-info.txt
 ```
+
+
+## Development
+
+Quick way to test changes in the barcode scanner plugin:
+
+```bash
+trash plugins/fttx-phonegap-plugin-barcodescanner
+cp -r ../phonegap-plugin-barcodescanner plugins/fttx-phonegap-plugin-barcodescanner
+trash platforms/android
+ionic cordova build android
+```
