@@ -196,7 +196,7 @@ export class ScanProvider {
           continuousMode: this.acqusitionMode == 'continue',
           disableSuccessBeep: !enableBeep,
           vibrationFeedback: enableVibrationFeedback,
-          resultDisplayDuration: 0
+          resultDisplayDuration: 800
         };
         if (enableLimitBarcodeFormats) {
           // set the barcode formats from the app settings

@@ -25,7 +25,7 @@ export class Config {
   public static NO_RUNNINGS_MAX_TO_SHOW_IS_PDA_DEVICE_DIALOG = 4;
   public static SHOW_CANNOT_FIND_DIALOG_TIMEOUT = 90 * 1000;
   public static DEFAULT_REPEAT_INVERVAL = 500;
-  public static DEFAULT_ACQUISITION_LABEL = "Place a barcode inside the scan area.\nPress the back button to exit.";
+  public static DEFAULT_ACQUISITION_LABEL = "Move the finder over a barcode";
 
   constructor() {
   }
