@@ -208,7 +208,10 @@ export class ServerProvider {
         let appVersion = new SemVer(appVersionString);
         let serverVersion = new SemVer(heloResponse.version);
         this.serverVersion = serverVersion;
-        if (appVersion.major != serverVersion.major || appVersion.minor != serverVersion.minor) {
+        const compatibleQuirk = serverVersion.major == 4 && (serverVersion.minor == 3 || serverVersion.minor == 4) && appVersion.major == 4 && (appVersion.minor == 3 || appVersion.minor == 4);
+        if (compatibleQuirk) {
+          // do nothing
+        } else if (appVersion.major != serverVersion.major || appVersion.minor != serverVersion.minor) {
           const skipLastMismatchVersion = await this.settings.getLastMismatchVersion();
           if (appVersionString != skipLastMismatchVersion) {
             this.showVersionMismatch(appVersionString);
