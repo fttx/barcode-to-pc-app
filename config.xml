@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget android-versionCode="147" id="com.barcodetopc" version="4.4.1" xmlns="http://www.w3.org/ns/widgets" xmlns:android="http://schemas.android.com/apk/res/android" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+<widget android-versionCode="148" id="com.barcodetopc" version="4.4.1" xmlns="http://www.w3.org/ns/widgets" xmlns:android="http://schemas.android.com/apk/res/android" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <name>Barcode to PC</name>
     <description>Turn your smartphone in a real barcode scanner</description>
     <author email="filippo.tortomasi@gmail.com" href="https://github.com/fttx">Filippo Tortomasi</author>
@@ -52,7 +52,7 @@
         <splash density="port-xhdpi" src="resources/android/splash/drawable-port-xhdpi-screen.png" />
         <splash density="port-xxhdpi" src="resources/android/splash/drawable-port-xxhdpi-screen.png" />
         <splash density="port-xxxhdpi" src="resources/android/splash/drawable-port-xxxhdpi-screen.png" />
-        <edit-config file="app/src/main/AndroidManifest.xml" mode="merge" target="/manifest/application" xmlns:android="http://schemas.android.com/apk/res/android">
+        <edit-config file="app/src/main/AndroidManifest.xml" mode="merge" target="/manifest/application">
             <application android:usesCleartextTraffic="true" />
         </edit-config>
         <edit-config file="AndroidManifest.xml" mode="merge" target="/manifest/application/activity[@android:name='MainActivity']">
@@ -116,30 +116,32 @@
         <splash height="1792" src="resources/ios/splash/Default-1792h~iphone.png" width="828" />
         <splash height="828" src="resources/ios/splash/Default-Landscape-1792h~iphone.png" width="1792" />
         <preference name="WKWebViewOnly" value="true" />
+        <edit-config file="*-Info.plist" mode="merge" target="NSCameraUsageDescription">
+            <string>This app requires camera access to scan barcodes.</string>
+        </edit-config>
+        <edit-config file="*-Info.plist" mode="merge" target="NSPhotoLibraryUsageDescription">
+            <string>need photo library access to import pictures</string>
+        </edit-config>
+        <edit-config file="*-Info.plist" mode="merge" target="NSLocationWhenInUseUsageDescription">
+            <string>need location access to find elements nearby</string>
+        </edit-config>
+        <edit-config file="*-Info.plist" mode="merge" target="NSPhotoLibraryAddUsageDescription">
+            <string>need photo library access to save pictures</string>
+        </edit-config>
+        <edit-config file="*-Info.plist" mode="merge" target="ITSAppUsesNonExemptEncryption">
+            <false />
+        </edit-config>
+        <edit-config file="*-Info.plist" mode="merge" target="NSBonjourServices">
+            <array>
+                <string>_http._tcp.</string>
+            </array>
+        </edit-config>
+        <edit-config file="*-Info.plist" mode="merge" target="NSLocalNetworkUsageDescription">
+            <string>${PRODUCT_NAME} uses the local network to discover the Barcode to PC server
+                program
+                installed on your computer</string>
+        </edit-config>
     </platform>
-    <edit-config file="*-Info.plist" mode="merge" target="NSCameraUsageDescription">
-        <string>This app requires camera access to scan barcodes.</string>
-    </edit-config>
-    <edit-config file="*-Info.plist" mode="merge" target="NSPhotoLibraryUsageDescription">
-        <string>need photo library access to import pictures</string>
-    </edit-config>
-    <edit-config file="*-Info.plist" mode="merge" target="NSLocationWhenInUseUsageDescription">
-        <string>need location access to find elements nearby</string>
-    </edit-config>
-    <edit-config file="*-Info.plist" mode="merge" target="NSPhotoLibraryAddUsageDescription">
-        <string>need photo library access to save pictures</string>
-    </edit-config>
-    <edit-config file="*-Info.plist" mode="merge" target="ITSAppUsesNonExemptEncryption">
-        <false />
-    </edit-config>
-    <edit-config file="*-Info.plist" mode="merge" target="NSBonjourServices">
-        <array>
-            <string>_http._tcp.</string>
-        </array>
-    </edit-config>
-    <edit-config file="*-Info.plist" mode="merge" target="NSLocalNetworkUsageDescription">
-        <string>${PRODUCT_NAME} uses the local network to discover the Barcode to PC server program installed on your computer</string>
-    </edit-config>
     <allow-navigation href="http://localhost:8100" sessionid="7f783d98" />
     <allow-navigation href="http://192.168.43.57:8100" sessionid="bcc13cbd" />
     <allow-navigation href="http://192.168.0.9:8100" sessionid="204c1500" />

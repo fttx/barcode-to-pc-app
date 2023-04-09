@@ -59,12 +59,8 @@
 	<ion-toolbar>
 		<keyboard-input (touchstart)="keyboardInputTouchStart($event)" #keyboardInput></keyboard-input>
 		<ion-buttons end>
-			<button [hidden]="platform.is('ios')" class="btn-send-manual-input" ion-button strong (touchstart)="$event.preventDefault(); $event.stopPropagation();" (touchend)="onOCRClick($event);">
-				<img src="assets/ocr/ocr.gif" class="ocr-icon" />
-			</button>
-
 			<button class="btn-send-manual-input" ion-button strong (touchstart)="$event.preventDefault(); $event.stopPropagation();" (touchend)="onNFCClick($event);">
-				<img src="assets/nfc/nfc.gif" class="ocr-icon" />
+				<img src="assets/nfc/nfc.gif" class="nfc-icon" />
 			</button>
 
 			<button class="btn-send-manual-input" ion-button strong (touchstart)="$event.preventDefault(); $event.stopPropagation();" (touchend)="$event.preventDefault(); $event.stopPropagation(); onEnterClick($event);">

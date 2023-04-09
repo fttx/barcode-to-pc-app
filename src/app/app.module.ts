@@ -32,7 +32,6 @@ import { ArchivedPage } from '../pages/archived/archived';
 import { HelpPage } from '../pages/help/help';
 import { CSVExportOptionsPage } from '../pages/scan-session/csv-export-options/csv-export-options';
 import { EditScanSessionPage } from '../pages/scan-session/edit-scan-session/edit-scan-session';
-import { OcrPage } from '../pages/scan-session/ocr/ocr';
 import { ScanSessionPage } from '../pages/scan-session/scan-session';
 import { SelectScanningModePage } from '../pages/scan-session/select-scanning-mode/select-scanning-mode';
 import { ScanSessionsPage } from '../pages/scan-sessions/scan-sessions';
@@ -63,7 +62,6 @@ import { Ndef, NFC } from '@ionic-native/nfc';
     ArchivedPage,
     ScanSessionsPage,
     EditScanSessionPage,
-    OcrPage,
     CSVExportOptionsPage,
     SelectScanningModePage,
     WelcomePage,
@@ -100,7 +98,6 @@ import { Ndef, NFC } from '@ionic-native/nfc';
     ScanSessionsPage,
     SelectServerPage,
     EditScanSessionPage,
-    OcrPage,
     CSVExportOptionsPage,
     SelectScanningModePage,
     SettingsPage,
