@@ -16,7 +16,6 @@ import { NativeAudio } from '@ionic-native/native-audio';
 import { Network } from '@ionic-native/network';
 import { NetworkInterface } from '@ionic-native/network-interface';
 import { SocialSharing } from '@ionic-native/social-sharing';
-import { SplashScreen } from '@ionic-native/splash-screen';
 import { StatusBar } from '@ionic-native/status-bar';
 import { Zeroconf } from '@ionic-native/zeroconf';
 import { IonicStorageModule } from '@ionic/storage';
@@ -113,7 +112,6 @@ import { Ndef, NFC } from '@ionic-native/nfc';
     ScanSessionsStorage,
     FirebaseAnalytics,
     StatusBar,
-    SplashScreen,
     LaunchReview,
     Device,
     SocialSharing,

@@ -1,6 +1,5 @@
 import { Injectable, NgZone } from '@angular/core';
 import { Device } from '@ionic-native/device';
-import { SplashScreen } from '@ionic-native/splash-screen';
 import { Storage } from '@ionic/storage';
 import { barcodeFormatModel } from '../models/barcode-format.model';
 import { NutjsKey } from '../models/nutjs-key.model';
@@ -64,7 +63,6 @@ export class Settings {
     public storage: Storage,
     public device: Device,
     public ngZone: NgZone,
-    public splashScreen: SplashScreen,
     public utils: Utils,
   ) {
   }

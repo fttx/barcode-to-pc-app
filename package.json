@@ -38,7 +38,6 @@
     "@ionic-native/nfc": "^4.20.0",
     "@ionic-native/play-install-referrer": "^5.36.0",
     "@ionic-native/social-sharing": "^4.20.0",
-    "@ionic-native/splash-screen": "~4.18.0",
     "@ionic-native/status-bar": "~4.18.0",
     "@ionic-native/zeroconf": "4.5.0",
     "@ionic/storage": "^2.2.0",
@@ -68,7 +67,6 @@
     "cordova-plugin-network-information": "^1.3.4",
     "cordova-plugin-networkinterface": "^2.0.0",
     "cordova-plugin-play-installreferrer": "^1.0.1",
-    "cordova-plugin-splashscreen": "^5.0.3",
     "cordova-plugin-statusbar": "^2.4.3",
     "cordova-plugin-x-socialsharing": "^6.0.4",
     "cordova-sqlite-storage": "^6.0.0",
@@ -103,8 +101,7 @@
   },
   "cordovaPlugins": [
     "cordova-plugin-whitelist",
-    "cordova-plugin-device",
-    "cordova-plugin-splashscreen"
+    "cordova-plugin-device"
   ],
   "cordovaPlatforms": [
     "ios",
@@ -119,7 +116,6 @@
     "plugins": {
       "cordova-plugin-app-version": {},
       "cordova-plugin-device": {},
-      "cordova-plugin-splashscreen": {},
       "cordova-plugin-x-socialsharing": {
         "ANDROID_SUPPORT_V4_VERSION": "24.1.1+",
         "PHOTO_LIBRARY_ADD_USAGE_DESCRIPTION": "This app requires photo library access to function properly.",

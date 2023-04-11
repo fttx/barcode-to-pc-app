@@ -4,7 +4,6 @@ import { AppVersion } from '@ionic-native/app-version';
 import { FirebaseAnalytics } from '@ionic-native/firebase-analytics';
 import { Insomnia } from '@ionic-native/insomnia';
 import { NativeAudio } from '@ionic-native/native-audio';
-import { SplashScreen } from '@ionic-native/splash-screen';
 import { StatusBar } from '@ionic-native/status-bar';
 import { AlertController, Events, MenuController, ModalController, NavController, Platform } from 'ionic-angular';
 import { MarkdownService } from 'ngx-markdown';
@@ -35,7 +34,6 @@ export class MyApp {
 
   constructor(
     public platform: Platform,
-    public splashScreen: SplashScreen,
     public statusBar: StatusBar,
     public appVersion: AppVersion,
     private alertCtrl: AlertController,
@@ -91,7 +89,6 @@ export class MyApp {
           this.insomnia.keepAwake();
         }
 
-        splashScreen.hide();
         if (platform.is('ios')) {
           statusBar.overlaysWebView(true);
         }
