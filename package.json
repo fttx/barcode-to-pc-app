@@ -1,7 +1,7 @@
 {
   "name": "barcode-to-pc-app",
   "author": "Filippo Tortomasi",
-  "version": "4.4.1",
+  "version": "4.4.3",
   "homepage": "https://barcodetopc.com/",
   "private": true,
   "scripts": {
@@ -78,7 +78,7 @@
     "cordova-support-google-services": "^1.3.2",
     "es6-promise-plugin": "^4.2.2",
     "fttx-cordova-plugin-zeroconf": "1.4.1",
-    "fttx-phonegap-nfc": "^1.3.0",
+    "fttx-phonegap-nfc": "^1.3.1",
     "fttx-phonegap-plugin-barcodescanner": "^9.4.1",
     "helpful-decorators": "^2.1.0",
     "ionic-angular": "^3.9.10",
