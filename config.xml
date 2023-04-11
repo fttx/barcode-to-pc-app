@@ -15,8 +15,9 @@
     <preference name="webviewbounce" value="false" />
     <preference name="UIWebViewBounce" value="false" />
     <preference name="DisallowOverscroll" value="true" />
-    <preference name="android-minSdkVersion" value="19" />
+    <preference name="android-minSdkVersion" value="21" />
     <preference name="android-targetSdkVersion" value="31" />
+    <preference name="android-compileSdkVersion" value="31" />
     <preference name="BackupWebStorage" value="none" />
     <preference name="HeaderColor" value="#B71C1C" />
     <preference name="StatusBarBackgroundColor" value="#B71C1C" />
@@ -52,12 +53,6 @@
         <splash density="port-xhdpi" src="resources/android/splash/drawable-port-xhdpi-screen.png" />
         <splash density="port-xxhdpi" src="resources/android/splash/drawable-port-xxhdpi-screen.png" />
         <splash density="port-xxxhdpi" src="resources/android/splash/drawable-port-xxxhdpi-screen.png" />
-        <edit-config file="app/src/main/AndroidManifest.xml" mode="merge" target="/manifest/application">
-            <application android:usesCleartextTraffic="true" />
-        </edit-config>
-        <edit-config file="AndroidManifest.xml" mode="merge" target="/manifest/application/activity[@android:name='MainActivity']">
-            <activity android:exported="true" />
-        </edit-config>
         <hook src="hooks/android/after_prepare.js" type="after_prepare" />
         <hook src="hooks/android/after_build.js" type="after_build" />
     </platform>

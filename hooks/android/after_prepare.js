@@ -31,13 +31,16 @@ module.exports = function(context) {
         console.error(`Failed to parse AndroidManifest.xml: ${err}`);
       } else {
         try {
+          manifest.manifest.application[0].$['android:usesCleartextTraffic'] = 'true';
+          console.log(`[after_prepare] Added android:usesCleartextTraffic="true" to AndroidManifest.xml`)
+
           // Find the target activity and set android:exported="true"
           activitiesNames.forEach((activityName) => {
             const activity = manifest.manifest.application[0].activity.find((activity) => activity.$['android:name'] == activityName);
             if (activity)  {
               activity.$['android:exported'] = 'true';
               manifest.manifest.application[0].activity = manifest.manifest.application[0].activity.filter((activity) => activity.$['android:name'] != activityName || (activity.$['android:name'] == activityName && activity.$['android:exported'] == 'true'));
-              console.log(`[after_platform_add] Added android:exported="true" to ${activity.$['android:name']}`);
+              console.log(`[after_prepare] Added android:exported="true" to ${activity.$['android:name']}`);
             } else {
               console.warn(`Target activity ${activityName} not found in AndroidManifest.xml`);
             }
@@ -48,7 +51,7 @@ module.exports = function(context) {
             if (provider)  {
               provider.$['android:exported'] = 'true';
               manifest.manifest.application[0].provider = manifest.manifest.application[0].provider.filter((provider) => provider.$['android:name'] != providerName || (provider.$['android:name'] == providerName && provider.$['android:exported'] == 'true'));
-              console.log(`[after_platform_add] Added android:exported="true" to ${provider.$['android:name']}`);
+              console.log(`[after_prepare] Added android:exported="true" to ${provider.$['android:name']}`);
             } else {
               console.warn(`Target activity ${providerName} not found in AndroidManifest.xml`);
             }
