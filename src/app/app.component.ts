@@ -56,7 +56,7 @@ export class MyApp {
       this.firebaseAnalytics.setEnabled(!Config.DEBUG);
 
       this.translate.use('en');
-      this.translate.addLangs(['es']);
+      this.translate.addLangs(['es', 'pt']);
       const lang = this.translate.getBrowserLang();
       if (lang !== undefined && this.translate.getLangs().indexOf(lang) != -1) {
         this.translate.use(lang);
