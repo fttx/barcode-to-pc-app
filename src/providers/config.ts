@@ -14,7 +14,9 @@ export class Config {
   public static URL_INSTRUCTIONS = 'https://barcodetopc.com/frequently-asked-questions/#app-doesnt-find-computer';
   public static URL_FAQ = 'https://barcodetopc.com/frequently-asked-questions/';
   public static URL_GITHUB_CHANGELOG = 'https://raw.githubusercontent.com/fttx/barcode-to-pc-server/master/CHANGELOG.md';
-  public static URL_ANDROID_PDA = 'https://barcodetopc.com/hardware-devices/send-barcodes-from-an-android-pda-scanner-to-a-computer/';
+
+  public static DOCS_ANDROID_PDA = 'https://docs.barcodetopc.com/examples/send-barcodes-from-android-pda-devices/';
+  public static DOCS_QRBILL = 'https://docs.barcodetopc.com/special-barcodes/swiss-qr-codes/qr-bill/';
 
   public static SERVER_PORT = 57891;
   public static WEBSITE_NAME = 'barcodetopc.com';

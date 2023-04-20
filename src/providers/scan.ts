@@ -677,6 +677,12 @@ export class ScanProvider {
             }
             // END CODE_39 fix
 
+            // QR Bill dialog
+            if (barcodeScanResult.text && barcodeScanResult.format == 'QR_CODE' && barcodeScanResult.text.startsWith('SPC')) {
+              await this.showQRBillDialog();
+            }
+            // QR Bill dialog
+
             // Check for duplicated barcodes (duplciate on manual mode)
             let acceptBarcode = await this.showAcceptDuplicateDetectedDialog(barcodeScanResult.text);
             if (!acceptBarcode) {
@@ -726,6 +732,12 @@ export class ScanProvider {
                   barcodeScanResult.text = Utils.convertCode39ToCode32(barcodeScanResult.text);
                 }
                 // END CODE_39 fix
+
+                // QR Bill dialog
+                if (barcodeScanResult.text && barcodeScanResult.format == 'QR_CODE' && barcodeScanResult.text.startsWith('SPC')) {
+                  await this.showQRBillDialog();
+                }
+                // QR Bill dialog
 
                 // Check for duplicated barcodes
                 let acceptBarcode = await this.showAcceptDuplicateDetectedDialog(barcodeScanResult.text);
@@ -1037,7 +1049,7 @@ export class ScanProvider {
             {
               text: await this.utils.text('isPDADeviceDialogMoreInfoButton'), handler: () => {
                 this.settings.setIsPDADeviceDialogShown(true);
-                this.iab.create(Config.URL_ANDROID_PDA, '_system');
+                this.iab.create(Config.DOCS_ANDROID_PDA, '_system');
                 resolve();
               }
             }]
@@ -1176,5 +1188,32 @@ export class ScanProvider {
 
   getRandomInt(max = Number.MAX_SAFE_INTEGER) {
     return Math.floor(Math.random() * Math.floor(max));
+  }
+
+  private showQRBillDialog():Promise<void> {
+    return new Promise(async (resolve, reject) => {
+      if (await this.settings.getQRBillDialogShown()) {
+        resolve();
+        return;
+      }
+      this.alertCtrl.create({
+        title: await this.utils.text('qrBillDialogTitle'),
+        message: await this.utils.text('qrBillDialogMessage'),
+        buttons: [{
+          text: await this.utils.text('qrBillDialogCancelButton'),
+          handler: () => {
+            resolve();
+          },
+          role: 'cancel',
+        }, {
+          text: await this.utils.text('qrBillDialogOkButton'),
+          handler: () => {
+            this.iab.create(Config.DOCS_QRBILL, '_system');
+            this.settings.setQRBillDialogShown(true);
+            resolve();
+          }
+        }]
+      }).present();
+    });
   }
 }

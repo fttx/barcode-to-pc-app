@@ -42,6 +42,7 @@ export class Settings {
   private static QUANTITY_ENABLED = 'quantity_enabled';
   private static QUANTITY_TYPE = 'quantity_type';
   private static SOUND_FEEDBACK_OR_DIALOG_SHOWN = 'sound_feedback_or_dialog_shown';
+  private static QRBILL_DIALOG_SHOWN = 'qrbill_dialog_shown';
   private static SCAN_SESSION_NAME = 'scan_session_name';
   private static UPGRADED_DISPLAYVALUE = 'upgraded_displayvalue';
   private static OPEN_SCAN_ON_START = 'open_scan_on_start';
@@ -215,6 +216,14 @@ export class Settings {
 
   getSoundFeedbackOrDialogShown(): Promise<boolean> {
     return this.storage.get(Settings.SOUND_FEEDBACK_OR_DIALOG_SHOWN);
+  }
+
+  setQRBillDialogShown(QRBillDialogShown: boolean) {
+    return this.storage.set(Settings.QRBILL_DIALOG_SHOWN, QRBillDialogShown);
+  }
+
+  getQRBillDialogShown(): Promise<boolean> {
+    return this.storage.get(Settings.QRBILL_DIALOG_SHOWN);
   }
 
   setSavedServers(servers: ServerModel[]) {
