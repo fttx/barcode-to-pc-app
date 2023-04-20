@@ -25,6 +25,7 @@ import { Settings } from './../../providers/settings';
 import { CSVExportOptionsPage } from './csv-export-options/csv-export-options';
 import { EditScanSessionPage } from './edit-scan-session/edit-scan-session';
 import { SelectScanningModePage } from './select-scanning-mode/select-scanning-mode';
+import { PhotoViewer } from '@ionic-native/photo-viewer';
 
 /**
  * This page is used to display the list of the barcodes of a specific
@@ -80,6 +81,7 @@ export class ScanSessionPage {
     private file: File,
     public events: Events,
     private nfc: NFC,
+    private photoViewer: PhotoViewer,
   ) {
     this.scanSession = navParams.get('scanSession');
     if (!this.scanSession) {
@@ -307,13 +309,42 @@ export class ScanSessionPage {
     if (this.realtimeSend) this.sendPutScan(scan);
   }
 
+  private showImage(scan) {
+    const data = scan.outputBlocks.find(x => x.image != null).image.data;
+    const buffer = Buffer.from(data);
+    const base64Image = 'data:image/jpeg;base64,' + buffer.toString('base64');
+    this.photoViewer.show(base64Image, scan.displayValue, { share: true });
+  }
+
   async onItemClicked(scan: ScanModel, scanIndex: number) {
+    if (!this.serverProvider.isConnected()) {
+      this.showImage(scan);
+      return;
+    }
+
     if (scan.ack == true) {
+      const buttons = [];
+      buttons.push({
+        text: await this.utils.text('alreadyReceivedScanCancelButton'), role: 'cancel', handler: () => { },
+        cssClass: this.platform.is('android') ? 'button-outline-md button-generic' : null,
+      });
+      if (scan.hasImage) {
+        buttons.push({
+          text: await this.utils.text('alreadyReceivedScanDialogViewImageButton'), handler: () => {
+            this.showImage(scan);
+          },
+          cssClass: this.platform.is('android') ? 'button-outline-md button-generic' : null,
+        });
+      }
+      buttons.push({
+        text: await this.utils.text('alreadyReceivedScanDialogSendAgainButton'), handler: () => { this.repeat(scan); },
+        cssClass: this.platform.is('android') ? 'button-outline-md button-ok' : null,
+      });
       this.alertCtrl.create({
         title: await this.utils.text('alreadyReceivedScanDialogTitle'),
         message: await this.utils.text('alreadyReceivedScanDialogMessage'),
-        buttons: [{ text: await this.utils.text('alreadyReceivedScanCancelButton'), role: 'cancel', handler: () => { } },
-        { text: await this.utils.text('alreadyReceivedScanDialogSendAgainButton'), handler: () => { this.repeat(scan); } }]
+        cssClass: this.platform.is('android') ? 'alert-get-field alert-big-buttons' : null,
+        buttons: buttons,
       }).present();
     } else {
       this.repeatingStatus = 'repeating';

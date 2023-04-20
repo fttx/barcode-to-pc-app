@@ -253,6 +253,7 @@
   "nfcDisabledSuccessDialogClose": "Ok",
   "nfcAndroidInstructionTitle": "Instruções NFC",
   "nfcAndroidInstructionMessage": "Para ler una tag NFC aproxime o seu smartphone da tag. Se não estiver a funcionar, certifique-se de que está ativado em ambos lados - definições da app e nas definições do smartphone.",
+  "alreadyReceivedScanDialogViewImageButton": "View image",
   "================================SCAN_PROVIDER================================": "",
   "settingsUpdatedDialogTitle": "Definições atualizadas",
   "settingsUpdatedDialogMessage": "As definições do servidor foram atualizadas. Para aplicar as alterações também à app, carregue no botão da câmara.",

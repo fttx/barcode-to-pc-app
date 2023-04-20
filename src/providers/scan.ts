@@ -1,4 +1,4 @@
-import { Injectable, NgZone } from '@angular/core';
+import { Injectable, NgZone, Output } from '@angular/core';
 import { BarcodeScanner, BarcodeScannerOptions, BarcodeScanResult } from '@fttx/barcode-scanner';
 import { FirebaseAnalytics } from '@ionic-native/firebase-analytics';
 import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
@@ -23,6 +23,7 @@ import { LastToastProvider } from './last-toast/last-toast';
 import { ServerProvider } from './server';
 import { Settings } from './settings';
 import { AlertButtonType, BarcodeScanResultExtended, BarcodeScannerOptionsExtended, Utils } from './utils';
+import { Camera, CameraOptions } from '@ionic-native/camera';
 
 /**
  * The job of this class is to generate a ScanModel by talking with the native
@@ -83,6 +84,7 @@ export class ScanProvider {
     private utils: Utils,
     private lastToast: LastToastProvider,
     private nfc: NFC, private ndef: Ndef,
+    private camera: Camera,
   ) {
     this.events.subscribe(responseModel.ACTION_UPDATE_SETTINGS, async (responseModelUpdateSettings: responseModelUpdateSettings) => {
       this.outputProfile = responseModelUpdateSettings.outputProfiles[this.outputProfileIndex];
@@ -459,7 +461,13 @@ export class ScanProvider {
                 }
               }
               case 'delay': break;
-              // remote_components:
+              case 'image': {
+                if (this.serverProvider.isConnected()) {
+                  outputBlock.image = await this.acquireImage();
+                }
+                break;
+              }
+              // start::remote_components:
               case 'woocommerce':
               case 'http':
               case 'run':
@@ -503,6 +511,7 @@ export class ScanProvider {
                 }
                 break;
               }
+              // end::remote_components
               case 'beep': {
                 // this code is duplicated on the server side for the TEST AUDIO button (settings.html)
                 let beepSpeed;
@@ -594,6 +603,7 @@ export class ScanProvider {
           // end backwards compatibility
 
           scan.displayValue = ScanModel.ToString(scan);
+          scan.hasImage = scan.outputBlocks.find(x => x.image != null) != null;
 
           // prevent infinite loops
           if (scan.displayValue == prevScanDisplayValue) {
@@ -896,6 +906,30 @@ export class ScanProvider {
         alert.present({ keyboardClose: false, animate: false });
       };
       again();
+    });
+  }
+
+  private acquireImage(): Promise<Buffer> {
+    return new Promise((resolve, reject) => {
+      let options: CameraOptions = {
+        quality: 85,
+        destinationType: this.camera.DestinationType.DATA_URL,
+        sourceType: this.camera.PictureSourceType.CAMERA,
+        encodingType: this.camera.EncodingType.JPEG,
+        mediaType: this.camera.MediaType.PICTURE,
+        correctOrientation: true,
+        saveToPhotoAlbum: false,
+        allowEdit: false,
+        targetWidth: 800,
+        targetHeight: 800,
+      };
+
+      this.camera.getPicture(options).then((imageData) => {
+        let image = new Buffer(imageData, 'base64');
+        resolve(image);
+      }, (err) => {
+        reject(err);
+      });
     });
   }
 

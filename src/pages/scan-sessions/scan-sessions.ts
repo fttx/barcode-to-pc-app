@@ -74,6 +74,10 @@ export class ScanSessionsPage {
     })
 
     this.utils.askWiFiEnableIfDisabled();
+    // christian@sennhauser-its.ch
+    // if (!this.serverProvider.isConnected()) {
+    //   this.utils.askWiFiEnableIfDisabled();
+    // }
 
     this.onDisconnectSubscription = this.serverProvider.onDisconnect().subscribe(() => {
       this.connected = false;

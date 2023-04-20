@@ -253,6 +253,7 @@
   "nfcDisabledSuccessDialogClose": "Ok",
   "nfcAndroidInstructionTitle": "NFC Instructions",
   "nfcAndroidInstructionMessage": "To scan a NFC tag just approach it with your smartphone. If it isn't working make sure it's enabled from both the app settings and your smartphone system settings.",
+  "alreadyReceivedScanDialogViewImageButton": "View image",
   "================================SCAN_PROVIDER================================": "",
   "settingsUpdatedDialogTitle": "Settings updated",
   "settingsUpdatedDialogMessage": "The server settings have been updated. To apply the changes also to the app side tap on the camera button.",

@@ -46,6 +46,7 @@ import { Settings } from '../providers/settings';
 import { Utils } from '../providers/utils';
 import { MyApp } from './app.component';
 import { Ndef, NFC } from '@ionic-native/nfc';
+import { PhotoViewer } from '@ionic-native/photo-viewer';
 
 // Modules
 // Ionic-native
@@ -124,6 +125,7 @@ import { Ndef, NFC } from '@ionic-native/nfc';
     File,
     NetworkInterface,
     NFC,
+    PhotoViewer,
     Ndef,
     Network,
     NativeAudio,

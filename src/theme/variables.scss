@@ -95,6 +95,13 @@ $colors: (
 
 
 .md {
+  .button-generic .button-inner {
+    justify-content: center !important;
+  }
+  .button-generic {
+    margin-bottom: 20px !important;
+  }
+
   .button-ok {
     color: white !important;
     background-color: map-get($colors, primary) !important;

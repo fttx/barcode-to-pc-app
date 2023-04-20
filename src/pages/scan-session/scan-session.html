@@ -43,6 +43,9 @@
 					<ion-col text-wrap>
 						{{ scan.displayValue }}
 					</ion-col>
+					<ion-col align-self-end col-1 class="status-icon" *ngIf="scan.hasImage">
+						<ion-icon name="image" color="dark"></ion-icon>
+					</ion-col>
 				</ion-row>
 			</ion-grid>
 		</button>

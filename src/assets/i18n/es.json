@@ -252,6 +252,7 @@
   "nfcDisabledSuccessDialogClose": "Cerrar",
   "nfcAndroidInstructionTitle": "Instrucciones NFC",
   "nfcAndroidInstructionMessage": "Para escanear una etiqueta NFC, acérquese a ella con su teléfono inteligente. Si no funciona, asegúrese de que esté habilitado tanto en la configuración de la aplicación como en la configuración del sistema de su teléfono inteligente.",
+  "alreadyReceivedScanDialogViewImageButton": "View image",
   "================================SCAN_PROVIDER================================": "",
   "settingsUpdatedDialogTitle": "Ajustes actualizados",
   "settingsUpdatedDialogMessage": "Se han actualizado los ajustes del servidor. Para aplicar los cambios también del lado de la aplicación, toque el botón de la cámara.",
