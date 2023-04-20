@@ -328,6 +328,7 @@ export class ScanProvider {
             if (outputBlock.errorMessage) outputBlock.errorMessage = await this.utils.supplant(outputBlock.errorMessage, variables);
             if (outputBlock.value && !isNumeric(outputBlock.value)) outputBlock.value = await this.utils.supplant(outputBlock.value, variables);
             if (outputBlock.defaultValue) outputBlock.defaultValue = await this.utils.supplant(outputBlock.defaultValue, variables);
+            if (outputBlock.outputImagePath) outputBlock.outputImagePath = await this.utils.supplant(outputBlock.outputImagePath, variables);
 
             switch (outputBlock.type) {
               // some components like 'key' and 'text', do not need any processing from the
