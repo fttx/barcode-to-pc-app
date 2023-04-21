@@ -326,7 +326,7 @@ export class ScanSessionPage {
       const buttons = [];
       buttons.push({
         text: await this.utils.text('alreadyReceivedScanCancelButton'), role: 'cancel', handler: () => { },
-        cssClass: this.platform.is('android') ? 'button-outline-md button-generic' : null,
+        cssClass: this.platform.is('android') ? 'button-outline-md ' + (scan.hasImage ? 'button-generic' : '') : null,
       });
       if (scan.hasImage) {
         buttons.push({
@@ -343,7 +343,7 @@ export class ScanSessionPage {
       this.alertCtrl.create({
         title: await this.utils.text('alreadyReceivedScanDialogTitle'),
         message: await this.utils.text('alreadyReceivedScanDialogMessage'),
-        cssClass: this.platform.is('android') ? 'alert-get-field alert-big-buttons' : null,
+        // cssClass: this.platform.is('android') ? 'alert-get-field alert-big-buttons' : null,
         buttons: buttons,
       }).present();
     } else {
