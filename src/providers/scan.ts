@@ -195,6 +195,7 @@ export class ScanProvider {
           preferWideLens: preferWideLens,
           torchOn: torchOn,
           assumeGS1: true, // Android only
+          alsoInverted: true, // Android only
           continuousMode: this.acqusitionMode == 'continue',
           disableSuccessBeep: !enableBeep,
           vibrationFeedback: enableVibrationFeedback,
