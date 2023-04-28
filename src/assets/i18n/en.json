@@ -197,6 +197,8 @@
   "enableRealtimeSendDescription": "If disabled, the app won't send the scans immediately. You can use the Sync button to send the scans to the server. This can be useful when you want to collect barcodes and send them later",
   "enableNFC": "Enable NFC tag reading",
   "enableNFCDescription": "We're currently supporting NDEF text tags only. Please contact us for other formats",
+  "alsoInverted": "Inverted barcodes",
+  "alsoInvertedDescription": "If enabled, the app will try to scan inverted barcodes too (white on black)",
   "================================WELCOME_PAGE=================================": "",
   "barcodeToPcRemoteDescription1": "Welcome to ",
   "barcodeToPcRemoteDescription2": " Wi-Fi remote!",

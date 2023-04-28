@@ -189,6 +189,16 @@
       <ion-toggle [(ngModel)]="enableNFC"></ion-toggle>
     </ion-item>
 
+    <ion-item text-wrap [hidden]="platform.is('ios')">
+      <ion-label>
+        <h2 color="dark">{{ 'alsoInverted' | translate }}</h2>
+        <p>
+          {{ 'alsoInvertedDescription' | translate }}
+        </p>
+      </ion-label>
+      <ion-toggle [(ngModel)]="alsoInverted"></ion-toggle>
+    </ion-item>
+
     <ion-item text-wrap>
       <ion-label>
         <h2 color="dark">{{ 'limitBarcodeFormatsTitle' | translate }}</h2>

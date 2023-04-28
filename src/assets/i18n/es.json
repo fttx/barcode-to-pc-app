@@ -196,6 +196,8 @@
   "enableRealtimeSendDescription": "Si está deshabilitada, la aplicación no enviará los escaneos inmediatamente. Puede usar el botón Sincronizar para enviar los escaneos al servidor. Esto puede ser útil cuando desea recopilar códigos de barras y enviarlos más tarde",
   "enableNFC": "Habilitar la lectura de etiquetas NFC",
   "enableNFCDescription": "Actualmente solo admitimos etiquetas de texto NDEF. Por favor contáctenos para otros formatos",
+  "alsoInverted": "Códigos de barras invertidos",
+  "alsoInvertedDescription": "Si se habilita, la aplicación intentará escanear también códigos de barras invertidos (blanco sobre negro)",
   "================================WELCOME_PAGE=================================": "",
   "barcodeToPcRemoteDescription1": "Bienvenido a ",
   "barcodeToPcRemoteDescription2": " Wi-Fi remote!",

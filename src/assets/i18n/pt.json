@@ -197,6 +197,8 @@
   "enableRealtimeSendDescription": "Se desativado, a app não eviará as leituras automaticamente. Pode usar o botão SINCRONIZAR para enviar as leituras para o servidor. Pode ser útil quando ler códigos de barras e envia-los mais tarde",
   "enableNFC": "Ativar leitura de Tags NFC",
   "enableNFCDescription": "Atualmente apenas suportamos Tags de texto NDEF. Entre em contacto connosco se precisar de outros formatos",
+  "alsoInverted": "Códigos de barras invertidos",
+  "alsoInvertedDescription": "Se ativado, o aplicativo tentará escanear códigos de barras invertidos também (branco sobre preto)",
   "================================WELCOME_PAGE=================================": "",
   "barcodeToPcRemoteDescription1": "Bemvindo a ",
   "barcodeToPcRemoteDescription2": " Wi-Fi remoto!",

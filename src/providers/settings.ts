@@ -32,6 +32,7 @@ export class Settings {
   private static TORCH_ON = 'torch_on';
   private static KEEP_DISPLAY_ON = 'keep_display_on';
   private static ENABLE_BEEP = 'enable_beep';
+  private static ALSO_INVERTED = 'also_inverted';
   private static ENABLE_VIBRATION_FEEDBACK = 'enable_vibration_feedback';
   private static UPGRADED_TO_SQLITE = 'upgraded_to_sqlite_5x';
   private static LAST_VERSION = 'last_version';
@@ -446,6 +447,14 @@ export class Settings {
       if (result === false) return false;
       return true;
     });
+  }
+
+  setAlsoInverted(alsoInverted: boolean) {
+    return this.storage.set(Settings.ALSO_INVERTED, alsoInverted);
+  }
+
+  getAlsoInverted(): Promise<boolean> {
+    return this.storage.get(Settings.ALSO_INVERTED).then(result => { return result === true })
   }
 
   setEnableNFC(enableNfc: boolean) {

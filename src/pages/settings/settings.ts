@@ -40,6 +40,7 @@ export class SettingsPage {
   public torchOn = false;
   public keepDisplayOn = false;
   public enableBeep = true;
+  public alsoInverted = false;
   public enableNFC = true;
   public enableVibrationFeedback = true;
   public openScanOnStart = false;
@@ -170,6 +171,10 @@ export class SettingsPage {
       this.enableBeep = enableBeep;
     });
 
+    this.settings.getAlsoInverted().then(alsoInverted => {
+      this.alsoInverted = alsoInverted;
+    });
+
     this.settings.getEnableNFC().then(enableNFC => {
       this.enableNFC = enableNFC;
     });
@@ -227,6 +232,7 @@ export class SettingsPage {
     this.settings.setTorchOn(this.torchOn);
     this.settings.setKeepDisplayOn(this.keepDisplayOn);
     this.settings.setEnableBeep(this.enableBeep);
+    this.settings.setAlsoInverted(this.alsoInverted);
     this.settings.setEnableNFC(this.enableNFC);
     this.settings.setEnableVibrationFeedback(this.enableVibrationFeedback);
     this.settings.setOpenScanOnStart(this.openScanOnStart);
