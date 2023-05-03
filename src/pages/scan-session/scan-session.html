@@ -59,7 +59,7 @@
 </ion-content>
 
 <ion-footer ion-fixed>
-	<ion-toolbar>
+	<ion-toolbar style="direction: ltr">
 		<keyboard-input (touchstart)="keyboardInputTouchStart($event)" #keyboardInput></keyboard-input>
 		<ion-buttons end>
 			<button class="btn-send-manual-input" ion-button strong (touchstart)="$event.preventDefault(); $event.stopPropagation();" (touchend)="onNFCClick($event);">

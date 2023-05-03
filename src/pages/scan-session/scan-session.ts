@@ -530,7 +530,8 @@ export class ScanSessionPage {
         buttons: [{
           text: await this.utils.text('sendBarcodeAgainDialogCancelButton'), role: 'cancel', handler: data => { }
         }, {
-          text: 'Send', handler: data => {
+          text: await this.utils.text('sendBarcodeAgainDialogSendButton') ,
+          handler: data => {
             this.firebaseAnalytics.logEvent('repeatAll', {});
             this.skipAlreadySent = (data == 'skipAlreadySent');
             doRepeat();

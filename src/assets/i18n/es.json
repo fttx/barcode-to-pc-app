@@ -232,6 +232,7 @@
   "alreadyReceivedScanDialogTitle": "El servidor ya ha recibido este escaneo",
   "alreadyReceivedScanDialogMessage": "¿Desea enviarlo de nuevo?",
   "alreadyReceivedScanDialogSendAgainButton": "Enviar de nuevo",
+  "sendBarcodeAgainDialogSendButton": "Enviar",
   "areYouSureDialogTitle": "¿Está seguro?",
   "scanDeleteOnlySmartphoneDialogTitle": "¿Está seguro?",
   "scanDeleteOnlySmartphoneDialogMessage": "El escaneo se eliminará solo del smartphone.",

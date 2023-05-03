@@ -56,7 +56,14 @@ export class MyApp {
       this.firebaseAnalytics.setEnabled(!Config.DEBUG);
 
       this.translate.use('en');
-      this.translate.addLangs(['es', 'pt']);
+      this.translate.onLangChange.subscribe(event => {
+        if (event.lang === 'ar') {
+          document.documentElement.setAttribute('dir', 'rtl');
+        } else {
+          document.documentElement.setAttribute('dir', 'ltr');
+        }
+      });
+      this.translate.addLangs(['es', 'pt', 'ar']);
       const lang = this.translate.getBrowserLang();
       if (lang !== undefined && this.translate.getLangs().indexOf(lang) != -1) {
         this.translate.use(lang);
