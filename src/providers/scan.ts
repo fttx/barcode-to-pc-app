@@ -931,9 +931,9 @@ export class ScanProvider {
       };
 
       if (hd) {
-        options.targetWidth = 1600;
-        options.targetHeight = 1600;
-        options.quality = 95;
+        options.targetWidth = 1080;
+        options.targetHeight = 1080;
+        options.quality = 90;
       }
 
       this.camera.getPicture(options).then((imageData) => {

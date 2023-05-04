@@ -310,9 +310,17 @@ export class ScanSessionPage {
   }
 
   private showImage(scan) {
-    const data = scan.outputBlocks.find(x => x.image != null).image.data;
-    const buffer = Buffer.from(data);
-    const base64Image = 'data:image/jpeg;base64,' + buffer.toString('base64');
+    const imageBlock = scan.outputBlocks.find(x => x.type == 'image');
+    const bufferObj = imageBlock.image;
+    let base64String = '';
+    if (bufferObj instanceof Uint8Array) {
+      // convert Uint8Array to base64
+      base64String = Buffer.from(bufferObj).toString('base64');
+    } else {
+      // convert Buffer to base64
+      base64String = Buffer.from(bufferObj.data).toString('base64');
+    }
+    const base64Image = 'data:image/jpeg;base64,' + base64String;
     this.photoViewer.show(base64Image, scan.displayValue, { share: true });
   }
 
