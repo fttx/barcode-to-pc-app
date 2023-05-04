@@ -464,8 +464,12 @@ export class ScanProvider {
               }
               case 'delay': break;
               case 'image': {
-                if (this.serverProvider.isConnected()) {
-                  outputBlock.image = await this.acquireImage();
+                try {
+                  outputBlock.image = await this.acquireImage(outputBlock.imageHd);
+                } catch (err) {
+                  // this code fragment is duplicated for the 'number', 'text', 'if' and 'barcode' blocks. It's also present in the againCount condition, and in the remoteComponent() method.
+                  observer.complete();
+                  return; // returns the again() function
                 }
                 break;
               }
@@ -911,7 +915,7 @@ export class ScanProvider {
     });
   }
 
-  private acquireImage(): Promise<Buffer> {
+  private acquireImage(hd: boolean): Promise<Buffer> {
     return new Promise((resolve, reject) => {
       let options: CameraOptions = {
         quality: 85,
@@ -925,6 +929,12 @@ export class ScanProvider {
         targetWidth: 800,
         targetHeight: 800,
       };
+
+      if (hd) {
+        options.targetWidth = 1600;
+        options.targetHeight = 1600;
+        options.quality = 95;
+      }
 
       this.camera.getPicture(options).then((imageData) => {
         let image = new Buffer(imageData, 'base64');
