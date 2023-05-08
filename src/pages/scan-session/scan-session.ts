@@ -311,19 +311,8 @@ export class ScanSessionPage {
 
   private showImage(scan) {
     const imageBlock = scan.outputBlocks.find(x => x.type == 'image');
-    const bufferObj = imageBlock.image;
-    let base64String = '';
-    if (bufferObj instanceof Uint8Array) {
-      // convert Uint8Array to base64
-      base64String = Buffer.from(bufferObj).toString('base64');
-    } else {
-      // convert Buffer to base64
-      base64String = Buffer.from(bufferObj.data).toString('base64');
-    }
-    const base64Image = 'data:image/jpeg;base64,' + base64String;
-
     if (this.platform.is('ios')) {
-      this.iab.create(base64Image, '_blank', 'enableViewportScale=yes,location=no,closebuttoncaption=Close,closebuttoncolor=#ffffff');
+      this.iab.create(imageBlock.image, '_blank', 'enableViewportScale=yes,location=no,closebuttoncaption=Close,closebuttoncolor=#ffffff');
     } else {
       const options = {
         share: true, // default is false
@@ -332,7 +321,7 @@ export class ScanSessionPage {
         headers: '',  // If this is not provided, an exception will be triggered
         piccasoOptions: {} // If this is not provided, an exception will be triggered
       };
-      this.photoViewer.show(base64Image, scan.displayValue, options);
+      this.photoViewer.show(imageBlock.image, scan.displayValue, options);
     }
   }
 

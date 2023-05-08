@@ -915,7 +915,7 @@ export class ScanProvider {
     });
   }
 
-  private acquireImage(hd: boolean): Promise<Buffer> {
+  private acquireImage(hd: boolean): Promise<string> {
     return new Promise((resolve, reject) => {
       let options: CameraOptions = {
         quality: 85,
@@ -936,9 +936,9 @@ export class ScanProvider {
         options.quality = 90;
       }
 
-      this.camera.getPicture(options).then((imageData) => {
-        let image = new Buffer(imageData, 'base64');
-        resolve(image);
+      this.camera.getPicture(options).then((imageDataBase64) => {
+        const base64Img = 'data:image/jpeg;base64,' + imageDataBase64;
+        resolve(base64Img);
       }, (err) => {
         reject(err);
       });
