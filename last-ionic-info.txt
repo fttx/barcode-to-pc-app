@@ -8,8 +8,8 @@
 [1mCordova:[22m
 
    Cordova CLI       : [2m11.1.0[22m
-   Cordova Platforms : [2mandroid 11.0.0[22m
-   Cordova Plugins   : [2mcordova-plugin-ionic-keyboard 2.2.0, cordova-plugin-ionic-webview 4.2.0, (and 20 other plugins)[22m
+   Cordova Platforms : [2mandroid 11.0.0, ios 6.3.0[22m
+   Cordova Plugins   : [2mcordova-plugin-ionic-keyboard 2.2.0, cordova-plugin-ionic-webview 4.2.0, (and 21 other plugins)[22m
 
 [1mUtility:[22m
 
