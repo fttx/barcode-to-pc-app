@@ -321,7 +321,19 @@ export class ScanSessionPage {
       base64String = Buffer.from(bufferObj.data).toString('base64');
     }
     const base64Image = 'data:image/jpeg;base64,' + base64String;
-    this.photoViewer.show(base64Image, scan.displayValue, { share: true });
+
+    if (this.platform.is('ios')) {
+      this.iab.create(base64Image, '_blank', 'enableViewportScale=yes,location=no,closebuttoncaption=Close,closebuttoncolor=#ffffff');
+    } else {
+      const options = {
+        share: true, // default is false
+        closeButton: true, // default is true
+        copyToReference: false, // default is false
+        headers: '',  // If this is not provided, an exception will be triggered
+        piccasoOptions: {} // If this is not provided, an exception will be triggered
+      };
+      this.photoViewer.show(base64Image, scan.displayValue, options);
+    }
   }
 
   async onItemClicked(scan: ScanModel, scanIndex: number) {
@@ -538,7 +550,7 @@ export class ScanSessionPage {
         buttons: [{
           text: await this.utils.text('sendBarcodeAgainDialogCancelButton'), role: 'cancel', handler: data => { }
         }, {
-          text: await this.utils.text('sendBarcodeAgainDialogSendButton') ,
+          text: await this.utils.text('sendBarcodeAgainDialogSendButton'),
           handler: data => {
             this.firebaseAnalytics.logEvent('repeatAll', {});
             this.skipAlreadySent = (data == 'skipAlreadySent');
