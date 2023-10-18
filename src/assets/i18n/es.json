@@ -172,6 +172,7 @@
   "keepDisplayAlwaysOnLabel": "Mantener la pantalla siempre activa",
   "enableCameraBeepLabel": "Activar pitido de cámara",
   "enableVibrationFeedbackLabel": "Habilitar vibración como respuesta",
+  "disableSpecialCharacters": "Deshabilitar caracteres especiales",
   "openAppScanModeLabel": "Abrir la aplicación en modo de escaneo",
   "limitBarcodeFormatsTitle": "Limitar los formatos de código de barras",
   "limitBarcodeFormatsDescription": "utilice esta configuración para mantener habilitados sólo los formatos de código de barras que escanea. Puede mejorar la velocidad de escaneo y la fiabilidad general",

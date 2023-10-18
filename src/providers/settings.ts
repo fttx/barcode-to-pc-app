@@ -34,6 +34,7 @@ export class Settings {
   private static ENABLE_BEEP = 'enable_beep';
   private static ALSO_INVERTED = 'also_inverted';
   private static ENABLE_VIBRATION_FEEDBACK = 'enable_vibration_feedback';
+  private static DISABLE_SPECIAL_CHARACTERS = 'disable_special_characters';
   private static UPGRADED_TO_SQLITE = 'upgraded_to_sqlite_5x';
   private static LAST_VERSION = 'last_version';
   private static BARCODE_FORMATS = 'barcode_formats';
@@ -474,6 +475,14 @@ export class Settings {
       if (result === false) return false;
       return true;
      });
+  }
+
+  setDisableSpecialCharacters(disableSpecialCharacters: boolean) {
+    return this.storage.set(Settings.DISABLE_SPECIAL_CHARACTERS, disableSpecialCharacters);
+  }
+
+  getDisableSpecialCharacters(): Promise<boolean> {
+    return this.storage.get(Settings.DISABLE_SPECIAL_CHARACTERS).then(result => { return result === true });
   }
 
   setEnableLimitBarcodeFormats(enableLimitBarcodeFormats: boolean) {

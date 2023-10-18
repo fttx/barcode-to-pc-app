@@ -172,6 +172,7 @@
   "keepDisplayAlwaysOnLabel": "Keep display always on",
   "enableCameraBeepLabel": "Enable camera beep",
   "enableVibrationFeedbackLabel": "Enable vibration feedback",
+  "disableSpecialCharacters": "Disable special characters",
   "openAppScanModeLabel": "Open the app in Scan mode",
   "limitBarcodeFormatsTitle": "Limit barcode formats",
   "limitBarcodeFormatsDescription": "Use this setting to keep enabled only the barcode formats that you scan. It may improve the scanning speed and the overall reliability",

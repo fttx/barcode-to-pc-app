@@ -69,6 +69,7 @@ export class ScanProvider {
   public static INFINITE_LOOP_DETECT_THRESHOLD = 30;
   private nfcSubscription: Subscription = null;
   private enableNFC: boolean = false;
+  private getDisableSpecialCharacters: boolean = false;
 
   constructor(
     private alertCtrl: AlertController,
@@ -140,6 +141,7 @@ export class ScanProvider {
         this.settings.getDuplicateBarcodeChoice(), // 10
         this.settings.getEnableNFC(), // 11
         this.settings.getPreferWideLens(), // 12
+        this.settings.getDisableSpecialCharacters(), // 13
       ]).then(async result => {
         // parameters
         let preferFrontCamera = result[0];
@@ -157,8 +159,10 @@ export class ScanProvider {
         const containsMultipleBarcodeFormats = OutputProfileModel.ContainsMultipleBarcodeFormats(this.outputProfile);
         const duplicateBarcodeChoice = result[10];
         const enableNFC: any = result[11];
-        const preferWideLens: any = result[12];
         this.enableNFC = enableNFC;
+        const preferWideLens: any = result[12];
+        const getDisableSpecialCharacters: any = result[13];
+        this.getDisableSpecialCharacters = getDisableSpecialCharacters
 
         // other computed parameters
         if (quantityType && quantityType == 'text') {
@@ -689,6 +693,12 @@ export class ScanProvider {
               return;
             }
 
+            // START Remove special characters (duplicated coede for the CONTINUE mode)
+            if (!this.getDisableSpecialCharacters) {
+              barcodeScanResult.text = barcodeScanResult.text.replace(/[^a-zA-Z0-9]/g, '');
+            }
+            // END Remove special characters (duplicated coede for the CONTINUE mode)
+
             // CODE_39 fix (there is a copy of this fix in the CONTINUE mode part, if you change this then you have to change also the other one )
             if (barcodeScanResult.text && barcodeScanResult.format == 'CODE_39' && this.barcodeFormats.findIndex(x => x.enabled && x.name == 'CODE_32') != -1) {
               barcodeScanResult.text = Utils.convertCode39ToCode32(barcodeScanResult.text);
@@ -744,6 +754,12 @@ export class ScanProvider {
                   this.lastReject();
                   return; // returns the promise executor function
                 }
+
+                // START Remove special characters (duplicated coede for the mixed mode)
+                if (!this.getDisableSpecialCharacters) {
+                  barcodeScanResult.text = barcodeScanResult.text.replace(/[^a-zA-Z0-9]/g, '');
+                }
+                // END Remove special characters (duplicated coede for the mixed mode)
 
                 // CODE_39 fix (there is a copy of this fix in the SINGLE mode part, if you change this then you have to change also the other one )
                 if (barcodeScanResult.text && barcodeScanResult.format == 'CODE_39' && this.barcodeFormats.findIndex(x => x.enabled && x.name == 'CODE_32') != -1) {

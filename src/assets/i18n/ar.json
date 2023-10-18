@@ -172,6 +172,7 @@
   "keepDisplayAlwaysOnLabel": "الحفاظ على الشاشة مضاءة دائمًا",
   "enableCameraBeepLabel": "تمكين صوت الكاميرا",
   "enableVibrationFeedbackLabel": "تمكين اهتزاز الهاتف",
+  "disableSpecialCharacters": "تعطيل الأحرف الخاصة",
   "openAppScanModeLabel": "فتح التطبيق في وضع المسح الضوئي",
   "limitBarcodeFormatsTitle": "تحديد صيغ الباركود",
   "limitBarcodeFormatsDescription": "استخدم هذا الإعداد لإبقاء الصيغ المدعومة لصيغ الباركود التي تم مسحها فقط. قد يحسن هذا الإعداد من سرعة المسح الضوئي والموثوقية العامة",

@@ -163,6 +163,11 @@
       <ion-toggle [(ngModel)]="enableVibrationFeedback"></ion-toggle>
     </ion-item>
 
+    <ion-item>
+      <ion-label color="dark">{{ 'disableSpecialCharacters' | translate }}</ion-label>
+      <ion-toggle [(ngModel)]="disableSpecialCharacters"></ion-toggle>
+    </ion-item>
+
     <ion-item no-lines>
       <ion-label color="dark">{{ 'continiousModeTimeoutLabel' | translate }}</ion-label>
       <ion-select [(ngModel)]="continueModeTimeout">

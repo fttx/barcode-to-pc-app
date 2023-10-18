@@ -43,6 +43,7 @@ export class SettingsPage {
   public alsoInverted = false;
   public enableNFC = true;
   public enableVibrationFeedback = true;
+  public disableSpecialCharacters = false;
   public openScanOnStart = false;
   public allowOutputTemplateSelection = true;
   private changesSaved = false;
@@ -183,6 +184,10 @@ export class SettingsPage {
       this.enableVibrationFeedback = enableVibrationFeedback;
     });
 
+    this.settings.getDisableSpecialCharacters().then(disableSpecialCharacters => {
+      this.disableSpecialCharacters = disableSpecialCharacters;
+    });
+
     this.settings.getOpenScanOnStart().then(openScanOnStart => {
       this.openScanOnStart = openScanOnStart;
     });
@@ -235,6 +240,7 @@ export class SettingsPage {
     this.settings.setAlsoInverted(this.alsoInverted);
     this.settings.setEnableNFC(this.enableNFC);
     this.settings.setEnableVibrationFeedback(this.enableVibrationFeedback);
+    this.settings.setDisableSpecialCharacters(this.disableSpecialCharacters);
     this.settings.setOpenScanOnStart(this.openScanOnStart);
     this.settings.setAllowOutputTemplateSelection(this.allowOutputTemplateSelection);
     this.settings.setBarcodeFormats(this.barcodeFormats);

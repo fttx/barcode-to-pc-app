@@ -172,6 +172,7 @@
   "keepDisplayAlwaysOnLabel": "Manter o ecrã sempre ligado",
   "enableCameraBeepLabel": "Ligar aviso sonoro da câmara",
   "enableVibrationFeedbackLabel": "Ativar vibrador",
+  "disableSpecialCharacters": "Desativar caracteres especiais",
   "openAppScanModeLabel": "Abrir a app em modo de leitura",
   "limitBarcodeFormatsTitle": "Escolher formatos de códigos de barras",
   "limitBarcodeFormatsDescription": "Use estas definições para escolher os formatos de códigos de barras que pretende ler. Pode melhorar a velocidade e a fiabilidade das leituras.",
