@@ -162,7 +162,7 @@ export class ScanProvider {
         this.enableNFC = enableNFC;
         const preferWideLens: any = result[12];
         const getDisableSpecialCharacters: any = result[13];
-        this.getDisableSpecialCharacters = getDisableSpecialCharacters
+        this.getDisableSpecialCharacters = getDisableSpecialCharacters;
 
         // other computed parameters
         if (quantityType && quantityType == 'text') {

@@ -61,6 +61,7 @@ export class Settings {
   private static ENABLE_REALTIME_SEND = 'enable_realtime_send';
   private static LAST_MISMATCH_VERSION = 'last_mismatch_version';
   private static ENABLE_NFC = 'enable_nfc';
+  private static SKIP_WIFI_CHECCK = 'skip_wifi_checck';
 
   constructor(
     public storage: Storage,
@@ -464,6 +465,14 @@ export class Settings {
 
   getEnableNFC(): Promise<boolean> {
     return this.storage.get(Settings.ENABLE_NFC).then(result => { return result === true });
+  }
+
+  setSkipWiFiCheck(skipWifiCheck: boolean) {
+    return this.storage.set(Settings.SKIP_WIFI_CHECCK, skipWifiCheck);
+  }
+
+  getSkipWiFiCheck(): Promise<boolean> {
+    return this.storage.get(Settings.SKIP_WIFI_CHECCK).then(result => { return result === true });
   }
 
   setEnableVibrationFeedback(enableVibrationFeedback: boolean) {

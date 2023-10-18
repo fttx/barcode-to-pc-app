@@ -73,7 +73,7 @@ export class ScanSessionsPage {
       if (offlineMode) this.connected = false;
     })
 
-    this.utils.askWiFiEnableIfDisabled();
+    if (!this.settings.getSkipWiFiCheck()) this.utils.askWiFiEnableIfDisabled();
     // christian@sennhauser-its.ch
     // if (!this.serverProvider.isConnected()) {
     //   this.utils.askWiFiEnableIfDisabled();

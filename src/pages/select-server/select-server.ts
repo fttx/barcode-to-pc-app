@@ -329,7 +329,7 @@ export class SelectServerPage {
         if (defaultServer != null) this.addServer(defaultServer, false, false);
         this.setSelectedServer(defaultServer);
       });
-      this.utils.askWiFiEnableIfDisabled();
+      if (!this.settings.getSkipWiFiCheck()) this.utils.askWiFiEnableIfDisabled();
     }
   }
 

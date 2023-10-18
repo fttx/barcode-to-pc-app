@@ -147,7 +147,7 @@ export class WelcomePage {
     this.showNext = !this.slider.isEnd();
     if (this.slider.isEnd()) {
       this.scheduleShowTroubleshootingDialog();
-      this.utils.askWiFiEnableIfDisabled();
+      if (!this.settings.getSkipWiFiCheck()) this.utils.askWiFiEnableIfDisabled();
     }
   }
 

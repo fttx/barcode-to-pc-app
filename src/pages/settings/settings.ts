@@ -42,6 +42,7 @@ export class SettingsPage {
   public enableBeep = true;
   public alsoInverted = false;
   public enableNFC = true;
+  public skipWifiCheck = false;
   public enableVibrationFeedback = true;
   public disableSpecialCharacters = false;
   public openScanOnStart = false;
@@ -180,6 +181,10 @@ export class SettingsPage {
       this.enableNFC = enableNFC;
     });
 
+    this.settings.getSkipWiFiCheck().then(skipWifiCheck => {
+      this.skipWifiCheck = skipWifiCheck;
+    });
+
     this.settings.getEnableVibrationFeedback().then(enableVibrationFeedback => {
       this.enableVibrationFeedback = enableVibrationFeedback;
     });
@@ -239,6 +244,7 @@ export class SettingsPage {
     this.settings.setEnableBeep(this.enableBeep);
     this.settings.setAlsoInverted(this.alsoInverted);
     this.settings.setEnableNFC(this.enableNFC);
+    this.settings.setSkipWiFiCheck(this.skipWifiCheck);
     this.settings.setEnableVibrationFeedback(this.enableVibrationFeedback);
     this.settings.setDisableSpecialCharacters(this.disableSpecialCharacters);
     this.settings.setOpenScanOnStart(this.openScanOnStart);
