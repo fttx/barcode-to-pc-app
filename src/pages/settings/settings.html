@@ -25,7 +25,7 @@
     </ion-list-header>
 
     <ion-item>
-      <ion-label color="dark">{{ 'scanModeLabel' | translate }}</ion-label>
+      <ion-label color="dark" text-wrap>{{ 'scanModeLabel' | translate }}</ion-label>
       <ion-select [(ngModel)]="scanMode" (ionChange)="allowOutputTemplateSelection = scanMode == '' ? true : allowOutputTemplateSelection">
         <ion-option *ngFor="let scanMode of getScanModeList()" [value]="scanMode">{{ getScanModeName(scanMode) }}
         </ion-option>
@@ -53,7 +53,7 @@
     </ion-item>
 
     <ion-item no-lines>
-      <ion-label color="dark">{{ 'acceptDuplicateBarcodes' | translate }}</ion-label>
+      <ion-label color="dark" text-wrap>{{ 'acceptDuplicateBarcodes' | translate }}</ion-label>
       <ion-select [(ngModel)]="duplicateBarcodeChoice">
         <ion-option *ngFor="let choice of ['ask', 'always_accept', 'discard_adjacent', 'discard_scan_session']" [value]="choice">{{ duplicateBarcodeChoiceName(choice) }}
         </ion-option>
@@ -65,17 +65,17 @@
     </ion-item>
 
     <ion-item>
-      <ion-label color="dark">{{ 'keepDisplayAlwaysOnLabel' | translate }}</ion-label>
+      <ion-label color="dark" text-wrap>{{ 'keepDisplayAlwaysOnLabel' | translate }}</ion-label>
       <ion-toggle [(ngModel)]="keepDisplayOn"></ion-toggle>
     </ion-item>
 
     <ion-item>
-      <ion-label color="dark">{{ 'openAppScanModeLabel' | translate }}</ion-label>
+      <ion-label color="dark" text-wrap>{{ 'openAppScanModeLabel' | translate }}</ion-label>
       <ion-toggle [(ngModel)]="openScanOnStart"></ion-toggle>
     </ion-item>
 
     <ion-item no-lines>
-      <ion-label color="dark">{{ 'repeatIntervalLabel' | translate }}</ion-label>
+      <ion-label color="dark" text-wrap>{{ 'repeatIntervalLabel' | translate }}</ion-label>
       <ion-select [(ngModel)]="repeatInterval">
         <ion-option *ngFor="let ms of availableRepeatIntervals" [value]="ms">{{ ms }}</ion-option>
       </ion-select>
@@ -87,7 +87,7 @@
     </ion-item>
 
     <ion-item>
-      <ion-label color="dark">{{ 'deviceNameLabel' | translate }}</ion-label>
+      <ion-label color="dark" text-wrap>{{ 'deviceNameLabel' | translate }}</ion-label>
       <ion-input [(ngModel)]="deviceName" [placeholder]="'deviceNameLabelPlaceholder' | translate" text-right>{{ deviceName }}</ion-input>
     </ion-item>
 
@@ -96,7 +96,7 @@
     </ion-list-header>
 
     <ion-item no-lines>
-      <ion-label color="dark">{{ 'scanSessionNameLabel' | translate }}</ion-label>
+      <ion-label color="dark" text-wrap>{{ 'scanSessionNameLabel' | translate }}</ion-label>
 
       <ion-input [(ngModel)]="scanSessionName" [placeholder]="'scanSessionNameInputPlaceholder' | translate" text-right>
         {{ scanSessionName }}</ion-input>
@@ -109,7 +109,7 @@
     </ion-item>
 
     <ion-item no-lines>
-      <ion-label color="dark">{{ 'scanSessionFilterLabel' | translate }}</ion-label>
+      <ion-label color="dark" text-wrap>{{ 'scanSessionFilterLabel' | translate }}</ion-label>
 
       <ion-input [(ngModel)]="scanSessionFilter" [placeholder]="'scanSessionFilterInputPlaceholder' | translate" text-right>
         {{ scanSessionFilter }}</ion-input>
@@ -139,37 +139,37 @@
     </ion-list-header>
 
     <ion-item>
-      <ion-label color="dark">{{ 'preferFrontCameraLabel' | translate }}</ion-label>
+      <ion-label color="dark" text-wrap>{{ 'preferFrontCameraLabel' | translate }}</ion-label>
       <ion-toggle [(ngModel)]="preferFrontCamera"></ion-toggle>
     </ion-item>
 
     <ion-item [hidden]="platform.is('android')">
-      <ion-label color="dark">{{ 'preferWideLensLabel' | translate }}</ion-label>
+      <ion-label color="dark" text-wrap>{{ 'preferWideLensLabel' | translate }}</ion-label>
       <ion-toggle [(ngModel)]="preferWideLens"></ion-toggle>
     </ion-item>
 
     <ion-item [hidden]="platform.is('ios')">
-      <ion-label color="dark">{{ 'turnTorchOnLabel' | translate }}</ion-label>
+      <ion-label color="dark" text-wrap>{{ 'turnTorchOnLabel' | translate }}</ion-label>
       <ion-toggle [(ngModel)]="torchOn"></ion-toggle>
     </ion-item>
 
     <ion-item>
-      <ion-label color="dark">{{ 'enableCameraBeepLabel' | translate }}</ion-label>
+      <ion-label color="dark" text-wrap>{{ 'enableCameraBeepLabel' | translate }}</ion-label>
       <ion-toggle [(ngModel)]="enableBeep"></ion-toggle>
     </ion-item>
 
     <ion-item [hidden]="platform.is('ios')">
-      <ion-label color="dark">{{ 'enableVibrationFeedbackLabel' | translate }}</ion-label>
+      <ion-label color="dark" text-wrap>{{ 'enableVibrationFeedbackLabel' | translate }}</ion-label>
       <ion-toggle [(ngModel)]="enableVibrationFeedback"></ion-toggle>
     </ion-item>
 
     <ion-item>
-      <ion-label color="dark">{{ 'disableSpecialCharacters' | translate }}</ion-label>
+      <ion-label color="dark" text-wrap>{{ 'disableSpecialCharacters' | translate }}</ion-label>
       <ion-toggle [(ngModel)]="disableSpecialCharacters"></ion-toggle>
     </ion-item>
 
     <ion-item no-lines>
-      <ion-label color="dark">{{ 'continiousModeTimeoutLabel' | translate }}</ion-label>
+      <ion-label color="dark" text-wrap>{{ 'continiousModeTimeoutLabel' | translate }}</ion-label>
       <ion-select [(ngModel)]="continueModeTimeout">
         <ion-option *ngFor="let second of availableContinueModeTimeouts" [value]="second">{{ second }}</ion-option>
       </ion-select>
@@ -229,7 +229,7 @@
         Barcode formats
       </ion-item-divider> -->
       <ion-item *ngFor="let barcodeFormat of barcodeFormats">
-        <ion-label color="dark">{{ barcodeFormat.name }}</ion-label>
+        <ion-label color="dark" text-wrap>{{ barcodeFormat.name }}</ion-label>
         <ion-toggle [(ngModel)]="barcodeFormat.enabled"></ion-toggle>
       </ion-item>
     </div>

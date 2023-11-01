@@ -21,22 +21,22 @@
 
   <ion-list>
     <ion-item>
-      <ion-label>{{ 'appVersionLabel' | translate }}</ion-label>
+      <ion-label text-wrap>{{ 'appVersionLabel' | translate }}</ion-label>
       <div item-content>v{{ version }}</div>
     </ion-item>
 
     <ion-item>
-      <ion-label>{{ 'websiteLabel' | translate }}</ion-label>
+      <ion-label text-wrap>{{ 'websiteLabel' | translate }}</ion-label>
       <a item-content (click)="onWebSiteClick()">{{ websiteName }}</a>
     </ion-item>
 
     <ion-item>
-      <ion-label>{{ 'supportEmailLabel' | translate }}</ion-label>
+      <ion-label text-wrap>{{ 'supportEmailLabel' | translate }}</ion-label>
       <a item-content (click)="onContactSupportClick()">{{ getSupportEmail() }}</a>
     </ion-item>
 
     <ion-item>
-      <ion-label>{{ 'moreBarcodeApps' | translate }}</ion-label>
+      <ion-label text-wrap>{{ 'moreBarcodeApps' | translate }}</ion-label>
       <a item-content (click)="onBarcodeByteClick()">{{ barcodebyteName }}</a>
     </ion-item>
   </ion-list>

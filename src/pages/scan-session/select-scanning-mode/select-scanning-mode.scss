@@ -36,7 +36,7 @@ page-select-scanning-mode {
 
     .btn-mode p {
         padding: 0;
-        margin-top: 1.5rem;
+        margin-top: .9rem;
     }
 
     .btn-mode * {
@@ -50,7 +50,8 @@ page-select-scanning-mode {
     }
 
     .btn-description {
-        line-height: 1rem;
+        line-height: 1.5rem;
+        text-wrap: wrap;
     }
 
     @media (min-width: 414px) and (orientation: landscape)
