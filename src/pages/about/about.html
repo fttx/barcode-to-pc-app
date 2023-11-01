@@ -9,6 +9,16 @@
 </ion-header>
 
 <ion-content>
+
+  <img src="assets/welcome/a5fsa.jpg" alt="logo" class="app-icon" />
+
+  <h1 text-center>
+    {{ 'appName' | translate }}
+  </h1>
+
+  <br>
+  <br>
+
   <ion-list>
     <ion-item>
       <ion-label>{{ 'appVersionLabel' | translate }}</ion-label>
@@ -20,10 +30,23 @@
       <a item-content (click)="onWebSiteClick()">{{ websiteName }}</a>
     </ion-item>
 
-
     <ion-item>
       <ion-label>{{ 'supportEmailLabel' | translate }}</ion-label>
       <a item-content (click)="onContactSupportClick()">{{ getSupportEmail() }}</a>
     </ion-item>
+
+    <ion-item>
+      <ion-label>{{ 'moreBarcodeApps' | translate }}</ion-label>
+      <a item-content (click)="onBarcodeByteClick()">{{ barcodebyteName }}</a>
+    </ion-item>
   </ion-list>
+
 </ion-content>
+
+<ion-footer>
+  <ion-toolbar (click)="onBarcodeByteClick()">
+    <ion-title>
+      <img src="assets/about/powered_by.png" alt="powered_by">
+    </ion-title>
+  </ion-toolbar>
+</ion-footer>

@@ -11,6 +11,7 @@ export class Config {
   public static DEBUG = false;
 
   public static URL_WEBSITE = 'https://barcodetopc.com/';
+  public static URL_BARCODEBYTE = 'https://barcodebyte.com/';
   public static URL_INSTRUCTIONS = 'https://barcodetopc.com/frequently-asked-questions/#app-doesnt-find-computer';
   public static URL_FAQ = 'https://barcodetopc.com/frequently-asked-questions/';
   public static URL_GITHUB_CHANGELOG = 'https://raw.githubusercontent.com/fttx/barcode-to-pc-server/master/CHANGELOG.md';
@@ -20,6 +21,7 @@ export class Config {
 
   public static SERVER_PORT = 57891;
   public static WEBSITE_NAME = 'barcodetopc.com';
+  public static BARCODEBYTE_NAME = 'barcodebyte.com';
   public static EMAIL_SUPPORT = 'support@barcodetopc.com';
   public static DEFAULT_CONTINUE_MODE_TIMEOUT = 0;
   public static NO_RUNNINGS_BEFORE_SHOW_RATING = 5;

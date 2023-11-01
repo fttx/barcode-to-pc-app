@@ -10,6 +10,7 @@ import { Config } from '../../providers/config';
 })
 export class AboutPage {
   public websiteName = Config.WEBSITE_NAME;
+  public barcodebyteName = Config.BARCODEBYTE_NAME;
   public version = "";
 
   constructor(
@@ -36,5 +37,9 @@ export class AboutPage {
 
   getSupportEmail() {
     return Config.EMAIL_SUPPORT;
+  }
+
+  onBarcodeByteClick() {
+    this.iab.create(Config.URL_BARCODEBYTE, '_system');
   }
 }

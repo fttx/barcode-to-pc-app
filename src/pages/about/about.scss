@@ -2,4 +2,27 @@ page-about {
     ion-label {
         color: #999999;
     }
+
+    .app-icon {
+      max-width: 60vw;
+      max-height: 128px;
+      margin: 40px auto 20px auto;
+      display: block;
+    }
+
+    ion-footer, ion-footer * {
+      background-color: #1d2135 !important;
+      padding: 0 !important;
+      margin: 0 !important;
+    }
+
+    ion-footer {
+      height: 60px;
+    }
+
+    ion-footer img {
+      height: 20px;
+      margin: 20px auto !important;
+      display: block;;
+    }
 }
