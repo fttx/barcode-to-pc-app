@@ -63,7 +63,7 @@ export class MyApp {
           document.documentElement.setAttribute('dir', 'ltr');
         }
       });
-      this.translate.addLangs(['es', 'pt', 'ar']);
+      this.translate.addLangs(['es', 'pt', 'ar', 'it']);
       const lang = this.translate.getBrowserLang();
       if (lang !== undefined && this.translate.getLangs().indexOf(lang) != -1) {
         this.translate.use(lang);
