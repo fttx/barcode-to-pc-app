@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget android-versionCode="150" id="com.barcodetopc" version="4.5.0" xmlns="http://www.w3.org/ns/widgets" xmlns:android="http://schemas.android.com/apk/res/android" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+<widget android-versionCode="152" id="com.barcodetopc" version="4.6.0" xmlns="http://www.w3.org/ns/widgets" xmlns:android="http://schemas.android.com/apk/res/android" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <name>Barcode to PC</name>
     <description>Turn your smartphone in a real barcode scanner</description>
     <author email="filippo.tortomasi@gmail.com" href="https://github.com/fttx">Filippo Tortomasi</author>
@@ -16,8 +16,8 @@
     <preference name="UIWebViewBounce" value="false" />
     <preference name="DisallowOverscroll" value="true" />
     <preference name="android-minSdkVersion" value="21" />
-    <preference name="android-targetSdkVersion" value="31" />
-    <preference name="android-compileSdkVersion" value="31" />
+    <preference name="android-targetSdkVersion" value="33" />
+    <preference name="android-compileSdkVersion" value="33" />
     <preference name="BackupWebStorage" value="none" />
     <preference name="HeaderColor" value="#B71C1C" />
     <preference name="StatusBarBackgroundColor" value="#B71C1C" />
@@ -46,7 +46,9 @@
         <preference name="AndroidWindowSplashScreenAnimatedIcon" value="resources/android/splash/splash.png" />
         <preference name="AndroidWindowSplashScreenAnimationDuration" value="400" />
         <preference name="AndroidWindowSplashScreenBackground" value="#B71C1C" />
-        <hook src="hooks/android/after_prepare.js" type="after_prepare" />
+        <preference name="AndroidPersistentFileLocation" value="Compatibility" />
+        <hook src="hooks/android/after_prepare_add_android_exported.js" type="after_prepare" />
+        <hook src="hooks/android/after_prepare_remove_duplicated_write_external.js" type="after_prepare" />
         <hook src="hooks/android/after_build.js" type="after_build" />
     </platform>
     <platform name="ios">
@@ -133,4 +135,5 @@
     <allow-navigation href="http://localhost:8100" sessionid="7f783d98" />
     <allow-navigation href="http://192.168.43.57:8100" sessionid="bcc13cbd" />
     <allow-navigation href="http://192.168.0.9:8100" sessionid="204c1500" />
+    <allow-navigation href="http://192.168.0.29:8100" sessionid="bc162a62" />
 </widget>

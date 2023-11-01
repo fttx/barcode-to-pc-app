@@ -8,13 +8,13 @@
 [1mCordova:[22m
 
    Cordova CLI       : [2m11.1.0[22m
-   Cordova Platforms : [2mandroid 11.0.0, ios 6.3.0[22m
+   Cordova Platforms : [2mandroid 12.0.1[22m
    Cordova Plugins   : [2mcordova-plugin-ionic-keyboard 2.2.0, cordova-plugin-ionic-webview 4.2.0, (and 21 other plugins)[22m
 
 [1mUtility:[22m
 
    cordova-res                          : [2m0.15.4[22m
-   native-run [2m(update available: [32m1.7.2[39m)[22m : [2m1.5.0[22m
+   native-run [2m(update available: [32m2.0.0[39m)[22m : [2m1.5.0[22m
 
 [1mSystem:[22m
 
@@ -24,5 +24,5 @@
    NodeJS            : [2mv14.17.6[22m [2m(/Users/filippo/.nvm/versions/node/v14.17.6/bin/node)[22m
    npm               : [2m8.5.5[22m
    OS                : [2mmacOS[22m
-   Xcode             : [2mXcode 14.3 Build version 14E222b[22m
+   Xcode             : [2mXcode 15.0.1 Build version 15A507[22m
 
