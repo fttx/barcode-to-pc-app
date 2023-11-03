@@ -694,7 +694,7 @@ export class ScanProvider {
             }
 
             // START Remove special characters (duplicated coede for the CONTINUE mode)
-            if (!this.getDisableSpecialCharacters) {
+            if (this.getDisableSpecialCharacters) {
               barcodeScanResult.text = barcodeScanResult.text.replace(/[^a-zA-Z0-9]/g, '');
             }
             // END Remove special characters (duplicated coede for the CONTINUE mode)
@@ -756,7 +756,7 @@ export class ScanProvider {
                 }
 
                 // START Remove special characters (duplicated coede for the mixed mode)
-                if (!this.getDisableSpecialCharacters) {
+                if (this.getDisableSpecialCharacters) {
                   barcodeScanResult.text = barcodeScanResult.text.replace(/[^a-zA-Z0-9]/g, '');
                 }
                 // END Remove special characters (duplicated coede for the mixed mode)
