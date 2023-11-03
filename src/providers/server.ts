@@ -220,6 +220,7 @@ export class ServerProvider {
 
         if (heloResponse.outputProfiles) {
           this.settings.setOutputProfiles(heloResponse.outputProfiles);
+          this.settings.setSavedGeoLocations(heloResponse.savedGeoLocations);
         } else {
           // deprecated
           this.settings.setQuantityEnabled(heloResponse.quantityEnabled);
@@ -263,6 +264,7 @@ export class ServerProvider {
       } else if (messageData.action == responseModel.ACTION_UPDATE_SETTINGS) {
         let responseModelUpdateSettings: responseModelUpdateSettings = messageData;
         await this.settings.setOutputProfiles(responseModelUpdateSettings.outputProfiles);
+        await this.settings.setSavedGeoLocations(responseModelUpdateSettings.savedGeoLocations);
         this.events.publish(responseModel.ACTION_UPDATE_SETTINGS, responseModelUpdateSettings);
       } else if (messageData.action == responseModel.ACTION_GET_VERSION) {
         // fallBack for old server versions

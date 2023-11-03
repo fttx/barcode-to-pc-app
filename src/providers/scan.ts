@@ -24,6 +24,7 @@ import { ServerProvider } from './server';
 import { Settings } from './settings';
 import { AlertButtonType, BarcodeScanResultExtended, BarcodeScannerOptionsExtended, Utils } from './utils';
 import { Camera, CameraOptions } from '@ionic-native/camera';
+import { Geolocation, Geoposition } from '@ionic-native/geolocation';
 
 /**
  * The job of this class is to generate a ScanModel by talking with the native
@@ -86,6 +87,7 @@ export class ScanProvider {
     private lastToast: LastToastProvider,
     private nfc: NFC, private ndef: Ndef,
     private camera: Camera,
+    private geolocation: Geolocation,
   ) {
     this.events.subscribe(responseModel.ACTION_UPDATE_SETTINGS, async (responseModelUpdateSettings: responseModelUpdateSettings) => {
       this.outputProfile = responseModelUpdateSettings.outputProfiles[this.outputProfileIndex];
@@ -172,6 +174,10 @@ export class ScanProvider {
         } else {
           this.quantityType = 'number';
         }
+
+        // Prefech geolocation
+        if (this.outputProfile.outputBlocks.filter(x => x.type == 'geolocation').length != 0) { try { this.geolocation.getCurrentPosition({ timeout: 1000 * 120, enableHighAccuracy: true }); } catch { } }
+
         switch (scanMode) {
           case SelectScanningModePage.SCAN_MODE_ENTER_MAUALLY: this.acqusitionMode = 'manual'; break;
           case SelectScanningModePage.SCAN_MODE_SINGLE: this.acqusitionMode = 'single'; break;
@@ -319,7 +325,10 @@ export class ScanProvider {
             run: null,
             csv_lookup: null,
             csv_update: null,
+            google_sheets: null,
             javascript_function: null,
+            static_text: null,
+            geolocation: null,
           }
 
           // run the OutputProfile
@@ -336,10 +345,12 @@ export class ScanProvider {
             if (outputBlock.outputImagePath) outputBlock.outputImagePath = await this.utils.supplant(outputBlock.outputImagePath, variables);
 
             switch (outputBlock.type) {
-              // some components like 'key' and 'text', do not need any processing from the
-              // app side, so we just skip them
+              // some components like 'key', do not need any processing from the app side, so we just skip them
               case 'key': break;
-              case 'text': break;
+              case 'text': {
+                variables.static_text = outputBlock.value;
+                break;
+              }
               // while other components like 'variable' need to be filled with data,
               // here, at the smartphone side.
               case 'variable': {
@@ -597,8 +608,44 @@ export class ScanProvider {
                   case 'ok': { break; }
                 }
                 break;
-              } // end MESSAGE component
-
+              } // end ALERT component
+              case 'text': {
+                // This refers to the STATIC_TEXT component
+                // The the TEXT component, instead, is under the 'variable' type and then 'text' name.
+                variables.static_text = outputBlock.value;
+                break;
+              }
+              case 'geolocation': {
+                try {
+                  this.keyboardInput.lock(await this.utils.text('geolocationAcquiringLock'));
+                  const result = await this.geolocation.getCurrentPosition({ maximumAge: 1000 * 60 * 3, timeout: 1000 * 60, enableHighAccuracy: true });
+                  outputBlock.value = result.coords.latitude + ',' + result.coords.longitude;
+                  variables.geolocation = outputBlock.value;
+                  const locations = await this.settings.getSavedGeoLocations();
+                  // check if there are saved locations and associate the detected location to the nearest one
+                  if (locations) {
+                    let nearestLocation = null;
+                    let nearestDistance = null;
+                    for (const location of locations) {
+                      const distance = Utils.getDistanceFromLatLonInKm(result.coords.latitude, result.coords.longitude, location.latitude, location.longitude);
+                      if (nearestDistance == null || distance < nearestDistance) {
+                        nearestDistance = distance;
+                        nearestLocation = location;
+                      }
+                    }
+                    if (nearestLocation != null && nearestDistance <= outputBlock.maxDistanceFromSavedLocation) {
+                      outputBlock.value = nearestLocation.name;
+                      variables.geolocation = outputBlock.value;
+                    }
+                  }
+                } catch (error) {
+                  this.lastToast.present(await this.utils.text('geolocationErrorToast'), 1500, 'bottom');
+                  outputBlock.value = 0 + ',' + 0;
+                  variables.geolocation = outputBlock.value;
+                }
+                this.keyboardInput.unlock();
+                break;
+              }
             } // switch outputBlock.type
           } // for
 
@@ -672,6 +719,8 @@ export class ScanProvider {
   private getBarcode(scanCallId: number, label = null, filter = null, errorMessage = null): Promise<string> {
     this.awaitingForBarcode = true;
 
+    // Prefech geolocation
+    if (this.outputProfile.outputBlocks.filter(x => x.type == 'geolocation').length != 0) { try { this.geolocation.getCurrentPosition({ timeout: 1000 * 120, enableHighAccuracy: true }); } catch { } }
     let promise = new Promise<string>((resolve, reject) => {
       let again = async (showFilterError = false) => {
         if (scanCallId != this._scanCallId) {
@@ -1254,7 +1303,7 @@ export class ScanProvider {
     return Math.floor(Math.random() * Math.floor(max));
   }
 
-  private showQRBillDialog():Promise<void> {
+  private showQRBillDialog(): Promise<void> {
     return new Promise(async (resolve, reject) => {
       if (await this.settings.getQRBillDialogShown()) {
         resolve();

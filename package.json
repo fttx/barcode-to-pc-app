@@ -28,6 +28,7 @@
     "@ionic-native/device": "4.5.0",
     "@ionic-native/file": "^4.20.0",
     "@ionic-native/firebase-analytics": "^4.20.0",
+    "@ionic-native/geolocation": "^4.20.0",
     "@ionic-native/header-color": "4.5.0",
     "@ionic-native/in-app-browser": "^5.29.0",
     "@ionic-native/insomnia": "^4.20.0",
@@ -97,6 +98,7 @@
     "cordova-android": "^12.0.1",
     "cordova-plugin-camera": "^7.0.0",
     "cordova-plugin-file": "^8.0.0",
+    "cordova-plugin-geolocation": "^5.0.0",
     "cordova-plugin-ionic-webview": "^5.0.1",
     "dotenv": "^16.0.3",
     "typescript": "~2.6.2"
@@ -152,7 +154,11 @@
       "cordova-plugin-camera": {
         "ANDROIDX_CORE_VERSION": "1.6.+"
       },
-      "cordova-plugin-ionic-webview": {}
+      "cordova-plugin-ionic-webview": {},
+      "cordova-plugin-geolocation": {
+        "GEOLOCATION_USAGE_DESCRIPTION": "to save the location of the acquired barcodes",
+        "GPS_REQUIRED": "false"
+      }
     },
     "platforms": [
       "ios",

@@ -62,6 +62,7 @@ export class Settings {
   private static LAST_MISMATCH_VERSION = 'last_mismatch_version';
   private static ENABLE_NFC = 'enable_nfc';
   private static SKIP_WIFI_CHECCK = 'skip_wifi_checck';
+  private static SAVED_GEOLOCATIONS = 'saved_geolocations';
 
   constructor(
     public storage: Storage,
@@ -536,6 +537,14 @@ export class Settings {
         resolve(outputProfiles);
       }
     })
+  }
+
+  setSavedGeoLocations(savedGeoLocations: { name: string, latitude: number, longitude: number }[]) {
+    return this.storage.set(Settings.SAVED_GEOLOCATIONS, savedGeoLocations);
+  }
+
+  getSavedGeoLocations(): Promise<{ name: string, latitude: number, longitude: number }[]> {
+    return this.storage.get(Settings.SAVED_GEOLOCATIONS);
   }
 
   setSelectedOutputProfile(selectedOutputProfile: number) {

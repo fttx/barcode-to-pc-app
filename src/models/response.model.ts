@@ -41,19 +41,21 @@ export class responseModelHelo extends responseModel {
     outputProfiles: OutputProfileModel[];
     events: string[];
     serverUUID: string;
+    savedGeoLocations: { name: string, latitude: number, longitude: number }[];
 
     /**
      * @deprecated Use OutputProfiles instead
      */
     quantityEnabled: boolean;
 
-    public fromObject(obj: ({ version: string, outputProfiles: OutputProfileModel[], quantityEnabled: boolean, events: string[], serverUUID:string })) {
+    public fromObject(obj: ({ version: string, outputProfiles: OutputProfileModel[], quantityEnabled: boolean, events: string[], serverUUID:string, savedGeoLocations: { name: string, latitude: number, longitude: number }[] })) {
         this.outputProfiles = obj.outputProfiles;
         if (obj.events) {
             this.events = obj.events;
         } else {
             this.events = [];
         }
+        this.savedGeoLocations = obj.savedGeoLocations || [];
         this.version = obj.version;
         this.outputProfiles = obj.outputProfiles;
         this.quantityEnabled = obj.quantityEnabled;
@@ -117,14 +119,16 @@ export class responseModelUpdateSettings extends responseModel {
     // Warning: these same settings are also communicated in the HELO response
     outputProfiles: OutputProfileModel[];
     events: string[];
+    savedGeoLocations: { name: string, latitude: number, longitude: number }[];
 
-    public fromObject(obj: ({ outputProfiles: OutputProfileModel[], events: string[] })) {
+    public fromObject(obj: ({ outputProfiles: OutputProfileModel[], events: string[], savedGeoLocations: { name: string, latitude: number, longitude: number }[] })) {
         this.outputProfiles = obj.outputProfiles;
         if (obj.events) {
             this.events = obj.events;
         } else {
             this.events = [];
         }
+        this.savedGeoLocations = obj.savedGeoLocations || [];
         return this;
     }
 }

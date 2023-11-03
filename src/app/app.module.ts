@@ -47,6 +47,7 @@ import { Utils } from '../providers/utils';
 import { MyApp } from './app.component';
 import { Ndef, NFC } from '@ionic-native/nfc';
 import { PhotoViewer } from '@ionic-native/photo-viewer';
+import { Geolocation } from '@ionic-native/geolocation';
 
 // Modules
 // Ionic-native
@@ -126,6 +127,7 @@ import { PhotoViewer } from '@ionic-native/photo-viewer';
     NetworkInterface,
     NFC,
     PhotoViewer,
+    Geolocation,
     Ndef,
     Network,
     NativeAudio,
