@@ -1,3 +1,4 @@
+import { AlertButtonType } from "../providers/utils";
 import { NutjsKey } from "./nutjs-key.model";
 /**
  * It's an element of the Output template field.
@@ -179,6 +180,8 @@ export class OutputBlockModel {
     alertDiscardScanButton?: string;
     alertScanAgainButton?: string;
     alertOkButton?: string;
+    alertTimeout?: number;
+    alertDefaultAction?:  'ok' | 'scan_again';
 
     /**
      * Parameters for RUN and HTTP component
@@ -207,9 +210,10 @@ export class OutputBlockModel {
     imageHd?: boolean;
     outputImagePath?: string;
 
+
     /**
-    * Parameter for the GEOLOCATION component
-    */
+     * Parameter for the GEOLOCATION component
+     */
     outputMode?: 'coordinates' | 'savedLocation';
     maxDistanceFromSavedLocation?: number; // meters
 
