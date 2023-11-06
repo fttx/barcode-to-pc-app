@@ -35,6 +35,7 @@ export class ScanSessionsPage {
   private clickDisabled = false;
   private reconnectDialog = null;
   private unregisterBackButton = null;
+  private ratingDialogShown = false;
 
   constructor(
     public navCtrl: NavController,
@@ -164,12 +165,13 @@ export class ScanSessionsPage {
 
       // Rating dialog
       BluebirdPromise.join(this.settings.getNoRunnings(), this.settings.getRated(), async (runnings, rated) => {
-        if (runnings >= Config.NO_RUNNINGS_BEFORE_SHOW_RATING && !rated && !this.serverProvider.catchUpIOSLag) {
+        if (!this.ratingDialogShown && runnings >= Config.NO_RUNNINGS_BEFORE_SHOW_RATING && !rated && !this.serverProvider.catchUpIOSLag) {
           // rating = In app native rating (iOS 10.3+ only)
           // launch = Android and iOS 10.3-
           if (this.launchReview.isRatingSupported()) {
             // show native rating dialog
             this.launchReview.rating().then(result => {
+              this.ratingDialogShown = true;
               if (result === "dismissed") {
                 this.settings.setRated(true);
               }
