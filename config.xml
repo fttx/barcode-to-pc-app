@@ -3,7 +3,7 @@
     <name>Barcode to PC</name>
     <description>Turn your smartphone in a real barcode scanner</description>
     <author email="filippo.tortomasi@gmail.com" href="https://github.com/fttx">Filippo Tortomasi</author>
-    <content src="index.html" />
+    <content original-src="index.html" src="http://localhost:8100" />
     <access origin="*" />
     <allow-navigation href="*" />
     <allow-intent href="http://*/*" />

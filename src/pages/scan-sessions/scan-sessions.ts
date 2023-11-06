@@ -17,6 +17,7 @@ import { SelectServerPage } from '../select-server/select-server';
 import { Settings } from './../../providers/settings';
 import { Device } from '@ionic-native/device';
 import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
+import moment from 'moment';
 
 @Component({
   selector: 'page-scannings',
@@ -33,7 +34,7 @@ export class ScanSessionsPage {
   private isWatching = false;
   private preventClickTimeout = null;
   private clickDisabled = false;
-  private reconnectDialog = null;
+
   private unregisterBackButton = null;
   private ratingDialogShown = false;
 
@@ -52,6 +53,7 @@ export class ScanSessionsPage {
     private iab: InAppBrowser
   ) { }
 
+  private didRedirect = false;
   async ionViewDidEnter() {
     this.isWatching = false;
     this.serverProvider.stopWatchForServers();
@@ -60,6 +62,17 @@ export class ScanSessionsPage {
 
     this.scanSessionsStorage.getScanSessions().then(data => {
       this.scanSessions = data;
+      if (!this.didRedirect)
+      this.settings.getOpenScanOnStart().then(async openScanOnStart => {
+        if (openScanOnStart) {
+          if (this.scanSessions.length && this.scanSessions[0].name == await this.getDefaultName()) {
+            this.navCtrl.push(ScanSessionPage, { scanSession: this.scanSessions[0] });
+          } else {
+            this.navCtrl.push(ScanSessionPage);
+          }
+          this.didRedirect = true;
+        }
+      });
     });
 
     // PDA Dialog
@@ -107,9 +120,9 @@ export class ScanSessionsPage {
 
     if (!this.settings.getSkipWiFiCheck()) this.utils.askWiFiEnableIfDisabled();
     // christian@sennhauser-its.ch
-    // if (!this.serverProvider.isConnected()) {
-    //   this.utils.askWiFiEnableIfDisabled();
-    // }
+    if (!this.serverProvider.isConnected()) {
+      this.utils.askWiFiEnableIfDisabled();
+    }
 
     this.onDisconnectSubscription = this.serverProvider.onDisconnect().subscribe(() => {
       this.connected = false;
@@ -129,10 +142,6 @@ export class ScanSessionsPage {
       this.everConnected = true;
       this.serverProvider.stopWatchForServers();
       this.isWatching = false;
-      if (this.reconnectDialog) {
-        this.reconnectDialog.dismiss();
-        this.reconnectDialog = null;
-      }
 
       // // Detect unsynced scan sessions
       // let affectedIndexes = [];
@@ -163,41 +172,6 @@ export class ScanSessionsPage {
       // }
 
 
-      // Rating dialog
-      BluebirdPromise.join(this.settings.getNoRunnings(), this.settings.getRated(), async (runnings, rated) => {
-        if (!this.ratingDialogShown && runnings >= Config.NO_RUNNINGS_BEFORE_SHOW_RATING && !rated && !this.serverProvider.catchUpIOSLag) {
-          // rating = In app native rating (iOS 10.3+ only)
-          // launch = Android and iOS 10.3-
-          if (this.launchReview.isRatingSupported()) {
-            // show native rating dialog
-            this.launchReview.rating().then(result => {
-              this.ratingDialogShown = true;
-              if (result === "dismissed") {
-                this.settings.setRated(true);
-              }
-            });
-          } else {
-            this.alertCtrl.create({
-              title: await this.utils.text('rateBarcodeToPcDialogTitle', {
-                "appName": await this.utils.text('appName'),
-              }),
-              message: await this.utils.text('rateBarcodeToPcDialogMessage', {
-                "appName": await this.utils.text('appName'),
-              }),
-              buttons: [
-                { text: await this.utils.text('rateBarcodeToPcDialogremindMeLaterButton'), role: 'cancel' },
-                { text: await this.utils.text('rateBarcodeToPcDialogNoButton'), handler: () => { this.settings.setRated(true); } }, {
-                  text: await this.utils.text('rateBarcodeToPcDialogRateButton'),
-                  handler: () => {
-                    this.launchReview.launch().then(() => {
-                      this.settings.setRated(true);
-                    })
-                  }
-                }]
-            }).present();
-          }
-        }
-      });
     });
 
     this.reconnect();
@@ -227,35 +201,20 @@ export class ScanSessionsPage {
           // later, this way it has enough time to connect to it before prompting
           // the user.
           if (this.serverProvider.isConnected()) return;
-          if (this.reconnectDialog == null) {
-            this.reconnectDialog = this.alertCtrl.create({
-              title: await this.utils.text('reconnectDialogTitle'),
-              message: await this.utils.text('reconnectDialogMessage', { "defaultServerName": defaultServer.name, "defaultServerAddress": defaultServer.getAddress(), "discoveryServerAddress": discoveryResult.server.getAddress() }),
-              buttons: [{ text: await this.utils.text('reconnectDialogNoButton'), role: 'cancel', handler: () => { this.reconnectDialog = null; } }, {
-                text: await this.utils.text('reconnectDialogReconnectButton'),
-                handler: () => {
-                  this.settings.setDefaultServer(discoveryResult.server); // override the defaultServer
-                  this.settings.getSavedServers().then(savedServers => {
-                    this.settings.setSavedServers(
-                      savedServers
-                        .filter(x => x.name != discoveryResult.server.name) // remove the old server
-                        .concat(discoveryResult.server)) // add a new one
-                  });
-                  this.serverProvider.connect(discoveryResult.server, true);
-                  this.reconnectDialog = null;
-                }
-              }],
-              enableBackdropDismiss: false,
+            this.settings.setDefaultServer(discoveryResult.server); // override the defaultServer
+            this.settings.getSavedServers().then(savedServers => {
+              this.settings.setSavedServers(
+                savedServers
+                  .filter(x => x.name != discoveryResult.server.name) // remove the old server
+                  .concat(discoveryResult.server)) // add a new one
             });
-            this.reconnectDialog.present();
-          }
+            this.serverProvider.connect(discoveryResult.server, true);
         }, 5000);
       } else if (defaultServer == null || (defaultServer.name == discoveryResult.server.name && defaultServer.getAddress() == discoveryResult.server.getAddress() && this.everConnected)) {
         // if the server was closed and open again => reconnect whitout asking
         this.serverProvider.connect(discoveryResult.server, true);
       }
     }); // END watchForServers()
-
     if (this.serverProvider.isConnected()) {
       // It may happen that the connection is already established from another
       // page, eg. WelcomePage
@@ -367,9 +326,20 @@ export class ScanSessionsPage {
   }
 
   // ScanSessions.OnAddClick() -> ScanSession.GetScanMode()
-  onAddClick() {
-    this.navCtrl.push(ScanSessionPage);
+  async onAddClick() {
+    if (this.scanSessions.length && this.scanSessions[0].name == await this.getDefaultName()) {
+      this.navCtrl.push(ScanSessionPage, { scanSession: this.scanSessions[0] });
+    } else {
+      this.navCtrl.push(ScanSessionPage);
+    }
   }
+
+  async getDefaultName() {
+    return await this.utils.supplant(await this.settings.getScanSessionName(), {
+      custom: moment().format('YYYY-MM-DD')
+    });
+  }
+
 
   onArchiveSelectedClick() {
     this.scanSessions = this.scanSessions.filter(x => !x.selected);

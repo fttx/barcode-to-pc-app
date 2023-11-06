@@ -7,7 +7,7 @@ import { NativeAudio } from '@ionic-native/native-audio';
 import { NFC } from '@ionic-native/nfc';
 import { SocialSharing } from '@ionic-native/social-sharing';
 import { Promise as BluebirdPromise } from 'bluebird';
-import { ActionSheetController, AlertController, Events, ModalController, NavController, NavParams, Platform } from 'ionic-angular';
+import { ActionSheetController, AlertController, Events, MenuController, ModalController, NavController, NavParams, Platform } from 'ionic-angular';
 import { Subscription } from 'rxjs';
 import { KeyboardInputComponent } from '../../components/keyboard-input/keyboard-input';
 import { OutputBlockModel } from '../../models/output-block.model';
@@ -27,6 +27,7 @@ import { EditScanSessionPage } from './edit-scan-session/edit-scan-session';
 import { SelectScanningModePage } from './select-scanning-mode/select-scanning-mode';
 import { PhotoViewer } from '@ionic-native/photo-viewer';
 import { WebIntent } from '@ionic-native/web-intent';
+import { LastToastProvider } from '../../providers/last-toast/last-toast';
 
 /**
  * This page is used to display the list of the barcodes of a specific
@@ -61,6 +62,9 @@ export class ScanSessionPage {
   private realtimeSend: boolean = true;
   private catchUpIOSLag = false;
   private disableKeyboarAutofocus: boolean = false;
+  onDisconnectSubscription: Subscription;
+  onConnectSubscription: any;
+
 
   constructor(
     public navParams: NavParams,
@@ -85,6 +89,8 @@ export class ScanSessionPage {
     private nfc: NFC,
     private photoViewer: PhotoViewer,
     private webIntent: WebIntent,
+    public menuCtrl: MenuController,
+    private lastToast: LastToastProvider,
   ) {
     this.scanSession = navParams.get('scanSession');
     if (!this.scanSession) {
@@ -100,6 +106,10 @@ export class ScanSessionPage {
       this.pauseSubscription.unsubscribe();
       this.pauseSubscription = null;
     }
+    // BWP::start
+    this.resumeSubscription = this.platform.resume.subscribe(() => { setTimeout(() => { this.isPaused = false; }, 2000); });
+    this.pauseSubscription = this.platform.pause.subscribe(() => { this.isPaused = true; });
+    // BWP::end
     this.resumeSubscription = this.platform.resume.subscribe(() => {
       setTimeout(() => { this.isPaused = false; }, 2000);
     });
@@ -124,6 +134,43 @@ export class ScanSessionPage {
       }
     })
   }
+
+  // BWP::start
+  async ionViewCanLeave() {
+    const leave = await new Promise(async resolve => {
+      const title = 'Exit scan mode';
+      const alert = this.alertCtrl.create({
+        title: title,
+        message: 'Do you want to exit scan mode?',
+        buttons: [
+          {
+            text: 'No',
+            role: 'cancel',
+            handler: () => resolve(false)
+          },
+          {
+            text: 'Yes',
+            handler: () => resolve(true)
+          }
+        ]
+      });
+
+      let cbd = 5;
+      if (cbd != 0) {
+        setInterval(() => {
+          cbd--;
+          alert.setTitle(`${title} (${cbd})`);
+          if (cbd == 0) {
+            resolve(false);
+            alert.dismiss();
+          }
+        }, 1000);
+      }
+      alert.present();
+    });
+    return leave;
+  }
+  // BWP::end
 
   async ionViewDidEnter() {
     this.firebaseAnalytics.setCurrentScreen("ScanSessionPage");
@@ -150,9 +197,23 @@ export class ScanSessionPage {
     // Enable back button only if the webview is visible.
     // Otherwise it will go back to the previous page when using the back button
     // to exit the scanner plugin
+    // BWP::start
     this.unregisterBackButton = this.platform.registerBackButtonAction(() => {
-      if (!this.isPaused) this.navCtrl.pop();
+      if (!this.isPaused) {
+        if (this.exitTimeout != null) clearTimeout(this.exitTimeout);
+        this.exitTimeout = setTimeout(() => {
+          this.exitCounter = 0;
+          this.exitTimeout = null;
+        }, 1000);
+        if (this.exitCounter == 0) {
+          this.lastToast.present(`Press back ${5 - this.exitCounter} times to exit`, 2000);
+        } else if (this.exitCounter == 5) {
+          this.navCtrl.pop();
+        }
+        this.exitCounter++;
+      }
     }, 0);
+    // BWP::end
 
     this.webIntent.registerBroadcastReceiver({
       filterActions: (await this.settings.getPDAIntents()).split(','),
@@ -162,7 +223,34 @@ export class ScanSessionPage {
     });
   }
 
+  private exitTimeout = null
+  private exitCounter = 0;
+  private connected = false;
+
+
+  ionViewWillUnload() {
+    if (this.onConnectSubscription != null) {
+      this.onConnectSubscription.unsubscribe();
+    }
+    if (this.onDisconnectSubscription != null) {
+      this.onDisconnectSubscription.unsubscribe();
+    }
+  }
+
+
   ionViewDidLoad() {
+    this.connected = this.serverProvider.isConnected();
+    this.settings.getOfflineModeEnabled().then(offlineMode => {
+      if (offlineMode) this.connected = false;
+    })
+
+    this.onDisconnectSubscription = this.serverProvider.onDisconnect().subscribe(() => {
+      this.connected = false;
+    });
+    this.onConnectSubscription = this.serverProvider.onConnect().subscribe(() => {
+      this.connected = true;
+    });
+
     if (this.isNewSession) { // se ho premuto + su scan-sessions allora posso già iniziare la scansione
       this.scan();
     } else {
@@ -196,6 +284,10 @@ export class ScanSessionPage {
   }
 
   ionViewDidLeave() {
+    // BWP::start
+    this.menuCtrl.enable(true);
+    this.webIntent.unregisterBroadcastReceiver();
+    // BWP::end
     if (this.responseSubscription != null && this.responseSubscription) {
       this.responseSubscription.unsubscribe();
     }

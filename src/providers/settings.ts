@@ -150,7 +150,8 @@ export class Settings {
   }
 
   getIsPDADeviceDialogShown(): Promise<boolean> {
-    return this.storage.get(Settings.IS_PDA_DEVICE_DIALOG_SHOWN);
+    // BWP::start
+    return new Promise((resolve) => resolve(true));
   }
 
   setIsPDADevice(isPDA: boolean) {
@@ -320,7 +321,8 @@ export class Settings {
   }
 
   getDefaultMode(): Promise<string> {
-    return this.storage.get(Settings.SCAN_MODE);
+    // BWP::start
+    return this.storage.get(Settings.SCAN_MODE).then(scanMode => scanMode || 'keboard');
   }
 
 
@@ -348,7 +350,7 @@ export class Settings {
     return new Promise(resolve => {
       this.storage.get(Settings.SCAN_SESSION_NAME).then(async scanSessionName => {
         if (!scanSessionName) {
-          resolve((await this.utils.text('scanSessionName')) + " {{ scan_session_number }}");
+          resolve(`{{ custom }}`);
         } else {
           resolve(scanSessionName)
         }
@@ -397,7 +399,8 @@ export class Settings {
       if (result === true || result === false) {
         return result;
       } else {
-        return true;
+        // BWP::start
+        return false;
       }
     });
   }
@@ -445,14 +448,18 @@ export class Settings {
     return this.storage.set(Settings.DUPLICATE_BARCODE_SAVE_CHOICE_SHOWN, duplicateBarcodeSaveChoiceShown);
   }
   getDuplicateBarcodeSaveChoiceShown(): Promise<boolean> {
-    return this.storage.get(Settings.DUPLICATE_BARCODE_SAVE_CHOICE_SHOWN).then(result => { return result === true });
+    // BWP::start
+    return new Promise((resolve, reject) => {
+      resolve(true);
+    });
   }
 
   setDuplicateBarcodeChoice(choice: ('ask' | 'always_accept' | 'discard_adjacent' | 'discard_scan_session')) {
     return this.storage.set(Settings.DUPLICATE_BARCODE_CHOICE, choice);
   }
   getDuplicateBarcodeChoice(): Promise<('ask' | 'always_accept' | 'discard_adjacent' | 'discard_scan_session')> {
-    return this.storage.get(Settings.DUPLICATE_BARCODE_CHOICE).then(result => { return result || 'ask' });
+    // BWP::start
+    return this.storage.get(Settings.DUPLICATE_BARCODE_CHOICE).then(result => { return result || 'discard_scan_session' });
   }
 
   setEnableBeep(enableBeep: boolean) {

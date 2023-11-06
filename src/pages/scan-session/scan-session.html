@@ -1,34 +1,32 @@
 <ion-header>
 
-	<ion-navbar color="primary">
-		<ion-title>{{ getTitle() }}</ion-title>
+  <ion-navbar hideBackButton color="primary">
+    <ion-title>{{ getTitle() }}</ion-title>
 
-		<ion-buttons end>
-			<button ion-button icon-only (click)="onShareClick()">
-				<ion-icon [name]="platform.is('ios') ? 'ios-share' : 'md-share'"></ion-icon>
-			</button>
+    <ion-buttons start>
+      <button ion-button icon-only>
+        <ion-icon name="ios-wifi" [style.color]="connected ? 'white': 'rgba(255,255,255,.4)'"></ion-icon>
+      </button>
+    </ion-buttons>
 
-			<button [hidden]="!(repeatingStatus == 'stopped')" ion-button icon-only (click)="onRepeatAllClick()">
-				<ion-icon name="refresh"></ion-icon>
-			</button>
+    <ion-buttons end>
+      <button [hidden]="!(repeatingStatus == 'stopped')" ion-button icon-only (click)="onRepeatAllClick()">
+        <ion-icon name="refresh"></ion-icon>
+      </button>
 
-			<button [hidden]="!(repeatingStatus == 'repeating' || repeatingStatus == 'paused')" ion-button icon-only (click)="stopRepeatingClick()">
-				<ion-icon name="square"></ion-icon>
-			</button>
+      <button [hidden]="!(repeatingStatus == 'repeating' || repeatingStatus == 'paused')" ion-button icon-only (click)="stopRepeatingClick()">
+        <ion-icon name="square"></ion-icon>
+      </button>
 
-			<button [hidden]="!(repeatingStatus == 'repeating')" ion-button icon-only (click)="onPauseRepeatingClick()">
-				<ion-icon name="pause"></ion-icon>
-			</button>
+      <button [hidden]="!(repeatingStatus == 'repeating')" ion-button icon-only (click)="onPauseRepeatingClick()">
+        <ion-icon name="pause"></ion-icon>
+      </button>
 
-			<button [hidden]="!(repeatingStatus == 'paused')" ion-button icon-only (click)="onResumeRepeatingClick()">
-				<ion-icon name="play"></ion-icon>
-			</button>
-
-			<button ion-button icon-only (click)="onEditClick()">
-				<ion-icon name="create"></ion-icon>
-			</button>
-		</ion-buttons>
-	</ion-navbar>
+      <button [hidden]="!(repeatingStatus == 'paused')" ion-button icon-only (click)="onResumeRepeatingClick()">
+        <ion-icon name="play"></ion-icon>
+      </button>
+    </ion-buttons>
+  </ion-navbar>
 
 </ion-header>
 
@@ -61,11 +59,7 @@
 <ion-footer ion-fixed>
 	<ion-toolbar style="direction: ltr">
 		<keyboard-input (touchstart)="keyboardInputTouchStart($event)" #keyboardInput></keyboard-input>
-		<ion-buttons end>
-			<button class="btn-send-manual-input" ion-button strong (touchstart)="$event.preventDefault(); $event.stopPropagation();" (touchend)="onNFCClick($event);">
-				<img src="assets/nfc/nfc.gif" class="nfc-icon" />
-			</button>
-
+    <ion-buttons end>
 			<button class="btn-send-manual-input" ion-button strong (touchstart)="$event.preventDefault(); $event.stopPropagation();" (touchend)="$event.preventDefault(); $event.stopPropagation(); onEnterClick($event);">
 				<ion-icon name="send" icon-only color="primary"></ion-icon>
 			</button>

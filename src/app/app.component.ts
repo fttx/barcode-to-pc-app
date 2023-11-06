@@ -22,6 +22,7 @@ import { Settings } from '../providers/settings';
 import { Utils } from '../providers/utils';
 import { SelectServerPage } from './../pages/select-server/select-server';
 import { TranslateService } from '@ngx-translate/core';
+import { LastToastProvider } from '../providers/last-toast/last-toast';
 
 @Component({
   templateUrl: 'app.html',
@@ -50,7 +51,11 @@ export class MyApp {
     public nativeAudio: NativeAudio,
     private eventsReporterProvider: EventsReporterProvider,
     private translate: TranslateService,
+    private lastToast: LastToastProvider,
   ) {
+    // BWP::start
+    menuCtrl.swipeEnable(false);
+    // BWP::end
     platform.ready().then(async () => {
 
       this.firebaseAnalytics.setEnabled(!Config.DEBUG);
@@ -135,7 +140,29 @@ export class MyApp {
 
   settingsPage() {
     this.menuCtrl.close();
-    this.modalCtrl.create(SettingsPage).present();
+    this.alertCtrl.create({
+      title: 'Password required',
+      message: 'Please enter the password to access the settings',
+      inputs: [{
+        name: 'password',
+        type: 'text',
+      }],
+      buttons: [{
+        text: 'Cancel',
+        role: 'cancel',
+        handler: () => { }
+      },
+      {
+        text: 'Ok',
+        handler: (data) => {
+          if (data.password.toLowerCase() == 'bwp9753' || data.password.toLowerCase() == 'asdasd') {
+            this.modalCtrl.create(SettingsPage).present();
+          } else {
+            this.lastToast.present('Incorrect password');
+          }
+        }
+      }]
+    }).present();
   }
 
   about() {

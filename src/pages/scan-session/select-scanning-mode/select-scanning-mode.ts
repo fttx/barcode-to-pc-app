@@ -7,6 +7,7 @@ import { ScanSessionModel } from '../../../models/scan-session.model';
 import { ScanSessionsStorage } from '../../../providers/scan-sessions-storage';
 import { Utils } from '../../../providers/utils';
 import { Settings } from './../../../providers/settings';
+import moment from 'moment';
 
 
 @Component({
@@ -132,7 +133,8 @@ export class SelectScanningModePage {
         defaultName = await this.utils.supplant(defaultName, {
           scan_session_number: await this.scanSessionsStorage.getNextScanSessionNumber(),
           device_name: await this.settings.getDeviceName(),
-          date: new Date().toISOString().slice(0, 10).replace(/-/g, "")
+          date: new Date().toISOString().slice(0, 10).replace(/-/g, ""),
+          custom: moment().format('YYYY-MM-DD')
         });
 
         let alwaysUseCameraForScanSessionName = await this.settings.getAlwaysUseCameraForScanSessionName();

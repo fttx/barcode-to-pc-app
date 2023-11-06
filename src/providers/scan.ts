@@ -855,7 +855,18 @@ export class ScanProvider {
             // Check for duplicated barcodes (duplciate on mixed)
             let acceptBarcode = await this.showAcceptDuplicateDetectedDialog(barcode);
             if (!acceptBarcode) {
-              this.lastToast.present(await this.utils.text('duplicateBarcodeDetectedToast'), 1500, 'top');
+              // BWP::start
+              // Inject values into the error ALERT
+              const errorAlert = JSON.parse(JSON.stringify(this.outputProfile.outputBlocks.find(x => {
+                if (!x.alertTitle) return false;
+                if (x.alertTitle.toLowerCase().indexOf('uplicate') != -1) return true;
+                return false;
+              })));
+              if (errorAlert) {
+                errorAlert.value = await this.utils.supplant(errorAlert.value, { csv_lookup: ' this device', barcode: barcode });
+                this.showAlert(errorAlert);
+              }
+              // BWP::end
               again();
               return;
             }
