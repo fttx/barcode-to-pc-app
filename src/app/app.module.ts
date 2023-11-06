@@ -49,6 +49,7 @@ import { Ndef, NFC } from '@ionic-native/nfc';
 import { PhotoViewer } from '@ionic-native/photo-viewer';
 import { Geolocation } from '@ionic-native/geolocation';
 import { WebIntent } from '@ionic-native/web-intent';
+import { Keyboard } from '@ionic-native/keyboard';
 
 // Modules
 // Ionic-native
@@ -132,6 +133,7 @@ import { WebIntent } from '@ionic-native/web-intent';
     Ndef,
     Network,
     WebIntent,
+    Keyboard,
     NativeAudio,
     { provide: ErrorHandler, useClass: IonicErrorHandler },
     LastToastProvider,

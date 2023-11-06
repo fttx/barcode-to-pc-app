@@ -28,4 +28,20 @@ page-scan-session {
       font-size: 2rem !important;
       line-height: 2rem !important;
     }
+
+    .toolbar-ios {
+      align-items: start !important;
+      transition: height 0.5s ease;
+    }
+
+    .toolbar-ios.keyboard-hidden {
+      height: 90px !important
+    }
+
+    .toolbar-ios input {
+      border: 1px solid rgb(204, 204, 204) !important;
+      border-radius: 23px !important;
+      padding: 7px 18px !important;
+      margin: 11px !important;
+    }
 }

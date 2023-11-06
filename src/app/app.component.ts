@@ -76,6 +76,18 @@ export class MyApp {
       this.nativeAudio.preloadSimple('beep_double', 'assets/audio/beep_double.ogg');
       this.nativeAudio.preloadSimple('beep', 'assets/audio/beep.ogg');
 
+      // Listen for when the keyboard will be shown
+      window.addEventListener('keyboardWillShow', () => {
+        const iosToolbar = document.querySelector('.ios-toolbar');
+        iosToolbar.classList.add('keyboard-opened');
+        iosToolbar.classList.remove('keyboard-hidden');
+      });
+      window.addEventListener('keyboardWillHide', () => {
+        const iosToolbar = document.querySelector('.ios-toolbar');
+        iosToolbar.classList.add('keyboard-hidden');
+        iosToolbar.classList.remove('keyboard-open');
+      });
+
       Promise.all([this.settings.getNoRunnings(), this.settings.getEverConnected(), this.settings.getAlwaysSkipWelcomePage(), this.upgrade(), this.settings.getKeepDisplayOn()]).then((results: any[]) => {
         let runnings = results[0];
         let everConnected = results[1];
