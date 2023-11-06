@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Platform, ToastController } from 'ionic-angular';
+import { Platform, Toast, ToastController } from 'ionic-angular';
 import { Config } from '../config';
 
 /*
@@ -14,6 +14,8 @@ export class LastToastProvider {
 
   private paused = false;
   private lastToastMessage: string;
+  private lastToastObject: Toast = null;
+  private destroyTimeout = null;
 
   constructor(
     public platform: Platform,
@@ -31,7 +33,7 @@ export class LastToastProvider {
     });
   }
 
-  public present(message: string, duartion: number = 6000, position = 'bottom') {
+  public present(message: string, duartion: number = 6000, position: 'top' | 'bottom' = 'bottom') {
     if (Config.DEBUG) {
       duartion = 2500;
     }
@@ -41,7 +43,22 @@ export class LastToastProvider {
     }
 
     if (!this.paused) {
-      this.toastCtrl.create({ message: message, duration: duartion, showCloseButton: true, closeButtonText: 'DISMISS', position: position }).present();
+      if (this.lastToastObject != null && this.destroyTimeout != null) {
+        // Reuse existing toast
+        clearTimeout(this.destroyTimeout);
+        this.destroyTimeout = null;
+        this.lastToastObject.setMessage(message);
+        this.lastToastObject.setDuration(2000 + duartion);
+        this.lastToastObject.setPosition(position);
+      } else {
+        // Create new toast
+        this.lastToastObject = this.toastCtrl.create({ message: message, duration: duartion, showCloseButton: true, closeButtonText: 'DISMISS', position: position });
+        this.lastToastObject.present();
+      }
+      this.destroyTimeout = setTimeout(() => {
+        this.lastToastObject = null;
+        this.destroyTimeout = null;
+      }, duartion);
       this.lastToastMessage = null;
     } else {
       this.lastToastMessage = message;
