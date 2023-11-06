@@ -41,6 +41,7 @@
     "@ionic-native/play-install-referrer": "^5.36.0",
     "@ionic-native/social-sharing": "^4.20.0",
     "@ionic-native/status-bar": "~4.18.0",
+    "@ionic-native/web-intent": "^4.20.0",
     "@ionic-native/zeroconf": "4.5.0",
     "@ionic/storage": "^2.2.0",
     "@ngx-translate/core": "^9.1.1",
@@ -95,6 +96,7 @@
     "@types/bluebird": "3.5.21",
     "@types/papaparse": "^5.0.1",
     "@types/semver": "^5.5.0",
+    "com-darryncampbell-cordova-plugin-intent": "^2.2.0",
     "cordova-android": "^12.0.1",
     "cordova-plugin-camera": "^7.0.0",
     "cordova-plugin-file": "^8.0.0",
@@ -158,7 +160,8 @@
       "cordova-plugin-geolocation": {
         "GEOLOCATION_USAGE_DESCRIPTION": "to save the location of the acquired barcodes",
         "GPS_REQUIRED": "false"
-      }
+      },
+      "com-darryncampbell-cordova-plugin-intent": {}
     },
     "platforms": [
       "ios",
