@@ -1074,24 +1074,26 @@ export class ScanProvider {
   private showAlert(outputBlock: OutputBlockModel): Promise<AlertButtonType> {
     return new Promise<AlertButtonType>(async (resolve, reject) => {
       let buttons = [];
+      let pressedButton: AlertButtonType = 'ok';
 
-      if (outputBlock.alertDiscardScanButton) buttons.push({ text: outputBlock.alertDiscardScanButton, cssClass: this.platform.is('android') ? 'button-outline-md button-alert' : null })
-      if (outputBlock.alertScanAgainButton) buttons.push({ text: outputBlock.alertScanAgainButton, cssClass: this.platform.is('android') ? 'button-outline-md button-alert' : null })
-      if (outputBlock.alertOkButton) buttons.push({ text: outputBlock.alertOkButton, cssClass: this.platform.is('android') ? 'button-outline-md button-alert button-ok' : null })
+      if (outputBlock.alertDiscardScanButton) buttons.push({ text: outputBlock.alertDiscardScanButton, cssClass: this.platform.is('android') ? 'button-outline-md button-alert' : null, handler: () => { pressedButton = 'discard_scan'; } })
+      if (outputBlock.alertScanAgainButton) buttons.push({ text: outputBlock.alertScanAgainButton, cssClass: this.platform.is('android') ? 'button-outline-md button-alert' : null, handler: () => { pressedButton = 'scan_again'; } })
+      if (outputBlock.alertOkButton) buttons.push({ text: outputBlock.alertOkButton, cssClass: this.platform.is('android') ? 'button-outline-md button-alert button-ok' : null, handler: () => { pressedButton = 'ok'; } })
 
       let alert = this.alertCtrl.create({ title: outputBlock.alertTitle, message: outputBlock.value, buttons: buttons, enableBackdropDismiss: false, cssClass: this.platform.is('android') ? 'alert-big-buttons' : null, });
+      alert.onDidDismiss(() => { resolve(pressedButton); });
 
       // Optional timeout logic
       let timeout = outputBlock.alertTimeout || 0;
       if (timeout != 0) {
         alert.setTitle(`${outputBlock.alertTitle} (${timeout})`);
-        // To simulate the button press after the timeout has expired
-        alert.onDidDismiss(() => { resolve(outputBlock.alertDefaultAction); });
         // Start the timeout
         let interval = setInterval(() => {
           timeout--;
           alert.setTitle(`${outputBlock.alertTitle} (${timeout})`);
           if (timeout == 0) {
+            // To simulate the button press after the timeout has expired
+            pressedButton = outputBlock.alertDefaultAction;
             alert.dismiss();
             clearInterval(interval);
           }
