@@ -35,6 +35,7 @@ export class Settings {
   private static ALSO_INVERTED = 'also_inverted';
   private static ENABLE_VIBRATION_FEEDBACK = 'enable_vibration_feedback';
   private static DISABLE_SPECIAL_CHARACTERS = 'disable_special_characters';
+  private static DISABLE_KEYBOARD_AUTOFOCUS = 'disable_keyboard_autofocus';
   private static UPGRADED_TO_SQLITE = 'upgraded_to_sqlite_5x';
   private static LAST_VERSION = 'last_version';
   private static BARCODE_FORMATS = 'barcode_formats';
@@ -51,6 +52,8 @@ export class Settings {
   private static EVENT_ON_SMARTPHONE_CHARGE_ENABLED = 'event_on_smartphone_charge_enabled';
   private static OFFLINE_MODE_ENABLED = 'offline_mode_enabled';
   private static IS_PDA_DEVICE_DIALOG_SHOWN = 'is_pda_device_dialog_shown';
+  private static IS_PDA_DEVICE = 'is_pda_device';
+  private static PDA_INTENTS = 'pda_intents';
   private static ALWAYS_USE_CAMERA_FOR_SCAN_SESSION_NAME = 'always_use_camera_for_scan_session_name';
   private static UNSYNCED_DELETED_SCAN_SESIONS = 'unsynced_deleted_scan_sesions';
   private static UNSYNCED_RESTORED_SCAN_SESIONS = 'unsynced_restored_scan_sesions';
@@ -148,6 +151,17 @@ export class Settings {
 
   getIsPDADeviceDialogShown(): Promise<boolean> {
     return this.storage.get(Settings.IS_PDA_DEVICE_DIALOG_SHOWN);
+  }
+
+  setIsPDADevice(isPDA: boolean) {
+    if (isPDA) {
+      this.setDefaultMode('keyboard');
+    }
+    return this.storage.set(Settings.IS_PDA_DEVICE, isPDA);
+  }
+
+  getIsPDADevice(): Promise<boolean> {
+    return this.storage.get(Settings.IS_PDA_DEVICE);
   }
 
   setAlwaysSkipWelcomePage(alwaysSkipWelcomePage: boolean) {
@@ -493,6 +507,27 @@ export class Settings {
 
   getDisableSpecialCharacters(): Promise<boolean> {
     return this.storage.get(Settings.DISABLE_SPECIAL_CHARACTERS).then(result => { return result === true });
+  }
+
+  setDisableKeyboarAutofocus(disableKeyboarAutofocus: boolean) {
+    return this.storage.set(Settings.DISABLE_KEYBOARD_AUTOFOCUS, disableKeyboarAutofocus);
+  }
+
+  getDisableKeyboarAutofocus(): Promise<boolean> {
+    return this.storage.get(Settings.DISABLE_KEYBOARD_AUTOFOCUS).then(result => { return result === true });
+  }
+
+  setPDAIntents(pdaIntents: string) {
+    return this.storage.set(Settings.PDA_INTENTS, pdaIntents);
+  }
+
+  getPDAIntents() {
+    return this.storage.get(Settings.PDA_INTENTS).then(result => {
+      if (result == null || typeof result != 'string') {
+        return 'com.scanner.broadcast,com.dwexample.ACTION,com.dwexample.action';
+      }
+      return result;
+    });
   }
 
   setEnableLimitBarcodeFormats(enableLimitBarcodeFormats: boolean) {

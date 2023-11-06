@@ -24,7 +24,7 @@ import { ServerProvider } from './server';
 import { Settings } from './settings';
 import { AlertButtonType, BarcodeScanResultExtended, BarcodeScannerOptionsExtended, Utils } from './utils';
 import { Camera, CameraOptions } from '@ionic-native/camera';
-import { Geolocation, Geoposition } from '@ionic-native/geolocation';
+import { Geolocation } from '@ionic-native/geolocation';
 
 /**
  * The job of this class is to generate a ScanModel by talking with the native
@@ -71,6 +71,7 @@ export class ScanProvider {
   private nfcSubscription: Subscription = null;
   private enableNFC: boolean = false;
   private getDisableSpecialCharacters: boolean = false;
+  private disableKeyboarAutofocus: boolean = false;
 
   constructor(
     private alertCtrl: AlertController,
@@ -144,6 +145,7 @@ export class ScanProvider {
         this.settings.getEnableNFC(), // 11
         this.settings.getPreferWideLens(), // 12
         this.settings.getDisableSpecialCharacters(), // 13
+        this.settings.getDisableKeyboarAutofocus(), // 14
       ]).then(async result => {
         // parameters
         let preferFrontCamera = result[0];
@@ -165,6 +167,8 @@ export class ScanProvider {
         const preferWideLens: any = result[12];
         const getDisableSpecialCharacters: any = result[13];
         this.getDisableSpecialCharacters = getDisableSpecialCharacters;
+        const disableKeyboarAutofocus: any = result[14];
+        this.disableKeyboarAutofocus = disableKeyboarAutofocus;
 
         // other computed parameters
         if (quantityType && quantityType == 'text') {
@@ -841,7 +845,7 @@ export class ScanProvider {
           }
 
           case 'manual': {
-            this.keyboardInput.focus(true);
+            if (!this.disableKeyboarAutofocus) this.keyboardInput.focus(true);
             this.keyboardInput.setPlaceholder(label);
             if (showFilterError && errorMessage) this.keyboardInput.setError(errorMessage);
             // here we don't wrap the promise inside a try/catch statement because there
@@ -1177,6 +1181,7 @@ export class ScanProvider {
             {
               text: await this.utils.text('isPDADeviceDialogMoreInfoButton'), handler: () => {
                 this.settings.setIsPDADeviceDialogShown(true);
+                this.settings.setIsPDADevice(true);
                 this.iab.create(Config.DOCS_ANDROID_PDA, '_system');
                 resolve();
               }

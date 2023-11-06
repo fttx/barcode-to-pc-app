@@ -48,6 +48,7 @@ import { MyApp } from './app.component';
 import { Ndef, NFC } from '@ionic-native/nfc';
 import { PhotoViewer } from '@ionic-native/photo-viewer';
 import { Geolocation } from '@ionic-native/geolocation';
+import { WebIntent } from '@ionic-native/web-intent';
 
 // Modules
 // Ionic-native
@@ -130,6 +131,7 @@ import { Geolocation } from '@ionic-native/geolocation';
     Geolocation,
     Ndef,
     Network,
+    WebIntent,
     NativeAudio,
     { provide: ErrorHandler, useClass: IonicErrorHandler },
     LastToastProvider,

@@ -97,8 +97,9 @@
 
     <ion-item no-lines>
       <ion-label color="dark" text-wrap>{{ 'scanSessionNameLabel' | translate }}</ion-label>
-
-      <ion-input [(ngModel)]="scanSessionName" [placeholder]="'scanSessionNameInputPlaceholder' | translate" text-right>
+    </ion-item>
+    <ion-item no-lines>
+      <ion-input [(ngModel)]="scanSessionName" [placeholder]="'scanSessionNameInputPlaceholder' | translate" class="stacked-input">
         {{ scanSessionName }}</ion-input>
     </ion-item>
     <ion-item text-wrap>
@@ -110,8 +111,9 @@
 
     <ion-item no-lines>
       <ion-label color="dark" text-wrap>{{ 'scanSessionFilterLabel' | translate }}</ion-label>
-
-      <ion-input [(ngModel)]="scanSessionFilter" [placeholder]="'scanSessionFilterInputPlaceholder' | translate" text-right>
+    </ion-item>
+    <ion-item no-lines>
+      <ion-input [(ngModel)]="scanSessionFilter" [placeholder]="'scanSessionFilterInputPlaceholder' | translate" class="stacked-input">
         {{ scanSessionFilter }}</ion-input>
     </ion-item>
     <ion-item text-wrap>
@@ -177,6 +179,31 @@
     <ion-item text-wrap>
       <p>
         {{ 'continiousModeTimeoutDescription' | translate }}
+      </p>
+    </ion-item>
+
+    <ion-list-header>
+      {{ 'pdaSettings' | translate }}
+    </ion-list-header>
+    <ion-item text-wrap>
+      <ion-label>
+        <h2 color="dark">{{ 'disableKeyboarAutofocus' | translate }}</h2>
+        <p>
+          {{ 'disableKeyboarAutofocusDescription' | translate }}
+        </p>
+      </ion-label>
+      <ion-toggle [(ngModel)]="disableKeyboarAutofocus"></ion-toggle>
+    </ion-item>
+
+    <ion-item no-lines>
+      <ion-label color="dark" text-wrap>{{ 'pdaIntents' | translate }}</ion-label>
+    </ion-item>
+    <ion-item no-lines text-wrap>
+      <ion-input [(ngModel)]="pdaIntents" [placeholder]="'com.scanner.broadcast' | translate"  class="stacked-input"></ion-input>
+    </ion-item>
+    <ion-item text-wrap>
+      <p>
+        {{ 'pdaIntentsDescription' | translate }}
       </p>
     </ion-item>
 

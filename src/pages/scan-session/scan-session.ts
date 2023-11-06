@@ -26,6 +26,7 @@ import { CSVExportOptionsPage } from './csv-export-options/csv-export-options';
 import { EditScanSessionPage } from './edit-scan-session/edit-scan-session';
 import { SelectScanningModePage } from './select-scanning-mode/select-scanning-mode';
 import { PhotoViewer } from '@ionic-native/photo-viewer';
+import { WebIntent } from '@ionic-native/web-intent';
 
 /**
  * This page is used to display the list of the barcodes of a specific
@@ -59,6 +60,7 @@ export class ScanSessionPage {
   private isPaused: boolean = false;
   private realtimeSend: boolean = true;
   private catchUpIOSLag = false;
+  private disableKeyboarAutofocus: boolean = false;
 
   constructor(
     public navParams: NavParams,
@@ -82,6 +84,7 @@ export class ScanSessionPage {
     public events: Events,
     private nfc: NFC,
     private photoViewer: PhotoViewer,
+    private webIntent: WebIntent,
   ) {
     this.scanSession = navParams.get('scanSession');
     if (!this.scanSession) {
@@ -116,13 +119,13 @@ export class ScanSessionPage {
     this.ngZone.run(() => {
       if (event.keyCode == 13 && this.keyboardInput.value.length > 0) {
         this.onEnterClick();
-      } else if (!this.keyboardInput.isFocussed() && this.scanProvider.awaitingForBarcode) {
+      } else if (!this.keyboardInput.isFocussed() && this.scanProvider.awaitingForBarcode && !this.disableKeyboarAutofocus) {
         this.keyboardInputTouchStart(event);
       }
     })
   }
 
-  ionViewDidEnter() {
+  async ionViewDidEnter() {
     this.firebaseAnalytics.setCurrentScreen("ScanSessionPage");
     this.responseSubscription = this.serverProvider.onMessage().subscribe(message => {
       if (message.action == responseModel.ACTION_PUT_SCAN_ACK) {
@@ -150,6 +153,13 @@ export class ScanSessionPage {
     this.unregisterBackButton = this.platform.registerBackButtonAction(() => {
       if (!this.isPaused) this.navCtrl.pop();
     }, 0);
+
+    this.webIntent.registerBroadcastReceiver({
+      filterActions: (await this.settings.getPDAIntents()).split(','),
+    }).subscribe(intent => {
+      this.keyboardInput.value = intent.extras.data.replace('\n', '');
+      this.onEnterClick();
+    });
   }
 
   ionViewDidLoad() {
@@ -170,9 +180,8 @@ export class ScanSessionPage {
                 text: await this.utils.text('beepSoundDialogUnderstandButton'), role: 'cancel', handler: () => { this.settings.setSoundFeedbackOrDialogShown(true); }
               }]
           }).present();
-
         }
-      })
+      });
     }
 
     this.events.subscribe('settings:save', async () => {
@@ -199,11 +208,14 @@ export class ScanSessionPage {
       this.unregisterBackButton();
       this.unregisterBackButton = null;
     }
+
+    this.webIntent.unregisterBroadcastReceiver();
   }
 
   async ionViewWillEnter() {
     this.selectedOutputProfileIndex = await this.settings.getSelectedOutputProfile();
     this.realtimeSend = await this.settings.getRealtimeSendEnabled();
+    this.disableKeyboarAutofocus = await this.settings.getDisableKeyboarAutofocus();
   }
 
   scan() { // Called when the user want to scan

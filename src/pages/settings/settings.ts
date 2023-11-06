@@ -26,6 +26,7 @@ import { TranslateService } from '@ngx-translate/core';
 export class SettingsPage {
   public deviceName: string;
   public scanSessionName: string;
+  public pdaIntents: string;
   public scanSessionFilter: string;
   public continueModeTimeout = Config.DEFAULT_CONTINUE_MODE_TIMEOUT;
   public repeatInterval = Config.DEFAULT_REPEAT_INVERVAL;
@@ -42,6 +43,7 @@ export class SettingsPage {
   public enableBeep = true;
   public alsoInverted = false;
   public enableNFC = true;
+  public disableKeyboarAutofocus = true;
   public skipWifiCheck = false;
   public enableVibrationFeedback = true;
   public disableSpecialCharacters = false;
@@ -123,6 +125,10 @@ export class SettingsPage {
       this.scanSessionName = scanSessionName;
     })
 
+    this.settings.getPDAIntents().then(pdaIntents => {
+      this.pdaIntents = pdaIntents;
+    })
+
     this.settings.getScanSessionFilter().then(scanSessionFilter => {
       this.scanSessionFilter = scanSessionFilter;
     })
@@ -181,6 +187,10 @@ export class SettingsPage {
       this.enableNFC = enableNFC;
     });
 
+    this.settings.getDisableKeyboarAutofocus().then(disableKeyboarAutofocus => {
+      this.disableKeyboarAutofocus = disableKeyboarAutofocus;
+    });
+
     this.settings.getSkipWiFiCheck().then(skipWifiCheck => {
       this.skipWifiCheck = skipWifiCheck;
     });
@@ -234,6 +244,7 @@ export class SettingsPage {
     this.settings.setDuplicateBarcodeChoice(this.duplicateBarcodeChoice);
     this.settings.setDeviceName(this.deviceName);
     this.settings.setScanSessionName(this.scanSessionName);
+    this.settings.setPDAIntents(this.pdaIntents);
     this.settings.setScanSessionFilter(this.scanSessionFilter);
     this.settings.setAlwaysUseDefaultScanSessionName(this.alwaysUseDefaultScanSessionName);
     this.settings.setAlwaysUseCameraForScanSessionName(this.alwaysUseCameraForScanSessionName);
@@ -244,6 +255,7 @@ export class SettingsPage {
     this.settings.setEnableBeep(this.enableBeep);
     this.settings.setAlsoInverted(this.alsoInverted);
     this.settings.setEnableNFC(this.enableNFC);
+    this.settings.setDisableKeyboarAutofocus(this.disableKeyboarAutofocus);
     this.settings.setSkipWiFiCheck(this.skipWifiCheck);
     this.settings.setEnableVibrationFeedback(this.enableVibrationFeedback);
     this.settings.setDisableSpecialCharacters(this.disableSpecialCharacters);

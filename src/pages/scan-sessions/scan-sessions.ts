@@ -15,6 +15,8 @@ import { Utils } from '../../providers/utils';
 import { ScanSessionPage } from '../scan-session/scan-session';
 import { SelectServerPage } from '../select-server/select-server';
 import { Settings } from './../../providers/settings';
+import { Device } from '@ionic-native/device';
+import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 
 @Component({
   selector: 'page-scannings',
@@ -45,6 +47,8 @@ export class ScanSessionsPage {
     private serverProvider: ServerProvider,
     private utils: Utils,
     public platform: Platform,
+    private device: Device,
+    private iab: InAppBrowser
   ) { }
 
   async ionViewDidEnter() {
@@ -56,6 +60,33 @@ export class ScanSessionsPage {
     this.scanSessionsStorage.getScanSessions().then(data => {
       this.scanSessions = data;
     });
+
+    // PDA Dialog
+    const manufacturer = this.device.manufacturer.toLowerCase();
+    const pdaManufacturers = ['zebra', 'chainway', 'honeywell', 'datalogic', 'intermec', 'point', 'bluebird', 'm3', 'newland'];
+    if (pdaManufacturers.indexOf(manufacturer) != -1) {
+      let isPDADevicedialogShown = await this.settings.getIsPDADeviceDialogShown();
+      if (!isPDADevicedialogShown) {
+        this.alertCtrl.create({
+          title: await this.utils.text('isPDADeviceDialogTitle2'),
+          message: await this.utils.text('isPDADeviceDialogMessage2', { brand: this.device.manufacturer }),
+          buttons: [
+            {
+              text: await this.utils.text('isPDADeviceDialogNoButton'), handler: () => {
+                this.settings.setIsPDADeviceDialogShown(true);
+              }
+            },
+            { text: await this.utils.text('isPDADeviceDialogShowLaterButton'), role: 'cancel', handler: () => { } },
+            {
+              text: await this.utils.text('isPDADeviceDialogMoreInfoButton'), handler: () => {
+                this.settings.setIsPDADeviceDialogShown(true);
+                this.settings.setIsPDADevice(true);
+                this.iab.create(Config.DOCS_ANDROID_PDA, '_system');
+              }
+            }]
+        }).present();
+      }
+    }
 
     this.unregisterBackButton = this.platform.registerBackButtonAction(() => {
       if (this.selectedScanSessions.length != 0) {
