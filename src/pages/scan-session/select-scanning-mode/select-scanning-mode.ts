@@ -62,7 +62,7 @@ export class SelectScanningModePage {
     // If there is a default scan mode  => Dismiss immediately
     this.allowOutputTemplateSelection = await this.settings.getAllowOutputTemplateSelection();
     this.defaultMode = await this.settings.getDefaultMode();
-    if (this.isDefaultModeSet() && !this.allowOutputTemplateSelection) {
+    if (this.isDefaultModeSet() && (!this.allowOutputTemplateSelection || this.outputProfiles.length == 1)) {
       this.viewCtrl.dismiss({
         scanMode: this.defaultMode,
         selectedOutputProfileIndex: this.selectedOutputProfileIndex,
