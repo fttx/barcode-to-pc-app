@@ -32,6 +32,7 @@
     "@ionic-native/header-color": "4.5.0",
     "@ionic-native/in-app-browser": "^5.29.0",
     "@ionic-native/insomnia": "^4.20.0",
+    "@ionic-native/keyboard": "^4.20.0",
     "@ionic-native/launch-review": "^4.12.2",
     "@ionic-native/native-audio": "4.5.0",
     "@ionic-native/network": "^4.5.2",
