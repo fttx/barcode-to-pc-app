@@ -868,6 +868,7 @@ export class ScanProvider {
               }
               // BWP::end
               again();
+              setTimeout(() => { this.keyboardInput.focus(true); }, 1000);
               return;
             }
 
@@ -1322,8 +1323,13 @@ export class ScanProvider {
           resolve(true);
           break;
         case 'discard_adjacent':
-          const lastBarcode = this.scanSession.scannings[0].outputBlocks.reverse().find(x => x.type == 'barcode').value;
-          resolve(lastBarcode != barcode);
+          const scanning = this.scanSession.scannings[0];
+          if (!scanning) {
+            resolve(true);
+          } else {
+            const lastBarcode = scanning.outputBlocks.reverse().find(x => x.type == 'barcode').value;
+            resolve(lastBarcode != barcode);
+          }
           break;
         case 'discard_scan_session':
           resolve(!isBarcodeInSession());
