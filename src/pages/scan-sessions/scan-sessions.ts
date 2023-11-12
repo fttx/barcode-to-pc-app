@@ -65,7 +65,7 @@ export class ScanSessionsPage {
     // PDA Dialog
     const manufacturer = this.device.manufacturer.toLowerCase();
     const pdaManufacturers = ['zebra', 'chainway', 'honeywell', 'datalogic', 'intermec', 'point', 'bluebird', 'm3', 'newland'];
-    if (pdaManufacturers.indexOf(manufacturer) != -1) {
+    if (pdaManufacturers.filter(x => manufacturer.indexOf(x) != -1).length > 0) {
       let isPDADevicedialogShown = await this.settings.getIsPDADeviceDialogShown();
       if (!isPDADevicedialogShown) {
         this.alertCtrl.create({

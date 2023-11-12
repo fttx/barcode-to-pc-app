@@ -124,9 +124,9 @@ export class ScanSessionPage {
       }
 
       if (!this.keyboardInput.isFocussed()) {
-          if (event.keyCode >= 32 && event.key.length == 1) {
-            this.keyboardInput.value += event.key;
-          }
+        if (event.keyCode >= 32 && event.key.length == 1) {
+          this.keyboardInput.value += event.key;
+        }
       }
     })
   }
@@ -160,12 +160,23 @@ export class ScanSessionPage {
       if (!this.isPaused) this.navCtrl.pop();
     }, 0);
 
+    // PDA::start
     this.webIntent.registerBroadcastReceiver({
       filterActions: (await this.settings.getPDAIntents()).split(','),
     }).subscribe(intent => {
-      this.keyboardInput.value = intent.extras.data.replace('\n', '');
+      let data = null;
+      if (intent.extras.hasOwnProperty('com.symbol.datawedge.data_string')) {
+        // The Zebra devices use the DataWedge API to send the barcode, and they
+        // write the result into the intent.extras["com.symbol.datawedge.data_string"]
+        data = intent.extras["com.symbol.datawedge.data_string"];
+      } else {
+        data = intent.extras.data;
+      }
+
+      this.keyboardInput.value = data;
       this.onEnterClick();
     });
+    // PDA::end
 
     // Init the outputTemplate by triggering the touch
     if (this.disableKeyboarAutofocus && !this.scanProviderSubscription) {
@@ -203,7 +214,7 @@ export class ScanSessionPage {
       if (!this.catchUpIOSLag || !await this.settings.getRealtimeSendEnabled()) return;
       this.catchUpIOSLag = false;
       this.onRepeatAllClick(false);
-    })
+    });
   }
 
   ionViewDidLeave() {

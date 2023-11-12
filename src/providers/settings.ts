@@ -156,6 +156,7 @@ export class Settings {
   setIsPDADevice(isPDA: boolean) {
     if (isPDA) {
       this.setDefaultMode('keyboard');
+      this.setDisableKeyboarAutofocus(true);
     }
     return this.storage.set(Settings.IS_PDA_DEVICE, isPDA);
   }

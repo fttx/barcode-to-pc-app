@@ -25,6 +25,11 @@
       <div item-content>v{{ version }}</div>
     </ion-item>
 
+    <ion-item [hidden]="!dataWedgeVersion">
+      <ion-label text-wrap>{{ 'Zebra DataWedge Detected' | translate }}</ion-label>
+      <div item-content>{{ dataWedgeVersion }}</div>
+    </ion-item>
+
     <ion-item>
       <ion-label text-wrap>{{ 'websiteLabel' | translate }}</ion-label>
       <a item-content (click)="onWebSiteClick()">{{ websiteName }}</a>
