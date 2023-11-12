@@ -86,9 +86,11 @@
       </p>
     </ion-item>
 
-    <ion-item>
+    <ion-item no-lines>
       <ion-label color="dark" text-wrap>{{ 'deviceNameLabel' | translate }}</ion-label>
-      <ion-input [(ngModel)]="deviceName" [placeholder]="'deviceNameLabelPlaceholder' | translate" text-right>{{ deviceName }}</ion-input>
+    </ion-item>
+    <ion-item no-lines>
+      <ion-input [(ngModel)]="deviceName" [placeholder]="'deviceNameLabelPlaceholder' | translate" class="stacked-input">{{ deviceName }}</ion-input>
     </ion-item>
 
     <ion-list-header>
