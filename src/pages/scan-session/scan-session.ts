@@ -179,7 +179,13 @@ export class ScanSessionPage {
     // PDA::end
 
     // Init the outputTemplate by triggering the touch
-    if (this.disableKeyboarAutofocus && !this.scanProviderSubscription) {
+    // When the disableKeyboarAutofocus is enabled, the output template is not started
+    // so we manually trigger the keyboardInputTouchStart that will subscribe to the
+    // barcode scan events.
+    // We also check if scanSession is not null because it may be happen that the
+    // scanSession hasn't been created yet, since the OutputTemplateSelectorPage
+    // may appear first.
+    if (this.disableKeyboarAutofocus && !this.scanProviderSubscription && this.scanSession) {
       this.keyboardInputTouchStart(event, false);
     }
   }
