@@ -122,6 +122,12 @@ export class ScanSessionPage {
       } else if (!this.keyboardInput.isFocussed() && this.scanProvider.awaitingForBarcode && !this.disableKeyboarAutofocus) {
         this.keyboardInputTouchStart(event);
       }
+
+      if (!this.keyboardInput.isFocussed()) {
+          if (event.keyCode >= 32 && event.key.length == 1) {
+            this.keyboardInput.value += event.key;
+          }
+      }
     })
   }
 
@@ -160,6 +166,11 @@ export class ScanSessionPage {
       this.keyboardInput.value = intent.extras.data.replace('\n', '');
       this.onEnterClick();
     });
+
+    // Init the outputTemplate by triggering the touch
+    if (this.disableKeyboarAutofocus && !this.scanProviderSubscription) {
+      this.keyboardInputTouchStart(event, false);
+    }
   }
 
   ionViewDidLoad() {
@@ -263,7 +274,7 @@ export class ScanSessionPage {
 
   // This method can't be moved inside scan.ts because there is no way to tell
   // wether the subscription is still active from inside that file
-  keyboardInputTouchStart(event) {
+  keyboardInputTouchStart(event, focus = true) {
     // We prevent default, because we don't know if the Output Template  starts
     // with a BARCODE component, so we don't want the keyboard to pop out.
     // The input element will be focussed by the scanProvider.scan() as it runs
@@ -285,7 +296,7 @@ export class ScanSessionPage {
         // outputProfile progress. To resume from that scenario we check if the
         // scanProvider is still waiting for the user to submit the barcode and
         // then restore the focus to the input element
-        if (this.scanProvider.awaitingForBarcode) {
+        if (this.scanProvider.awaitingForBarcode && focus) {
           this.keyboardInput.focus();
         }
 
