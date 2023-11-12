@@ -50,6 +50,7 @@ import { PhotoViewer } from '@ionic-native/photo-viewer';
 import { Geolocation } from '@ionic-native/geolocation';
 import { WebIntent } from '@ionic-native/web-intent';
 import { Keyboard } from '@ionic-native/keyboard';
+import { ZebraProvider } from '../providers/zebra/zebra';
 
 // Modules
 // Ionic-native
@@ -139,6 +140,7 @@ import { Keyboard } from '@ionic-native/keyboard';
     LastToastProvider,
     EventsReporterProvider,
     InAppBrowser,
+    ZebraProvider,
   ]
 })
 export class AppModule { }

@@ -132,6 +132,12 @@ export class ScanSessionPage {
       } else if (!this.keyboardInput.isFocussed() && this.scanProvider.awaitingForBarcode && !this.disableKeyboarAutofocus) {
         this.keyboardInputTouchStart(event);
       }
+
+      if (!this.keyboardInput.isFocussed()) {
+        if (event.keyCode >= 32 && event.key.length == 1) {
+          this.keyboardInput.value += event.key;
+        }
+      }
     })
   }
 
@@ -215,12 +221,34 @@ export class ScanSessionPage {
     }, 0);
     // BWP::end
 
+    // PDA::start
     this.webIntent.registerBroadcastReceiver({
       filterActions: (await this.settings.getPDAIntents()).split(','),
     }).subscribe(intent => {
-      this.keyboardInput.value = intent.extras.data.replace('\n', '');
+      let data = null;
+      if (intent.extras.hasOwnProperty('com.symbol.datawedge.data_string')) {
+        // The Zebra devices use the DataWedge API to send the barcode, and they
+        // write the result into the intent.extras["com.symbol.datawedge.data_string"]
+        data = intent.extras["com.symbol.datawedge.data_string"];
+      } else {
+        data = intent.extras.data;
+      }
+
+      this.keyboardInput.value = data;
       this.onEnterClick();
     });
+    // PDA::end
+
+    // Init the outputTemplate by triggering the touch
+    // When the disableKeyboarAutofocus is enabled, the output template is not started
+    // so we manually trigger the keyboardInputTouchStart that will subscribe to the
+    // barcode scan events.
+    // We also check if scanSession is not null because it may be happen that the
+    // scanSession hasn't been created yet, since the OutputTemplateSelectorPage
+    // may appear first.
+    if (this.disableKeyboarAutofocus && !this.scanProviderSubscription && this.scanSession) {
+      this.keyboardInputTouchStart(event, false);
+    }
   }
 
   private exitTimeout = null
@@ -280,7 +308,7 @@ export class ScanSessionPage {
       if (!this.catchUpIOSLag || !await this.settings.getRealtimeSendEnabled()) return;
       this.catchUpIOSLag = false;
       this.onRepeatAllClick(false);
-    })
+    });
   }
 
   ionViewDidLeave() {
@@ -355,7 +383,7 @@ export class ScanSessionPage {
 
   // This method can't be moved inside scan.ts because there is no way to tell
   // wether the subscription is still active from inside that file
-  keyboardInputTouchStart(event) {
+  keyboardInputTouchStart(event, focus = true) {
     // We prevent default, because we don't know if the Output Template  starts
     // with a BARCODE component, so we don't want the keyboard to pop out.
     // The input element will be focussed by the scanProvider.scan() as it runs
@@ -377,7 +405,7 @@ export class ScanSessionPage {
         // outputProfile progress. To resume from that scenario we check if the
         // scanProvider is still waiting for the user to submit the barcode and
         // then restore the focus to the input element
-        if (this.scanProvider.awaitingForBarcode) {
+        if (this.scanProvider.awaitingForBarcode && focus) {
           this.keyboardInput.focus();
         }
 
