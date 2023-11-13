@@ -868,7 +868,7 @@ export class ScanProvider {
               }
               // BWP::end
               again();
-              setTimeout(() => { this.keyboardInput.focus(true); }, 1000);
+              setTimeout(() => { if (!this.disableKeyboarAutofocus) this.keyboardInput.focus(true); }, 1000);
               return;
             }
 
