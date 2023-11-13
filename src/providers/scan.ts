@@ -857,7 +857,7 @@ export class ScanProvider {
             if (!acceptBarcode) {
               this.lastToast.present(await this.utils.text('duplicateBarcodeDetectedToast'), 1500, 'top');
               again();
-              setTimeout(() => { this.keyboardInput.focus(true); }, 1000);
+              setTimeout(() => { if (!this.disableKeyboarAutofocus) this.keyboardInput.focus(true); }, 1000);
               return;
             }
 
