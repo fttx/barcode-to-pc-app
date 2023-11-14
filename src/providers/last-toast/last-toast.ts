@@ -53,6 +53,10 @@ export class LastToastProvider {
       } else {
         // Create new toast
         this.lastToastObject = this.toastCtrl.create({ message: message, duration: duartion, showCloseButton: true, closeButtonText: 'DISMISS', position: position });
+        this.lastToastObject.onDidDismiss(() => {
+          this.lastToastObject = null;
+          this.destroyTimeout = null;
+        });
         this.lastToastObject.present();
       }
       this.destroyTimeout = setTimeout(() => {
