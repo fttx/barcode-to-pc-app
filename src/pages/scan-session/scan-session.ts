@@ -114,7 +114,11 @@ export class ScanSessionPage {
         this.keyboardInputTouchStart(event);
       }
 
-      if (!this.keyboardInput.isFocussed()) {
+      // Check if the current focussed element is an input element
+      // if not, we can write the key to the keyboardInput, otherwise it means
+      // that a dialog (eg. number) is visible.
+      const currentElement = document.activeElement;
+      if (!this.keyboardInput.isFocussed() && (!currentElement || (currentElement && currentElement.tagName != 'INPUT'))) {
         if (event.keyCode >= 32 && event.key.length == 1) {
           this.keyboardInput.value += event.key;
         }
