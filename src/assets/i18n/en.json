@@ -14,7 +14,7 @@
   "restoreButton": "Restore",
   "scanSessionWillBeRestoredDialogMessage": "The scan sessions will be restored also on the server when it will be connected.\n\nTo trigger the Keyboard Emulation and the CSV output, use the Sync button inside the scan session page.",
   "offlineModeDialogOkButton": "Ok",
-  "scanSessionDeleteDialogTitle": "Are you sure",
+  "scanSessionDeleteDialogTitle": "Are you sure?",
   "scanSessionDeleteDialogMessage": "The scan sessions will be deleted permanetly",
   "scanSessionDeleteDialogDeleteButton": "Delete",
   "scanSessionDeleteDialogCancelButton": "Cancel",
