@@ -13,22 +13,31 @@
   <img src="assets/welcome/a5fsa.jpg" alt="logo" class="app-icon" />
 
   <h1 text-center>
-    {{ 'appName' | translate }}
+    Bluewater Pipe
   </h1>
 
   <br>
   <br>
 
   <ion-list>
+
+    <ion-list-header>
+      {{ 'Info' | translate }}
+    </ion-list-header>
+
     <ion-item>
       <ion-label text-wrap>{{ 'appVersionLabel' | translate }}</ion-label>
-      <div item-content>v{{ version }}</div>
+      <div item-content>{{ 'appName' | translate }} v{{ version }}</div>
     </ion-item>
 
-    <ion-item [hidden]="!dataWedgeVersion">
-      <ion-label text-wrap>{{ 'Zebra DataWedge Detected' | translate }}</ion-label>
-      <div item-content>{{ dataWedgeVersion }}</div>
+    <ion-item [hidden]="!dataWedgeVersion" no-lines>
+      <ion-label text-wrap>{{ 'Zebra DataWedge version' | translate }}</ion-label>
+      <div item-content>v{{ dataWedgeVersion }}</div>
     </ion-item>
+
+    <ion-list-header>
+      {{ 'Links' | translate }}
+    </ion-list-header>
 
     <ion-item>
       <ion-label text-wrap>{{ 'websiteLabel' | translate }}</ion-label>

@@ -10,7 +10,7 @@
     </ion-buttons>
 
     <ion-buttons end>
-      <button [hidden]="!(repeatingStatus == 'stopped')" ion-button icon-only (click)="onRepeatAllClick()">
+      <button [disabled]="!connected" [hidden]="!(repeatingStatus == 'stopped')" ion-button icon-only (click)="onRepeatAllClick()">
         <ion-icon name="refresh"></ion-icon>
       </button>
 
@@ -31,32 +31,32 @@
 </ion-header>
 
 <ion-content>
-	<ion-list [virtualScroll]="(scanSession && scanSession.scannings) || []" [approxItemHeight]="'47px'" [bufferRatio]="5">
-		<button ion-item *virtualItem="let scan; let i = index" (click)="onItemClicked(scan, i)" (press)="onItemPressed(scan, i)" [color]="scan.repeated ? 'light' : 'default'">
+	<ion-list [virtualScroll]="(scanSession && scanSession.scannings) || []" [approxItemHeight]="'47px'" [bufferRatio]="5" id="bwp-list">
+		<button ion-item *virtualItem="let scan; let i = index" (click)="onItemClicked(scan, i)" (press)="onItemPressed(scan, i)" [color]="scan.repeated ? 'light' : 'default'" [class.animate-first-item]="newItem && i == 0">
 			<ion-grid no-padding>
 				<ion-row>
-					<ion-col align-self-start col-1 class="status-icon">
-						<ion-icon [name]="scan.ack ? 'checkmark-circle' : 'alert'" [style.color]="scan.ack ? 'green' : 'red'"></ion-icon>
-					</ion-col>
-					<ion-col text-wrap>
-						{{ scan.displayValue }}
-					</ion-col>
-					<ion-col align-self-end col-1 class="status-icon" *ngIf="scan.hasImage">
-						<ion-icon name="image" color="dark"></ion-icon>
-					</ion-col>
-				</ion-row>
+          <!-- BWP::start -->
+          <ion-col align-self-start col-1 class="status-icon">
+            <ion-icon [name]="scan.ack ? 'checkmark-circle' : 'alert'" [style.color]="scan.ack ? 'green' : 'red'"></ion-icon>
+          </ion-col>
+          <ion-col text-wrap [innerHTML]="getDisplayValue(scan)">
+          </ion-col>
+          <!-- BWP::end -->
+        </ion-row>
 			</ion-grid>
 		</button>
 	</ion-list>
 
-	<ion-fab bottom right>
-		<button ion-fab (click)="onAddClicked()">
-			<ion-icon name="camera"></ion-icon>
-		</button>
-	</ion-fab>
+  <div class="empty" *ngIf="((scanSession && scanSession.scannings) || []).length == 0">
+		<img src="assets/welcome/a5fsa.jpg" alt="logo" style="max-width: 50%;margin-top:60px" />
+		<br />
+    <h2>We're all set.</h2>
+		<p>Scan a barcode to get started</p>
+	</div>
+
 </ion-content>
 
-<ion-footer ion-fixed>
+<ion-footer ion-fixed style="display: none">
 	<ion-toolbar style="direction: ltr">
 		<keyboard-input (touchstart)="keyboardInputTouchStart($event)" #keyboardInput></keyboard-input>
     <ion-buttons end>

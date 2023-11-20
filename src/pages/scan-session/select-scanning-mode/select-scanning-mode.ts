@@ -134,7 +134,7 @@ export class SelectScanningModePage {
           scan_session_number: await this.scanSessionsStorage.getNextScanSessionNumber(),
           device_name: await this.settings.getDeviceName(),
           date: new Date().toISOString().slice(0, 10).replace(/-/g, ""),
-          custom: moment().format('YYYY-MM-DD')
+          custom: moment().format('YYYY-MM-DD') // duplicated code on the scan-session.ts file to check if a day has passed
         });
 
         let alwaysUseCameraForScanSessionName = await this.settings.getAlwaysUseCameraForScanSessionName();

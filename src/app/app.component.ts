@@ -23,6 +23,7 @@ import { Utils } from '../providers/utils';
 import { SelectServerPage } from './../pages/select-server/select-server';
 import { TranslateService } from '@ngx-translate/core';
 import { LastToastProvider } from '../providers/last-toast/last-toast';
+import { T } from '@angular/core/src/render3';
 
 @Component({
   templateUrl: 'app.html',
@@ -53,10 +54,10 @@ export class MyApp {
     private translate: TranslateService,
     private lastToast: LastToastProvider,
   ) {
-    // BWP::start
-    menuCtrl.swipeEnable(false);
-    // BWP::end
     platform.ready().then(async () => {
+      // BWP::start
+      menuCtrl.swipeEnable(false);
+      // BWP::end
 
       this.firebaseAnalytics.setEnabled(!Config.DEBUG);
 
@@ -101,6 +102,19 @@ export class MyApp {
         let alwaysSkipWelcomePage = results[2];
         // results[3] => upgrade
         let keepDisplayOn = results[4];
+
+        // BWP::start
+        if (!runnings) {
+          this.settings.setSoundFeedbackOrDialogShown(true);
+          this.settings.setDuplicateBarcodeSaveChoiceShown(true);
+          this.settings.setDuplicateBarcodeChoice('discard_scan_session');
+          this.settings.setIsPDADevice(true);
+          this.settings.setKeepDisplayOn(true);
+          this.settings.setAlwaysUseDefaultScanSessionName(true);
+          this.settings.setAllowOutputTemplateSelection(false);
+          this.settings.setOpenScanOnStart(true);
+        }
+        // BWP::end
 
         if ((!runnings || !everConnected) && !alwaysSkipWelcomePage) {
           this.rootPage = WelcomePage;
@@ -157,7 +171,7 @@ export class MyApp {
       {
         text: 'Ok',
         handler: (data) => {
-          if (data.password.toLowerCase() == 'bwp9753' || data.password.toLowerCase() == 'asdasd') {
+          if (data.password.toLowerCase() == 'bwp9753' || data.password.toLowerCase() == 'ppp') {
             this.modalCtrl.create(SettingsPage).present();
           } else {
             this.lastToast.present('Incorrect password');

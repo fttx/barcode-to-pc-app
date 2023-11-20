@@ -44,4 +44,15 @@ page-scan-session {
       padding: 7px 18px !important;
       margin: 11px !important;
     }
+
+    ion-content table .value {
+      font-family: monospace !important;
+      padding-left: 9px;
+      letter-spacing: -1px;
+    }
+
+    .animate-first-item {
+      transition: background-color 0.5s ease;
+      background-color: yellow; /* Flash color */
+    }
 }

@@ -153,3 +153,28 @@ $colors: (
     filter: drop-shadow(6px 6px 10px #00000058);
   }
 }
+
+.alert-md .alert-wrapper {
+  width: 90% !important;
+  max-width: 90% !important;
+}
+
+.alert-md .alert-message {
+  font-size: 16px !important;
+}
+
+.alert-md table td {
+  height: 25px;
+  letter-spacing: -1px;
+}
+
+.alert-md table .value {
+  font-family: monospace !important;
+  padding-left: 3px !important;
+  font-size: 20px !important;
+  letter-spacing: -2px;
+}
+
+.alert-button-group {
+  justify-content: center !important;
+}

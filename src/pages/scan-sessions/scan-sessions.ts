@@ -53,7 +53,7 @@ export class ScanSessionsPage {
     private iab: InAppBrowser
   ) { }
 
-  private didRedirect = false;
+  private static isFirstTimeEntering = true;
   async ionViewDidEnter() {
     this.isWatching = false;
     this.serverProvider.stopWatchForServers();
@@ -62,17 +62,12 @@ export class ScanSessionsPage {
 
     this.scanSessionsStorage.getScanSessions().then(data => {
       this.scanSessions = data;
-      if (!this.didRedirect)
-      this.settings.getOpenScanOnStart().then(async openScanOnStart => {
-        if (openScanOnStart) {
-          if (this.scanSessions.length && this.scanSessions[0].name == await this.getDefaultName()) {
-            this.navCtrl.push(ScanSessionPage, { scanSession: this.scanSessions[0] });
-          } else {
-            this.navCtrl.push(ScanSessionPage);
-          }
-          this.didRedirect = true;
-        }
-      });
+      // BWP::start
+      if (ScanSessionsPage.isFirstTimeEntering) {
+        this.onAddClick();
+        ScanSessionsPage.isFirstTimeEntering = false;
+      }
+      // BWP::end
     });
 
     // PDA Dialog
@@ -201,14 +196,14 @@ export class ScanSessionsPage {
           // later, this way it has enough time to connect to it before prompting
           // the user.
           if (this.serverProvider.isConnected()) return;
-            this.settings.setDefaultServer(discoveryResult.server); // override the defaultServer
-            this.settings.getSavedServers().then(savedServers => {
-              this.settings.setSavedServers(
-                savedServers
-                  .filter(x => x.name != discoveryResult.server.name) // remove the old server
-                  .concat(discoveryResult.server)) // add a new one
-            });
-            this.serverProvider.connect(discoveryResult.server, true);
+          this.settings.setDefaultServer(discoveryResult.server); // override the defaultServer
+          this.settings.getSavedServers().then(savedServers => {
+            this.settings.setSavedServers(
+              savedServers
+                .filter(x => x.name != discoveryResult.server.name) // remove the old server
+                .concat(discoveryResult.server)) // add a new one
+          });
+          this.serverProvider.connect(discoveryResult.server, true);
         }, 5000);
       } else if (defaultServer == null || (defaultServer.name == discoveryResult.server.name && defaultServer.getAddress() == discoveryResult.server.getAddress() && this.everConnected)) {
         // if the server was closed and open again => reconnect whitout asking
@@ -223,15 +218,6 @@ export class ScanSessionsPage {
       // If instead we're launching the app, we must initiate a new connection
       this.serverProvider.connect(defaultServer);
     }
-  }
-
-
-  async ionViewDidLoad() {
-    this.settings.getOpenScanOnStart().then(openScanOnStart => {
-      if (openScanOnStart) {
-        this.navCtrl.push(ScanSessionPage);
-      }
-    });
   }
 
   ionViewDidLeave() {
@@ -327,11 +313,14 @@ export class ScanSessionsPage {
 
   // ScanSessions.OnAddClick() -> ScanSession.GetScanMode()
   async onAddClick() {
-    if (this.scanSessions.length && this.scanSessions[0].name == await this.getDefaultName()) {
+    // BWP::start
+    const scanOnOpen = await this.settings.getOpenScanOnStart();
+    if (scanOnOpen && this.scanSessions.length && this.scanSessions[0].name == await this.getDefaultName()) {
       this.navCtrl.push(ScanSessionPage, { scanSession: this.scanSessions[0] });
     } else {
       this.navCtrl.push(ScanSessionPage);
     }
+    // BWP::end
   }
 
   async getDefaultName() {

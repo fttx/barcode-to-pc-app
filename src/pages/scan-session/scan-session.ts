@@ -7,7 +7,7 @@ import { NativeAudio } from '@ionic-native/native-audio';
 import { NFC } from '@ionic-native/nfc';
 import { SocialSharing } from '@ionic-native/social-sharing';
 import { Promise as BluebirdPromise } from 'bluebird';
-import { ActionSheetController, AlertController, Events, MenuController, ModalController, NavController, NavParams, Platform } from 'ionic-angular';
+import { ActionSheetController, AlertController, Events, LoadingController, MenuController, ModalController, NavController, NavParams, Platform } from 'ionic-angular';
 import { Subscription } from 'rxjs';
 import { KeyboardInputComponent } from '../../components/keyboard-input/keyboard-input';
 import { OutputBlockModel } from '../../models/output-block.model';
@@ -28,6 +28,7 @@ import { SelectScanningModePage } from './select-scanning-mode/select-scanning-m
 import { PhotoViewer } from '@ionic-native/photo-viewer';
 import { WebIntent } from '@ionic-native/web-intent';
 import { LastToastProvider } from '../../providers/last-toast/last-toast';
+import moment from 'moment';
 
 /**
  * This page is used to display the list of the barcodes of a specific
@@ -65,6 +66,9 @@ export class ScanSessionPage {
   onDisconnectSubscription: Subscription;
   onConnectSubscription: any;
 
+  // BWP::start
+  public newItem = false;
+  // BWP::end
 
   constructor(
     public navParams: NavParams,
@@ -91,36 +95,13 @@ export class ScanSessionPage {
     private webIntent: WebIntent,
     public menuCtrl: MenuController,
     private lastToast: LastToastProvider,
+    public loadingCtrl: LoadingController,
   ) {
     this.scanSession = navParams.get('scanSession');
     if (!this.scanSession) {
       this.isNewSession = true;
     }
 
-    // Use to detect wether the webview is visible or if the scanner plugin is
-    // covering it instead.
-    if (this.resumeSubscription != null) {
-      this.resumeSubscription.unsubscribe();
-      this.resumeSubscription = null;
-
-      this.pauseSubscription.unsubscribe();
-      this.pauseSubscription = null;
-    }
-    // BWP::start
-    this.resumeSubscription = this.platform.resume.subscribe(() => { setTimeout(() => { this.isPaused = false; }, 2000); });
-    this.pauseSubscription = this.platform.pause.subscribe(() => { this.isPaused = true; });
-    // BWP::end
-    this.resumeSubscription = this.platform.resume.subscribe(() => {
-      setTimeout(() => { this.isPaused = false; }, 2000);
-    });
-    this.pauseSubscription = this.platform.pause.subscribe(() => {
-      this.isPaused = true;
-
-      // Pause all toast and dialogs until next resume is called
-      if (this.platform.is('ios')) {
-        this.catchUpIOSLag = true;
-      }
-    });
   }
 
 
@@ -142,8 +123,14 @@ export class ScanSessionPage {
   }
 
   // BWP::start
+  // private static hasShownExitScanModeAlert = false;
   async ionViewCanLeave() {
+    // if (!ScanSessionPage.hasShownExitScanModeAlert) {
+    //   ScanSessionPage.hasShownExitScanModeAlert = true;
+    //   return true;
+    // }
     const leave = await new Promise(async resolve => {
+      let cbd = 5;
       const title = 'Exit scan mode';
       const alert = this.alertCtrl.create({
         title: title,
@@ -161,7 +148,7 @@ export class ScanSessionPage {
         ]
       });
 
-      let cbd = 5;
+      alert.setTitle(`${title} (${cbd})`);
       if (cbd != 0) {
         setInterval(() => {
           cbd--;
@@ -211,7 +198,7 @@ export class ScanSessionPage {
           this.exitCounter = 0;
           this.exitTimeout = null;
         }, 1000);
-        if (this.exitCounter == 0) {
+        if (this.exitCounter <= 4) {
           this.lastToast.present(`Press back ${5 - this.exitCounter} times to exit`, 2000);
         } else if (this.exitCounter == 5) {
           this.navCtrl.pop();
@@ -336,6 +323,70 @@ export class ScanSessionPage {
     this.selectedOutputProfileIndex = await this.settings.getSelectedOutputProfile();
     this.realtimeSend = await this.settings.getRealtimeSendEnabled();
     this.disableKeyboarAutofocus = await this.settings.getDisableKeyboarAutofocus();
+
+
+    // BWP::start
+    // Use to detect wether the webview is visible or if the scanner plugin is
+    // covering it instead.
+    if (this.resumeSubscription != null) {
+      this.resumeSubscription.unsubscribe();
+      this.resumeSubscription = null;
+
+      this.pauseSubscription.unsubscribe();
+      this.pauseSubscription = null;
+    }
+    this.resumeSubscription = this.platform.resume.subscribe(async () => {
+      let defaultName = await this.settings.getScanSessionName();
+      defaultName = await this.utils.supplant(defaultName, {
+        scan_session_number: await this.scanSessionsStorage.getNextScanSessionNumber(),
+        device_name: await this.settings.getDeviceName(),
+        date: new Date().toISOString().slice(0, 10).replace(/-/g, ""),
+        custom: moment().format('YYYY-MM-DD') // duplicated code on the scan-session.ts file to check if a day has passed
+      });
+      console.log('@@@@ resume', this.scanSession.name, defaultName)
+      if (this.scanSession && this.scanSession.name != defaultName) {
+        const alert = this.alertCtrl.create({
+          title: 'Good morning!',
+          message: 'It\'s a new day. Tap Next to start a new scan session.',
+          buttons: [
+            {
+              text: 'Next',
+              handler: () => {
+                const loader = this.loadingCtrl.create({
+                  content: "Please wait...",
+                  dismissOnPageChange: true,
+                  enableBackdropDismiss: false,
+                  showBackdrop: true,
+                });
+                loader.present();
+                window.location.reload();
+              }
+            }
+          ]
+        });
+        alert.present();
+      }
+      setTimeout(() => { this.isPaused = false; }, 2000);
+    });
+    this.pauseSubscription = this.platform.pause.subscribe(() => { this.isPaused = true; });
+    this.pauseSubscription = this.platform.pause.subscribe(() => {
+      this.isPaused = true;
+      // Pause all toast and dialogs until next resume is called
+      if (this.platform.is('ios')) {
+        this.catchUpIOSLag = true;
+      }
+    });
+    // BWP::end
+  }
+
+  async ionViewWillLeave() {
+    if (this.resumeSubscription != null) {
+      this.resumeSubscription.unsubscribe();
+      this.resumeSubscription = null;
+
+      this.pauseSubscription.unsubscribe();
+      this.pauseSubscription = null;
+    }
   }
 
   scan() { // Called when the user want to scan
@@ -438,6 +489,11 @@ export class ScanSessionPage {
     this.firebaseAnalytics.logEvent('scan', {});
     this.scanSession.scannings.unshift(scan);
     this.save();
+    // Add the 'flash-first-item' class to the first item
+    this.newItem = true;
+    setTimeout(() => {
+      this.newItem = false; // Remove the flag after the animation
+    }, 1000); // Adjust time to match your animation
     if (this.realtimeSend) this.sendPutScan(scan);
   }
 
@@ -660,28 +716,10 @@ export class ScanSessionPage {
     };
 
     if (showConfirmDialog) {
-      this.alertCtrl.create({
-        title: await this.utils.text('sendBarcodeAgainDialogTitle'),
-        inputs: [{
-          type: 'checkbox',
-          label: await this.utils.text('sendBarcodeAgainDialogMessage'),
-          value: 'skipAlreadySent',
-          checked: true
-        }],
-        buttons: [{
-          text: await this.utils.text('sendBarcodeAgainDialogCancelButton'), role: 'cancel', handler: data => { }
-        }, {
-          text: await this.utils.text('sendBarcodeAgainDialogSendButton'),
-          handler: data => {
-            this.firebaseAnalytics.logEvent('repeatAll', {});
-            this.skipAlreadySent = (data == 'skipAlreadySent');
-            doRepeat();
-          }
-        }]
-      }).present();
-    } else {
+      // BWP::start
       this.skipAlreadySent = true;
       doRepeat();
+      // BWP::end
     }
   }
 
@@ -846,4 +884,31 @@ export class ScanSessionPage {
       }
     }
   }
+
+  // BWP::start
+  getDisplayValue(scan: ScanModel) {
+    const barcode = scan.outputBlocks.find(x => x.type == 'barcode').value;
+    const date = scan.outputBlocks.find(x => x.type == 'date_time').value;
+    // <b>ITF:</b> ${barcode.replace(/\x1d/g, '').substr(2, 14)}<br>
+    return `
+    <table>
+      <tr>
+        <td><b>Date:</b></td>
+        <td class="value">${date}</td>
+      </tr>
+      <tr>
+        <td><b>Label S/N:</b></td>
+        <td class="value">${barcode.replace(/\x1d/g, '').substr(18, 7)}</td>
+      </tr>
+      <tr>
+        <td><b>Tag Colour:</b></td>
+        <td class="value">${barcode.replace(/\x1d/g, '').substr(27, 5)}</td>
+      </tr>
+      <tr>
+        <td><b>Item Code:</b></td>
+        <td class="value">${barcode.replace(/\x1d/g, '').substr(35, 9999)}</td>
+      </tr>
+    </table>`;
+  }
+  // BWP::end
 }

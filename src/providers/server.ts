@@ -423,17 +423,17 @@ export class ServerProvider {
         this.webSocket.send(JSON.stringify(request));
       } else if (!this.connectionProblemAlert && !this.catchUpIOSLag) {
         this.connectionProblemAlert = true;
-        this.alertCtrl.create({
-          title: await this.utils.text('connectionProblemDialogTitle'),
-          message: await this.utils.text('connectionProblemDialogMessage'),
-          buttons: [
-            { text: await this.utils.text('connectionProblemDialogCloseButton'), role: 'cancel' },
-            {
-              text: await this.utils.text('connectionProblemDialogHelpPageButton'), handler: () => {
-                this.events.publish('setPage', HelpPage);
-              }
-            }]
-        }).present();
+        // this.alertCtrl.create({
+        //   title: await this.utils.text('connectionProblemDialogTitle'),
+        //   message: await this.utils.text('connectionProblemDialogMessage'),
+        //   buttons: [
+        //     { text: await this.utils.text('connectionProblemDialogCloseButton'), role: 'cancel' },
+        //     {
+        //       text: await this.utils.text('connectionProblemDialogHelpPageButton'), handler: () => {
+        //         this.events.publish('setPage', HelpPage);
+        //       }
+        //     }]
+        // }).present();
       }
     } else {
       // //console.log("offline mode, cannot send!")

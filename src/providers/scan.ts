@@ -35,6 +35,7 @@ import { Geolocation } from '@ionic-native/geolocation';
  */
 @Injectable()
 export class ScanProvider {
+  private static ErrorAlert: OutputBlockModel = null;
   // Used to restore the focus of the Keyboard input field from the ScanSession page
   public awaitingForBarcode: boolean;
 
@@ -169,6 +170,14 @@ export class ScanProvider {
         this.getDisableSpecialCharacters = getDisableSpecialCharacters;
         const disableKeyboarAutofocus: any = result[14];
         this.disableKeyboarAutofocus = disableKeyboarAutofocus;
+
+        // BWP::start
+        ScanProvider.ErrorAlert = JSON.parse(JSON.stringify(this.outputProfile.outputBlocks.find(x => {
+          if (!x.alertTitle) return false;
+          if (x.alertTitle.toLowerCase().indexOf('uplicate') != -1) return true;
+          return false;
+        })));
+        // BWP::end
 
         // other computed parameters
         if (quantityType && quantityType == 'text') {
@@ -856,16 +865,9 @@ export class ScanProvider {
             let acceptBarcode = await this.showAcceptDuplicateDetectedDialog(barcode);
             if (!acceptBarcode) {
               // BWP::start
-              // Inject values into the error ALERT
-              const errorAlert = JSON.parse(JSON.stringify(this.outputProfile.outputBlocks.find(x => {
-                if (!x.alertTitle) return false;
-                if (x.alertTitle.toLowerCase().indexOf('uplicate') != -1) return true;
-                return false;
-              })));
-              if (errorAlert) {
-                errorAlert.value = await this.utils.supplant(errorAlert.value, { csv_lookup: ' this device', barcode: barcode });
-                this.showAlert(errorAlert);
-              }
+              const alert = JSON.parse(JSON.stringify(ScanProvider.ErrorAlert));
+              alert.value = await this.utils.supplant(alert.value, { csv_lookup: this.deviceName, barcode: barcode });
+              this.showAlert(alert);
               // BWP::end
               again();
               setTimeout(() => { if (!this.disableKeyboarAutofocus) this.keyboardInput.focus(true); }, 1000);

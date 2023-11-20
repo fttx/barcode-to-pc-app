@@ -1,9 +1,9 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget android-versionCode="154" id="com.barcodetopc" version="4.6.1" xmlns="http://www.w3.org/ns/widgets" xmlns:android="http://schemas.android.com/apk/res/android" xmlns:cdv="http://cordova.apache.org/ns/1.0">
-    <name>Barcode to PC</name>
+<widget android-versionCode="154" id="com.barcodetopc.bwp" version="4.6.1" xmlns="http://www.w3.org/ns/widgets" xmlns:android="http://schemas.android.com/apk/res/android" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+    <name>Bluewater Pipe</name>
     <description>Turn your smartphone in a real barcode scanner</description>
     <author email="filippo.tortomasi@gmail.com" href="https://github.com/fttx">Filippo Tortomasi</author>
-    <content original-src="index.html" src="http://localhost:8100" />
+    <content src="index.html" />
     <access origin="*" />
     <allow-navigation href="*" />
     <allow-intent href="http://*/*" />
@@ -19,8 +19,8 @@
     <preference name="android-targetSdkVersion" value="33" />
     <preference name="android-compileSdkVersion" value="33" />
     <preference name="BackupWebStorage" value="none" />
-    <preference name="HeaderColor" value="#B71C1C" />
-    <preference name="StatusBarBackgroundColor" value="#B71C1C" />
+    <preference name="HeaderColor" value="#36373A" />
+    <preference name="StatusBarBackgroundColor" value="#009DDE" />
     <preference name="StatusBarOverlaysWebView" value="false" />
     <preference name="StatusBarStyle" value="lightcontent" />
     <preference name="SplashShowOnlyFirstTime" value="false" />
@@ -37,15 +37,15 @@
     <platform name="android">
         <resource-file src="google-services.json" target="app/google-services.json" />
         <allow-intent href="market:*" />
-        <icon density="ldpi" src="resources/android/icon/drawable-ldpi-icon.png" />
-        <icon density="mdpi" src="resources/android/icon/drawable-mdpi-icon.png" />
-        <icon density="hdpi" src="resources/android/icon/drawable-hdpi-icon.png" />
-        <icon density="xhdpi" src="resources/android/icon/drawable-xhdpi-icon.png" />
-        <icon density="xxhdpi" src="resources/android/icon/drawable-xxhdpi-icon.png" />
-        <icon density="xxxhdpi" src="resources/android/icon/drawable-xxxhdpi-icon.png" />
+        <resource-file src="resources/android/res/colors.xml" target="app/src/main/res/values/colors.xml" />
+        <icon background="@color/ic_launcher_background" density="mdpi" foreground="resources/android/res/mipmap-mdpi/ic_launcher_foreground.png" />
+        <icon background="@color/ic_launcher_background" density="hdpi" foreground="resources/android/res/mipmap-hdpi/ic_launcher_foreground.png" />
+        <icon background="@color/ic_launcher_background" density="xhdpi" foreground="resources/android/res/mipmap-xhdpi/ic_launcher_foreground.png" />
+        <icon background="@color/ic_launcher_background" density="xxhdpi" foreground="resources/android/res/mipmap-xxhdpi/ic_launcher_foreground.png" />
+        <icon background="@color/ic_launcher_background" density="xxxhdpi" foreground="resources/android/res/mipmap-xxxhdpi/ic_launcher_foreground.png" />
         <preference name="AndroidWindowSplashScreenAnimatedIcon" value="resources/android/splash/splash.png" />
         <preference name="AndroidWindowSplashScreenAnimationDuration" value="400" />
-        <preference name="AndroidWindowSplashScreenBackground" value="#B71C1C" />
+        <preference name="AndroidWindowSplashScreenBackground" value="#36373A" />
         <preference name="AndroidPersistentFileLocation" value="Compatibility" />
         <hook src="hooks/android/after_prepare_add_android_exported.js" type="after_prepare" />
         <hook src="hooks/android/after_prepare_remove_duplicated_write_external.js" type="after_prepare" />

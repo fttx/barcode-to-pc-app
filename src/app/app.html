@@ -2,20 +2,6 @@
     <ion-content>
         <ion-list>
             <ion-list-header>
-                {{ 'mainHeader' | translate}}
-            </ion-list-header>
-
-            <button ion-item (click)="scanSessions()">
-                <ion-icon name="list" item-left></ion-icon>
-                {{ 'scanSessions' | translate}}
-            </button>
-
-            <button ion-item (click)="archived()">
-                <ion-icon name="archive" item-left></ion-icon>
-                {{ 'archived' | translate}}
-            </button>
-
-            <ion-list-header>
                 {{ 'settingsHeader' | translate}}
             </ion-list-header>
 
@@ -24,7 +10,7 @@
                 {{ 'selectServer' | translate}}
             </button>
 
-            <button ion-item (click)="settingsPage()">
+            <button ion-item (click)="settingsPage()" no-lines>
                 <ion-icon name="settings" item-left></ion-icon>
                 {{ 'settings' | translate}}
             </button>
@@ -32,11 +18,6 @@
             <ion-list-header>
                 {{ 'otherHeader' | translate}}
             </ion-list-header>
-
-            <button ion-item (click)="help()">
-                <ion-icon name="help-circle" item-left></ion-icon>
-                {{ 'help' | translate}}
-            </button>
 
             <button ion-item (click)="about()">
                 <ion-icon name="information-circle" item-left></ion-icon>
