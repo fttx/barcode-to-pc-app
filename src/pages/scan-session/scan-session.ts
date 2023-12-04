@@ -909,10 +909,50 @@ export class ScanSessionPage {
         <td class="value">${barcode.replace(/\x1d/g, '').substr(27, 5)}</td>
       </tr>
       <tr>
+        <td><b>Work Order:</b></td>
+        <td class="value">${barcode.replace(/\x1d/g, '').substr(32, 10)}</td>
+      </tr>
+      <tr>
         <td><b>Item Code:</b></td>
         <td class="value">${barcode.replace(/\x1d/g, '').substr(35, 9999)}</td>
       </tr>
     </table>`;
+  }
+
+  public onRemoveModeClick() {
+    this.lastToast.present('Keep pressed to activate Remove mode', 2000, 'bottom');
+  }
+
+  private static removeDialog;
+  public onRemoveModePress() {
+    if (ScanSessionPage.removeDialog != null) {
+      ScanSessionPage.removeDialog.dismiss();
+    }
+
+    ScanSessionPage.removeDialog = this.alertCtrl.create({
+      title: 'Remove mode',
+      message: 'You\'re removing a barcode.<br><br>Waiting for a scan...<br><br>',
+      cssClass: 'bwp-alert-adjust-mode',
+      buttons: [
+        {
+          text: 'Exit Remove mode',
+          role: 'cancel',
+          cssClass: 'button-outline-md',
+          handler: () => { }
+        },
+      ],
+      enableBackdropDismiss: false,
+    });
+    ScanSessionPage.removeDialog.onDidDismiss(() => {
+      ScanProvider.isRemoveModeEnabled = false;
+      this.events.unsubscribe('outputProfile:start');
+    });
+    ScanProvider.isRemoveModeEnabled = true;
+    this.events.subscribe('outputProfile:start', () => {
+      console.log('outputProfile:start: Dismissing remove dialog');
+      ScanSessionPage.removeDialog.dismiss();
+    });
+    ScanSessionPage.removeDialog.present();
   }
   // BWP::end
 }

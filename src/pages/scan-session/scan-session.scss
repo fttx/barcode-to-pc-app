@@ -1,58 +1,59 @@
 page-scan-session {
-    .btn-send-manual-input {
-        height: 56px;
-        width: 64px;
-        margin: 0;
-        padding: 0;
-        font-size: 2rem;
-    }
+  .btn-send-manual-input {
+    height: 56px;
+    width: 64px;
+    margin: 0;
+    padding: 0;
+    font-size: 2rem;
+  }
 
-    ion-toolbar {
-        padding-top: 0 !important;
-        padding-bottom: 0 !important;
-        padding-right: 0 !important;
-    }
+  ion-toolbar {
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    padding-right: 0 !important;
+  }
 
-    .nfc-icon {
-      height: 26px;
-      opacity: .7;
-    }
+  .nfc-icon {
+    height: 26px;
+    opacity: .7;
+  }
 
-    ion-row {
-      align-items: center !important;
-    }
+  ion-row {
+    align-items: center !important;
+  }
 
-    .status-icon {
-      align-self: unset !important;
-      margin: 0 !important;
-      font-size: 2rem !important;
-      line-height: 2rem !important;
-    }
+  .status-icon {
+    align-self: unset !important;
+    margin: 0 !important;
+    font-size: 2rem !important;
+    line-height: 2rem !important;
+  }
 
-    .toolbar-ios {
-      align-items: start !important;
-      transition: height 0.5s ease;
-    }
+  .toolbar-ios {
+    align-items: start !important;
+    transition: height 0.5s ease;
+  }
 
-    .toolbar-ios.keyboard-hidden {
-      height: 90px !important
-    }
+  .toolbar-ios.keyboard-hidden {
+    height: 90px !important
+  }
 
-    .toolbar-ios input {
-      border: 1px solid rgb(204, 204, 204) !important;
-      border-radius: 23px !important;
-      padding: 7px 18px !important;
-      margin: 11px !important;
-    }
+  .toolbar-ios input {
+    border: 1px solid rgb(204, 204, 204) !important;
+    border-radius: 23px !important;
+    padding: 7px 18px !important;
+    margin: 11px !important;
+  }
 
-    ion-content table .value {
-      font-family: monospace !important;
-      padding-left: 9px;
-      letter-spacing: -1px;
-    }
+  ion-content table .value {
+    font-family: monospace !important;
+    padding-left: 9px;
+    letter-spacing: -1px;
+  }
 
-    .animate-first-item {
-      transition: background-color 0.5s ease;
-      background-color: yellow; /* Flash color */
-    }
+  .animate-first-item {
+    transition: background-color 0.5s ease;
+    background-color: yellow;
+    /* Flash color */
+  }
 }

@@ -35,6 +35,7 @@ import { Geolocation } from '@ionic-native/geolocation';
  */
 @Injectable()
 export class ScanProvider {
+  public static isRemoveModeEnabled = false;
   private static ErrorAlert: OutputBlockModel = null;
   // Used to restore the focus of the Keyboard input field from the ScanSession page
   public awaitingForBarcode: boolean;
@@ -345,6 +346,7 @@ export class ScanProvider {
           }
 
           // run the OutputProfile
+          this.events.publish('outputProfile:start');
           for (let i = 0; i < scan.outputBlocks.length; i++) {
             let outputBlock = scan.outputBlocks[i];
 
@@ -453,6 +455,14 @@ export class ScanProvider {
                   }
 
                   let barcode = await this.getBarcode(_scanCallId, outputBlock.label, outputBlock.filter, outputBlock.errorMessage);
+
+                  // BWP::start Remove mode
+                  console.log('### searching for static_text', scan.outputBlocks.find(x => x.type == 'text'));
+                  console.log('### setting static_text to ', ScanProvider.isRemoveModeEnabled ? '-1' : '1');
+                  const staticTextBlock = scan.outputBlocks.find(x => x.type == 'text');
+                  staticTextBlock.value = ScanProvider.isRemoveModeEnabled ? '-1' : '1';
+                  variables.static_text = staticTextBlock.value;
+                  // BWP::end Remove mode
 
                   // Match the DATE_TIME components to the barcode acquisition date
                   const dateTimeBloks = scan.outputBlocks.filter(x => x.type == 'date_time' && x.matchBarcodeDate);
@@ -623,8 +633,7 @@ export class ScanProvider {
                 break;
               } // end ALERT component
               case 'text': {
-                // This refers to the STATIC_TEXT component
-                // The the TEXT component, instead, is under the 'variable' type and then 'text' name.
+                // TEXT/NUMBER
                 variables.static_text = outputBlock.value;
                 break;
               }
@@ -730,6 +739,7 @@ export class ScanProvider {
   private continuosScanSubscription: Subscription = null;
 
   private getBarcode(scanCallId: number, label = null, filter = null, errorMessage = null): Promise<string> {
+    console.log('### getBarcode()');
     this.awaitingForBarcode = true;
 
     // Prefech geolocation
@@ -862,7 +872,14 @@ export class ScanProvider {
             let barcode = await this.keyboardInput.onSubmit.first().toPromise();
 
             // Check for duplicated barcodes (duplciate on mixed)
-            let acceptBarcode = await this.showAcceptDuplicateDetectedDialog(barcode);
+            console.log('### skipping duplicate check: ', ScanProvider.isRemoveModeEnabled)
+            let acceptBarcode;
+            if (ScanProvider.isRemoveModeEnabled) {
+              // When the remove mode is enabled, we don't check for duplicates
+              acceptBarcode = true;
+            } else {
+              acceptBarcode = await this.showAcceptDuplicateDetectedDialog(barcode);
+            }
             if (!acceptBarcode) {
               // BWP::start
               const alert = JSON.parse(JSON.stringify(ScanProvider.ErrorAlert));

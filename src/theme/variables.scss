@@ -35,16 +35,16 @@ $text-input-md-show-focus-highlight: false;
 // The "primary" color is the only required color in the map.
 
 $colors: (
-  primary:    #36373A,
-  secondary:  #009DDE,
-  danger:     #f53d3d,
-  archived:   #9e7e7e,
-  light:      #f4f4f4,
-  dark:       #222,
-  favorite:   #69BB7B,
-  text:       #ffffff,
-  info:       #e4e4e4,
-  edit:       #2672b1,
+  primary: #36373A,
+  secondary: #009DDE,
+  danger: #f53d3d,
+  archived: #9e7e7e,
+  light: #f4f4f4,
+  dark: #222,
+  favorite: #69BB7B,
+  text: #ffffff,
+  info: #e4e4e4,
+  edit: #2672b1,
 );
 
 
@@ -98,6 +98,7 @@ $colors: (
   .button-generic .button-inner {
     justify-content: center !important;
   }
+
   .button-generic {
     margin-bottom: 20px !important;
   }
@@ -115,6 +116,7 @@ $colors: (
 
   .alert-button-stacked {
     margin: 8px 8px 0 0 !important;
+
     .button-inner {
       justify-content: center !important;
     }
@@ -155,7 +157,7 @@ $colors: (
 }
 
 
-.md ion-list-header{
+.md ion-list-header {
   font-size: 1.9rem !important;
   font-weight: 700 !important;
   color: black !important;
@@ -168,6 +170,7 @@ $colors: (
 .alert-md .alert-wrapper {
   width: 90% !important;
   max-width: 90% !important;
+  padding-bottom: 20px;
 }
 
 .alert-md .alert-message {
@@ -188,4 +191,14 @@ $colors: (
 
 .alert-button-group {
   justify-content: center !important;
+}
+
+.bwp-alert-adjust-mode .alert-wrapper {
+  background: #ffe6e6;
+  border: 4px solid red;
+  border-radius: 8px !important;
+}
+
+.bwp-alert-adjust-mode .alert-title {
+  font-weight: 900;
 }
