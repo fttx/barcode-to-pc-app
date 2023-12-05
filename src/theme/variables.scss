@@ -175,6 +175,7 @@ $colors: (
 
 .alert-md .alert-message {
   font-size: 16px !important;
+  // padding: 1rem !important;
 }
 
 .alert-md table td {
@@ -185,7 +186,7 @@ $colors: (
 .alert-md table .value {
   font-family: monospace !important;
   padding-left: 3px !important;
-  font-size: 20px !important;
+  font-size: 18px !important;
   letter-spacing: -2px;
 }
 
@@ -201,4 +202,34 @@ $colors: (
 
 .bwp-alert-adjust-mode .alert-title {
   font-weight: 900;
+}
+
+
+ion-content table {
+  width: calc(100% - 20px) !important;
+}
+
+.alert-md table {
+  width: 100% !important;
+}
+
+ion-content table tr,
+.alert-md table tr {
+  height: 20px !important;
+  // border-bottom: 1px solid rgb(250, 250, 250) !important;
+}
+
+ion-content table .value,
+.alert-md table .value {
+  font-family: monospace !important;
+  padding-left: 9px !important;
+  letter-spacing: -1px !important;
+}
+
+// ion-content table tr>td {
+// width: 0px !important;
+// }
+
+.alert-md table tr>td {
+  width: 50px !important;
 }

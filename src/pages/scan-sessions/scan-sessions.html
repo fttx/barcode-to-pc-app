@@ -1,75 +1,75 @@
 <ion-header>
-	<ion-navbar [color]="selectedScanSessions.length != 0 ? 'light' : 'primary'">
-		<button ion-button menuToggle>
-			<ion-icon name="menu"></ion-icon>
-		</button>
+  <ion-navbar [color]="selectedScanSessions.length != 0 ? 'light' : 'primary'">
+    <button ion-button menuToggle>
+      <ion-icon name="menu"></ion-icon>
+    </button>
 
-		<ion-title *ngIf="selectedScanSessions.length == 0">{{ 'scanSessionsTitle' | translate }}</ion-title>
+    <ion-title *ngIf="selectedScanSessions.length == 0">{{ 'scanSessionsTitle' | translate }}</ion-title>
 
-		<ion-buttons end *ngIf="selectedScanSessions.length == 0">
-			<button ion-button icon-only (click)="onSelectServerClick()">
-				<ion-icon name="ios-wifi" [style.color]="connected ? 'white': 'rgba(255,255,255,.4)'"></ion-icon>
-			</button>
-		</ion-buttons>
+    <ion-buttons end *ngIf="selectedScanSessions.length == 0">
+      <button ion-button icon-only (click)="onSelectServerClick()">
+        <ion-icon name="ios-wifi" [style.color]="connected ? 'white': 'rgba(255,255,255,.4)'"></ion-icon>
+      </button>
+    </ion-buttons>
 
-		<ion-buttons end *ngIf="selectedScanSessions.length != 0">
+    <ion-buttons end *ngIf="selectedScanSessions.length != 0">
 
-			<button ion-button icon-only (click)="onArchiveSelectedClick()">
-				<ion-icon name="archive"></ion-icon>
-			</button>
+      <button ion-button icon-only (click)="onArchiveSelectedClick()">
+        <ion-icon name="archive"></ion-icon>
+      </button>
 
-			<button ion-button icon-only (click)="onDeleteSelectedClick()">
-				<ion-icon name="trash"></ion-icon>
-			</button>
+      <button ion-button icon-only (click)="onDeleteSelectedClick()">
+        <ion-icon name="trash"></ion-icon>
+      </button>
 
-			<button ion-button icon-only (click)="onSelectAllClick()">
-				{{ 'selectAllButton' | translate }}
-			</button>
+      <button ion-button icon-only (click)="onSelectAllClick()">
+        {{ 'selectAllButton' | translate }}
+      </button>
 
-			<button ion-button icon-right color="royal" (click)="onCancelSelectionClick()">
-				{{ 'cancelButton' | translate }}
-			</button>
-		</ion-buttons>
-	</ion-navbar>
+      <button ion-button icon-right color="royal" (click)="onCancelSelectionClick()">
+        {{ 'cancelButton' | translate }}
+      </button>
+    </ion-buttons>
+  </ion-navbar>
 </ion-header>
 
 <ion-content>
-	<ion-list>
-		<ion-item-sliding *ngFor="let scanSession of scanSessions; let i = index;" (ionSwipe)="onScanSessionPress(scanSession, i); onArchiveSelectedClick()" #slidingItem>
-			<!-- <ion-item-options side="right" *ngIf="platform.is('ios')"> -->
-			<ion-item-options side="right">
-				<button color="danger" ion-button (click)="onDeleteClick(scanSession, i, slidingItem)">
-					<ion-icon name="trash"></ion-icon>
-					{{ 'deleteButton' | translate }}
-				</button>
-				<button color="archived" expandable ion-button (click)="onScanSessionPress(scanSession, i); onArchiveSelectedClick()">
-					<ion-icon name="archive"></ion-icon>
-					{{ 'archiveButton' | translate }}
-				</button>
-			</ion-item-options>
+  <ion-list>
+    <ion-item-sliding *ngFor="let scanSession of scanSessions; let i = index;" (ionSwipe)="onScanSessionPress(scanSession, i); onArchiveSelectedClick()" #slidingItem>
+      <!-- <ion-item-options side="right" *ngIf="platform.is('ios')"> -->
+      <ion-item-options side="right">
+        <button color="danger" ion-button (click)="onDeleteClick(scanSession, i, slidingItem)">
+          <ion-icon name="trash"></ion-icon>
+          {{ 'deleteButton' | translate }}
+        </button>
+        <button color="archived" expandable ion-button (click)="onScanSessionPress(scanSession, i); onArchiveSelectedClick()">
+          <ion-icon name="archive"></ion-icon>
+          {{ 'archiveButton' | translate }}
+        </button>
+      </ion-item-options>
 
-			<!-- ionic bug: press on ios also triggers click -->
-			<!-- work around: use sliding items on ios only -->
-			<!-- UPDATE: maybe fixed? -->
-			<button ion-item (click)="onScanSessionClick(scanSession, i)" (press)="onScanSessionPress(scanSession, i)" [color]="scanSession.selected ? 'light' : 'default'">
-				<ion-avatar item-left>
-					<circle-text [value]="scanSession.name" [checked]="scanSession.selected">{{ scanSession.name }}</circle-text>
-				</ion-avatar>
-				<h2>{{ scanSession.name }}</h2>
-				<p>{{ 'created' | translate }}: {{ scanSession.date | amDateFormat:"YYYY/MM/DD HH:mm" }}</p>
-				<p>{{ 'numberOfScannings' | translate }}: {{ scanSession.scannings.length }}</p>
-			</button>
-		</ion-item-sliding>
-	</ion-list>
+      <!-- ionic bug: press on ios also triggers click -->
+      <!-- work around: use sliding items on ios only -->
+      <!-- UPDATE: maybe fixed? -->
+      <button ion-item (click)="onScanSessionClick(scanSession, i)" (press)="onScanSessionPress(scanSession, i)" [color]="scanSession.selected ? 'light' : 'default'">
+        <ion-avatar item-left>
+          <circle-text [value]="scanSession.name" [checked]="scanSession.selected">{{ scanSession.name }}</circle-text>
+        </ion-avatar>
+        <h2>{{ scanSession.name }}</h2>
+        <p>{{ 'created' | translate }}: {{ scanSession.date | amDateFormat:"YYYY/MM/DD HH:mm" }}</p>
+        <p>{{ 'numberOfScannings' | translate }}: {{ scanSession.scannings.length }}</p>
+      </button>
+    </ion-item-sliding>
+  </ion-list>
 
-	<div class="empty" *ngIf="scanSessions.length == 0">
-		<img src="assets/welcome/a5fsa.jpg" alt="logo" class="desaturate-img" />
-		<br /> {{ 'scanSessionListEmpty' | translate }}.
-		<br />{{ 'clickToStartScan' | translate }}
-	</div>
+  <div class="empty" *ngIf="scanSessions.length == 0">
+    <img src="assets/welcome/a5fsa.jpg" alt="logo" class="desaturate-img" />
+    <br /> {{ 'scanSessionListEmpty' | translate }}.
+    <br />{{ 'clickToStartScan' | translate }}
+  </div>
 
-	<!--Other possible implementation-->
-	<!--<ion-fab bottom right>
+  <!--Other possible implementation-->
+  <!--<ion-fab bottom right>
 		<button ion-fab>
 			<ion-icon name="camera"></ion-icon>
 		</button>
@@ -83,9 +83,9 @@
 		</ion-fab-list>
 	</ion-fab>-->
 
-	<ion-fab bottom right>
-		<button ion-fab (click)="onAddClick()">
-			<ion-icon name="camera"></ion-icon>
-		</button>
-	</ion-fab>
+  <ion-fab bottom right>
+    <button ion-fab (click)="onAddClick()">
+      <ion-icon name="camera"></ion-icon>
+    </button>
+  </ion-fab>
 </ion-content>

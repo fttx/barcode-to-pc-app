@@ -10,7 +10,7 @@
       </button>
 
       <!-- Divider -->
-      <button ion-button style="opacity: .4;">&nbsp; | &nbsp;</button>
+      <button ion-button style="opacity: .4;"> | </button>
 
       <button ion-button icon-only>
         <ion-icon name="ios-wifi" [style.color]="connected ? 'white': 'rgba(255,255,255,.4)'"></ion-icon>
@@ -41,18 +41,11 @@
 
 <ion-content>
   <ion-list [virtualScroll]="(scanSession && scanSession.scannings) || []" [approxItemHeight]="'47px'" [bufferRatio]="5" id="bwp-list">
-    <button ion-item *virtualItem="let scan; let i = index" (click)="onItemClicked(scan, i)" (press)="onItemPressed(scan, i)" [color]="scan.repeated ? 'light' : 'default'" [class.animate-first-item]="newItem && i == 0">
-      <ion-grid no-padding>
-        <ion-row>
-          <!-- BWP::start -->
-          <ion-col align-self-start col-1 class="status-icon">
-            <ion-icon [name]="scan.ack ? 'checkmark-circle' : 'alert'" [style.color]="scan.ack ? 'green' : 'red'"></ion-icon>
-          </ion-col>
-          <ion-col text-wrap [innerHTML]="getDisplayValue(scan)">
-          </ion-col>
-          <!-- BWP::end -->
-        </ion-row>
-      </ion-grid>
+    <button ion-item no-padding *virtualItem="let scan; let i = index" (click)="onItemClicked(scan, i)" (press)="onItemPressed(scan, i)" [class.animate-first-item]="newItem && i == 0" [color]="getBackgroundColor(scan)">
+      <!-- BWP::start -->
+      <div class="bwp-display-value" text-wrap [innerHTML]="getDisplayValue(scan)"></div>
+      <ion-icon class="bwp-sync-status" [name]="scan.ack ? 'checkmark-circle' : 'alert'" [style.color]="scan.ack ? 'green' : 'red'"></ion-icon>
+      <!-- BWP::end -->
     </button>
   </ion-list>
 

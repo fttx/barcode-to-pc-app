@@ -126,6 +126,7 @@ export class SelectScanningModePage {
 
   async getScanSessionName(): Promise<string> {
     const filterStr = await this.settings.getScanSessionFilter();
+    const deviceName = await this.settings.getDeviceName();
 
     const acquireScanSessionName = (): Promise<string> => {
       return new Promise(async (resolve, reject) => {
@@ -134,7 +135,7 @@ export class SelectScanningModePage {
           scan_session_number: await this.scanSessionsStorage.getNextScanSessionNumber(),
           device_name: await this.settings.getDeviceName(),
           date: new Date().toISOString().slice(0, 10).replace(/-/g, ""),
-          custom: moment().format('YYYY-MM-DD') // duplicated code on the scan-session.ts file to check if a day has passed
+          custom: moment().format('YYYY-MM-DD') + '@' + deviceName // duplicated code on the scan-session.ts file to check if a day has passed
         });
 
         let alwaysUseCameraForScanSessionName = await this.settings.getAlwaysUseCameraForScanSessionName();

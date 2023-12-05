@@ -169,8 +169,10 @@ export class ScanSessionPage {
   }
   // BWP::end
 
+  public deviceName = "";
   async ionViewDidEnter() {
     this.firebaseAnalytics.setCurrentScreen("ScanSessionPage");
+    this.deviceName = await this.settings.getDeviceName();
     this.responseSubscription = this.serverProvider.onMessage().subscribe(message => {
       if (message.action == responseModel.ACTION_PUT_SCAN_ACK) {
         let response: responseModelPutScanAck = message;
@@ -345,7 +347,7 @@ export class ScanSessionPage {
         scan_session_number: await this.scanSessionsStorage.getNextScanSessionNumber(),
         device_name: await this.settings.getDeviceName(),
         date: new Date().toISOString().slice(0, 10).replace(/-/g, ""),
-        custom: moment().format('YYYY-MM-DD') // duplicated code on the scan-session.ts file to check if a day has passed
+        custom: moment().format('YYYY-MM-DD') + '@' + this.deviceName // duplicated code on the scan-session.ts file to check if a day has passed
       });
       console.log('@@@@ resume', this.scanSession.name, defaultName)
       if (this.scanSession && this.scanSession.name != defaultName) {
@@ -493,11 +495,17 @@ export class ScanSessionPage {
     this.firebaseAnalytics.logEvent('scan', {});
     this.scanSession.scannings.unshift(scan);
     this.save();
-    // Add the 'flash-first-item' class to the first item
-    this.newItem = true;
-    setTimeout(() => {
-      this.newItem = false; // Remove the flag after the animation
-    }, 1000); // Adjust time to match your animation
+
+    if (scan.outputBlocks.find(x => x.type == 'text' && x.value != '-1')) {
+      // Add the 'flash-first-item' class to the first item
+      // We don't animate Removed items
+      this.newItem = true;
+      setTimeout(() => {
+        this.newItem = false; // Remove the flag after the animation
+      }, 3000); // Adjust time to match your animation
+    }
+
+    // Send
     if (this.realtimeSend) this.sendPutScan(scan);
   }
 
@@ -518,6 +526,10 @@ export class ScanSessionPage {
   }
 
   async onItemClicked(scan: ScanModel, scanIndex: number) {
+    if (scan.ack) {
+      return;
+    }
+
     if (!this.serverProvider.isConnected()) {
       this.showImage(scan);
       return;
@@ -558,28 +570,6 @@ export class ScanSessionPage {
   async onItemPressed(scan: ScanModel, scanIndex: number) {
     let buttons = [];
 
-    buttons.push({
-      text: await this.utils.text('scanDeleteOnlySmartphoneDeleteButton'), icon: 'trash', role: 'destructive', handler: async () => {
-        this.firebaseAnalytics.logEvent('delete', {});
-        this.alertCtrl.create({
-          title: await this.utils.text('scanDeleteOnlySmartphoneDialogTitle'),
-          message: await this.utils.text('scanDeleteOnlySmartphoneDialogMessage'),
-          buttons: [{
-            text: await this.utils.text('scanDeleteOnlySmartphoneDialogCancelButton'), role: 'cancel'
-          }, {
-            text: await this.utils.text('scanDeleteOnlySmartphoneDialogDeleteButton'), handler: () => {
-              this.scanSession.scannings.splice(scanIndex, 1);
-              this.save();
-              this.sendDeleteScan(scan);
-              if (this.scanSession.scannings.length == 0) {
-                // TODO go back and delete scan session
-              }
-            }
-          }]
-        }).present();
-      }
-    });
-
     let scanString = ScanModel.ToString(scan);
     buttons.push({
       text: await this.utils.text('shareButton'), icon: 'share', handler: () => {
@@ -598,7 +588,7 @@ export class ScanSessionPage {
     }
 
     buttons.push({
-      text: await this.utils.text('repeatHereButton'), icon: 'refresh',
+      text: await this.utils.text('Sync from here'), icon: 'refresh',
       handler: () => {
         this.firebaseAnalytics.logEvent('repeatAll', {});
         if (this.repeatingStatus == 'stopped') {
@@ -905,18 +895,24 @@ export class ScanSessionPage {
         <td class="value">${barcode.replace(/\x1d/g, '').substr(18, 7)}</td>
       </tr>
       <tr>
-        <td><b>Tag Colour:</b></td>
+        <td><b>Tag Color:</b></td>
         <td class="value">${barcode.replace(/\x1d/g, '').substr(27, 5)}</td>
       </tr>
       <tr>
         <td><b>Work Order:</b></td>
-        <td class="value">${barcode.replace(/\x1d/g, '').substr(32, 10)}</td>
+        <td class="value">${barcode.substr(36, 9999).replace(/^0+/, '').split(/\x1d/g)[0]}</td>
       </tr>
       <tr>
         <td><b>Item Code:</b></td>
-        <td class="value">${barcode.replace(/\x1d/g, '').substr(35, 9999)}</td>
+        <td class="value">
+          ${barcode.replace(/\x1d/g, '').substr(51, 9999)}
+        </td>
       </tr>
     </table>`;
+  }
+
+  getBackgroundColor(scan: ScanModel) {
+    return scan.outputBlocks.find(x => x.type == 'text').value == '-1' ? 'danger' : ''
   }
 
   public onRemoveModeClick() {
@@ -950,6 +946,10 @@ export class ScanSessionPage {
     ScanProvider.isRemoveModeEnabled = true;
     this.events.subscribe('outputProfile:start', () => {
       console.log('outputProfile:start: Dismissing remove dialog');
+      ScanSessionPage.removeDialog.dismiss();
+    });
+    this.events.subscribe('outputProfile:cannotRemove', () => {
+      console.log('outputProfile:cannotRemove: Dismissing remove dialog');
       ScanSessionPage.removeDialog.dismiss();
     });
     ScanSessionPage.removeDialog.present();

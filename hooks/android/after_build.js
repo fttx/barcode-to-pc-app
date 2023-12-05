@@ -49,7 +49,10 @@ if (fs.existsSync(AAB_PATH)) {
           if (fs.existsSync(apkPath)) {
             fs.unlinkSync(apkPath);
           }
-          execSync(`bundletool build-apks --bundle=${outputAabPath} --output=${apkPath} --local-testing`);
+          // execSync(`bundletool build-apks --bundle=${outputAabPath} --output=${apkPath} --local-testing`);
+          execSync(`bundletool build-apks --mode universal --bundle=${outputAabPath} --output=${apkPath} --local-testing`);
+          // execSync(`unzip ${apkPath}`);
+
           console.log(`[after_build] Curtesy APK files generated (test only). To install run bundletool install-apks --apks=${apkPath}`);
 
           // Save the Ionic info to a file

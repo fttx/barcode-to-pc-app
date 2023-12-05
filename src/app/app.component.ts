@@ -109,10 +109,26 @@ export class MyApp {
           this.settings.setDuplicateBarcodeSaveChoiceShown(true);
           this.settings.setDuplicateBarcodeChoice('discard_scan_session');
           this.settings.setIsPDADevice(true);
-          this.settings.setKeepDisplayOn(true);
+          this.settings.setKeepDisplayOn(false);
           this.settings.setAlwaysUseDefaultScanSessionName(true);
           this.settings.setAllowOutputTemplateSelection(false);
           this.settings.setOpenScanOnStart(true);
+
+          // alert to acquire device name
+          this.alertCtrl.create({
+            title: 'Setup device name',
+            message: 'Please enter the device name',
+            inputs: [{
+              name: 'deviceName',
+              type: 'text',
+            }],
+            buttons: [{
+              text: 'Ok',
+              handler: (data) => {
+                this.settings.setDeviceName(data.deviceName);
+              }
+            }]
+          }).present();
         }
         // BWP::end
 

@@ -45,15 +45,20 @@ page-scan-session {
     margin: 11px !important;
   }
 
-  ion-content table .value {
-    font-family: monospace !important;
-    padding-left: 9px;
-    letter-spacing: -1px;
+  .animate-first-item {
+    transition: background-color 1s ease;
+    background-color: yellow;
+    color: #000 !important;
+    /* Flash color */
   }
 
-  .animate-first-item {
-    transition: background-color 0.5s ease;
-    background-color: yellow;
-    /* Flash color */
+  .bwp-display-value {
+    margin-left: 1rem;
+  }
+
+  .bwp-sync-status {
+    position: absolute;
+    right: 1rem;
+    top: calc(50% - 1rem);
   }
 }

@@ -37,6 +37,7 @@ import { Geolocation } from '@ionic-native/geolocation';
 export class ScanProvider {
   public static isRemoveModeEnabled = false;
   private static ErrorAlert: OutputBlockModel = null;
+  private static ErrorAlertAlreadyRemoved: OutputBlockModel = null;
   // Used to restore the focus of the Keyboard input field from the ScanSession page
   public awaitingForBarcode: boolean;
 
@@ -176,6 +177,12 @@ export class ScanProvider {
         ScanProvider.ErrorAlert = JSON.parse(JSON.stringify(this.outputProfile.outputBlocks.find(x => {
           if (!x.alertTitle) return false;
           if (x.alertTitle.toLowerCase().indexOf('uplicate') != -1) return true;
+          return false;
+        })));
+
+        ScanProvider.ErrorAlertAlreadyRemoved = JSON.parse(JSON.stringify(this.outputProfile.outputBlocks.find(x => {
+          if (!x.alertTitle) return false;
+          if (x.alertTitle.toLowerCase().indexOf('removed') != -1) return true;
           return false;
         })));
         // BWP::end
@@ -458,9 +465,9 @@ export class ScanProvider {
 
                   // BWP::start Remove mode
                   console.log('### searching for static_text', scan.outputBlocks.find(x => x.type == 'text'));
-                  console.log('### setting static_text to ', ScanProvider.isRemoveModeEnabled ? '-1' : '1');
+                  console.log('### setting static_text to ', ScanProvider.isRemoveModeEnabled ? '-1' : '+1');
                   const staticTextBlock = scan.outputBlocks.find(x => x.type == 'text');
-                  staticTextBlock.value = ScanProvider.isRemoveModeEnabled ? '-1' : '1';
+                  staticTextBlock.value = ScanProvider.isRemoveModeEnabled ? '-1' : '+1';
                   variables.static_text = staticTextBlock.value;
                   // BWP::end Remove mode
 
@@ -871,24 +878,34 @@ export class ScanProvider {
             // isn't a way to cancel a manual barcode acquisition
             let barcode = await this.keyboardInput.onSubmit.first().toPromise();
 
-            // Check for duplicated barcodes (duplciate on mixed)
-            console.log('### skipping duplicate check: ', ScanProvider.isRemoveModeEnabled)
-            let acceptBarcode;
+            console.log('### skipping duplicate check since Remove mode is enabled: ', ScanProvider.isRemoveModeEnabled)
             if (ScanProvider.isRemoveModeEnabled) {
-              // When the remove mode is enabled, we don't check for duplicates
-              acceptBarcode = true;
+              console.log('### remove mode enabled. Checking local database...: ')
+              const alreadyRemovedScan = this.findRemoved(barcode);
+              console.log('### ', alreadyRemovedScan);
+              if (alreadyRemovedScan != null) {
+                const alert = JSON.parse(JSON.stringify(ScanProvider.ErrorAlertAlreadyRemoved));
+                alert.value = '[LOCAL]' + await this.utils.supplant(alert.value, { csv_lookup: this.deviceName, barcode: barcode });
+                this.showAlert(alert);
+                this.events.publish('outputProfile:cannotRemove');
+                again();
+                setTimeout(() => { if (!this.disableKeyboarAutofocus) this.keyboardInput.focus(true); }, 1000);
+                return;
+              }
             } else {
-              acceptBarcode = await this.showAcceptDuplicateDetectedDialog(barcode);
-            }
-            if (!acceptBarcode) {
-              // BWP::start
-              const alert = JSON.parse(JSON.stringify(ScanProvider.ErrorAlert));
-              alert.value = await this.utils.supplant(alert.value, { csv_lookup: this.deviceName, barcode: barcode });
-              this.showAlert(alert);
-              // BWP::end
-              again();
-              setTimeout(() => { if (!this.disableKeyboarAutofocus) this.keyboardInput.focus(true); }, 1000);
-              return;
+              // Check for duplicated barcodes (duplciate on mixed)
+              // When the Remove mode is enabled, we don't check for duplicates
+              const acceptBarcode = await this.showAcceptDuplicateDetectedDialog(barcode);
+              if (!acceptBarcode) {
+                // BWP::start
+                const alert = JSON.parse(JSON.stringify(ScanProvider.ErrorAlert));
+                alert.value = await this.utils.supplant(alert.value, { csv_lookup: this.deviceName, barcode: barcode });
+                this.showAlert(alert);
+                // BWP::end
+                again();
+                setTimeout(() => { if (!this.disableKeyboarAutofocus) this.keyboardInput.focus(true); }, 1000);
+                return;
+              }
             }
 
             if (filter != null && !barcode.match(filter)) {
@@ -1268,6 +1285,27 @@ export class ScanProvider {
 
   private acceptDuplicateBarcodeDialogVisible = false;
 
+  private findRemoved(barcode) {
+    for (const scan of this.scanSession.scannings) {
+      const scanBarcodes = scan.outputBlocks.filter(x => x.type == 'barcode').map(x => x.value);
+      const staticText = scan.outputBlocks.find(x => x.type == 'text');
+      if (scanBarcodes.indexOf(barcode) != -1 && staticText.value == '-1') {
+        return scan;
+      }
+    }
+    return null;
+  }
+
+  private isBarcodeInSession(barcode) {
+    for (const scan of this.scanSession.scannings) {
+      const scanBarcodes = scan.outputBlocks.filter(x => x.type == 'barcode').map(x => x.value);
+      if (scanBarcodes.indexOf(barcode) != -1) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   /**
    * Asks for an action when a duplicate barcode is detected.
    * Or if a default action is savedm it will automatically apply it.
@@ -1280,20 +1318,10 @@ export class ScanProvider {
       // If there is a deafault choice execute the duplicate check
       let defaultChoice = await this.settings.getDuplicateBarcodeChoice();
 
-      const isBarcodeInSession = () => {
-        for (const scan of this.scanSession.scannings) {
-          const scanBarcodes = scan.outputBlocks.filter(x => x.type == 'barcode').map(x => x.value);
-          if (scanBarcodes.indexOf(barcode) != -1) {
-            return true;
-          }
-        }
-        return false;
-      };
-
       switch (defaultChoice) {
         case 'ask':
           // If there is no duplicate, do nothing and accept.
-          if (!isBarcodeInSession()) {
+          if (!this.isBarcodeInSession(barcode)) {
             resolve(true);
             return;
           }
@@ -1351,7 +1379,7 @@ export class ScanProvider {
           }
           break;
         case 'discard_scan_session':
-          resolve(!isBarcodeInSession());
+          resolve(!this.isBarcodeInSession(barcode));
           break;
       }
     });
