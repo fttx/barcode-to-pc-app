@@ -172,29 +172,7 @@ export class MyApp {
 
   settingsPage() {
     this.menuCtrl.close();
-    this.alertCtrl.create({
-      title: 'Password required',
-      message: 'Please enter the password to access the settings',
-      inputs: [{
-        name: 'password',
-        type: 'text',
-      }],
-      buttons: [{
-        text: 'Cancel',
-        role: 'cancel',
-        handler: () => { }
-      },
-      {
-        text: 'Ok',
-        handler: (data) => {
-          if (data.password.toLowerCase() == 'bwp9753' || data.password.toLowerCase() == 'ppp') {
-            this.modalCtrl.create(SettingsPage).present();
-          } else {
-            this.lastToast.present('Incorrect password');
-          }
-        }
-      }]
-    }).present();
+    this.modalCtrl.create(SettingsPage).present();
   }
 
   about() {

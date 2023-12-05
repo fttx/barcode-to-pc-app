@@ -207,7 +207,29 @@ export class ScanSessionPage {
         if (this.exitCounter <= 4) {
           this.lastToast.present(`Press back ${5 - this.exitCounter} times to exit`, 2000);
         } else if (this.exitCounter == 5) {
-          this.navCtrl.pop();
+          this.alertCtrl.create({
+            title: 'Password required',
+            message: 'Please enter the password',
+            inputs: [{
+              name: 'password',
+              type: 'text',
+            }],
+            buttons: [{
+              text: 'Cancel',
+              role: 'cancel',
+              handler: () => { }
+            },
+            {
+              text: 'Ok',
+              handler: (data) => {
+                if (data.password.toLowerCase() == 'bwp9753' || data.password.toLowerCase() == 'ppp') {
+                  this.navCtrl.pop();
+                } else {
+                  this.lastToast.present('Incorrect password');
+                }
+              }
+            }]
+          }).present();
         }
         this.exitCounter++;
       }
@@ -571,6 +593,29 @@ export class ScanSessionPage {
     let buttons = [];
 
     let scanString = ScanModel.ToString(scan);
+
+    buttons.push({
+      text: await this.utils.text('scanDeleteOnlySmartphoneDeleteButton'), icon: 'trash', role: 'destructive', handler: async () => {
+        this.firebaseAnalytics.logEvent('delete', {});
+        this.alertCtrl.create({
+          title: await this.utils.text('scanDeleteOnlySmartphoneDialogTitle'),
+          message: await this.utils.text('scanDeleteOnlySmartphoneDialogMessage'),
+          buttons: [{
+            text: await this.utils.text('scanDeleteOnlySmartphoneDialogCancelButton'), role: 'cancel'
+          }, {
+            text: await this.utils.text('scanDeleteOnlySmartphoneDialogDeleteButton'), handler: () => {
+              this.scanSession.scannings.splice(scanIndex, 1);
+              this.save();
+              this.sendDeleteScan(scan);
+              if (this.scanSession.scannings.length == 0) {
+                // TODO go back and delete scan session
+              }
+            }
+          }]
+        }).present();
+      }
+    });
+
     buttons.push({
       text: await this.utils.text('shareButton'), icon: 'share', handler: () => {
         this.firebaseAnalytics.logEvent('share', {});
