@@ -282,16 +282,8 @@ export class ScanSessionPage {
   }
 
 
-  private debounceOnConnect = null;
   ionViewDidLoad() {
     this.connected = this.serverProvider.isConnected();
-    this.events.subscribe('server:connected', () => {
-      if (this.debounceOnConnect) clearTimeout(this.debounceOnConnect);
-      this.debounceOnConnect = setTimeout(() => {
-        this.onRepeatAllClick();
-        this.debounceOnConnect = null;
-      }, 3000);
-    });
     this.settings.getOfflineModeEnabled().then(offlineMode => {
       if (offlineMode) this.connected = false;
     })
@@ -381,6 +373,13 @@ export class ScanSessionPage {
         custom: moment().format('YYYY-MM-DD') + '@' + this.deviceName // duplicated code on the scan-session.ts file to check if a day has passed
       });
       console.log('@@@@ resume', this.scanSession.name, defaultName)
+
+      // trigger the scan again on resume (bug 2024)
+      this.onAddClicked();
+      // Force sync on resume
+      this.onRepeatAllClick(false);
+
+
       if (this.scanSession && this.scanSession.name != defaultName) {
         const alert = this.alertCtrl.create({
           title: 'Good morning!',

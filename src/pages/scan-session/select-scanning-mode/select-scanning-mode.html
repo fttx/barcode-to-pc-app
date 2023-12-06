@@ -1,4 +1,4 @@
-<ion-header>
+<ion-header style="opacity: 0">
   <ion-navbar color="primary">
     <ion-title [hidden]="outputProfiles.length == 1">{{ 'selectOutputTemplateTitle' | translate }}</ion-title>
     <ion-title [hidden]="outputProfiles.length != 1">{{ 'selectScanningModeTitle' | translate }}</ion-title>
@@ -10,7 +10,7 @@
   </ion-navbar>
 </ion-header>
 
-<ion-content>
+<ion-content style="opacity: 0">
   <ion-list radio-group [(ngModel)]="selectedOutputProfile" [hidden]="outputProfiles.length == 1">
     <ion-item *ngFor="let outputProfile of outputProfiles; let i = index;">
       <ion-label>{{ outputProfile.name }}</ion-label>
