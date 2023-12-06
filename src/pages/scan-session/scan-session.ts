@@ -278,11 +278,20 @@ export class ScanSessionPage {
     if (this.onDisconnectSubscription != null) {
       this.onDisconnectSubscription.unsubscribe();
     }
+    this.events.unsubscribe('server:connected');
   }
 
 
+  private debounceOnConnect = null;
   ionViewDidLoad() {
     this.connected = this.serverProvider.isConnected();
+    this.events.subscribe('server:connected', () => {
+      if (this.debounceOnConnect) clearTimeout(this.debounceOnConnect);
+      this.debounceOnConnect = setTimeout(() => {
+        this.onRepeatAllClick();
+        this.debounceOnConnect = null;
+      }, 3000);
+    });
     this.settings.getOfflineModeEnabled().then(offlineMode => {
       if (offlineMode) this.connected = false;
     })

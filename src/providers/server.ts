@@ -311,6 +311,7 @@ export class ServerProvider {
       this._onConnect.next(server);
       if (!this.catchUpIOSLag) {
         this.lastToast.present(await this.utils.text('connectionEstablishedToastTitle', { "serverName": server.name }));
+        this.events.publish('server:connected');
       }
       this.catchUpIOSLag = false;
 
