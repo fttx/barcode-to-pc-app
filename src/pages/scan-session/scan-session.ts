@@ -370,7 +370,7 @@ export class ScanSessionPage {
         scan_session_number: await this.scanSessionsStorage.getNextScanSessionNumber(),
         device_name: await this.settings.getDeviceName(),
         date: new Date().toISOString().slice(0, 10).replace(/-/g, ""),
-        custom: moment().format('YYYY-MM-DD') + '@' + this.deviceName // duplicated code on the scan-session.ts file to check if a day has passed
+        custom: await this.utils.GetScanSessionName(await this.settings.getDeviceName()),
       });
       console.log('@@@@ resume', this.scanSession.name, defaultName)
 
@@ -378,7 +378,6 @@ export class ScanSessionPage {
       this.onAddClicked();
       // Force sync on resume
       this.onRepeatAllClick(false);
-
 
       if (this.scanSession && this.scanSession.name != defaultName) {
         const alert = this.alertCtrl.create({
@@ -980,7 +979,7 @@ export class ScanSessionPage {
 
     ScanSessionPage.removeDialog = this.alertCtrl.create({
       title: 'Remove mode',
-      message: 'You\'re removing a barcode.<br><br>Waiting for a scan...<br><br>',
+      message: 'You\'re removing an item.<br><br>Please scan a barcode...<br><br>',
       cssClass: 'bwp-alert-adjust-mode',
       buttons: [
         {

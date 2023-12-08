@@ -6,6 +6,7 @@ import { AlertController } from 'ionic-angular';
 import 'rxjs/add/operator/map';
 import { barcodeFormatModel } from '../models/barcode-format.model';
 import { BarcodeScanResult, BarcodeScannerOptions } from '@fttx/barcode-scanner';
+import moment from 'moment';
 
 /*
   Generated class for the Utils provider.
@@ -368,7 +369,7 @@ export class Utils {
     for (const bracket of brackets) {
       const content = bracket.slice(2, bracket.length - 2)
       // eval the content
-      try{
+      try {
         codeResults.push(await this.evalCode(content, variables));
       } catch (e) {
         codeResults.push('error');
@@ -409,6 +410,21 @@ export class Utils {
 
   public static deg2rad(deg: number): number {
     return deg * (Math.PI / 180)
+  }
+
+  public async GetScanSessionName(deviceName: string): Promise<string> {
+    // Check if current time is after 6:00 am -- Duplicated code #d1
+    // Manufacturing day 23/12/07  yy/mm/dd
+    // Start time = 23/12/07 6:00 am
+    // End time = +24h 23/12/08 5:59:59
+    const now = moment();
+    const start = moment().hour(5).minute(59).second(59);
+    const isAfter6AM = now.isAfter(start);
+    if (isAfter6AM) {
+      return now.format('YYYY-MM-DD') + '@' + deviceName
+    } else {
+      return now.subtract(1, 'day').format('YYYY-MM-DD') + '@' + deviceName
+    }
   }
 }
 

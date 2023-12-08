@@ -326,7 +326,7 @@ export class ScanSessionsPage {
   async getDefaultName() {
     const deviceName = await this.settings.getDeviceName();
     return await this.utils.supplant(await this.settings.getScanSessionName(), {
-      custom: moment().format('YYYY-MM-DD') + '@' + deviceName
+      custom: await this.utils.GetScanSessionName(await this.settings.getDeviceName()),
     });
   }
 
