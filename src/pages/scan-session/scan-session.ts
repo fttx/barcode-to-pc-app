@@ -180,6 +180,12 @@ export class ScanSessionPage {
       this.keyboardInput.value = data;
       this.onEnterClick();
     });
+
+    this.webIntent.registerBroadcastReceiver({
+      filterActions: ['com.barcodetopc.sync'],
+    }).subscribe(intent => {
+      this.onRepeatAllClick(true);
+    });
     // PDA::end
 
     // Init the outputTemplate by triggering the touch
