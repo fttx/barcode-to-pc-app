@@ -35,16 +35,16 @@ $text-input-md-show-focus-highlight: false;
 // The "primary" color is the only required color in the map.
 
 $colors: (
-  primary:    #F44336,
-  secondary:  #B71C1C,
-  danger:     #f53d3d,
-  archived:   #9e7e7e,
-  light:      #f4f4f4,
-  dark:       #222,
-  favorite:   #69BB7B,
-  text:       #ffffff,
-  info:       #e4e4e4,
-  edit:       #2672b1,
+  primary: #F44336,
+  secondary: #B71C1C,
+  danger: #f53d3d,
+  archived: #9e7e7e,
+  light: #f4f4f4,
+  dark: #222,
+  favorite: #69BB7B,
+  text: #ffffff,
+  info: #e4e4e4,
+  edit: #2672b1,
 );
 
 
@@ -98,6 +98,7 @@ $colors: (
   .button-generic .button-inner {
     justify-content: center !important;
   }
+
   .button-generic {
     margin-bottom: 20px !important;
   }
@@ -115,6 +116,7 @@ $colors: (
 
   .alert-button-stacked {
     margin: 8px 8px 0 0 !important;
+
     .button-inner {
       justify-content: center !important;
     }
@@ -155,7 +157,7 @@ $colors: (
 }
 
 
-.md ion-list-header{
+.md ion-list-header {
   font-size: 1.9rem !important;
   font-weight: 700 !important;
   color: black !important;
@@ -163,4 +165,10 @@ $colors: (
   border-top: none !important;
   margin-top: 20px !important;
   text-transform: none !important;
+}
+
+.btp-stacked-input input {
+  margin: 0 !important;
+  border: 1px solid #d6d6d6;
+  padding: 12px !important;
 }

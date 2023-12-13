@@ -20,11 +20,13 @@
 
 <ion-content>
 
-
-  <ion-item>
-    <ion-label color="primary" stacked>{{ 'scanSessionNameLabel' | translate }}</ion-label>
-    <ion-input type="text" [(ngModel)]="scanSession.name"></ion-input>
+  <ion-item no-lines>
+    <ion-label color="dark" text-wrap>{{ 'scanSessionNameLabel' | translate }}</ion-label>
   </ion-item>
+  <ion-item no-lines>
+    <ion-input [(ngModel)]="scanSession.name" class="btp-stacked-input"></ion-input>
+  </ion-item>
+  <ion-item text-wrap></ion-item>
 
   <ion-item>
     <ion-label>{{ 'dateLabel' | translate }}</ion-label>
