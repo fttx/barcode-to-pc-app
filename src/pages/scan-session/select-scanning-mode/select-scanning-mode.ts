@@ -14,6 +14,7 @@ import { Settings } from './../../../providers/settings';
   templateUrl: 'select-scanning-mode.html'
 })
 export class SelectScanningModePage {
+  public static IsVisible = false;
   public static SCAN_MODE_ASK = '';
   public static SCAN_MODE_CONTINUE = 'continue';
   public static SCAN_MODE_SINGLE = 'single';
@@ -237,5 +238,12 @@ export class SelectScanningModePage {
         resolve(this.scanSession);
       }
     });
+  }
+
+  ionViewDidEnter() {
+    SelectScanningModePage.IsVisible = true;
+  }
+  ionViewDidLeave() {
+    SelectScanningModePage.IsVisible = false;
   }
 }

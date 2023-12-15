@@ -13,6 +13,7 @@ import { ScanSessionModel } from '../../../models/scan-session.model';
   templateUrl: 'edit-scan-session.html'
 })
 export class EditScanSessionPage {
+  public static IsVisible = false;
   public scanSession: ScanSessionModel;
   public date: string;
   private static timezoneOffset = new Date().getTimezoneOffset() * 60000;
@@ -35,5 +36,13 @@ export class EditScanSessionPage {
   convertDatePickerToTimestamp() {
     let d = new Date(Date.parse(this.date)).getTime();
     return new Date(d + EditScanSessionPage.timezoneOffset).getTime();
+  }
+
+  ionViewDidEnter() {
+    EditScanSessionPage.IsVisible = true;
+  }
+
+  ionViewDidLeave() {
+    EditScanSessionPage.IsVisible = false;
   }
 }

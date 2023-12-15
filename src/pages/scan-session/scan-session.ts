@@ -61,6 +61,7 @@ export class ScanSessionPage {
   private realtimeSend: boolean = true;
   private catchUpIOSLag = false;
   private disableKeyboarAutofocus: boolean = false;
+  private isVisible = true;
 
   constructor(
     public navParams: NavParams,
@@ -116,6 +117,8 @@ export class ScanSessionPage {
 
   @HostListener('window:keyup', ['$event'])
   keyEvent(event: KeyboardEvent) {
+    if (!this.isVisible || EditScanSessionPage.IsVisible || SelectScanningModePage.IsVisible) return;
+
     this.ngZone.run(() => {
       if (event.keyCode == 13 && this.keyboardInput.value.length > 0) {
         this.onEnterClick();
@@ -136,6 +139,7 @@ export class ScanSessionPage {
   }
 
   async ionViewDidEnter() {
+    this.isVisible = true;
     this.firebaseAnalytics.setCurrentScreen("ScanSessionPage");
     this.responseSubscription = this.serverProvider.onMessage().subscribe(message => {
       if (message.action == responseModel.ACTION_PUT_SCAN_ACK) {
@@ -234,6 +238,7 @@ export class ScanSessionPage {
   }
 
   ionViewDidLeave() {
+    this.isVisible = false;
     if (this.responseSubscription != null && this.responseSubscription) {
       this.responseSubscription.unsubscribe();
     }
