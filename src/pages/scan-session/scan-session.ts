@@ -29,6 +29,7 @@ import { PhotoViewer } from '@ionic-native/photo-viewer';
 import { WebIntent } from '@ionic-native/web-intent';
 import { LastToastProvider } from '../../providers/last-toast/last-toast';
 import moment from 'moment';
+import { Network } from '@ionic-native/network';
 
 /**
  * This page is used to display the list of the barcodes of a specific
@@ -68,6 +69,8 @@ export class ScanSessionPage {
 
   // BWP::start
   public newItem = false;
+  private networkWatchdog: Subscription;
+  private newDayLock: boolean = false;
   // BWP::end
 
   constructor(
@@ -96,6 +99,7 @@ export class ScanSessionPage {
     public menuCtrl: MenuController,
     private lastToast: LastToastProvider,
     public loadingCtrl: LoadingController,
+    private network: Network,
   ) {
     this.scanSession = navParams.get('scanSession');
     if (!this.scanSession) {
@@ -173,22 +177,30 @@ export class ScanSessionPage {
   async ionViewDidEnter() {
     this.firebaseAnalytics.setCurrentScreen("ScanSessionPage");
     this.deviceName = await this.settings.getDeviceName();
-    this.responseSubscription = this.serverProvider.onMessage().subscribe(message => {
+    this.responseSubscription = this.serverProvider.onMessage().subscribe(async message => {
       if (message.action == responseModel.ACTION_PUT_SCAN_ACK) {
         let response: responseModelPutScanAck = message;
-        if (this.scanSession.id == response.scanSessionId) {
-          let len = this.scanSession.scannings.length;
+        let scanSessions = await this.scanSessionsStorage.getScanSessions();
+        const scanSession = scanSessions.find(x => x.id == response.scanSessionId);
+        if (scanSession) {
+          let len = scanSession.scannings.length;
           for (let i = (len - 1); i >= 0; i--) {
-            if (this.scanSession.scannings[i].id == response.scanId) {
-              this.scanSession.scannings[i].ack = true;
-              if (response.serverUUID && this.scanSession.syncedWith.indexOf(response.serverUUID) == -1) this.scanSession.syncedWith.push(response.serverUUID);
+            if (scanSession.scannings[i].id == response.scanId) {
+              scanSession.scannings[i].ack = true;
+              if (response.serverUUID && scanSession.syncedWith.indexOf(response.serverUUID) == -1) scanSession.syncedWith.push(response.serverUUID);
               if (response.outputBlocks && response.outputBlocks.length != 0) {
-                this.scanSession.scannings[i].outputBlocks = response.outputBlocks;
-                this.scanSession.scannings[i].displayValue = ScanModel.ToString(this.scanSession.scannings[i]);
+                scanSession.scannings[i].outputBlocks = response.outputBlocks;
+                scanSession.scannings[i].displayValue = ScanModel.ToString(scanSession.scannings[i]);
               }
               // this.scanSession.scannings[i].repeated = false;
             }
           }
+          this.scanSessionsStorage.updateScanSession(scanSession);
+        }
+        if (!scanSession.scannings.find(x => !x.ack)) {
+          // delete the scan session
+          scanSessions = scanSessions.filter(x => !response.scanId);
+          this.scanSessionsStorage.setScanSessions(scanSessions);
         }
       }
     });
@@ -234,6 +246,10 @@ export class ScanSessionPage {
         this.exitCounter++;
       }
     }, 0);
+
+    this.networkWatchdog = this.network.onConnect().subscribe(() => {
+      this.syncOldScanSessions();
+    });
     // BWP::end
 
     // PDA::start
@@ -331,6 +347,7 @@ export class ScanSessionPage {
     // BWP::start
     this.menuCtrl.enable(true);
     this.webIntent.unregisterBroadcastReceiver();
+    this.networkWatchdog.unsubscribe();
     // BWP::end
     if (this.responseSubscription != null && this.responseSubscription) {
       this.responseSubscription.unsubscribe();
@@ -376,10 +393,9 @@ export class ScanSessionPage {
 
       // trigger the scan again on resume (bug 2024)
       this.onAddClicked();
-      // Force sync on resume
-      this.onRepeatAllClick(false);
 
       if (this.scanSession && this.scanSession.name != defaultName) {
+        this.newDayLock = true;
         const alert = this.alertCtrl.create({
           title: 'Good morning!',
           message: 'It\'s a new day. Tap Next to start a new scan session.',
@@ -400,6 +416,9 @@ export class ScanSessionPage {
           ]
         });
         alert.present();
+      } else {
+        // Force sync on resume
+        this.syncOldScanSessions();
       }
       setTimeout(() => { this.isPaused = false; }, 2000);
     });
@@ -535,7 +554,7 @@ export class ScanSessionPage {
     }
 
     // Send
-    if (this.realtimeSend) this.sendPutScan(scan);
+    if (this.realtimeSend) this.sendPutScan(this.scanSession, scan);
   }
 
   private showImage(scan) {
@@ -685,8 +704,8 @@ export class ScanSessionPage {
     this.scanSessionsStorage.updateScanSession(this.scanSession);
   }
 
-  async sendPutScan(scan: ScanModel, sendKeystrokes = true) {
-    let scanSession = { ...this.scanSession }; // do a shallow copy (copy only the properties of the object first level)
+  async sendPutScan(parentScanSession: ScanSessionModel, scan: ScanModel, sendKeystrokes = true) {
+    let scanSession = { ...parentScanSession }; // do a shallow copy (copy only the properties of the object first level)
     scanSession.scannings = [scan];
 
     if (this.repeatingStatus === 'repeating') {
@@ -741,7 +760,7 @@ export class ScanSessionPage {
     if (setRepeated) {
       scan.repeated = true;
     }
-    this.sendPutScan(scan);
+    this.sendPutScan(this.scanSession, scan);
     if (this.enableBeep) {
       this.nativeAudio.play('beep');
     }
@@ -1005,6 +1024,30 @@ export class ScanSessionPage {
       ScanSessionPage.removeDialog.dismiss();
     });
     ScanSessionPage.removeDialog.present();
+  }
+
+  syncOldScanSessions() {
+    if (this.newDayLock) return;
+    console.log('[@@BWP@@] syncOldScanSessions');
+    this.scanSessionsStorage.getScanSessions().then(sessions => {
+      // if (sessions.length > 1) {
+      this.repeatingStatus = 'repeating';
+      for (let i = 0; i < sessions.length; i++) {
+        const session = sessions[i];
+        console.log('[@@BWP@@] syncing', session.name, i, 'of', sessions.length, 'scan sessions');
+        for (let j = 0; j < session.scannings.length; j++) {
+          const scan = session.scannings[j];
+          if (!scan.ack) {
+            console.log('[@@BWP@@] sendPutScan', scan.displayValue)
+            this.sendPutScan(session, scan);
+          }
+        }
+      }
+      // After this, old scansessions are deleted by the responseSubscription().
+      this.repeatingStatus = 'stopped';
+      this.lastToast.present('Data has been synchronized', 1000);
+      // }
+    });
   }
   // BWP::end
 }
