@@ -45,7 +45,7 @@ if (fs.existsSync(AAB_PATH)) {
           console.log(`[after_build] AAB file successfully signed: ${outputAabPath}`);
 
           // build APK file from AAB file
-          const apkPath = path.join(__dirname, '../..', `barcode-to-pc-app-v${version}.apks`);
+          const apkPath = path.join(__dirname, '../..', `barcode-to-pc-app-v${version}.apk`);
           if (fs.existsSync(apkPath)) {
             fs.unlinkSync(apkPath);
           }
