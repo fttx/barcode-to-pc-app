@@ -311,14 +311,14 @@ export class MyApp {
             this.iab.create(Config.URL_PRIVACY_POLICY, '_system');
             this.showTermsDialog();
           },
-          cssClass: this.platform.is('android') ? 'button-outline-md button-alert' : null,
+          cssClass: this.platform.is('android') ? 'button-outline-md btp-btn-solid' : null,
         },
         {
           text: 'Accept',
           handler: () => {
             this.settings.setHasAcceptedTerms(true);
           },
-          cssClass: this.platform.is('android') ? 'button-outline-md button-alert button-ok' : null,
+          cssClass: this.platform.is('android') ? 'button-outline-md btp-btn-solid button-ok' : null,
         }
       ],
       enableBackdropDismiss: false,
