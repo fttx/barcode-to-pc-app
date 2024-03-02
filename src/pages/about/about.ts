@@ -56,4 +56,8 @@ export class AboutPage {
   onBarcodeByteClick() {
     this.iab.create(Config.URL_BARCODEBYTE, '_system');
   }
+
+  onPrivacyPolicyClick() {
+    this.iab.create(Config.URL_PRIVACY_POLICY, '_system');
+  }
 }

@@ -4,29 +4,30 @@ page-about {
     }
 
     .app-icon {
-      max-width: 60vw;
-      max-height: 128px;
-      margin: 40px auto 20px auto;
-      display: block;
+        max-width: 60vw;
+        max-height: 20vh;
+        margin: 35px auto 20px auto;
+        display: block;
     }
 
-    ion-footer, ion-footer * {
-      background-color: #1d2135 !important;
-      padding: 0 !important;
-      margin: 0 !important;
+    ion-footer,
+    ion-footer * {
+        background-color: #1d2135 !important;
+        padding: 0 !important;
+        margin: 0 !important;
     }
 
     ion-footer {
-      height: 60px;
+        height: 60px;
     }
 
     ion-footer img {
-      height: 20px;
-      margin: 20px auto !important;
-      display: block;;
+        height: 20px;
+        margin: 20px auto !important;
+        display: block;
     }
 
     .footer-ios {
-      height: 93px !important;
+        height: 93px !important;
     }
 }

@@ -66,6 +66,7 @@ export class Settings {
   private static ENABLE_NFC = 'enable_nfc';
   private static SKIP_WIFI_CHECCK = 'skip_wifi_checck';
   private static SAVED_GEOLOCATIONS = 'saved_geolocations';
+  private static HAS_ACCEPTED_TERMS = 'has_accepted_terms';
 
   constructor(
     public storage: Storage,
@@ -499,7 +500,7 @@ export class Settings {
     return this.storage.get(Settings.ENABLE_VIBRATION_FEEDBACK).then(result => {
       if (result === false) return false;
       return true;
-     });
+    });
   }
 
   setDisableSpecialCharacters(disableSpecialCharacters: boolean) {
@@ -693,5 +694,15 @@ export class Settings {
         return true;
       }
     });
+  }
+
+  getHasAcceptedTerms(): Promise<boolean> {
+    return this.storage.get(Settings.HAS_ACCEPTED_TERMS).then((result) => {
+      return result === true;
+    });
+  }
+
+  setHasAcceptedTerms(accepted: boolean) {
+    return this.storage.set(Settings.HAS_ACCEPTED_TERMS, accepted);
   }
 }

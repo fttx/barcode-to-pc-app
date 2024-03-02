@@ -22,6 +22,7 @@ import { Settings } from '../providers/settings';
 import { Utils } from '../providers/utils';
 import { SelectServerPage } from './../pages/select-server/select-server';
 import { TranslateService } from '@ngx-translate/core';
+import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 
 @Component({
   templateUrl: 'app.html',
@@ -50,6 +51,7 @@ export class MyApp {
     public nativeAudio: NativeAudio,
     private eventsReporterProvider: EventsReporterProvider,
     private translate: TranslateService,
+    private iab: InAppBrowser,
   ) {
     platform.ready().then(async () => {
 
@@ -90,12 +92,13 @@ export class MyApp {
         });
       }
 
-      Promise.all([this.settings.getNoRunnings(), this.settings.getEverConnected(), this.settings.getAlwaysSkipWelcomePage(), this.upgrade(), this.settings.getKeepDisplayOn()]).then((results: any[]) => {
+      Promise.all([this.settings.getNoRunnings(), this.settings.getEverConnected(), this.settings.getAlwaysSkipWelcomePage(), this.upgrade(), this.settings.getKeepDisplayOn(), this.settings.getHasAcceptedTerms()]).then((results: any[]) => {
         let runnings = results[0];
         let everConnected = results[1];
         let alwaysSkipWelcomePage = results[2];
         // results[3] => upgrade
         let keepDisplayOn = results[4];
+        let hasAcceptedTerms = results[5];
 
         if ((!runnings || !everConnected) && !alwaysSkipWelcomePage) {
           this.rootPage = WelcomePage;
@@ -112,6 +115,10 @@ export class MyApp {
 
         if (platform.is('ios')) {
           statusBar.overlaysWebView(true);
+        }
+
+        if (platform.is('android') && !hasAcceptedTerms) {
+          this.showTermsDialog();
         }
 
         this.eventsReporterProvider.init();
@@ -290,5 +297,31 @@ export class MyApp {
         resolve(); // always resolve at the end (note the awaits!)
       })
     })
+  }
+
+  showTermsDialog() {
+    this.alertCtrl.create({
+      title: 'Privacy Policy',
+      message: `Barcode to PC collects, transmits, syncs, and stores images and geolocation data to enable the real-time synchronization feature, only when the app is in use and visible.\<br><br>
+      Your barcode and personal data stay private within your local network, while only anonymized app usage is shared for analytics.`,
+      buttons: [
+        {
+          text: 'Learn more',
+          handler: () => {
+            this.iab.create(Config.URL_PRIVACY_POLICY, '_system');
+            this.showTermsDialog();
+          },
+          cssClass: this.platform.is('android') ? 'button-outline-md button-alert' : null,
+        },
+        {
+          text: 'Accept',
+          handler: () => {
+            this.settings.setHasAcceptedTerms(true);
+          },
+          cssClass: this.platform.is('android') ? 'button-outline-md button-alert button-ok' : null,
+        }
+      ],
+      enableBackdropDismiss: false,
+    }).present();
   }
 }
