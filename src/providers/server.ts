@@ -44,7 +44,7 @@ export class ServerProvider {
   private watchForServersSubject: Subject<discoveryResultModel>;
   private reconnecting = false;
   private everConnected = false; // in the current session
-  private connectionProblemAlert = false; // in the current session
+  private connectionProblemAlert = null; // in the current session
   private serverQueue: ServerModel[] = [];
 
   private reconnectInterval = null;
@@ -295,7 +295,8 @@ export class ServerProvider {
 
     this.webSocket.onopen = async () => {
       //console.log('[S]: onopen')
-      this.connectionProblemAlert = false;
+      if (this.connectionProblemAlert) this.connectionProblemAlert.dismiss();
+      this.connectionProblemAlert = null;
       this.everConnected = true; // for current instance
       this.settings.setEverConnected(true); // for statistics usage
       this.serverQueue = [];
@@ -422,8 +423,7 @@ export class ServerProvider {
         //console.log(request, JSON.stringify(request));
         this.webSocket.send(JSON.stringify(request));
       } else if (!this.connectionProblemAlert && !this.catchUpIOSLag) {
-        this.connectionProblemAlert = true;
-        this.alertCtrl.create({
+        this.connectionProblemAlert = this.alertCtrl.create({
           title: await this.utils.text('connectionProblemDialogTitle'),
           message: await this.utils.text('connectionProblemDialogMessage'),
           buttons: [
@@ -433,7 +433,8 @@ export class ServerProvider {
                 this.events.publish('setPage', HelpPage);
               }
             }]
-        }).present();
+        });
+        this.connectionProblemAlert.present();
       }
     } else {
       // //console.log("offline mode, cannot send!")

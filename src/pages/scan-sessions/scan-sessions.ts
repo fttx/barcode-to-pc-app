@@ -36,6 +36,7 @@ export class ScanSessionsPage {
   private reconnectDialog = null;
   private unregisterBackButton = null;
   private ratingDialogShown = false;
+  private ratingAlert = null;
 
   constructor(
     public navCtrl: NavController,
@@ -177,7 +178,8 @@ export class ScanSessionsPage {
               }
             });
           } else {
-            this.alertCtrl.create({
+            if (this.ratingAlert) this.ratingAlert.dismiss();
+            this.ratingAlert = this.alertCtrl.create({
               title: await this.utils.text('rateBarcodeToPcDialogTitle', {
                 "appName": await this.utils.text('appName'),
               }),
@@ -194,7 +196,8 @@ export class ScanSessionsPage {
                     })
                   }
                 }]
-            }).present();
+            });
+            this.ratingAlert.present();
           }
         }
       });
