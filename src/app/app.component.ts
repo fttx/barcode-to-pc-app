@@ -117,8 +117,8 @@ export class MyApp {
           statusBar.overlaysWebView(true);
         }
 
-        if (platform.is('android') && !hasAcceptedTerms) {
-          this.showTermsDialog();
+        if (platform.is('android') && !hasAcceptedTerms && runnings < Config.NO_RUNNINGS_BEFORE_SHOW_RATING) {
+          this.showPrivacyPolicyDialog();
         }
 
         this.eventsReporterProvider.init();
@@ -299,7 +299,7 @@ export class MyApp {
     })
   }
 
-  showTermsDialog() {
+  showPrivacyPolicyDialog() {
     this.alertCtrl.create({
       title: 'Privacy Policy',
       message: `Barcode to PC collects, transmits, syncs, and stores images and geolocation data to enable the real-time synchronization feature, only when the app is in use and visible.\<br><br>
@@ -309,7 +309,7 @@ export class MyApp {
           text: 'Learn more',
           handler: () => {
             this.iab.create(Config.URL_PRIVACY_POLICY, '_system');
-            this.showTermsDialog();
+            this.showPrivacyPolicyDialog();
           },
           cssClass: this.platform.is('android') ? 'button-outline-md btp-btn-solid' : null,
         },
