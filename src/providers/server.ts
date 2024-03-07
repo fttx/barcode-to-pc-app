@@ -74,6 +74,7 @@ export class ServerProvider {
     private scanSessionsStorage: ScanSessionsStorage,
     private utils: Utils,
   ) {
+    window['server'] = { connected: false };
   }
 
   onMessage(): Observable<any> {
@@ -101,6 +102,7 @@ export class ServerProvider {
       console.log('[S-c]: already connected to a server, no action taken');
       this.serverQueue = [];
       this.connected = true;
+      window['server'] = { connected: true };
       this.wsEventObservable.next({ name: wsEvent.EVENT_ALREADY_OPEN, ws: this.webSocket });
     }
     //console.log('[S]: queue: ', this.serverQueue);
@@ -131,6 +133,7 @@ export class ServerProvider {
       if (this.everConnected && !this.reconnecting) {
         this.lastToast.present(await this.utils.text('connectionLostToastTitle'));
         this.connected = false;
+        window['server'] = { connected: false };
         this.wsEventObservable.next({ name: wsEvent.EVENT_ERROR, ws: this.webSocket });
         this._onDisconnect.next();
       }
@@ -308,6 +311,7 @@ export class ServerProvider {
 
       this.settings.saveServer(server);
       this.connected = true;
+      window['server'] = { connected: true };
       this.wsEventObservable.next({ name: 'open', ws: this.webSocket });
       this._onConnect.next(server);
       if (!this.catchUpIOSLag) {
@@ -391,6 +395,7 @@ export class ServerProvider {
         this.lastToast.present(await this.utils.text('unableToConnectToastTitle'));
       }
       this.connected = false;
+      window['server'] = { connected: false };
       this.wsEventObservable.next({ name: wsEvent.EVENT_ERROR, ws: this.webSocket });
       this._onDisconnect.next();
       await this.scheduleNewWsConnection(server);
@@ -407,6 +412,7 @@ export class ServerProvider {
       }
 
       this.connected = false;
+      window['server'] = { connected: false };
       this.kickedOut = false;
       this.wsEventObservable.next({ name: wsEvent.EVENT_CLOSE, ws: this.webSocket });
       this._onDisconnect.next();
