@@ -118,7 +118,7 @@ export class MyApp {
         }
 
         if (platform.is('android') && !hasAcceptedTerms && runnings < Config.NO_RUNNINGS_BEFORE_SHOW_RATING) {
-          this.showPrivacyPolicyDialog();
+          this.showProminentDisclosureDialog();
         }
 
         this.eventsReporterProvider.init();
@@ -299,22 +299,37 @@ export class MyApp {
     })
   }
 
-  showPrivacyPolicyDialog() {
+  showProminentDisclosureDialog() {
     this.alertCtrl.create({
-      title: 'Privacy Policy',
-      message: `Barcode to PC collects, transmits, syncs, and stores images and geolocation data to enable the real-time synchronization feature, only when the app is in use and visible.\<br><br>
-      Your barcode and personal data stay private within your local network, while only anonymized app usage is shared for analytics.`,
+      message: `
+      Barcode to PC collects images and location data to enable the real-time LAN synchronization with the selected Barcode to PC server.
+
+      <div class="permission-header">
+        <img src="assets/prominent-disclosure/image.png"> <h2>Images</h2>
+      </div>
+      Barcode to PC collects images to enable real-time synchronization of pictures associated to scanned barcodes, only when the app is in use.
+
+      <div class="permission-header">
+        <img src="assets/prominent-disclosure/location.png"> <h2>Location</h2>
+      </div>
+      Barcode to PC collects location data to enable real-time synchronization of barcodes metadata, even when the app is not in use.
+
+      <br><br>
+
+      Anonymized app usage statistics are shared with third parties to improve the app experience.
+    `,
+      cssClass: 'btp-prominet-disclosure',
       buttons: [
         {
           text: 'Learn more',
           handler: () => {
             this.iab.create(Config.URL_PRIVACY_POLICY, '_system');
-            this.showPrivacyPolicyDialog();
+            this.showProminentDisclosureDialog();
           },
           cssClass: this.platform.is('android') ? 'button-outline-md btp-btn-solid' : null,
         },
         {
-          text: 'Accept',
+          text: 'Agree',
           handler: () => {
             this.settings.setHasAcceptedTerms(true);
           },

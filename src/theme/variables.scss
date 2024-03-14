@@ -134,6 +134,33 @@ $colors: (
     margin: 0 8px 14px 0;
   }
 
+  .btp-prominet-disclosure {
+    .alert-head {
+      padding: 13px;
+    }
+
+    img {
+      width: 23px;
+      margin: 6px 2px 0 -4px;
+    }
+
+    h2 {
+      color: #000 !important;
+      font-size: 18px;
+    }
+
+    .permission-header {
+      display: flex;
+      align-items: center;
+    }
+
+    .alert-message {
+      max-height: 300px;
+    }
+  }
+
+
+
   /* ALERT component */
   .button-alert {
     margin-top: 20px !important;
