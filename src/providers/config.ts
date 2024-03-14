@@ -13,7 +13,7 @@ export class Config {
   public static URL_WEBSITE = 'https://barcodetopc.com/';
   public static URL_BARCODEBYTE = 'https://barcodebyte.com/';
   public static URL_INSTRUCTIONS = 'https://barcodetopc.com/frequently-asked-questions/#app-doesnt-find-computer';
-  public static URL_PRIVACY_POLICY = 'https://barcodetopc.com/privacy-policy/'
+  public static URL_PRIVACY_POLICY = 'https://barcodetopc.com/app-privacy-policy/'
   public static URL_FAQ = 'https://barcodetopc.com/frequently-asked-questions/';
   public static URL_GITHUB_CHANGELOG = 'https://raw.githubusercontent.com/fttx/barcode-to-pc-server/master/CHANGELOG.md';
 
