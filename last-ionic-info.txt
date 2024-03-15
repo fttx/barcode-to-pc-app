@@ -14,7 +14,7 @@
 [1mUtility:[22m
 
    cordova-res                          : [2m0.15.4[22m
-   native-run [2m(update available: [32m2.0.0[39m)[22m : [2m1.5.0[22m
+   native-run [2m(update available: [32m2.0.1[39m)[22m : [2m1.5.0[22m
 
 [1mSystem:[22m
 
