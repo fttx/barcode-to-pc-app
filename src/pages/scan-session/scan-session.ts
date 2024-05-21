@@ -659,6 +659,15 @@ export class ScanSessionPage {
 
     if (this.repeatAllTimeout) clearTimeout(this.repeatAllTimeout)
 
+    /** If the scan contains DELAY components, we sum the delays and we wait
+     * more time.
+     * This is not 100% consistent with the rest of the components, since
+     * components such as RUN and CSV_LOOKUP will still execute asynchrounously
+     * and wihtout any addition delay.
+     */
+    const delayFix = scan.outputBlocks.filter(x => x.type == 'delay').map(x => parseInt(x.value)).reduce((a, b) => a + b, 0);
+    waitTime += delayFix;
+
     this.repeatAllTimeout = setTimeout(() => {
       if (this.next >= 0) {
         this.repeatAll(this.next);
