@@ -1,35 +1,52 @@
-import { Component, HostListener, NgZone, ViewChild } from '@angular/core';
-import { Device } from '@ionic-native/device';
-import { File } from '@ionic-native/file';
-import { FirebaseAnalytics } from '@ionic-native/firebase-analytics';
-import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
-import { NativeAudio } from '@ionic-native/native-audio';
-import { NFC } from '@ionic-native/nfc';
-import { SocialSharing } from '@ionic-native/social-sharing';
-import { Promise as BluebirdPromise } from 'bluebird';
-import { ActionSheetController, AlertController, Events, LoadingController, MenuController, ModalController, NavController, NavParams, Platform } from 'ionic-angular';
-import { Subscription } from 'rxjs';
-import { KeyboardInputComponent } from '../../components/keyboard-input/keyboard-input';
-import { OutputBlockModel } from '../../models/output-block.model';
-import { requestModelDeleteScan, requestModelPutScanSessions, requestModelUpdateScanSession } from '../../models/request.model';
-import { responseModel, responseModelPutScanAck } from '../../models/response.model';
-import { ScanSessionModel } from '../../models/scan-session.model';
-import { ScanModel } from '../../models/scan.model';
-import { ScanProvider } from '../../providers/scan';
-import { ScanSessionsStorage } from '../../providers/scan-sessions-storage';
-import { ServerProvider } from '../../providers/server';
-import { Utils } from '../../providers/utils';
-import { SettingsPage } from '../settings/settings';
-import { Config } from './../../providers/config';
-import { Settings } from './../../providers/settings';
-import { CSVExportOptionsPage } from './csv-export-options/csv-export-options';
-import { EditScanSessionPage } from './edit-scan-session/edit-scan-session';
-import { SelectScanningModePage } from './select-scanning-mode/select-scanning-mode';
-import { PhotoViewer } from '@ionic-native/photo-viewer';
-import { WebIntent } from '@ionic-native/web-intent';
-import { LastToastProvider } from '../../providers/last-toast/last-toast';
-import moment from 'moment';
-import { Network } from '@ionic-native/network';
+import { Component, HostListener, NgZone, ViewChild } from "@angular/core";
+import { Device } from "@ionic-native/device";
+import { File } from "@ionic-native/file";
+import { FirebaseAnalytics } from "@ionic-native/firebase-analytics";
+import { InAppBrowser } from "@ionic-native/in-app-browser/ngx";
+import { NativeAudio } from "@ionic-native/native-audio";
+import { NFC } from "@ionic-native/nfc";
+import { SocialSharing } from "@ionic-native/social-sharing";
+import { Promise as BluebirdPromise } from "bluebird";
+import {
+  ActionSheetController,
+  AlertController,
+  Events,
+  LoadingController,
+  MenuController,
+  ModalController,
+  NavController,
+  NavParams,
+  Platform,
+} from "ionic-angular";
+import { Subscription } from "rxjs";
+import { KeyboardInputComponent } from "../../components/keyboard-input/keyboard-input";
+import { OutputBlockModel } from "../../models/output-block.model";
+import {
+  requestModelDeleteScan,
+  requestModelPutScanSessions,
+  requestModelUpdateScanSession,
+} from "../../models/request.model";
+import {
+  responseModel,
+  responseModelPutScanAck,
+} from "../../models/response.model";
+import { ScanSessionModel } from "../../models/scan-session.model";
+import { ScanModel } from "../../models/scan.model";
+import { ScanProvider } from "../../providers/scan";
+import { ScanSessionsStorage } from "../../providers/scan-sessions-storage";
+import { ServerProvider } from "../../providers/server";
+import { Utils } from "../../providers/utils";
+import { SettingsPage } from "../settings/settings";
+import { Config } from "./../../providers/config";
+import { Settings } from "./../../providers/settings";
+import { CSVExportOptionsPage } from "./csv-export-options/csv-export-options";
+import { EditScanSessionPage } from "./edit-scan-session/edit-scan-session";
+import { SelectScanningModePage } from "./select-scanning-mode/select-scanning-mode";
+import { PhotoViewer } from "@ionic-native/photo-viewer";
+import { WebIntent } from "@ionic-native/web-intent";
+import { LastToastProvider } from "../../providers/last-toast/last-toast";
+import moment from "moment";
+import { Network } from "@ionic-native/network";
 
 /**
  * This page is used to display the list of the barcodes of a specific
@@ -39,14 +56,14 @@ import { Network } from '@ionic-native/network';
  * barcodes with the keyboard (both native and OTG)
  */
 @Component({
-  selector: 'page-scan-session',
-  templateUrl: 'scan-session.html'
+  selector: "page-scan-session",
+  templateUrl: "scan-session.html",
 })
 export class ScanSessionPage {
   @ViewChild(KeyboardInputComponent) keyboardInput: KeyboardInputComponent;
 
   public scanSession: ScanSessionModel;
-  public repeatingStatus: 'paused' | 'repeating' | 'stopped' = 'stopped';
+  public repeatingStatus: "paused" | "repeating" | "stopped" = "stopped";
 
   private isNewSession = false;
   private repeatInterval = Config.DEFAULT_REPEAT_INVERVAL;
@@ -69,7 +86,6 @@ export class ScanSessionPage {
 
   // BWP::start
   public newItem = false;
-  private networkWatchdog: Subscription;
   private newDayLock: boolean = false;
   // BWP::end
 
@@ -99,22 +115,24 @@ export class ScanSessionPage {
     public menuCtrl: MenuController,
     private lastToast: LastToastProvider,
     public loadingCtrl: LoadingController,
-    private network: Network,
+    private network: Network
   ) {
-    this.scanSession = navParams.get('scanSession');
+    this.scanSession = navParams.get("scanSession");
     if (!this.scanSession) {
       this.isNewSession = true;
     }
-
   }
 
-
-  @HostListener('window:keyup', ['$event'])
+  @HostListener("window:keyup", ["$event"])
   keyEvent(event: KeyboardEvent) {
     this.ngZone.run(() => {
       if (event.keyCode == 13 && this.keyboardInput.value.length > 0) {
         this.onEnterClick();
-      } else if (!this.keyboardInput.isFocussed() && this.scanProvider.awaitingForBarcode && !this.disableKeyboarAutofocus) {
+      } else if (
+        !this.keyboardInput.isFocussed() &&
+        this.scanProvider.awaitingForBarcode &&
+        !this.disableKeyboarAutofocus
+      ) {
         this.keyboardInputTouchStart(event);
       }
 
@@ -122,12 +140,16 @@ export class ScanSessionPage {
       // if not, we can write the key to the keyboardInput, otherwise it means
       // that a dialog (eg. number) is visible.
       const currentElement = document.activeElement;
-      if (!this.keyboardInput.isFocussed() && (!currentElement || (currentElement && currentElement.tagName != 'INPUT'))) {
+      if (
+        !this.keyboardInput.isFocussed() &&
+        (!currentElement ||
+          (currentElement && currentElement.tagName != "INPUT"))
+      ) {
         if (event.keyCode >= 32 && event.key.length == 1) {
           this.keyboardInput.value += event.key;
         }
       }
-    })
+    });
   }
 
   // BWP::start
@@ -137,23 +159,23 @@ export class ScanSessionPage {
     //   ScanSessionPage.hasShownExitScanModeAlert = true;
     //   return true;
     // }
-    const leave = await new Promise(async resolve => {
+    const leave = await new Promise(async (resolve) => {
       let cbd = 5;
-      const title = 'Exit scan mode';
+      const title = "Exit scan mode";
       const alert = this.alertCtrl.create({
         title: title,
-        message: 'Do you want to exit scan mode?',
+        message: "Do you want to exit scan mode?",
         buttons: [
           {
-            text: 'No',
-            role: 'cancel',
-            handler: () => resolve(false)
+            text: "No",
+            role: "cancel",
+            handler: () => resolve(false),
           },
           {
-            text: 'Yes',
-            handler: () => resolve(true)
-          }
-        ]
+            text: "Yes",
+            handler: () => resolve(true),
+          },
+        ],
       });
 
       alert.setTitle(`${title} (${cbd})`);
@@ -177,33 +199,46 @@ export class ScanSessionPage {
   async ionViewDidEnter() {
     this.firebaseAnalytics.setCurrentScreen("ScanSessionPage");
     this.deviceName = await this.settings.getDeviceName();
-    this.responseSubscription = this.serverProvider.onMessage().subscribe(async message => {
-      if (message.action == responseModel.ACTION_PUT_SCAN_ACK) {
-        let response: responseModelPutScanAck = message;
-        let scanSessions = await this.scanSessionsStorage.getScanSessions();
-        const scanSession = scanSessions.find(x => x.id == response.scanSessionId);
-        if (scanSession) {
-          let len = scanSession.scannings.length;
-          for (let i = (len - 1); i >= 0; i--) {
-            if (scanSession.scannings[i].id == response.scanId) {
-              scanSession.scannings[i].ack = true;
-              if (response.serverUUID && scanSession.syncedWith.indexOf(response.serverUUID) == -1) scanSession.syncedWith.push(response.serverUUID);
-              if (response.outputBlocks && response.outputBlocks.length != 0) {
-                scanSession.scannings[i].outputBlocks = response.outputBlocks;
-                scanSession.scannings[i].displayValue = ScanModel.ToString(scanSession.scannings[i]);
+    this.responseSubscription = this.serverProvider
+      .onMessage()
+      .subscribe(async (message) => {
+        if (message.action == responseModel.ACTION_PUT_SCAN_ACK) {
+          let response: responseModelPutScanAck = message;
+          let scanSessions = await this.scanSessionsStorage.getScanSessions();
+          const scanSession = scanSessions.find(
+            (x) => x.id == response.scanSessionId
+          );
+          if (scanSession) {
+            let len = scanSession.scannings.length;
+            for (let i = len - 1; i >= 0; i--) {
+              if (scanSession.scannings[i].id == response.scanId) {
+                scanSession.scannings[i].ack = true;
+                if (
+                  response.serverUUID &&
+                  scanSession.syncedWith.indexOf(response.serverUUID) == -1
+                )
+                  scanSession.syncedWith.push(response.serverUUID);
+                if (
+                  response.outputBlocks &&
+                  response.outputBlocks.length != 0
+                ) {
+                  scanSession.scannings[i].outputBlocks = response.outputBlocks;
+                  scanSession.scannings[i].displayValue = ScanModel.ToString(
+                    scanSession.scannings[i]
+                  );
+                }
+                // this.scanSession.scannings[i].repeated = false;
               }
-              // this.scanSession.scannings[i].repeated = false;
             }
+            this.scanSessionsStorage.updateScanSession(scanSession);
           }
-          this.scanSessionsStorage.updateScanSession(scanSession);
+          if (!scanSession.scannings.find((x) => !x.ack)) {
+            // delete the scan session
+            scanSessions = scanSessions.filter((x) => !response.scanId);
+            this.scanSessionsStorage.setScanSessions(scanSessions);
+          }
         }
-        if (!scanSession.scannings.find(x => !x.ack)) {
-          // delete the scan session
-          scanSessions = scanSessions.filter(x => !response.scanId);
-          this.scanSessionsStorage.setScanSessions(scanSessions);
-        }
-      }
-    });
+      });
 
     // Enable back button only if the webview is visible.
     // Otherwise it will go back to the previous page when using the back button
@@ -217,57 +252,67 @@ export class ScanSessionPage {
           this.exitTimeout = null;
         }, 1000);
         if (this.exitCounter <= 4) {
-          this.lastToast.present(`Press back ${5 - this.exitCounter} times to exit`, 2000);
+          this.lastToast.present(
+            `Press back ${5 - this.exitCounter} times to exit`,
+            2000
+          );
         } else if (this.exitCounter == 5) {
-          this.alertCtrl.create({
-            title: 'Password required',
-            message: 'Please enter the password',
-            inputs: [{
-              name: 'password',
-              type: 'text',
-            }],
-            buttons: [{
-              text: 'Cancel',
-              role: 'cancel',
-              handler: () => { }
-            },
-            {
-              text: 'Ok',
-              handler: (data) => {
-                if (data.password.toLowerCase() == 'bwp9753' || data.password.toLowerCase() == 'ppp') {
-                  this.navCtrl.pop();
-                } else {
-                  this.lastToast.present('Incorrect password');
-                }
-              }
-            }]
-          }).present();
+          this.alertCtrl
+            .create({
+              title: "Password required",
+              message: "Please enter the password",
+              inputs: [
+                {
+                  name: "password",
+                  type: "text",
+                },
+              ],
+              buttons: [
+                {
+                  text: "Cancel",
+                  role: "cancel",
+                  handler: () => {},
+                },
+                {
+                  text: "Ok",
+                  handler: (data) => {
+                    if (
+                      data.password.toLowerCase() == "bwp9753" ||
+                      data.password.toLowerCase() == "ppp"
+                    ) {
+                      this.navCtrl.pop();
+                    } else {
+                      this.lastToast.present("Incorrect password");
+                    }
+                  },
+                },
+              ],
+            })
+            .present();
         }
         this.exitCounter++;
       }
     }, 0);
-
-    this.networkWatchdog = this.network.onConnect().subscribe(() => {
-      this.syncOldScanSessions();
-    });
     // BWP::end
 
     // PDA::start
-    this.webIntent.registerBroadcastReceiver({
-      filterActions: (await this.settings.getPDAIntents()).split(','),
-    }).subscribe(intent => {
-      let data = null;
-      if (intent.extras.hasOwnProperty('com.symbol.datawedge.data_string')) {
-        // The Zebra devices use the DataWedge API to send the barcode, and they
-        // write the result into the intent.extras["com.symbol.datawedge.data_string"]
-        data = intent.extras["com.symbol.datawedge.data_string"];
-      } else {
-        data = intent.extras.data;
-      }
+    this.webIntent
+      .registerBroadcastReceiver({
+        filterActions: (await this.settings.getPDAIntents()).split(","),
+      })
+      .subscribe((intent) => {
+        let data = null;
+        if (intent.extras.hasOwnProperty("com.symbol.datawedge.data_string")) {
+          // The Zebra devices use the DataWedge API to send the barcode, and they
+          // write the result into the intent.extras["com.symbol.datawedge.data_string"]
+          data = intent.extras["com.symbol.datawedge.data_string"];
+        } else {
+          data = intent.extras.data;
+        }
 
-      this.keyboardInput.value = data;
-      this.onEnterClick();
-    });
+        this.keyboardInput.value = data;
+        this.onEnterClick();
+      });
     // PDA::end
 
     // Init the outputTemplate by triggering the touch
@@ -277,15 +322,18 @@ export class ScanSessionPage {
     // We also check if scanSession is not null because it may be happen that the
     // scanSession hasn't been created yet, since the OutputTemplateSelectorPage
     // may appear first.
-    if (this.disableKeyboarAutofocus && !this.scanProviderSubscription && this.scanSession) {
+    if (
+      this.disableKeyboarAutofocus &&
+      !this.scanProviderSubscription &&
+      this.scanSession
+    ) {
       this.keyboardInputTouchStart(event, false);
     }
   }
 
-  private exitTimeout = null
+  private exitTimeout = null;
   private exitCounter = 0;
   private connected = false;
-
 
   ionViewWillUnload() {
     if (this.onConnectSubscription != null) {
@@ -294,52 +342,89 @@ export class ScanSessionPage {
     if (this.onDisconnectSubscription != null) {
       this.onDisconnectSubscription.unsubscribe();
     }
-    this.events.unsubscribe('server:connected');
+    this.events.unsubscribe("server:connected");
   }
-
 
   ionViewDidLoad() {
     this.connected = this.serverProvider.isConnected();
-    this.settings.getOfflineModeEnabled().then(offlineMode => {
+    this.settings.getOfflineModeEnabled().then((offlineMode) => {
       if (offlineMode) this.connected = false;
-    })
-
-    this.onDisconnectSubscription = this.serverProvider.onDisconnect().subscribe(() => {
-      this.connected = false;
-    });
-    this.onConnectSubscription = this.serverProvider.onConnect().subscribe(() => {
-      this.connected = true;
     });
 
-    if (this.isNewSession) { // se ho premuto + su scan-sessions allora posso già iniziare la scansione
+    this.onDisconnectSubscription = this.serverProvider
+      .onDisconnect()
+      .subscribe(() => {
+        this.connected = false;
+      });
+    this.onConnectSubscription = this.serverProvider
+      .onConnect()
+      .subscribe(() => {
+        this.connected = true;
+      });
+
+    if (this.isNewSession) {
+      // se ho premuto + su scan-sessions allora posso già iniziare la scansione
       this.scan();
     } else {
       // It will be shown only once because ioViewDidLoad is always called only once
-      BluebirdPromise.join(this.settings.getNoRunnings(), this.settings.getSoundFeedbackOrDialogShown(), this.settings.getEnableBeep(), async (runnings, soundFeedbackOrDialogShown, enableBeep) => {
-        this.enableBeep = enableBeep;
-        if (!soundFeedbackOrDialogShown && runnings >= Config.NO_RUNNINGS_BEFORE_SHOW_SOUND_FEEDBACK_OR_DIALOG) {
-          this.alertCtrl.create({
-            title: await this.utils.text('beepSoundDialogTitle'),
-            message: await this.utils.text('beepSoundDialogMessage'),
-            buttons: [
-              { text: await this.utils.text('beepSoundDialogOpenSettingsButton'), handler: () => { this.navCtrl.push(SettingsPage) } },
-              { text: await this.utils.text('beepSoundDialogShowLaterButton'), role: 'cancel', handler: () => { } },
-              {
-                text: await this.utils.text('beepSoundDialogUnderstandButton'), role: 'cancel', handler: () => { this.settings.setSoundFeedbackOrDialogShown(true); }
-              }]
-          }).present();
+      BluebirdPromise.join(
+        this.settings.getNoRunnings(),
+        this.settings.getSoundFeedbackOrDialogShown(),
+        this.settings.getEnableBeep(),
+        async (runnings, soundFeedbackOrDialogShown, enableBeep) => {
+          this.enableBeep = enableBeep;
+          if (
+            !soundFeedbackOrDialogShown &&
+            runnings >= Config.NO_RUNNINGS_BEFORE_SHOW_SOUND_FEEDBACK_OR_DIALOG
+          ) {
+            this.alertCtrl
+              .create({
+                title: await this.utils.text("beepSoundDialogTitle"),
+                message: await this.utils.text("beepSoundDialogMessage"),
+                buttons: [
+                  {
+                    text: await this.utils.text(
+                      "beepSoundDialogOpenSettingsButton"
+                    ),
+                    handler: () => {
+                      this.navCtrl.push(SettingsPage);
+                    },
+                  },
+                  {
+                    text: await this.utils.text(
+                      "beepSoundDialogShowLaterButton"
+                    ),
+                    role: "cancel",
+                    handler: () => {},
+                  },
+                  {
+                    text: await this.utils.text(
+                      "beepSoundDialogUnderstandButton"
+                    ),
+                    role: "cancel",
+                    handler: () => {
+                      this.settings.setSoundFeedbackOrDialogShown(true);
+                    },
+                  },
+                ],
+              })
+              .present();
+          }
         }
-      });
+      );
     }
 
-    this.events.subscribe('settings:save', async () => {
+    this.events.subscribe("settings:save", async () => {
       this.realtimeSend = await this.settings.getRealtimeSendEnabled();
     });
 
     this.serverProvider.onConnect().subscribe(async () => {
-      if (!this.catchUpIOSLag || !await this.settings.getRealtimeSendEnabled()) return;
-      this.catchUpIOSLag = false;
-      this.onRepeatAllClick(false);
+      // BWP::start
+      setTimeout(() => {
+        this.syncOldScanSessions();
+        this.lastToast.present("Connection restored. Syncing...", 2000);
+      }, 5000);
+      // BWP::end
     });
   }
 
@@ -347,13 +432,15 @@ export class ScanSessionPage {
     // BWP::start
     this.menuCtrl.enable(true);
     this.webIntent.unregisterBroadcastReceiver();
-    this.networkWatchdog.unsubscribe();
     // BWP::end
     if (this.responseSubscription != null && this.responseSubscription) {
       this.responseSubscription.unsubscribe();
     }
 
-    if (this.scanProviderSubscription && this.scanProviderSubscription != null) {
+    if (
+      this.scanProviderSubscription &&
+      this.scanProviderSubscription != null
+    ) {
       this.scanProviderSubscription.unsubscribe();
     }
 
@@ -366,10 +453,11 @@ export class ScanSessionPage {
   }
 
   async ionViewWillEnter() {
-    this.selectedOutputProfileIndex = await this.settings.getSelectedOutputProfile();
+    this.selectedOutputProfileIndex =
+      await this.settings.getSelectedOutputProfile();
     this.realtimeSend = await this.settings.getRealtimeSendEnabled();
-    this.disableKeyboarAutofocus = await this.settings.getDisableKeyboarAutofocus();
-
+    this.disableKeyboarAutofocus =
+      await this.settings.getDisableKeyboarAutofocus();
 
     // BWP::start
     // Use to detect wether the webview is visible or if the scanner plugin is
@@ -384,12 +472,15 @@ export class ScanSessionPage {
     this.resumeSubscription = this.platform.resume.subscribe(async () => {
       let defaultName = await this.settings.getScanSessionName();
       defaultName = await this.utils.supplant(defaultName, {
-        scan_session_number: await this.scanSessionsStorage.getNextScanSessionNumber(),
+        scan_session_number:
+          await this.scanSessionsStorage.getNextScanSessionNumber(),
         device_name: await this.settings.getDeviceName(),
         date: new Date().toISOString().slice(0, 10).replace(/-/g, ""),
-        custom: await this.utils.GetScanSessionName(await this.settings.getDeviceName()),
+        custom: await this.utils.GetScanSessionName(
+          await this.settings.getDeviceName()
+        ),
       });
-      console.log('@@@@ resume', this.scanSession.name, defaultName)
+      console.log("@@@@ resume", this.scanSession.name, defaultName);
 
       // trigger the scan again on resume (bug 2024)
       this.onAddClicked();
@@ -397,11 +488,11 @@ export class ScanSessionPage {
       if (this.scanSession && this.scanSession.name != defaultName) {
         this.newDayLock = true;
         const alert = this.alertCtrl.create({
-          title: 'Good morning!',
-          message: 'It\'s a new day. Tap Next to start a new scan session.',
+          title: "Good morning!",
+          message: "It's a new day. Tap Next to start a new scan session.",
           buttons: [
             {
-              text: 'Next',
+              text: "Next",
               handler: () => {
                 const loader = this.loadingCtrl.create({
                   content: "Please wait...",
@@ -411,22 +502,26 @@ export class ScanSessionPage {
                 });
                 loader.present();
                 window.location.reload();
-              }
-            }
-          ]
+              },
+            },
+          ],
         });
         alert.present();
       } else {
         // Force sync on resume
         this.syncOldScanSessions();
       }
-      setTimeout(() => { this.isPaused = false; }, 2000);
+      setTimeout(() => {
+        this.isPaused = false;
+      }, 2000);
     });
-    this.pauseSubscription = this.platform.pause.subscribe(() => { this.isPaused = true; });
+    this.pauseSubscription = this.platform.pause.subscribe(() => {
+      this.isPaused = true;
+    });
     this.pauseSubscription = this.platform.pause.subscribe(() => {
       this.isPaused = true;
       // Pause all toast and dialogs until next resume is called
-      if (this.platform.is('ios')) {
+      if (this.platform.is("ios")) {
         this.catchUpIOSLag = true;
       }
     });
@@ -443,9 +538,13 @@ export class ScanSessionPage {
     }
   }
 
-  scan() { // Called when the user want to scan
-    let selectScanningModeModal = this.modalCtrl.create(SelectScanningModePage, { scanSession: this.scanSession });
-    selectScanningModeModal.onDidDismiss(data => {
+  scan() {
+    // Called when the user want to scan
+    let selectScanningModeModal = this.modalCtrl.create(
+      SelectScanningModePage,
+      { scanSession: this.scanSession }
+    );
+    selectScanningModeModal.onDidDismiss((data) => {
       // if the user doesn't choose the mode (clicks cancel)
       if (!data || data.cancelled) {
         // if the user clicked the add FAB outside the scanSession page
@@ -462,26 +561,38 @@ export class ScanSessionPage {
       if (this.scanProviderSubscription != null) {
         this.scanProviderSubscription.unsubscribe();
       }
-      this.scanProviderSubscription = this.scanProviderSubscription = this.scanProvider.scan(scanMode, this.selectedOutputProfileIndex, this.scanSession, this.keyboardInput).subscribe(
-        scan => {
-          this.saveAndSendScan(scan);
-          this.isNewSession = false;
-        },
-        err => {
-          console.log('err')
-          // if the user clicks cancel without acquiring not even a single barcode
-          if (!this.isNewSession && this.scanSession.scannings.length == 0) {
-            this.navCtrl.pop()
-          }
-        },
-        () => { // onComplete
-          if (this.isNewSession) {
-            if (this.scanSession.scannings.length == 0) {
-              this.navCtrl.pop();
+      this.scanProviderSubscription = this.scanProviderSubscription =
+        this.scanProvider
+          .scan(
+            scanMode,
+            this.selectedOutputProfileIndex,
+            this.scanSession,
+            this.keyboardInput
+          )
+          .subscribe(
+            (scan) => {
+              this.saveAndSendScan(scan);
+              this.isNewSession = false;
+            },
+            (err) => {
+              console.log("err");
+              // if the user clicks cancel without acquiring not even a single barcode
+              if (
+                !this.isNewSession &&
+                this.scanSession.scannings.length == 0
+              ) {
+                this.navCtrl.pop();
+              }
+            },
+            () => {
+              // onComplete
+              if (this.isNewSession) {
+                if (this.scanSession.scannings.length == 0) {
+                  this.navCtrl.pop();
+                }
+              }
             }
-          }
-        }
-      )
+          );
     }); // onDidDismiss
     selectScanningModeModal.present();
   }
@@ -502,8 +613,11 @@ export class ScanSessionPage {
       event.stopPropagation();
     }
 
-    if (this.scanProviderSubscription && this.scanProviderSubscription != null) {
-      if (this.scanProvider.acqusitionMode == 'manual') {
+    if (
+      this.scanProviderSubscription &&
+      this.scanProviderSubscription != null
+    ) {
+      if (this.scanProvider.acqusitionMode == "manual") {
         // it may happen that for some reason the focus is lost, eg. the user
         // accidentally taps outside the input element while typing it, and he
         // may want to continue typing the barcode, without loosing the
@@ -523,28 +637,35 @@ export class ScanSessionPage {
       }
     }
 
-    this.scanProviderSubscription = this.scanProvider.scan(SelectScanningModePage.SCAN_MODE_ENTER_MAUALLY, this.selectedOutputProfileIndex, this.scanSession, this.keyboardInput).subscribe(
-      scan => this.saveAndSendScan(scan),
-      err => {
-        // if the user clicks cancel without acquiring not even a single barcode
-        if (!this.isNewSession && this.scanSession.scannings.length == 0) {
-          this.navCtrl.pop()
+    this.scanProviderSubscription = this.scanProvider
+      .scan(
+        SelectScanningModePage.SCAN_MODE_ENTER_MAUALLY,
+        this.selectedOutputProfileIndex,
+        this.scanSession,
+        this.keyboardInput
+      )
+      .subscribe(
+        (scan) => this.saveAndSendScan(scan),
+        (err) => {
+          // if the user clicks cancel without acquiring not even a single barcode
+          if (!this.isNewSession && this.scanSession.scannings.length == 0) {
+            this.navCtrl.pop();
+          }
+        },
+        // complete
+        () => {
+          this.scanProviderSubscription.unsubscribe();
+          this.scanProviderSubscription = null;
         }
-      },
-      // complete
-      () => {
-        this.scanProviderSubscription.unsubscribe();
-        this.scanProviderSubscription = null;
-      }
-    )
+      );
   }
 
   saveAndSendScan(scan: ScanModel) {
-    this.firebaseAnalytics.logEvent('scan', {});
+    this.firebaseAnalytics.logEvent("scan", {});
     this.scanSession.scannings.unshift(scan);
     this.save();
 
-    if (scan.outputBlocks.find(x => x.type == 'text' && x.value != '-1')) {
+    if (scan.outputBlocks.find((x) => x.type == "text" && x.value != "-1")) {
       // Add the 'flash-first-item' class to the first item
       // We don't animate Removed items
       this.newItem = true;
@@ -558,16 +679,20 @@ export class ScanSessionPage {
   }
 
   private showImage(scan) {
-    const imageBlock = scan.outputBlocks.find(x => x.type == 'image');
-    if (this.platform.is('ios')) {
-      this.iab.create(imageBlock.image, '_blank', 'enableViewportScale=yes,location=no,closebuttoncaption=Close,closebuttoncolor=#ffffff');
+    const imageBlock = scan.outputBlocks.find((x) => x.type == "image");
+    if (this.platform.is("ios")) {
+      this.iab.create(
+        imageBlock.image,
+        "_blank",
+        "enableViewportScale=yes,location=no,closebuttoncaption=Close,closebuttoncolor=#ffffff"
+      );
     } else {
       const options = {
         share: true, // default is false
         closeButton: true, // default is true
         copyToReference: false, // default is false
-        headers: '',  // If this is not provided, an exception will be triggered
-        piccasoOptions: {} // If this is not provided, an exception will be triggered
+        headers: "", // If this is not provided, an exception will be triggered
+        piccasoOptions: {}, // If this is not provided, an exception will be triggered
       };
       this.photoViewer.show(imageBlock.image, scan.displayValue, options);
     }
@@ -586,33 +711,49 @@ export class ScanSessionPage {
     if (scan.ack == true) {
       const buttons = [];
       buttons.push({
-        text: await this.utils.text('alreadyReceivedScanCancelButton'), role: 'cancel', handler: () => { },
-        cssClass: this.platform.is('android') ? 'button-outline-md ' + (scan.hasImage ? 'button-generic' : '') : null,
+        text: await this.utils.text("alreadyReceivedScanCancelButton"),
+        role: "cancel",
+        handler: () => {},
+        cssClass: this.platform.is("android")
+          ? "button-outline-md " + (scan.hasImage ? "button-generic" : "")
+          : null,
       });
       if (scan.hasImage) {
         buttons.push({
-          text: await this.utils.text('alreadyReceivedScanDialogViewImageButton'), handler: () => {
+          text: await this.utils.text(
+            "alreadyReceivedScanDialogViewImageButton"
+          ),
+          handler: () => {
             this.showImage(scan);
           },
-          cssClass: this.platform.is('android') ? 'button-outline-md button-generic' : null,
+          cssClass: this.platform.is("android")
+            ? "button-outline-md button-generic"
+            : null,
         });
       }
       buttons.push({
-        text: await this.utils.text('alreadyReceivedScanDialogSendAgainButton'), handler: () => { this.repeat(scan); },
-        cssClass: this.platform.is('android') ? 'button-outline-md button-ok' : null,
+        text: await this.utils.text("alreadyReceivedScanDialogSendAgainButton"),
+        handler: () => {
+          this.repeat(scan);
+        },
+        cssClass: this.platform.is("android")
+          ? "button-outline-md button-ok"
+          : null,
       });
-      this.alertCtrl.create({
-        title: await this.utils.text('alreadyReceivedScanDialogTitle'),
-        message: await this.utils.text('alreadyReceivedScanDialogMessage'),
-        // cssClass: this.platform.is('android') ? 'alert-get-field alert-big-buttons' : null,
-        buttons: buttons,
-      }).present();
+      this.alertCtrl
+        .create({
+          title: await this.utils.text("alreadyReceivedScanDialogTitle"),
+          message: await this.utils.text("alreadyReceivedScanDialogMessage"),
+          // cssClass: this.platform.is('android') ? 'alert-get-field alert-big-buttons' : null,
+          buttons: buttons,
+        })
+        .present();
     } else {
-      this.repeatingStatus = 'repeating';
+      this.repeatingStatus = "repeating";
       this.repeat(scan);
-      this.repeatingStatus = 'stopped';
+      this.repeatingStatus = "stopped";
     }
-    this.firebaseAnalytics.logEvent('repeat', {});
+    this.firebaseAnalytics.logEvent("repeat", {});
   }
 
   async onItemPressed(scan: ScanModel, scanIndex: number) {
@@ -621,54 +762,78 @@ export class ScanSessionPage {
     let scanString = ScanModel.ToString(scan);
 
     buttons.push({
-      text: await this.utils.text('scanDeleteOnlySmartphoneDeleteButton'), icon: 'trash', role: 'destructive', handler: async () => {
-        this.firebaseAnalytics.logEvent('delete', {});
-        this.alertCtrl.create({
-          title: await this.utils.text('scanDeleteOnlySmartphoneDialogTitle'),
-          message: await this.utils.text('scanDeleteOnlySmartphoneDialogMessage'),
-          buttons: [{
-            text: await this.utils.text('scanDeleteOnlySmartphoneDialogCancelButton'), role: 'cancel'
-          }, {
-            text: await this.utils.text('scanDeleteOnlySmartphoneDialogDeleteButton'), handler: () => {
-              this.scanSession.scannings.splice(scanIndex, 1);
-              this.save();
-              this.sendDeleteScan(scan);
-              if (this.scanSession.scannings.length == 0) {
-                // TODO go back and delete scan session
-              }
-            }
-          }]
-        }).present();
-      }
+      text: await this.utils.text("scanDeleteOnlySmartphoneDeleteButton"),
+      icon: "trash",
+      role: "destructive",
+      handler: async () => {
+        this.firebaseAnalytics.logEvent("delete", {});
+        this.alertCtrl
+          .create({
+            title: await this.utils.text("scanDeleteOnlySmartphoneDialogTitle"),
+            message: await this.utils.text(
+              "scanDeleteOnlySmartphoneDialogMessage"
+            ),
+            buttons: [
+              {
+                text: await this.utils.text(
+                  "scanDeleteOnlySmartphoneDialogCancelButton"
+                ),
+                role: "cancel",
+              },
+              {
+                text: await this.utils.text(
+                  "scanDeleteOnlySmartphoneDialogDeleteButton"
+                ),
+                handler: () => {
+                  this.scanSession.scannings.splice(scanIndex, 1);
+                  this.save();
+                  this.sendDeleteScan(scan);
+                  if (this.scanSession.scannings.length == 0) {
+                    // TODO go back and delete scan session
+                  }
+                },
+              },
+            ],
+          })
+          .present();
+      },
     });
 
     buttons.push({
-      text: await this.utils.text('shareButton'), icon: 'share', handler: () => {
-        this.firebaseAnalytics.logEvent('share', {});
-        this.socialSharing.share(scanString, "", "", "")
-      }
+      text: await this.utils.text("shareButton"),
+      icon: "share",
+      handler: () => {
+        this.firebaseAnalytics.logEvent("share", {});
+        this.socialSharing.share(scanString, "", "", "");
+      },
     });
 
-    if (scanString.toLocaleLowerCase().trim().startsWith('http')) {
+    if (scanString.toLocaleLowerCase().trim().startsWith("http")) {
       buttons.push({
-        text: await this.utils.text('openInBrowserButton'), icon: 'open', handler: () => {
-          this.firebaseAnalytics.logEvent('open_browser', {});
-          this.iab.create(scanString, '_system');
-        }
+        text: await this.utils.text("openInBrowserButton"),
+        icon: "open",
+        handler: () => {
+          this.firebaseAnalytics.logEvent("open_browser", {});
+          this.iab.create(scanString, "_system");
+        },
       });
     }
 
     buttons.push({
-      text: await this.utils.text('Sync from here'), icon: 'refresh',
+      text: await this.utils.text("Sync from here"),
+      icon: "refresh",
       handler: () => {
-        this.firebaseAnalytics.logEvent('repeatAll', {});
-        if (this.repeatingStatus == 'stopped') {
+        this.firebaseAnalytics.logEvent("repeatAll", {});
+        if (this.repeatingStatus == "stopped") {
           this.repeatAll(scanIndex);
         }
-      }
+      },
     });
 
-    buttons.push({ text: await this.utils.text('cancelButton'), role: 'cancel' });
+    buttons.push({
+      text: await this.utils.text("cancelButton"),
+      role: "cancel",
+    });
 
     let actionSheet = this.actionSheetCtrl.create({ buttons: buttons });
     actionSheet.present();
@@ -676,19 +841,26 @@ export class ScanSessionPage {
 
   async onEditClick() {
     if (!this.serverProvider.isConnected()) {
-      this.alertCtrl.create({
-        title: await this.utils.text('actionOnlyOnlineDialogTitle'),
-        message: await this.utils.text('actionOnlyOnlineDialogMessage'),
-        buttons: [{
-          text: await this.utils.text('actionOnlyOnlineDialogCloseButton'),
-          role: 'cancel',
-        }]
-      }).present();
+      this.alertCtrl
+        .create({
+          title: await this.utils.text("actionOnlyOnlineDialogTitle"),
+          message: await this.utils.text("actionOnlyOnlineDialogMessage"),
+          buttons: [
+            {
+              text: await this.utils.text("actionOnlyOnlineDialogCloseButton"),
+              role: "cancel",
+            },
+          ],
+        })
+        .present();
       return;
     }
-    this.firebaseAnalytics.logEvent('edit_scan', {});
-    let editModal = this.modalCtrl.create(EditScanSessionPage, this.scanSession);
-    editModal.onDidDismiss(scanSession => {
+    this.firebaseAnalytics.logEvent("edit_scan", {});
+    let editModal = this.modalCtrl.create(
+      EditScanSessionPage,
+      this.scanSession
+    );
+    editModal.onDidDismiss((scanSession) => {
       this.scanSession = scanSession;
       this.sendUpdateScanSession(this.scanSession);
       this.save();
@@ -704,11 +876,15 @@ export class ScanSessionPage {
     this.scanSessionsStorage.updateScanSession(this.scanSession);
   }
 
-  async sendPutScan(parentScanSession: ScanSessionModel, scan: ScanModel, sendKeystrokes = true) {
+  async sendPutScan(
+    parentScanSession: ScanSessionModel,
+    scan: ScanModel,
+    sendKeystrokes = true
+  ) {
     let scanSession = { ...parentScanSession }; // do a shallow copy (copy only the properties of the object first level)
     scanSession.scannings = [scan];
 
-    if (this.repeatingStatus === 'repeating') {
+    if (this.repeatingStatus === "repeating") {
       // Remote components OOB Execution
       for (let i = 0; i < scan.outputBlocks.length; i++) {
         const block = scan.outputBlocks[i];
@@ -751,7 +927,7 @@ export class ScanSessionPage {
     let request = new requestModelUpdateScanSession().fromObject({
       scanSessionId: this.scanSession.id,
       scanSessionName: this.scanSession.name,
-      scanSessionDate: updatedScanSession.date
+      scanSessionDate: updatedScanSession.date,
     });
     this.serverProvider.send(request);
   }
@@ -762,22 +938,25 @@ export class ScanSessionPage {
     }
     this.sendPutScan(this.scanSession, scan);
     if (this.enableBeep) {
-      this.nativeAudio.play('beep');
+      this.nativeAudio.play("beep");
     }
   }
 
   async onRepeatAllClick(showConfirmDialog = true) {
     const doRepeat = () => {
       if (!this.scanSession) return;
-      this.settings.getRepeatInterval().then(repeatInterval => {
+      this.settings.getRepeatInterval().then((repeatInterval) => {
         if (repeatInterval != null) {
           this.repeatInterval = repeatInterval;
         }
-        if (this.repeatingStatus != 'repeating' && this.repeatingStatus != 'paused') {
+        if (
+          this.repeatingStatus != "repeating" &&
+          this.repeatingStatus != "paused"
+        ) {
           let startFrom = this.scanSession.scannings.length - 1;
           this.repeatAll(startFrom);
         }
-      })
+      });
     };
 
     if (showConfirmDialog) {
@@ -789,32 +968,36 @@ export class ScanSessionPage {
   }
 
   onPauseRepeatingClick() {
-    this.repeatingStatus = 'paused';
-    if (this.repeatAllTimeout) clearTimeout(this.repeatAllTimeout)
+    this.repeatingStatus = "paused";
+    if (this.repeatAllTimeout) clearTimeout(this.repeatAllTimeout);
 
     // Waits for the ACK and saves the scan.ack attribute to the scan storage
-    setTimeout(() => { this.save() }, 1500);
+    setTimeout(() => {
+      this.save();
+    }, 1500);
   }
 
   onResumeRepeatingClick() {
-    this.repeatingStatus = 'repeating';
+    this.repeatingStatus = "repeating";
     this.repeatAll(this.next);
   }
 
   stopRepeatingClick() {
-    if (this.repeatAllTimeout) clearTimeout(this.repeatAllTimeout)
+    if (this.repeatAllTimeout) clearTimeout(this.repeatAllTimeout);
     this.repeatAllTimeout = null;
     this.next = -1;
-    this.repeatingStatus = 'stopped';
-    this.scanSession.scannings.forEach(scan => scan.repeated = false);
+    this.repeatingStatus = "stopped";
+    this.scanSession.scannings.forEach((scan) => (scan.repeated = false));
     this.skipAlreadySent = false;
 
     // Waits for the ACK and saves the scan.ack attribute to the scan storage
-    setTimeout(() => { this.save() }, 1500);
+    setTimeout(() => {
+      this.save();
+    }, 1500);
   }
 
   onEnterClick(event = null) {
-    if (this.repeatingStatus == 'repeating') return;
+    if (this.repeatingStatus == "repeating") return;
     this.keyboardInput.submit();
   }
 
@@ -824,7 +1007,7 @@ export class ScanSessionPage {
       return;
     }
 
-    this.repeatingStatus = 'repeating';
+    this.repeatingStatus = "repeating";
     let scan = this.scanSession.scannings[startFrom];
 
     let waitTime = this.repeatInterval;
@@ -837,7 +1020,7 @@ export class ScanSessionPage {
 
     this.next = startFrom - 1;
 
-    if (this.repeatAllTimeout) clearTimeout(this.repeatAllTimeout)
+    if (this.repeatAllTimeout) clearTimeout(this.repeatAllTimeout);
 
     this.repeatAllTimeout = setTimeout(() => {
       if (this.next >= 0) {
@@ -849,24 +1032,42 @@ export class ScanSessionPage {
   }
 
   onShareClick() {
-    let editModal = this.modalCtrl.create(CSVExportOptionsPage, this.scanSession);
-    editModal.onDidDismiss(csv => {
-
+    let editModal = this.modalCtrl.create(
+      CSVExportOptionsPage,
+      this.scanSession
+    );
+    editModal.onDidDismiss((csv) => {
       // Convert the csv string to base64 encoded data
       let base64CSV = null;
       try {
         base64CSV = btoa(csv);
-        if (!base64CSV) { this.onShareClickFallBack(csv); return; }
+        if (!base64CSV) {
+          this.onShareClickFallBack(csv);
+          return;
+        }
       } catch (error) {
         this.onShareClickFallBack(csv);
       }
 
       // Share using base64 method
       if (this.utils.isAndroid()) {
-        this.socialSharing.share(null, this.scanSession.name, "data:text/csv;base64," + base64CSV, null)
+        this.socialSharing.share(
+          null,
+          this.scanSession.name,
+          "data:text/csv;base64," + base64CSV,
+          null
+        );
       } else {
         // iOS Quirk: https://github.com/EddyVerbruggen/SocialSharing-PhoneGap-Plugin/issues/778
-        this.socialSharing.share(null, this.scanSession.name, "data:text/csv;df:" + this.scanSession.name + ".csv;base64," + base64CSV, null)
+        this.socialSharing.share(
+          null,
+          this.scanSession.name,
+          "data:text/csv;df:" +
+            this.scanSession.name +
+            ".csv;base64," +
+            base64CSV,
+          null
+        );
       }
     });
     editModal.present();
@@ -874,28 +1075,41 @@ export class ScanSessionPage {
 
   async onShareClickFallBack(csv: string) {
     // Remove previous files
-    const fileName = this.scanSession.name + '.csv';
+    const fileName = this.scanSession.name + ".csv";
     try {
-      await this.file.removeFile(this.file.cacheDirectory, fileName)
-    } catch { }
+      await this.file.removeFile(this.file.cacheDirectory, fileName);
+    } catch {}
 
     // Save to file system
-    let result = await this.file.writeFile(this.file.cacheDirectory, fileName, csv);
+    let result = await this.file.writeFile(
+      this.file.cacheDirectory,
+      fileName,
+      csv
+    );
     if (result && result.nativeURL) {
-
       // Share the file
-      this.socialSharing.share(null, this.scanSession.name, result.nativeURL, null);
+      this.socialSharing.share(
+        null,
+        this.scanSession.name,
+        result.nativeURL,
+        null
+      );
     } else {
       // Should happen only if the cache dir si not writable or the disk is full.
-      this.alertCtrl.create({
-        title: await this.utils.text('exportErrorDialogButton'),
-        message: await this.utils.text('exportErrorDialogMessage', { "config.email_support": Config.EMAIL_SUPPORT })
-      }).present();
+      this.alertCtrl
+        .create({
+          title: await this.utils.text("exportErrorDialogButton"),
+          message: await this.utils.text("exportErrorDialogMessage", {
+            "config.email_support": Config.EMAIL_SUPPORT,
+          }),
+        })
+        .present();
     }
   }
 
   getTitle() {
-    if (this.repeatingStatus == 'repeating' || this.catchUpIOSLag) return 'Syncing...'
+    if (this.repeatingStatus == "repeating" || this.catchUpIOSLag)
+      return "Syncing...";
     return this.scanSession && this.scanSession.name;
   }
 
@@ -905,55 +1119,82 @@ export class ScanSessionPage {
     // Ask to enable the settings
     const enabled = await this.settings.getEnableNFC();
     if (!enabled) {
-      this.alertCtrl.create({
-        title: await this.utils.text('nfcDisabledDialogTitle'),
-        message: await this.utils.text('nfcDisabledDialogMessage'),
-        buttons: [
-          { text: await this.utils.text('nfcDisabledDialogCancel'), role: 'cancel', handler: () => { } },
-          {
-            text: await this.utils.text('nfcDisabledDialogEnable'), handler: () => {
-              const trickFn = async () => {
-                this.settings.setEnableNFC(true);
-                this.alertCtrl.create({
-                  title: await this.utils.text('nfcDisabledSuccessDialogTitle'),
-                  message: await this.utils.text('nfcDisabledSuccessDialogMessage'),
-                  buttons: [
-                    {
-                      text: await this.utils.text('nfcDisabledSuccessDialogClose'), handler: () => {
-                        this.settings.setEnableNFC(true);
-                      }
-                    },
-                  ]
-                }).present();
-              };
-              trickFn();
-            }
-          },
-        ]
-      }).present();
+      this.alertCtrl
+        .create({
+          title: await this.utils.text("nfcDisabledDialogTitle"),
+          message: await this.utils.text("nfcDisabledDialogMessage"),
+          buttons: [
+            {
+              text: await this.utils.text("nfcDisabledDialogCancel"),
+              role: "cancel",
+              handler: () => {},
+            },
+            {
+              text: await this.utils.text("nfcDisabledDialogEnable"),
+              handler: () => {
+                const trickFn = async () => {
+                  this.settings.setEnableNFC(true);
+                  this.alertCtrl
+                    .create({
+                      title: await this.utils.text(
+                        "nfcDisabledSuccessDialogTitle"
+                      ),
+                      message: await this.utils.text(
+                        "nfcDisabledSuccessDialogMessage"
+                      ),
+                      buttons: [
+                        {
+                          text: await this.utils.text(
+                            "nfcDisabledSuccessDialogClose"
+                          ),
+                          handler: () => {
+                            this.settings.setEnableNFC(true);
+                          },
+                        },
+                      ],
+                    })
+                    .present();
+                };
+                trickFn();
+              },
+            },
+          ],
+        })
+        .present();
       return;
     } else {
-      if (this.platform.is('android')) {
+      if (this.platform.is("android")) {
         // Android can scan continuosly, alert the user that there is no need to press the button
-        this.alertCtrl.create({
-          title: await this.utils.text('nfcAndroidInstructionTitle'),
-          message: await this.utils.text('nfcAndroidInstructionMessage'),
-          buttons: [{ text: await this.utils.text('nfcDisabledSuccessDialogClose'), handler: () => { } },]
-        }).present();
-      } else if (this.platform.is('ios')) {
+        this.alertCtrl
+          .create({
+            title: await this.utils.text("nfcAndroidInstructionTitle"),
+            message: await this.utils.text("nfcAndroidInstructionMessage"),
+            buttons: [
+              {
+                text: await this.utils.text("nfcDisabledSuccessDialogClose"),
+                handler: () => {},
+              },
+            ],
+          })
+          .present();
+      } else if (this.platform.is("ios")) {
         // Start the session (system overlay)
-        this.nfc.beginSession(
-          success => { },
-          err => { console.log('NFC session err', err) }
-        ).subscribe((session) => { });
+        this.nfc
+          .beginSession(
+            (success) => {},
+            (err) => {
+              console.log("NFC session err", err);
+            }
+          )
+          .subscribe((session) => {});
       }
     }
   }
 
   // BWP::start
   getDisplayValue(scan: ScanModel) {
-    const barcode = scan.outputBlocks.find(x => x.type == 'barcode').value;
-    const date = scan.outputBlocks.find(x => x.type == 'date_time').value;
+    const barcode = scan.outputBlocks.find((x) => x.type == "barcode").value;
+    const date = scan.outputBlocks.find((x) => x.type == "date_time").value;
     // <b>ITF:</b> ${barcode.replace(/\x1d/g, '').substr(2, 14)}<br>
     return `
     <table>
@@ -963,31 +1204,39 @@ export class ScanSessionPage {
       </tr>
       <tr>
         <td><b>Label S/N:</b></td>
-        <td class="value">${barcode.replace(/\x1d/g, '').substr(18, 7)}</td>
+        <td class="value">${barcode.replace(/\x1d/g, "").substr(18, 7)}</td>
       </tr>
       <tr>
         <td><b>Tag Color:</b></td>
-        <td class="value">${barcode.replace(/\x1d/g, '').substr(27, 5)}</td>
+        <td class="value">${barcode.replace(/\x1d/g, "").substr(27, 5)}</td>
       </tr>
       <tr>
         <td><b>Work Order:</b></td>
-        <td class="value">${barcode.substr(36, 9999).replace(/^0+/, '').split(/\x1d/g)[0]}</td>
+        <td class="value">${
+          barcode.substr(36, 9999).replace(/^0+/, "").split(/\x1d/g)[0]
+        }</td>
       </tr>
       <tr>
         <td><b>Item Code:</b></td>
         <td class="value">
-          ${barcode.replace(/\x1d/g, '').substr(51, 9999)}
+          ${barcode.replace(/\x1d/g, "").substr(51, 9999)}
         </td>
       </tr>
     </table>`;
   }
 
   getBackgroundColor(scan: ScanModel) {
-    return scan.outputBlocks.find(x => x.type == 'text').value == '-1' ? 'danger' : ''
+    return scan.outputBlocks.find((x) => x.type == "text").value == "-1"
+      ? "danger"
+      : "";
   }
 
   public onRemoveModeClick() {
-    this.lastToast.present('Keep pressed to activate Remove mode', 2000, 'bottom');
+    this.lastToast.present(
+      "Keep pressed to activate Remove mode",
+      2000,
+      "bottom"
+    );
   }
 
   private static removeDialog;
@@ -997,30 +1246,31 @@ export class ScanSessionPage {
     }
 
     ScanSessionPage.removeDialog = this.alertCtrl.create({
-      title: 'Remove mode',
-      message: 'You\'re removing an item.<br><br>Please scan a barcode...<br><br>',
-      cssClass: 'bwp-alert-adjust-mode',
+      title: "Remove mode",
+      message:
+        "You're removing an item.<br><br>Please scan a barcode...<br><br>",
+      cssClass: "bwp-alert-adjust-mode",
       buttons: [
         {
-          text: 'Exit Remove mode',
-          role: 'cancel',
-          cssClass: 'button-outline-md',
-          handler: () => { }
+          text: "Exit Remove mode",
+          role: "cancel",
+          cssClass: "button-outline-md",
+          handler: () => {},
         },
       ],
       enableBackdropDismiss: false,
     });
     ScanSessionPage.removeDialog.onDidDismiss(() => {
       ScanProvider.isRemoveModeEnabled = false;
-      this.events.unsubscribe('outputProfile:start');
+      this.events.unsubscribe("outputProfile:start");
     });
     ScanProvider.isRemoveModeEnabled = true;
-    this.events.subscribe('outputProfile:start', () => {
-      console.log('outputProfile:start: Dismissing remove dialog');
+    this.events.subscribe("outputProfile:start", () => {
+      console.log("outputProfile:start: Dismissing remove dialog");
       ScanSessionPage.removeDialog.dismiss();
     });
-    this.events.subscribe('outputProfile:cannotRemove', () => {
-      console.log('outputProfile:cannotRemove: Dismissing remove dialog');
+    this.events.subscribe("outputProfile:cannotRemove", () => {
+      console.log("outputProfile:cannotRemove: Dismissing remove dialog");
       ScanSessionPage.removeDialog.dismiss();
     });
     ScanSessionPage.removeDialog.present();
@@ -1028,24 +1278,31 @@ export class ScanSessionPage {
 
   syncOldScanSessions() {
     if (this.newDayLock) return;
-    console.log('[@@BWP@@] syncOldScanSessions');
-    this.scanSessionsStorage.getScanSessions().then(sessions => {
+    console.log("[@@BWP@@] syncOldScanSessions");
+    this.scanSessionsStorage.getScanSessions().then((sessions) => {
       // if (sessions.length > 1) {
-      this.repeatingStatus = 'repeating';
+      this.repeatingStatus = "repeating";
       for (let i = 0; i < sessions.length; i++) {
         const session = sessions[i];
-        console.log('[@@BWP@@] syncing', session.name, i, 'of', sessions.length, 'scan sessions');
+        console.log(
+          "[@@BWP@@] syncing",
+          session.name,
+          i,
+          "of",
+          sessions.length,
+          "scan sessions"
+        );
         for (let j = 0; j < session.scannings.length; j++) {
           const scan = session.scannings[j];
           if (!scan.ack) {
-            console.log('[@@BWP@@] sendPutScan', scan.displayValue)
+            console.log("[@@BWP@@] sendPutScan", scan.displayValue);
             this.sendPutScan(session, scan);
           }
         }
       }
       // After this, old scansessions are deleted by the responseSubscription().
-      this.repeatingStatus = 'stopped';
-      this.lastToast.present('Data has been synchronized', 1000);
+      this.repeatingStatus = "stopped";
+      this.lastToast.present("Data has been synchronized", 1000);
       // }
     });
   }

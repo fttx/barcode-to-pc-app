@@ -412,21 +412,12 @@ export class Utils {
     return deg * (Math.PI / 180)
   }
 
+  // bwp::start
   public async GetScanSessionName(deviceName: string): Promise<string> {
-    // Check if current time is after 6:00 am -- Duplicated code #d1
-    // Manufacturing day 23/12/07  yy/mm/dd
-    // Start time = 23/12/07 6:00 am
-    // End time = +24h 23/12/08 5:59:59
-    const now = moment();
-    const start = moment().hour(5).minute(59).second(59);
-    const isAfter6AM = now.isAfter(start);
-    if (isAfter6AM) {
-      return now.format('YYYY-MM-DD') + '@' + deviceName
-    } else {
-      return now.subtract(1, 'day').format('YYYY-MM-DD') + '@' + deviceName
-    }
+    return `Scanner# ${deviceName}`;
   }
 }
+// bwp::end
 
 export type AlertButtonType = 'discard_scan' | 'scan_again' | 'ok';
 
