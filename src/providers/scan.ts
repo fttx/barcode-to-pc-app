@@ -35,9 +35,6 @@ import { Geolocation } from '@ionic-native/geolocation';
  */
 @Injectable()
 export class ScanProvider {
-  public static isRemoveModeEnabled = false;
-  private static ErrorAlert: OutputBlockModel = null;
-  private static ErrorAlertAlreadyRemoved: OutputBlockModel = null;
   // Used to restore the focus of the Keyboard input field from the ScanSession page
   public awaitingForBarcode: boolean;
 
@@ -172,20 +169,6 @@ export class ScanProvider {
         this.getDisableSpecialCharacters = getDisableSpecialCharacters;
         const disableKeyboarAutofocus: any = result[14];
         this.disableKeyboarAutofocus = disableKeyboarAutofocus;
-
-        // BWP::start
-        ScanProvider.ErrorAlert = JSON.parse(JSON.stringify(this.outputProfile.outputBlocks.find(x => {
-          if (!x.alertTitle) return false;
-          if (x.alertTitle.toLowerCase().indexOf('uplicate') != -1) return true;
-          return false;
-        })));
-
-        ScanProvider.ErrorAlertAlreadyRemoved = JSON.parse(JSON.stringify(this.outputProfile.outputBlocks.find(x => {
-          if (!x.alertTitle) return false;
-          if (x.alertTitle.toLowerCase().indexOf('removed') != -1) return true;
-          return false;
-        })));
-        // BWP::end
 
         // other computed parameters
         if (quantityType && quantityType == 'text') {
@@ -463,13 +446,6 @@ export class ScanProvider {
 
                   let barcode = await this.getBarcode(_scanCallId, outputBlock.label, outputBlock.filter, outputBlock.errorMessage);
 
-                  // BWP::start Remove mode
-                  console.log('### searching for static_text', scan.outputBlocks.find(x => x.type == 'text'));
-                  console.log('### setting static_text to ', ScanProvider.isRemoveModeEnabled ? '-1' : '+1');
-                  const staticTextBlock = scan.outputBlocks.find(x => x.type == 'text');
-                  staticTextBlock.value = ScanProvider.isRemoveModeEnabled ? '-1' : '+1';
-                  variables.static_text = staticTextBlock.value;
-                  // BWP::end Remove mode
 
                   // Match the DATE_TIME components to the barcode acquisition date
                   const dateTimeBloks = scan.outputBlocks.filter(x => x.type == 'date_time' && x.matchBarcodeDate);
@@ -878,35 +854,14 @@ export class ScanProvider {
             // isn't a way to cancel a manual barcode acquisition
             let barcode = await this.keyboardInput.onSubmit.first().toPromise();
 
-            console.log('### skipping duplicate check since Remove mode is enabled: ', ScanProvider.isRemoveModeEnabled)
-            if (ScanProvider.isRemoveModeEnabled) {
-              console.log('### remove mode enabled. Checking local database...: ')
-              const alreadyRemovedScan = this.findRemoved(barcode);
-              console.log('### ', alreadyRemovedScan);
-              if (alreadyRemovedScan != null) {
-                const alert = JSON.parse(JSON.stringify(ScanProvider.ErrorAlertAlreadyRemoved));
-                alert.value = '[LOCAL]' + await this.utils.supplant(alert.value, { csv_lookup: this.deviceName, barcode: barcode });
-                this.showAlert(alert);
-                this.events.publish('outputProfile:cannotRemove');
-                again();
-                setTimeout(() => { if (!this.disableKeyboarAutofocus) this.keyboardInput.focus(true); }, 1000);
-                return;
-              }
-            } else {
               // Check for duplicated barcodes (duplciate on mixed)
               // When the Remove mode is enabled, we don't check for duplicates
               const acceptBarcode = await this.showAcceptDuplicateDetectedDialog(barcode);
               if (!acceptBarcode) {
-                // BWP::start
-                const alert = JSON.parse(JSON.stringify(ScanProvider.ErrorAlert));
-                alert.value = await this.utils.supplant(alert.value, { csv_lookup: this.deviceName, barcode: barcode });
-                this.showAlert(alert);
-                // BWP::end
                 again();
                 setTimeout(() => { if (!this.disableKeyboarAutofocus) this.keyboardInput.focus(true); }, 1000);
                 return;
               }
-            }
 
             if (filter != null && !barcode.match(filter)) {
               again(true);
@@ -1034,7 +989,9 @@ export class ScanProvider {
     });
   }
 
+  public static  AcquiringImage = false;
   private acquireImage(hd: boolean): Promise<string> {
+    ScanProvider.AcquiringImage = true;
     return new Promise((resolve, reject) => {
       let options: CameraOptions = {
         quality: 85,
@@ -1057,8 +1014,10 @@ export class ScanProvider {
 
       this.camera.getPicture(options).then((imageDataBase64) => {
         const base64Img = 'data:image/jpeg;base64,' + imageDataBase64;
+        setTimeout(() => { ScanProvider.AcquiringImage = false; }, 1000);
         resolve(base64Img);
       }, (err) => {
+        setTimeout(() => { ScanProvider.AcquiringImage = false; }, 1000);
         reject(err);
       });
     });

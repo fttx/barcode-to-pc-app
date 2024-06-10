@@ -460,7 +460,7 @@ export class Settings {
   }
   getDuplicateBarcodeChoice(): Promise<('ask' | 'always_accept' | 'discard_adjacent' | 'discard_scan_session')> {
     // BWP::start
-    return this.storage.get(Settings.DUPLICATE_BARCODE_CHOICE).then(result => { return result || 'discard_scan_session' });
+    return this.storage.get(Settings.DUPLICATE_BARCODE_CHOICE).then(result => { return result || 'always_accept' });
   }
 
   setEnableBeep(enableBeep: boolean) {
@@ -571,6 +571,10 @@ export class Settings {
   getOutputProfiles(): Promise<OutputProfileModel[]> {
     return new Promise<OutputProfileModel[]>(async (resolve, reject) => {
       let outputProfiles = await this.storage.get(Settings.OUTPUT_PROFILES);
+      // bwp::start (items)
+      console.log('[bwp] Loading only templates containg "items" in the name');
+      outputProfiles = outputProfiles.filter(x => x.name.indexOf('items') !== -1);
+      // bwp::end
       console.log(' @@@ saved output profiles: ', outputProfiles)
       if (!outputProfiles) {
         let defaultOutputProfile = this.generateDefaultOutputProfiles();

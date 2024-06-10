@@ -5,13 +5,6 @@
     <ion-title>{{ getTitle() }}</ion-title>
 
     <ion-buttons start>
-      <button ion-button title="Remove mode" (click)="onRemoveModeClick()" (press)="onRemoveModePress()" style="transform: scale(1.5)" color="danger">
-        <ion-icon name="remove-circle"></ion-icon>
-      </button>
-
-      <!-- Divider -->
-      <button ion-button style="opacity: .4;"> | </button>
-
       <button ion-button icon-only>
         <ion-icon name="ios-wifi" [style.color]="connected ? 'white': 'rgba(255,255,255,.4)'"></ion-icon>
       </button>
@@ -41,10 +34,11 @@
 
 <ion-content>
   <ion-list [virtualScroll]="(scanSession && scanSession.scannings) || []" [approxItemHeight]="'47px'" [bufferRatio]="5" id="bwp-list">
-    <button ion-item no-padding *virtualItem="let scan; let i = index" (click)="onItemClicked(scan, i)" (press)="onItemPressed(scan, i)" [class.animate-first-item]="newItem && i == 0" [color]="getBackgroundColor(scan)">
+    <button ion-item no-padding *virtualItem="let scan; let i = index" (click)="onItemClicked(scan, i)" (press)="onItemPressed(scan, i)" [class.animate-first-item]="newItem && i == 0">
       <!-- BWP::start -->
       <div class="bwp-display-value" text-wrap [innerHTML]="getDisplayValue(scan)"></div>
       <ion-icon class="bwp-sync-status" [name]="scan.ack ? 'checkmark-circle' : 'alert'" [style.color]="scan.ack ? 'green' : 'red'"></ion-icon>
+      <ion-icon class="bwp-image-status" name="image" color="dark" *ngIf="scan.hasImage"></ion-icon>
       <!-- BWP::end -->
     </button>
   </ion-list>
@@ -52,7 +46,7 @@
   <div class="empty" *ngIf="((scanSession && scanSession.scannings) || []).length == 0">
     <img src="assets/welcome/a5fsa.jpg" alt="logo" style="max-width: 50%;margin-top:60px" />
     <br />
-    <h2>We're all set.</h2>
+    <h2>Ready to scan.</h2>
     <p>Scan a barcode to get started</p>
   </div>
 

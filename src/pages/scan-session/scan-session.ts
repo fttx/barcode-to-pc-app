@@ -470,6 +470,7 @@ export class ScanSessionPage {
       this.pauseSubscription = null;
     }
     this.resumeSubscription = this.platform.resume.subscribe(async () => {
+      if (ScanProvider.AcquiringImage) return;
       let defaultName = await this.settings.getScanSessionName();
       defaultName = await this.utils.supplant(defaultName, {
         scan_session_number:
@@ -699,10 +700,6 @@ export class ScanSessionPage {
   }
 
   async onItemClicked(scan: ScanModel, scanIndex: number) {
-    if (scan.ack) {
-      return;
-    }
-
     if (!this.serverProvider.isConnected()) {
       this.showImage(scan);
       return;
@@ -759,8 +756,6 @@ export class ScanSessionPage {
   async onItemPressed(scan: ScanModel, scanIndex: number) {
     let buttons = [];
 
-    let scanString = ScanModel.ToString(scan);
-
     buttons.push({
       text: await this.utils.text("scanDeleteOnlySmartphoneDeleteButton"),
       icon: "trash",
@@ -799,6 +794,7 @@ export class ScanSessionPage {
       },
     });
 
+    let scanString = ScanModel.ToString(scan);
     buttons.push({
       text: await this.utils.text("shareButton"),
       icon: "share",
@@ -820,7 +816,7 @@ export class ScanSessionPage {
     }
 
     buttons.push({
-      text: await this.utils.text("Sync from here"),
+      text: await this.utils.text("repeatHereButton"),
       icon: "refresh",
       handler: () => {
         this.firebaseAnalytics.logEvent("repeatAll", {});
@@ -1194,41 +1190,12 @@ export class ScanSessionPage {
   // BWP::start
   getDisplayValue(scan: ScanModel) {
     const barcode = scan.outputBlocks.find((x) => x.type == "barcode").value;
-    const date = scan.outputBlocks.find((x) => x.type == "date_time").value;
+    const displayValueComponent = scan.outputBlocks.find(
+      (x) => x.label == "display_value"
+    );
+    const display_value = displayValueComponent ? displayValueComponent.value : null;
     // <b>ITF:</b> ${barcode.replace(/\x1d/g, '').substr(2, 14)}<br>
-    return `
-    <table>
-      <tr>
-        <td><b>Date:</b></td>
-        <td class="value">${date}</td>
-      </tr>
-      <tr>
-        <td><b>Label S/N:</b></td>
-        <td class="value">${barcode.replace(/\x1d/g, "").substr(18, 7)}</td>
-      </tr>
-      <tr>
-        <td><b>Tag Color:</b></td>
-        <td class="value">${barcode.replace(/\x1d/g, "").substr(27, 5)}</td>
-      </tr>
-      <tr>
-        <td><b>Work Order:</b></td>
-        <td class="value">${
-          barcode.substr(36, 9999).replace(/^0+/, "").split(/\x1d/g)[0]
-        }</td>
-      </tr>
-      <tr>
-        <td><b>Item Code:</b></td>
-        <td class="value">
-          ${barcode.replace(/\x1d/g, "").substr(51, 9999)}
-        </td>
-      </tr>
-    </table>`;
-  }
-
-  getBackgroundColor(scan: ScanModel) {
-    return scan.outputBlocks.find((x) => x.type == "text").value == "-1"
-      ? "danger"
-      : "";
+    return `${display_value || barcode}`;
   }
 
   public onRemoveModeClick() {
@@ -1261,10 +1228,8 @@ export class ScanSessionPage {
       enableBackdropDismiss: false,
     });
     ScanSessionPage.removeDialog.onDidDismiss(() => {
-      ScanProvider.isRemoveModeEnabled = false;
       this.events.unsubscribe("outputProfile:start");
     });
-    ScanProvider.isRemoveModeEnabled = true;
     this.events.subscribe("outputProfile:start", () => {
       console.log("outputProfile:start: Dismissing remove dialog");
       ScanSessionPage.removeDialog.dismiss();
