@@ -27,6 +27,7 @@ import { EditScanSessionPage } from './edit-scan-session/edit-scan-session';
 import { SelectScanningModePage } from './select-scanning-mode/select-scanning-mode';
 import { PhotoViewer } from '@ionic-native/photo-viewer';
 import { WebIntent } from '@ionic-native/web-intent';
+import { debounce } from 'helpful-decorators';
 
 /**
  * This page is used to display the list of the barcodes of a specific
@@ -57,6 +58,7 @@ export class ScanSessionPage {
   private unregisterBackButton = null;
   private resumeSubscription: Subscription = null;
   private pauseSubscription: Subscription = null;
+  private onConnectSubscription: Subscription = null;
   private isPaused: boolean = false;
   private realtimeSend: boolean = true;
   private catchUpIOSLag = false;
@@ -91,27 +93,6 @@ export class ScanSessionPage {
     if (!this.scanSession) {
       this.isNewSession = true;
     }
-
-    // Use to detect wether the webview is visible or if the scanner plugin is
-    // covering it instead.
-    if (this.resumeSubscription != null) {
-      this.resumeSubscription.unsubscribe();
-      this.resumeSubscription = null;
-
-      this.pauseSubscription.unsubscribe();
-      this.pauseSubscription = null;
-    }
-    this.resumeSubscription = this.platform.resume.subscribe(() => {
-      setTimeout(() => { this.isPaused = false; }, 2000);
-    });
-    this.pauseSubscription = this.platform.pause.subscribe(() => {
-      this.isPaused = true;
-
-      // Pause all toast and dialogs until next resume is called
-      if (this.platform.is('ios')) {
-        this.catchUpIOSLag = true;
-      }
-    });
   }
 
 
@@ -205,6 +186,26 @@ export class ScanSessionPage {
   }
 
   ionViewDidLoad() {
+    // Use to detect wether the webview is visible or if the scanner plugin is
+    // covering it instead.
+    if (this.resumeSubscription != null) {
+      this.resumeSubscription.unsubscribe();
+      this.resumeSubscription = null;
+
+      this.pauseSubscription.unsubscribe();
+      this.pauseSubscription = null;
+    }
+    this.resumeSubscription = this.platform.resume.subscribe(() => {
+      setTimeout(() => { this.isPaused = false; }, 2000);
+    });
+    this.pauseSubscription = this.platform.pause.subscribe(() => {
+      this.isPaused = true;
+      // Pause all toast and dialogs until next resume is called
+      if (this.platform.is('ios')) {
+        this.catchUpIOSLag = true;
+      }
+    });
+
     if (this.isNewSession) { // se ho premuto + su scan-sessions allora posso già iniziare la scansione
       this.scan();
     } else {
@@ -230,11 +231,17 @@ export class ScanSessionPage {
       this.realtimeSend = await this.settings.getRealtimeSendEnabled();
     });
 
-    this.serverProvider.onConnect().subscribe(async () => {
+    if (this.onConnectSubscription != null) this.onConnectSubscription.unsubscribe();
+    this.onConnectSubscription = this.serverProvider.onConnect().subscribe(async () => {
       if (!this.catchUpIOSLag || !await this.settings.getRealtimeSendEnabled()) return;
       this.catchUpIOSLag = false;
-      this.onRepeatAllClick(false);
+      this.repeatOnReconnect();
     });
+  }
+
+  @debounce(3000,{ leading: false, trailing: true })
+  repeatOnReconnect() {
+    this.onRepeatAllClick(false);
   }
 
   ionViewDidLeave() {
