@@ -13,8 +13,6 @@
 </ion-header>
 
 <ion-content>
-  <ion-item-divider color="light">{{ 'serverlistItemDivider' | translate }}</ion-item-divider>
-
   <ion-spinner class="main-spinner" color="primary" [hidden]="servers.length != 0 || offlineMode"></ion-spinner>
 
   <div [hidden]="!offlineMode" text-center class="offline-mode">

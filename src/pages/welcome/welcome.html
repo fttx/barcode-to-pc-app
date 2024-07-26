@@ -43,7 +43,7 @@
 					{{ 'downloadServerDescription2' | translate }}
 					<span class="link">{{ getWebSiteName() }}</span>
 				</p>
-			  <img src="assets/welcome/downloadserver.png" class="slide-image" style="max-width: 40vw; margin: 0 auto 20px auto"/>
+				<img src="assets/welcome/downloadserver.png" class="slide-image" style="max-width: 40vw; margin: 0 auto 20px auto" />
 
 				<h4 class="slide-title">
 					{{ 'connectToServerTitle' | translate }}
@@ -66,6 +66,7 @@
 				<p [hidden]="!currentAttemptingServer">{{ 'connectingToTitle' | translate }} {{ currentAttemptingServer?.name }}...</p>
 			</div>
 			<div [hidden]="connecting">
+				<br>
 				<ion-icon name="checkmark-circle-outline" class="done"></ion-icon>
 				<h2 class="slide-title">{{ 'connectionEstablishedTitle' | translate }}</h2>
 				<button ion-button large clear icon-right (click)="startScanningClicked()">

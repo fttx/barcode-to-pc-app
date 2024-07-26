@@ -27,7 +27,7 @@ export class BtpToastComponent {
   @Input() severity: 'info' | 'success' | 'warning' | 'error' = 'info';
   @Input() text: string = '';
   @ViewChild('marquee') marquee: ElementRef;
-  isOpen = true;
+  isOpen = false;
 
   constructor() {
   }
