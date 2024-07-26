@@ -1,47 +1,59 @@
 page-scan-session {
-    .btn-send-manual-input {
-        height: 56px;
-        width: 64px;
-        margin: 0;
-        padding: 0;
-        font-size: 2rem;
-    }
+  ion-list:first-child {
+    margin-top: 10px;
+  }
 
-    ion-toolbar {
-        padding-top: 0 !important;
-        padding-bottom: 0 !important;
-        padding-right: 0 !important;
-    }
+  ion-fab {
+    margin-bottom: 10px;
+  }
 
-    .nfc-icon {
-      height: 26px;
-      opacity: .7;
-    }
+  .btn-send-manual-input {
+    height: 56px;
+    width: 64px;
+    margin: 0;
+    padding: 0;
+    font-size: 2rem;
+  }
 
-    ion-row {
-      align-items: center !important;
-    }
+  ion-toolbar {
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    padding-right: 0 !important;
+  }
 
-    .status-icon {
-      align-self: unset !important;
-      margin: 0 !important;
-      font-size: 2rem !important;
-      line-height: 2rem !important;
-    }
+  .nfc-icon {
+    height: 26px;
+    opacity: .7;
+  }
 
-    .toolbar-ios {
-      align-items: start !important;
-      transition: height 0.5s ease;
-    }
+  ion-row {
+    align-items: center !important;
+  }
 
-    .toolbar-ios.keyboard-hidden {
-      height: 90px !important
-    }
+  .status-icon {
+    align-self: unset !important;
+    margin: 0 !important;
+    font-size: 2rem !important;
+    line-height: 2rem !important;
+  }
 
-    .toolbar-ios input {
-      border: 1px solid rgb(204, 204, 204) !important;
-      border-radius: 23px !important;
-      padding: 7px 18px !important;
-      margin: 11px !important;
-    }
+  .toolbar-ios {
+    align-items: start !important;
+    transition: height 0.5s ease;
+  }
+
+  .toolbar-ios.keyboard-hidden {
+    height: 90px !important
+  }
+
+  .toolbar-ios input {
+    border: 1px solid rgb(204, 204, 204) !important;
+    border-radius: 23px !important;
+    padding: 7px 18px !important;
+    margin: 11px !important;
+  }
+
+  .btp-scan-session-title {
+    margin-left: -10px;
+  }
 }

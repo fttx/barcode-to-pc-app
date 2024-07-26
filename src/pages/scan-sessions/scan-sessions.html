@@ -8,7 +8,9 @@
 
 		<ion-buttons end *ngIf="selectedScanSessions.length == 0">
 			<button ion-button icon-only (click)="onSelectServerClick()">
-				<ion-icon name="ios-wifi" [style.color]="connected ? 'white': 'rgba(255,255,255,.4)'"></ion-icon>
+				<img src="assets/select-server/offline.png?v=9" class="btp-server-status-icon" [hidden]="connectionStatus !== 'offline'">
+				<img src="assets/select-server/online.png?v=9" class="btp-server-status-icon" [hidden]="connectionStatus !== 'online'">
+				<img src="assets/select-server/connecting.png?v=9" class="btp-server-status-icon" [hidden]="connectionStatus !== 'connecting'">
 			</button>
 		</ion-buttons>
 

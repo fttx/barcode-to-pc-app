@@ -18,6 +18,7 @@ import { Config } from './config';
 import { LastToastProvider } from './last-toast/last-toast';
 import { ScanSessionsStorage } from './scan-sessions-storage';
 import { Utils } from './utils';
+import { BtpToastService } from '../components/btp-toast/btp-toast.service';
 // Warning: do not import ScanProvider to prevent circular dependency
 // To communicate with ScanProvider use global events.
 
@@ -63,7 +64,8 @@ export class ServerProvider {
   constructor(
     private settings: Settings,
     private ngZone: NgZone,
-    private lastToast: LastToastProvider,
+    // private.btpToastCtrl:.btpToastCtrlProvider,
+    private btpToastCtrl: BtpToastService,
     private zeroconf: Zeroconf,
     private alertCtrl: AlertController,
     public platform: Platform,
@@ -94,6 +96,7 @@ export class ServerProvider {
   }
 
   async connect(server: ServerModel, skipQueue: boolean = false) {
+    this.events.publish('connection', 'connecting', server);
     console.log('[S-c] connect(server=', server, 'skipQueue=', skipQueue);
     if (!this.webSocket || this.webSocket.readyState != WebSocket.OPEN || this.webSocket.url.indexOf(server.getAddress()) == -1) {
       console.log('[S-c]: not connected or new server selected, creating a new WS connection...');
@@ -131,7 +134,9 @@ export class ServerProvider {
       // Also emit the _onDisconnect event to prevent triggering another
       // watchForServers from the scanSesison Page subscription.
       if (this.everConnected && !this.reconnecting) {
-        this.lastToast.present(await this.utils.text('connectionLostToastTitle'));
+        this.btpToastCtrl.present(await this.utils.text('connectionLostToastTitle'), 'error');
+
+        this.events.publish('connection', 'connecting');
         this.connected = false;
         window['server'] = { connected: false };
         this.wsEventObservable.next({ name: wsEvent.EVENT_ERROR, ws: this.webSocket });
@@ -315,8 +320,9 @@ export class ServerProvider {
       this.wsEventObservable.next({ name: 'open', ws: this.webSocket });
       this._onConnect.next(server);
       if (!this.catchUpIOSLag) {
-        this.lastToast.present(await this.utils.text('connectionEstablishedToastTitle', { "serverName": server.name }));
+        this.btpToastCtrl.present(await this.utils.text('connectionEstablishedToastTitle', { "serverName": server.name }), 'success');
       }
+      this.events.publish('connection', 'online', server);
       this.catchUpIOSLag = false;
 
       //console.log('[S]: WS: new heartbeat started');
@@ -390,9 +396,10 @@ export class ServerProvider {
 
     this.webSocket.onerror = async err => {
       console.log('[S]: WS: onerror ')
+      this.events.publish('connection', 'offline', null);
 
       if (!this.reconnecting && !this.catchUpIOSLag) {
-        this.lastToast.present(await this.utils.text('unableToConnectToastTitle'));
+        this.btpToastCtrl.present(await this.utils.text('unableToConnectToastTitle'), 'error');
       }
       this.connected = false;
       window['server'] = { connected: false };
@@ -405,7 +412,8 @@ export class ServerProvider {
       console.log('[S]: onclose')
 
       if (this.everConnected && !this.reconnecting) {
-        this.lastToast.present(await this.utils.text('connectionClosedToastTitle'));
+        this.btpToastCtrl.present(await this.utils.text('connectionClosedToastTitle'), 'warning');
+        this.events.publish('connection', 'offline', null);
       }
       if (ev.code != ServerProvider.EVENT_CODE_DO_NOT_ATTEMP_RECCONECTION) {
         await this.scheduleNewWsConnection(server);
@@ -538,6 +546,7 @@ export class ServerProvider {
   private async scheduleNewWsConnection(server) {
     console.log('[S-snwc]: scheduleNewWsConnection()->')
     this.reconnecting = true;
+    this.events.publish('connection', 'connecting', server);
     if (this.pongTimeout) clearTimeout(this.pongTimeout);
     if (this.heartBeatInterval) clearInterval(this.heartBeatInterval);
     if (!this.reconnectInterval) {

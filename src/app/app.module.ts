@@ -51,6 +51,9 @@ import { Geolocation } from '@ionic-native/geolocation';
 import { WebIntent } from '@ionic-native/web-intent';
 import { Keyboard } from '@ionic-native/keyboard';
 import { ZebraProvider } from '../providers/zebra/zebra';
+import { BtpToastComponent } from '../components/btp-toast/btp-toast';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { BtpToastService } from '../components/btp-toast/btp-toast.service';
 
 // Modules
 // Ionic-native
@@ -73,6 +76,7 @@ import { ZebraProvider } from '../providers/zebra/zebra';
     SelectServerPage,
     CircleTextComponent,
     KeyboardInputComponent,
+    BtpToastComponent,
     SettingsPage,
     HelpPage,
   ],
@@ -93,6 +97,7 @@ import { ZebraProvider } from '../providers/zebra/zebra';
         deps: [HttpClient]
       }
     }),
+    BrowserAnimationsModule,
   ],
   bootstrap: [IonicApp],
   entryComponents: [
@@ -141,6 +146,7 @@ import { ZebraProvider } from '../providers/zebra/zebra';
     EventsReporterProvider,
     InAppBrowser,
     ZebraProvider,
+    BtpToastService,
   ]
 })
 export class AppModule { }

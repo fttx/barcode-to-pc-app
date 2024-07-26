@@ -1,7 +1,12 @@
 <ion-header>
 
 	<ion-navbar color="primary">
-		<ion-title>{{ getTitle() }}</ion-title>
+
+		<!-- <ion-buttons left no-padding [hidden]="false" style="margin-left: -6px; margin-right: 9px">
+            <ion-spinner color="text"></ion-spinner>
+        </ion-buttons> -->
+
+		<ion-title no-padding class="btp-scan-session-title">{{ getTitle() }}</ion-title>
 
 		<ion-buttons end>
 			<button ion-button icon-only (click)="onShareClick()">

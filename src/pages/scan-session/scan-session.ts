@@ -45,6 +45,7 @@ export class ScanSessionPage {
 
   public scanSession: ScanSessionModel;
   public repeatingStatus: 'paused' | 'repeating' | 'stopped' = 'stopped';
+  public connectionStatus: 'offline' | 'online' | 'connecting' = 'online';
 
   private isNewSession = false;
   private repeatInterval = Config.DEFAULT_REPEAT_INVERVAL;
@@ -239,7 +240,7 @@ export class ScanSessionPage {
     });
   }
 
-  @debounce(3000,{ leading: false, trailing: true })
+  @debounce(3000, { leading: false, trailing: true })
   repeatOnReconnect() {
     this.onRepeatAllClick(false);
   }

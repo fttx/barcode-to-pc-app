@@ -1,0 +1,61 @@
+btp-toast {
+  position: fixed;
+  left: 0;
+  top: 56px;
+  width: 100%;
+  height: 30px;
+  vertical-align: middle;
+}
+
+.btp-toast-text {
+  height: 20px;
+  padding-top: 5px;
+  padding-left: 5px;
+  font-weight: 400;
+  font-size: 1.1rem;
+  white-space: nowrap;
+}
+
+.marquee {
+  display: inline-block;
+  white-space: nowrap;
+  animation: marquee 10s linear infinite;
+}
+
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+.btp-toast-info {
+  background: rgb(45, 45, 45);
+  background: linear-gradient(0deg, rgb(25, 25, 25) 0%, rgb(47, 47, 47) 100%);
+  border-bottom: 2px solid rgba(0, 0, 0, .02);
+  color: white;
+}
+
+.btp-toast-success {
+  background: rgb(84, 208, 84);
+  background: linear-gradient(0deg, rgb(84, 208, 84) 0%, rgb(142, 232, 142) 100%);
+  border-bottom: 2px solid rgb(101, 192, 101);
+}
+
+
+.btp-toast-error {
+  background: rgb(173, 19, 19);
+  background: linear-gradient(0deg, rgb(173, 19, 19) 0%, rgb(198, 61, 61) 100%);
+  border-bottom: 2px solid rgb(162, 8, 8);
+  color: white;
+}
+
+.btp-toast-warning {
+  background: rgb(218, 122, 13);
+  background: linear-gradient(0deg, rgb(197, 110, 10) 0%, rgb(223, 150, 86) 100%);
+  border-bottom: 2px solid rgb(191, 104, 5);
+  color: white;
+}

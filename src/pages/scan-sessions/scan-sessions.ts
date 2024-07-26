@@ -1,8 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, NgZone, ViewChild } from '@angular/core';
 import { FirebaseAnalytics } from '@ionic-native/firebase-analytics';
 import { LaunchReview } from '@ionic-native/launch-review';
 import * as BluebirdPromise from 'bluebird';
-import { AlertController, ItemSliding, NavController, Platform, PopoverController } from 'ionic-angular';
+import { AlertController, Events, ItemSliding, NavController, Platform, PopoverController } from 'ionic-angular';
 import { Subscription } from 'rxjs';
 import { discoveryResultModel } from '../../models/discovery-result';
 import { requestModelDeleteScanSessions } from '../../models/request.model';
@@ -17,6 +17,8 @@ import { SelectServerPage } from '../select-server/select-server';
 import { Settings } from './../../providers/settings';
 import { Device } from '@ionic-native/device';
 import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
+import { LastToastProvider } from '../../providers/last-toast/last-toast';
+import { BtpToastService } from '../../components/btp-toast/btp-toast.service';
 
 @Component({
   selector: 'page-scannings',
@@ -28,7 +30,6 @@ export class ScanSessionsPage {
   public scanSessions: ScanSessionModel[] = [];
   public selectedScanSessions: ScanSessionModel[] = [];
 
-  public connected = false;
   private everConnected = false;
   private isWatching = false;
   private preventClickTimeout = null;
@@ -37,6 +38,8 @@ export class ScanSessionsPage {
   private unregisterBackButton = null;
   private ratingDialogShown = false;
   private ratingAlert = null;
+
+  public connectionStatus: 'offline' | 'online' | 'connecting' = 'connecting';
 
   constructor(
     public navCtrl: NavController,
@@ -50,7 +53,11 @@ export class ScanSessionsPage {
     private utils: Utils,
     public platform: Platform,
     private device: Device,
-    private iab: InAppBrowser
+    private iab: InAppBrowser,
+    public events: Events,
+    public lastToast: LastToastProvider,
+    private ngZone: NgZone,
+    private btpToastCtrl: BtpToastService,
   ) { }
 
   async ionViewDidEnter() {
@@ -61,6 +68,14 @@ export class ScanSessionsPage {
 
     this.scanSessionsStorage.getScanSessions().then(data => {
       this.scanSessions = data;
+    });
+
+    this.connectionStatus = this.serverProvider.isConnected() ? 'online' : 'offline';
+    this.events.unsubscribe('connection');
+    this.events.subscribe('connection', async (status, server) => {
+      this.ngZone.run(() => {
+        this.connectionStatus = status;
+      });
     });
 
     // PDA Dialog
@@ -100,10 +115,9 @@ export class ScanSessionsPage {
 
     // WelcomePage and SelectServerPage can affect the connection status, so we
     // must pull the new status from the server provider.
-    this.connected = this.serverProvider.isConnected();
 
     this.settings.getOfflineModeEnabled().then(offlineMode => {
-      if (offlineMode) this.connected = false;
+      if (offlineMode) this.connectionStatus = 'offline';
     })
 
     if (!this.settings.getSkipWiFiCheck()) this.utils.askWiFiEnableIfDisabled();
@@ -113,7 +127,6 @@ export class ScanSessionsPage {
     // }
 
     this.onDisconnectSubscription = this.serverProvider.onDisconnect().subscribe(() => {
-      this.connected = false;
       // onDisconnect can be called also when there is an 'error'
       // So we need to make sure to not start another watchForServers()
       // subscription, since this 'error' may be caused from a connection
@@ -126,7 +139,6 @@ export class ScanSessionsPage {
     });
 
     this.onConnectSubscription = this.serverProvider.onConnect().subscribe(() => {
-      this.connected = true;
       this.everConnected = true;
       this.serverProvider.stopWatchForServers();
       this.isWatching = false;
@@ -222,7 +234,7 @@ export class ScanSessionsPage {
     let defaultServer = await this.settings.getDefaultServer();
     this.serverProvider.watchForServers().delay(defaultServer == null ? 0 : 8000).subscribe((discoveryResult: discoveryResultModel) => {
       // too late, abort
-      if (this.connected) return;
+      if (this.connectionStatus === 'online') return;
       // if the server has the same name, but a different ip => ask to reconnect
       if (defaultServer != null && defaultServer.name == discoveryResult.server.name && discoveryResult.server.name.length && defaultServer.getAddress() != discoveryResult.server.getAddress()) {
         setTimeout(async () => {
@@ -262,7 +274,7 @@ export class ScanSessionsPage {
     if (this.serverProvider.isConnected()) {
       // It may happen that the connection is already established from another
       // page, eg. WelcomePage
-      this.connected = true;
+      this.connectionStatus = 'online';
     } else if (defaultServer != null) {
       // If instead we're launching the app, we must initiate a new connection
       this.serverProvider.connect(defaultServer);
@@ -427,7 +439,7 @@ export class ScanSessionsPage {
   // }
 
   private async sendDeleteScanSessions(scanSessions: ScanSessionModel[]) {
-    if (this.connected) {
+    if (this.connectionStatus !== 'online') {
       let wsRequest = new requestModelDeleteScanSessions().fromObject({
         scanSessionIds: scanSessions.map(x => { return x.id })
       });

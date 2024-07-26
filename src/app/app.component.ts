@@ -23,12 +23,14 @@ import { Utils } from '../providers/utils';
 import { SelectServerPage } from './../pages/select-server/select-server';
 import { TranslateService } from '@ngx-translate/core';
 import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
+import { BtpToastService } from '../components/btp-toast/btp-toast.service';
 
 @Component({
   templateUrl: 'app.html',
 })
 export class MyApp {
   @ViewChild('mainMenu') nav: NavController
+  @ViewChild('btpToast') btpToast: any;
 
   public rootPage;
   public static SERVER_PROGRAM_NAME: string;
@@ -52,6 +54,7 @@ export class MyApp {
     private eventsReporterProvider: EventsReporterProvider,
     private translate: TranslateService,
     private iab: InAppBrowser,
+    private btpToastCtrl: BtpToastService,
   ) {
     platform.ready().then(async () => {
 
@@ -128,6 +131,10 @@ export class MyApp {
     this.events.subscribe('setPage', (page, isRoot = false) => {
       this.setPage(page, isRoot);
     });
+  }
+
+  ngAfterViewInit() {
+    this.btpToastCtrl.setToastComponent(this.btpToast);
   }
 
   scanSessions() {
