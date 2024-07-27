@@ -33,25 +33,25 @@ export class BtpToastComponent {
   }
 
   present(text, severity: 'info' | 'success' | 'warning' | 'error' = 'info', duration = null) {
-    // Get current route and add class to fix glitch when on scan-session page
+    const marqueeElement = this.marquee.nativeElement;
+    marqueeElement.classList.remove('marquee');
+
     this.text = text;
     this.severity = severity;
-    this.isOpen = true;
-
-    if (!duration) duration = 3000;
+    if (!duration) duration = 6000;
 
     setTimeout(() => {
-      const marqueeElement = this.marquee.nativeElement;
       const parentWidth = marqueeElement.parentElement.clientWidth;
       const textWidth = marqueeElement.scrollWidth;
       if (textWidth > parentWidth) {
         marqueeElement.classList.add('marquee');
-        duration += 2000;
+        duration += 4000;
       } else {
         marqueeElement.classList.remove('marquee');
       }
     }, 2500);
 
+    this.isOpen = true;
     setTimeout(() => {
       this.isOpen = false;
     }, duration);

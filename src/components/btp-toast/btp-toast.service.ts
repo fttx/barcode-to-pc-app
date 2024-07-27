@@ -12,7 +12,7 @@ export class BtpToastService {
     this.toastComponent = toastComponent;
   }
 
-  present(text, severity: 'info' | 'success' | 'warning' | 'error' = 'info', duration = 3000) {
+  present(text, severity: 'info' | 'success' | 'warning' | 'error' = 'info', duration = null) {
     this.toastComponent.present(text, severity, duration);
   }
 }

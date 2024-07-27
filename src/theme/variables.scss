@@ -205,12 +205,20 @@ $colors: (
 }
 
 
-.scroll-content {
-  padding-top: 10px;
-}
 
+// btp-toast
 .md {
+  .scroll-content {
+    padding-top: 10px;
+  }
+
   ion-fab {
     margin-bottom: 10px;
+  }
+}
+
+.ios {
+  .scroll-content>* {
+    margin-top: 10px
   }
 }
