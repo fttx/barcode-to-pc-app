@@ -1,6 +1,5 @@
 import { Component, NgZone, ViewChild } from '@angular/core';
 import { BarcodeScanner, BarcodeScanResult } from '@fttx/barcode-scanner';
-import { FirebaseAnalytics } from '@ionic-native/firebase-analytics';
 import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 import { TranslateService } from '@ngx-translate/core';
 import { AlertController, NavController, Slides, ViewController } from 'ionic-angular';
@@ -41,14 +40,13 @@ export class WelcomePage {
     public viewCtrl: ViewController,
     private settings: Settings,
     private ngZone: NgZone,
-    private firebaseAnalytics: FirebaseAnalytics,
     private barcodeScanner: BarcodeScanner,
     private utils: Utils,
     private iab: InAppBrowser,
   ) { }
 
   ionViewDidEnter() {
-    this.firebaseAnalytics.setCurrentScreen("WelcomePage");
+    window.cordova.plugins.firebase.analytics.setCurrentScreen("WelcomePage");
     this.onConnectSubscription = this.serverProvider.onConnect().subscribe((server) => {
       this.settings.setDefaultServer(server);
       this.slider.slideTo(this.slider.length() - 1);
@@ -94,7 +92,7 @@ export class WelcomePage {
   }
 
   async onSkipClicked() {
-    this.firebaseAnalytics.logEvent('welcome', {});
+    window.cordova.plugins.firebase.analytics.logEvent('welcome', {});
 
     let alert = this.alertCtrl.create({
       inputs: [
@@ -139,7 +137,7 @@ export class WelcomePage {
   }
 
   startScanningClicked() {
-    this.firebaseAnalytics.logEvent('welcome', {});
+    window.cordova.plugins.firebase.analytics.logEvent('welcome', {});
     this.navCtrl.setRoot(ScanSessionsPage);
   }
 

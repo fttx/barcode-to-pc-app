@@ -1,6 +1,5 @@
 import { Injectable, NgZone, Output } from '@angular/core';
 import { BarcodeScanner, BarcodeScannerOptions, BarcodeScanResult } from '@fttx/barcode-scanner';
-import { FirebaseAnalytics } from '@ionic-native/firebase-analytics';
 import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 import { NativeAudio } from '@ionic-native/native-audio';
 import { Ndef, NFC } from '@ionic-native/nfc';
@@ -78,7 +77,6 @@ export class ScanProvider {
     private barcodeScanner: BarcodeScanner,
     private platform: Platform,
     private ngZone: NgZone,
-    private firebaseAnalytics: FirebaseAnalytics,
     public nativeAudio: NativeAudio,
     private settings: Settings,
     public serverProvider: ServerProvider,
@@ -1129,7 +1127,7 @@ export class ScanProvider {
         }]
       });
       alert.present();
-      this.firebaseAnalytics.logEvent('custom_timeout', {});
+      window.cordova.plugins.firebase.analytics.logEvent('custom_timeout', {});
       interval = setInterval(() => {
         this.ngZone.run(() => {
           alert.setSubTitle('Timeout: ' + timeoutSeconds);

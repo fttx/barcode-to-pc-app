@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
 import { BarcodeScanner } from '@fttx/barcode-scanner';
-import { FirebaseAnalytics } from '@ionic-native/firebase-analytics';
 import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 import { Promise as BluebirdPromise } from 'bluebird';
 import { ActionSheetController, AlertController, NavController, Platform, ViewController } from 'ionic-angular';
@@ -33,7 +32,6 @@ export class SelectServerPage {
     private alertCtrl: AlertController,
     private serverProvider: ServerProvider,
     private settings: Settings,
-    private firebaseAnalytics: FirebaseAnalytics,
     private barcodeScanner: BarcodeScanner,
     private utils: Utils,
     public actionSheetCtrl: ActionSheetController,
@@ -45,7 +43,7 @@ export class SelectServerPage {
   public offlineMode = false;
 
   async ionViewDidEnter() {
-    this.firebaseAnalytics.setCurrentScreen("SelectServerPage");
+    window.cordova.plugins.firebase.analytics.setCurrentScreen("SelectServerPage");
     this.isVisible = true;
     this.init(await this.settings.getOfflineModeEnabled());
   }

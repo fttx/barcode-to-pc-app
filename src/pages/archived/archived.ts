@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
 import { Device } from '@ionic-native/device';
 import { ActionSheetController, AlertController, NavController, NavParams } from 'ionic-angular';
-import { FirebaseAnalytics } from '@ionic-native/firebase-analytics';
 import { requestModelPutScanSessions } from '../../models/request.model';
 import { ScanSessionModel } from '../../models/scan-session.model';
 import { ScanSessionsStorage } from '../../providers/scan-sessions-storage';
@@ -29,7 +28,6 @@ export class ArchivedPage {
   constructor(
     public navCtrl: NavController,
     public navParams: NavParams,
-    private firebaseAnalytics: FirebaseAnalytics,
     public actionSheetCtrl: ActionSheetController,
     private scanSessionsStorage: ScanSessionsStorage,
     private serverProvider: ServerProvider,
@@ -41,7 +39,7 @@ export class ArchivedPage {
   }
 
   ionViewDidEnter() {
-    this.firebaseAnalytics.setCurrentScreen('ArchivedPage');
+    window.cordova.plugins.firebase.analytics.setCurrentScreen('ArchivedPage');
 
     this.scanSessionsStorage.getArchivedScanSessions().then(data => {
       this.archivedScanSessions = data;

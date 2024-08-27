@@ -1,5 +1,4 @@
 import { Component, NgZone, ViewChild } from '@angular/core';
-import { FirebaseAnalytics } from '@ionic-native/firebase-analytics';
 import { LaunchReview } from '@ionic-native/launch-review';
 import * as BluebirdPromise from 'bluebird';
 import { AlertController, Events, ItemSliding, NavController, Platform, PopoverController } from 'ionic-angular';
@@ -46,7 +45,6 @@ export class ScanSessionsPage {
     private alertCtrl: AlertController,
     private scanSessionsStorage: ScanSessionsStorage,
     public popoverCtrl: PopoverController,
-    private firebaseAnalytics: FirebaseAnalytics,
     private settings: Settings,
     private launchReview: LaunchReview,
     private serverProvider: ServerProvider,
@@ -64,7 +62,7 @@ export class ScanSessionsPage {
     this.isWatching = false;
     this.serverProvider.stopWatchForServers();
 
-    this.firebaseAnalytics.setCurrentScreen('ScanSessionsPage');
+    window.cordova.plugins.firebase.analytics.setCurrentScreen('ScanSessionsPage');
 
     this.scanSessionsStorage.getScanSessions().then(data => {
       this.scanSessions = data;

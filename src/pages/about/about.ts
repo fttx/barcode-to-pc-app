@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
 import { AppVersion } from '@ionic-native/app-version';
-import { FirebaseAnalytics } from '@ionic-native/firebase-analytics';
 import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 import { Config } from '../../providers/config';
 import { ZebraProvider } from '../../providers/zebra/zebra';
@@ -17,7 +16,6 @@ export class AboutPage {
   public version = "";
 
   constructor(
-    private firebaseAnalytics: FirebaseAnalytics,
     private appVersion: AppVersion,
     private iab: InAppBrowser,
     private events: Events,
@@ -25,7 +23,7 @@ export class AboutPage {
   ) { }
 
   ionViewDidEnter() {
-    this.firebaseAnalytics.setCurrentScreen("AboutPage");
+    window.cordova.plugins.firebase.analytics.setCurrentScreen("AboutPage");
   }
 
   ionViewWillEnter() {

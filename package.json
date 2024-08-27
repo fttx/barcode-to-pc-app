@@ -27,7 +27,6 @@
     "@ionic-native/core": "~4.18.0",
     "@ionic-native/device": "4.5.0",
     "@ionic-native/file": "^4.20.0",
-    "@ionic-native/firebase-analytics": "^4.20.0",
     "@ionic-native/geolocation": "^4.20.0",
     "@ionic-native/header-color": "4.5.0",
     "@ionic-native/in-app-browser": "^5.29.0",
@@ -60,7 +59,6 @@
     "cordova-plugin-battery-status": "^2.0.3",
     "cordova-plugin-compat": "^1.2.0",
     "cordova-plugin-device": "^2.0.3",
-    "cordova-plugin-firebase-analytics": "^4.0.0",
     "cordova-plugin-headercolor": "^1.0.0",
     "cordova-plugin-inappbrowser": "^4.0.0",
     "cordova-plugin-insomnia": "^4.3.0",
@@ -72,7 +70,6 @@
     "cordova-plugin-statusbar": "^2.4.3",
     "cordova-plugin-x-socialsharing": "^6.0.4",
     "cordova-sqlite-storage": "^6.0.0",
-    "cordova-support-android-plugin": "^1.0.1",
     "cordova-support-google-services": "^1.3.2",
     "es6-promise-plugin": "^4.2.2",
     "fttx-cordova-plugin-zeroconf": "1.4.1",
@@ -101,8 +98,10 @@
     "cordova-android": "^12.0.1",
     "cordova-plugin-camera": "^7.0.0",
     "cordova-plugin-file": "^8.0.0",
+    "cordova-plugin-firebase-analytics": "^7.0.5",
     "cordova-plugin-geolocation": "^5.0.0",
     "cordova-plugin-ionic-webview": "^5.0.1",
+    "cordova-support-android-plugin": "~2.0.4",
     "dotenv": "^16.0.3",
     "typescript": "~2.6.2"
   },
@@ -162,7 +161,13 @@
         "GEOLOCATION_USAGE_DESCRIPTION": "to save the location of the acquired barcodes",
         "GPS_REQUIRED": "false"
       },
-      "com-darryncampbell-cordova-plugin-intent": {}
+      "com-darryncampbell-cordova-plugin-intent": {},
+      "cordova-plugin-firebase-analytics": {
+        "ANALYTICS_COLLECTION_ENABLED": "true",
+        "AUTOMATIC_SCREEN_REPORTING_ENABLED": "true",
+        "ANDROID_FIREBASE_BOM_VERSION": "30.3.1",
+        "IOS_FIREBASE_POD_VERSION": "9.3.0"
+      }
     },
     "platforms": [
       "ios",

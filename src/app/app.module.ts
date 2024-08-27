@@ -8,7 +8,6 @@ import { BatteryStatus } from '@ionic-native/battery-status';
 import { Camera } from '@ionic-native/camera';
 import { Device } from '@ionic-native/device';
 import { File } from '@ionic-native/file';
-import { FirebaseAnalytics } from '@ionic-native/firebase-analytics';
 import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 import { Insomnia } from '@ionic-native/insomnia';
 import { LaunchReview } from '@ionic-native/launch-review';
@@ -120,7 +119,6 @@ import { BtpToastService } from '../components/btp-toast/btp-toast.service';
     Utils,
     Settings,
     ScanSessionsStorage,
-    FirebaseAnalytics,
     StatusBar,
     LaunchReview,
     Device,

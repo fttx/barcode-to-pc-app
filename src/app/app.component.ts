@@ -1,7 +1,6 @@
 import { Component, ViewChild } from '@angular/core';
 import { Http } from '@angular/http';
 import { AppVersion } from '@ionic-native/app-version';
-import { FirebaseAnalytics } from '@ionic-native/firebase-analytics';
 import { Insomnia } from '@ionic-native/insomnia';
 import { NativeAudio } from '@ionic-native/native-audio';
 import { StatusBar } from '@ionic-native/status-bar';
@@ -43,7 +42,6 @@ export class MyApp {
     private settings: Settings,
     public menuCtrl: MenuController,
     public modalCtrl: ModalController,
-    private firebaseAnalytics: FirebaseAnalytics,
     private http: Http,
     private utils: Utils,
     private markdownService: MarkdownService,
@@ -58,7 +56,7 @@ export class MyApp {
   ) {
     platform.ready().then(async () => {
 
-      this.firebaseAnalytics.setEnabled(!Config.DEBUG);
+      window.cordova.plugins.firebase.analytics.setEnabled(!Config.DEBUG);
 
       this.translate.use('en');
       this.translate.onLangChange.subscribe(event => {

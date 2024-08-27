@@ -1,7 +1,6 @@
 import { Component, HostListener, NgZone, ViewChild } from '@angular/core';
 import { Device } from '@ionic-native/device';
 import { File } from '@ionic-native/file';
-import { FirebaseAnalytics } from '@ionic-native/firebase-analytics';
 import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 import { NativeAudio } from '@ionic-native/native-audio';
 import { NFC } from '@ionic-native/nfc';
@@ -74,7 +73,6 @@ export class ScanSessionPage {
     public navCtrl: NavController,
     public scanSessionsStorage: ScanSessionsStorage,
     public modalCtrl: ModalController,
-    private firebaseAnalytics: FirebaseAnalytics,
     public settings: Settings,
     public socialSharing: SocialSharing,
     public nativeAudio: NativeAudio,
@@ -122,7 +120,7 @@ export class ScanSessionPage {
 
   async ionViewDidEnter() {
     this.isVisible = true;
-    this.firebaseAnalytics.setCurrentScreen("ScanSessionPage");
+     window.cordova.plugins.firebase.analytics.setCurrentScreen("ScanSessionPage");
     this.responseSubscription = this.serverProvider.onMessage().subscribe(message => {
       if (message.action == responseModel.ACTION_PUT_SCAN_ACK) {
         let response: responseModelPutScanAck = message;
@@ -366,7 +364,7 @@ export class ScanSessionPage {
   }
 
   saveAndSendScan(scan: ScanModel) {
-    this.firebaseAnalytics.logEvent('scan', {});
+    window.cordova.plugins.firebase.analytics.logEvent('scan', {});
     this.scanSession.scannings.unshift(scan);
     this.save();
     if (this.realtimeSend) this.sendPutScan(scan);
@@ -423,7 +421,7 @@ export class ScanSessionPage {
       this.repeat(scan);
       this.repeatingStatus = 'stopped';
     }
-    this.firebaseAnalytics.logEvent('repeat', {});
+    window.cordova.plugins.firebase.analytics.logEvent('repeat', {});
   }
 
   async onItemPressed(scan: ScanModel, scanIndex: number) {
@@ -431,7 +429,7 @@ export class ScanSessionPage {
 
     buttons.push({
       text: await this.utils.text('scanDeleteOnlySmartphoneDeleteButton'), icon: 'trash', role: 'destructive', handler: async () => {
-        this.firebaseAnalytics.logEvent('delete', {});
+        window.cordova.plugins.firebase.analytics.logEvent('delete', {});
         this.alertCtrl.create({
           title: await this.utils.text('scanDeleteOnlySmartphoneDialogTitle'),
           message: await this.utils.text('scanDeleteOnlySmartphoneDialogMessage'),
@@ -454,7 +452,7 @@ export class ScanSessionPage {
     let scanString = ScanModel.ToString(scan);
     buttons.push({
       text: await this.utils.text('shareButton'), icon: 'share', handler: () => {
-        this.firebaseAnalytics.logEvent('share', {});
+        window.cordova.plugins.firebase.analytics.logEvent('share', {});
         this.socialSharing.share(scanString, "", "", "")
       }
     });
@@ -462,7 +460,7 @@ export class ScanSessionPage {
     if (scanString.toLocaleLowerCase().trim().startsWith('http')) {
       buttons.push({
         text: await this.utils.text('openInBrowserButton'), icon: 'open', handler: () => {
-          this.firebaseAnalytics.logEvent('open_browser', {});
+          window.cordova.plugins.firebase.analytics.logEvent('open_browser', {});
           this.iab.create(scanString, '_system');
         }
       });
@@ -471,7 +469,7 @@ export class ScanSessionPage {
     buttons.push({
       text: await this.utils.text('repeatHereButton'), icon: 'refresh',
       handler: () => {
-        this.firebaseAnalytics.logEvent('repeatAll', {});
+        window.cordova.plugins.firebase.analytics.logEvent('repeatAll', {});
         if (this.repeatingStatus == 'stopped') {
           this.repeatAll(scanIndex);
         }
@@ -496,7 +494,7 @@ export class ScanSessionPage {
       }).present();
       return;
     }
-    this.firebaseAnalytics.logEvent('edit_scan', {});
+    window.cordova.plugins.firebase.analytics.logEvent('edit_scan', {});
     let editModal = this.modalCtrl.create(EditScanSessionPage, this.scanSession);
     editModal.onDidDismiss(scanSession => {
       this.scanSession = scanSession;
@@ -604,7 +602,7 @@ export class ScanSessionPage {
         }, {
           text: await this.utils.text('sendBarcodeAgainDialogSendButton'),
           handler: data => {
-            this.firebaseAnalytics.logEvent('repeatAll', {});
+             window.cordova.plugins.firebase.analytics.logEvent('repeatAll', {});
             this.skipAlreadySent = (data == 'skipAlreadySent');
             doRepeat();
           }

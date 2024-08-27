@@ -17,7 +17,8 @@
     ]
   },
   "include": [
-    "src/**/*.ts"
+    "src/**/*.ts",
+    "src/cordova.d.ts"
   ],
   "exclude": [
     "node_modules",
