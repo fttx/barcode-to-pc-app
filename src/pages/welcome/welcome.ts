@@ -11,6 +11,7 @@ import { Utils } from '../../providers/utils';
 import { ScanSessionsPage } from '../scan-sessions/scan-sessions';
 import { ServerModel } from './../../models/server.model';
 import { debounce } from 'helpful-decorators';
+import { BTPAlert, BtpAlertController } from '../../providers/btp-alert-controller/btp-alert-controller';
 declare var window: any;
 
 /*
@@ -34,7 +35,7 @@ export class WelcomePage {
   private onConnectSubscription: Subscription;
 
   constructor(
-    private alertCtrl: AlertController,
+    private alertCtrl: BtpAlertController,
     public navCtrl: NavController,
     private serverProvider: ServerProvider,
     public viewCtrl: ViewController,
@@ -173,11 +174,6 @@ export class WelcomePage {
           message: await this.utils.text('connectionTakingTooLongDialogMessage'),
           buttons: [
             {
-              text: await this.utils.text('connectionTakingTooLongCancelButton'),
-              role: 'cancel',
-              handler: () => { }
-            },
-            {
               text: await this.utils.text('connectionTakingTooLongTryAgainButton'),
               handler: () => {
                 // This code is duplicated in ionViewDidEnter
@@ -190,10 +186,16 @@ export class WelcomePage {
             },
             {
               text: await this.utils.text('connectionTakingTooLongViewInstructionsButton'),
+              role: 'cancel',
               handler: () => {
                 this.iab.create(Config.URL_INSTRUCTIONS, '_system');
               }
-            }
+            },
+            {
+              text: await this.utils.text('connectionTakingTooLongCancelButton'),
+              role: 'cancel',
+              handler: () => { }
+            },
           ]
         });
         alert.present();

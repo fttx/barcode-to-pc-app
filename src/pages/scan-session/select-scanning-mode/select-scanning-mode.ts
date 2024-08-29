@@ -7,6 +7,7 @@ import { ScanSessionModel } from '../../../models/scan-session.model';
 import { ScanSessionsStorage } from '../../../providers/scan-sessions-storage';
 import { Utils } from '../../../providers/utils';
 import { Settings } from './../../../providers/settings';
+import { BtpAlertController } from '../../../providers/btp-alert-controller/btp-alert-controller';
 
 
 @Component({
@@ -33,7 +34,7 @@ export class SelectScanningModePage {
   @ViewChild(Content) content: Content;
   constructor(
     public viewCtrl: ViewController,
-    public alertCtrl: AlertController,
+    public alertCtrl: BtpAlertController,
     private settings: Settings,
     private scanSessionsStorage: ScanSessionsStorage,
     public navParams: NavParams,
@@ -137,12 +138,21 @@ export class SelectScanningModePage {
         });
 
         let alwaysUseCameraForScanSessionName = await this.settings.getAlwaysUseCameraForScanSessionName();
-        let buttonClasses = alwaysUseCameraForScanSessionName ? ' alert-button-stacked' : '';
-        let buttons: any = [{ text: await this.utils.text('getScanSessionNameDialogCancelButton'), handler: () => { reject() }, cssClass: this.platform.is('android') ? 'button-outline-md' + buttonClasses : null }];
+        let buttons: any = [];
+
+        // By hand
+        buttons.push({
+          text: await this.utils.text('getScanSessionNameDialogOkButton'), handler: data => {
+            if (data.name != "") {
+              resolve(data.name)
+            } else {
+              resolve(defaultName)
+            }
+          },
+        });
 
         // Camera
         if (alwaysUseCameraForScanSessionName) {
-          buttonClasses += " alert-button-stacked";
           try {
             // Try to get the a barcode value
             let scanSessionName = await this.getBarcodeScanSessionName();
@@ -154,20 +164,14 @@ export class SelectScanningModePage {
           buttons.push({
             text: await this.utils.text('acquireBarcodeButton'), handler: async data => {
               resolve(await this.getScanSessionName());
-            }, cssClass: this.platform.is('android') ? 'button-outline-md' + buttonClasses : null,
+            },
+            role: 'cancel',
           });
         }
 
-        // By hand
-        buttons.push({
-          text: await this.utils.text('getScanSessionNameDialogOkButton'), handler: data => {
-            if (data.name != "") {
-              resolve(data.name)
-            } else {
-              resolve(defaultName)
-            }
-          }, cssClass: this.platform.is('android') ? 'button-outline-md button-ok' + buttonClasses : null,
-        });
+        // Cancel
+        buttons.push({ text: await this.utils.text('getScanSessionNameDialogCancelButton'), handler: () => { reject() }, role: 'cancel' });
+
         // If the barcode acquisition failed, or wasn't never requested
         // (see the `return` statement above)
         let alert = this.alertCtrl.create({
@@ -176,7 +180,6 @@ export class SelectScanningModePage {
           inputs: [{ name: 'name', placeholder: defaultName }],
           buttons: buttons,
           enableBackdropDismiss: false,
-          cssClass: this.platform.is('android') ? 'alert-big-buttons' : null,
         });
 
         let alwaysUseDefaultScanSessionName = await this.settings.getAlwaysUseDefaultScanSessionName();

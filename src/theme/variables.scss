@@ -95,6 +95,19 @@ $colors: (
 
 
 .md {
+  .button-md {
+    border-radius: 100px !important;
+    box-shadow: none !important;
+  }
+
+  ion-item-options .button-md {
+    border-radius: 0 !important;
+  }
+
+  .alert-input-group {
+    padding-bottom: 8px !important;
+  }
+
   .button-generic .button-inner {
     justify-content: center !important;
   }
@@ -234,7 +247,8 @@ $colors: (
   display: block;
   position: relative;
   top: 78px;
-  box-shadow: 0 0 0 900px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 0 0 900px rgba(0, 0, 0, 0.4);
+  border-radius: 20px !important;
 
   h2 {
     padding: 10px 0;
@@ -243,7 +257,7 @@ $colors: (
 }
 
 #qc-cmp2-ui button {
-  border-radius: 5px !important;
+  border-radius: 100px !important;
   box-shadow: none !important;
   // set ionic classes: button-outline-md btp-btn-solid
   font-weight: bold;
@@ -253,14 +267,12 @@ $colors: (
   background-color: map-get($colors, primary);
   color: white;
   border-color: map-get($colors, primary);
-  border-radius: 3px !important;
 }
 
 #qc-cmp2-ui button[mode="secondary"] {
   background-color: map-get($colors, text);
   border-color: map-get($colors, primary);
   color: map-get($colors, primary);
-  border-radius: 3px !important;
 }
 
 #qc-cmp2-ui button[mode="link"] {
@@ -292,12 +304,19 @@ $colors: (
   }
 
   .alert-button-group {
-    flex-direction: column;
+    flex-direction: column !important;
+    padding-bottom: 23px !important;
   }
 
   .btpv2-btn-primary {
     background-color: map-get($colors, primary) !important;
     color: map-get($colors, text) !important;
+    border-radius: 100px !important;
+  }
+
+  .btpv2-btn-cancel {
+    border: 1px solid map-get($colors, primary) !important;
+    color: map-get($colors, primary) !important;
     border-radius: 100px !important;
   }
 

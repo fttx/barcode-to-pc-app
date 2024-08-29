@@ -27,7 +27,7 @@ import { SelectScanningModePage } from './select-scanning-mode/select-scanning-m
 import { PhotoViewer } from '@ionic-native/photo-viewer';
 import { WebIntent } from '@ionic-native/web-intent';
 import { debounce } from 'helpful-decorators';
-import { BtpAlertControllerProvider } from '../../providers/btp-alert-controller/btp-alert-controller';
+import { BtpAlertController } from '../../providers/btp-alert-controller/btp-alert-controller';
 
 /**
  * This page is used to display the list of the barcodes of a specific
@@ -69,7 +69,7 @@ export class ScanSessionPage {
   constructor(
     public navParams: NavParams,
     public actionSheetCtrl: ActionSheetController,
-    public alertCtrl: BtpAlertControllerProvider,
+    public alertCtrl: BtpAlertController,
     public serverProvider: ServerProvider,
     public navCtrl: NavController,
     public scanSessionsStorage: ScanSessionsStorage,
@@ -120,6 +120,7 @@ export class ScanSessionPage {
   }
 
   async ionViewDidEnter() {
+    this.showGiftAlert();
     this.isVisible = true;
     window.cordova.plugins.firebase.analytics.setCurrentScreen("ScanSessionPage");
     this.responseSubscription = this.serverProvider.onMessage().subscribe(message => {
@@ -217,11 +218,10 @@ export class ScanSessionPage {
             title: await this.utils.text('beepSoundDialogTitle'),
             message: await this.utils.text('beepSoundDialogMessage'),
             buttons: [
-              { text: await this.utils.text('beepSoundDialogOpenSettingsButton'), handler: () => { this.navCtrl.push(SettingsPage) } },
+              { text: await this.utils.text('beepSoundDialogUnderstandButton'), handler: () => { this.settings.setSoundFeedbackOrDialogShown(true); } },
+              { text: await this.utils.text('beepSoundDialogOpenSettingsButton'), role: 'cancel', handler: () => { this.navCtrl.push(SettingsPage); this.settings.setSoundFeedbackOrDialogShown(true); } },
               { text: await this.utils.text('beepSoundDialogShowLaterButton'), role: 'cancel', handler: () => { } },
-              {
-                text: await this.utils.text('beepSoundDialogUnderstandButton'), role: 'cancel', handler: () => { this.settings.setSoundFeedbackOrDialogShown(true); }
-              }]
+            ]
           }).present();
         }
       });
@@ -377,8 +377,7 @@ export class ScanSessionPage {
       message: `
         You've just scanned your first 10 barcodes! 🚀<br><br>
         Barcode to PC allows up to 200 scans per month for free.<br><br>
-        Need more scans to keep testing it?<br><br>
-        Click the button below to increase the limit from 200 to 300 scans per month.`,
+        Click the button below to increase the limit from 200 to 300 scans per month, so that you can keep testing:`,
       buttons: [
         { text: await this.utils.text('Increase Limit for FREE'), handler: () => { }, },
         { text: await this.utils.text('I want less scans'), role: 'text-cancel', handler: () => { }, },
@@ -412,8 +411,8 @@ export class ScanSessionPage {
     if (scan.ack == true) {
       const buttons = [];
       buttons.push({
-        text: await this.utils.text('alreadyReceivedScanCancelButton'), role: 'cancel', handler: () => { },
-        cssClass: this.platform.is('android') ? 'button-outline-md ' + (scan.hasImage ? 'button-generic' : '') : null,
+        text: await this.utils.text('alreadyReceivedScanDialogSendAgainButton'), handler: () => { this.repeat(scan); },
+        cssClass: this.platform.is('android') ? 'button-outline-md button-ok' : null,
       });
       if (scan.hasImage) {
         buttons.push({
@@ -421,11 +420,12 @@ export class ScanSessionPage {
             this.showImage(scan);
           },
           cssClass: this.platform.is('android') ? 'button-outline-md button-generic' : null,
+          role: 'cancel',
         });
       }
       buttons.push({
-        text: await this.utils.text('alreadyReceivedScanDialogSendAgainButton'), handler: () => { this.repeat(scan); },
-        cssClass: this.platform.is('android') ? 'button-outline-md button-ok' : null,
+        text: await this.utils.text('alreadyReceivedScanCancelButton'), role: 'cancel', handler: () => { },
+        cssClass: this.platform.is('android') ? 'button-outline-md ' + (scan.hasImage ? 'button-generic' : '') : null,
       });
       this.alertCtrl.create({
         title: await this.utils.text('alreadyReceivedScanDialogTitle'),
@@ -451,8 +451,6 @@ export class ScanSessionPage {
           title: await this.utils.text('scanDeleteOnlySmartphoneDialogTitle'),
           message: await this.utils.text('scanDeleteOnlySmartphoneDialogMessage'),
           buttons: [{
-            text: await this.utils.text('scanDeleteOnlySmartphoneDialogCancelButton'), role: 'cancel'
-          }, {
             text: await this.utils.text('scanDeleteOnlySmartphoneDialogDeleteButton'), handler: () => {
               this.scanSession.scannings.splice(scanIndex, 1);
               this.save();
@@ -461,6 +459,9 @@ export class ScanSessionPage {
                 // TODO go back and delete scan session
               }
             }
+          },
+          {
+            text: await this.utils.text('scanDeleteOnlySmartphoneDialogCancelButton'), role: 'cancel'
           }]
         }).present();
       }
@@ -614,16 +615,18 @@ export class ScanSessionPage {
           value: 'skipAlreadySent',
           checked: true
         }],
-        buttons: [{
-          text: await this.utils.text('sendBarcodeAgainDialogCancelButton'), role: 'cancel', handler: data => { }
-        }, {
-          text: await this.utils.text('sendBarcodeAgainDialogSendButton'),
-          handler: data => {
-            window.cordova.plugins.firebase.analytics.logEvent('repeatAll', {});
-            this.skipAlreadySent = (data == 'skipAlreadySent');
-            doRepeat();
-          }
-        }]
+        buttons: [
+          {
+            text: await this.utils.text('sendBarcodeAgainDialogSendButton'),
+            handler: data => {
+              window.cordova.plugins.firebase.analytics.logEvent('repeatAll', {});
+              this.skipAlreadySent = (data == 'skipAlreadySent');
+              doRepeat();
+            }
+          },
+          {
+            text: await this.utils.text('sendBarcodeAgainDialogCancelButton'), role: 'cancel', handler: data => { }
+          },]
       }).present();
     } else {
       this.skipAlreadySent = true;
@@ -761,7 +764,6 @@ export class ScanSessionPage {
         title: await this.utils.text('nfcDisabledDialogTitle'),
         message: await this.utils.text('nfcDisabledDialogMessage'),
         buttons: [
-          { text: await this.utils.text('nfcDisabledDialogCancel'), role: 'cancel', handler: () => { } },
           {
             text: await this.utils.text('nfcDisabledDialogEnable'), handler: () => {
               const trickFn = async () => {
@@ -781,6 +783,7 @@ export class ScanSessionPage {
               trickFn();
             }
           },
+          { text: await this.utils.text('nfcDisabledDialogCancel'), role: 'cancel', handler: () => { } },
         ]
       }).present();
       return;

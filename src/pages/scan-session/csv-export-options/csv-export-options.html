@@ -36,9 +36,11 @@
         <ion-option value="CR">&#92;r</ion-option>
       </ion-select>
     </ion-item>
-  </ion-list>
 
-  <button ion-button full color="primary" (click)="onExportClick()">
-    {{ 'exportButton' | translate }}
-  </button>
+    <ion-item>
+      <button ion-button full color="primary" (click)="onExportClick()" style="height: 40px;">
+        {{ 'exportButton' | translate }}
+      </button>
+    </ion-item>
+  </ion-list>
 </ion-content>

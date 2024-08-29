@@ -23,6 +23,7 @@ import { SelectServerPage } from './../pages/select-server/select-server';
 import { TranslateService } from '@ngx-translate/core';
 import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 import { BtpToastService } from '../components/btp-toast/btp-toast.service';
+import { BtpAlertController } from '../providers/btp-alert-controller/btp-alert-controller';
 
 @Component({
   templateUrl: 'app.html',
@@ -38,7 +39,7 @@ export class MyApp {
     public platform: Platform,
     public statusBar: StatusBar,
     public appVersion: AppVersion,
-    private alertCtrl: AlertController,
+    private alertCtrl: BtpAlertController,
     private settings: Settings,
     public menuCtrl: MenuController,
     public modalCtrl: ModalController,
@@ -333,7 +334,7 @@ export class MyApp {
             this.iab.create(Config.URL_PRIVACY_POLICY, '_system');
             this.showProminentDisclosureDialog();
           },
-          cssClass: this.platform.is('android') ? 'button-outline-md btp-btn-solid' : null,
+          role: 'cancel',
         },
         {
           text: 'Agree',
@@ -341,7 +342,6 @@ export class MyApp {
             this.settings.setHasAcceptedTerms(true);
             this.showInMobiConsentScreen();
           },
-          cssClass: this.platform.is('android') ? 'button-outline-md btp-btn-solid button-ok' : null,
         }
       ],
       enableBackdropDismiss: false,

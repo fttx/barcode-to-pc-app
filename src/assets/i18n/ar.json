@@ -286,7 +286,7 @@
   "preventInfiniteLoopDialogMessage": "ربما نسيت وضع عنصر BARCODE، أو لديك شرط يعود دائمًا بقيمة خاطئة. تحقق من نموذج الإخراج الخاص بك. هل تريد الاستمرار؟",
   "preventInfiniteLoopStopButton": "إيقاف",
   "isPDADeviceDialogTitle": "هل جهازك جهاز PDA؟",
-  "isPDADeviceDialogMessage": "<img src=\"assets/scan/pda.png\" class=\"dialog-pda-icon\">إذا كان جهازك يحتوي على ماسح ضوئي مدمج، فيرجى استخدام وضع \"الإدخال اليدوي\" وتمكين اللاحقة [CR][LF].",
+  "isPDADeviceDialogMessage": "<img src=\"assets/scan/pda.png\" class=\"dialog-pda-icon\"><br>إذا كان جهازك يحتوي على ماسح ضوئي مدمج، فيرجى استخدام وضع \"الإدخال اليدوي\" وتمكين اللاحقة [CR][LF].",
   "isPDADeviceDialogNoButton": "لا",
   "isPDADeviceDialogShowLaterButton": "عرض لاحقًا",
   "isPDADeviceDialogMoreInfoButton": "نعم - عرض التعليمات",

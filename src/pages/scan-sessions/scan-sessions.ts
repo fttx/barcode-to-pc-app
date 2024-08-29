@@ -18,6 +18,7 @@ import { Device } from '@ionic-native/device';
 import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 import { LastToastProvider } from '../../providers/last-toast/last-toast';
 import { BtpToastService } from '../../components/btp-toast/btp-toast.service';
+import { BTPAlert, BtpAlertController } from '../../providers/btp-alert-controller/btp-alert-controller';
 
 @Component({
   selector: 'page-scannings',
@@ -42,7 +43,7 @@ export class ScanSessionsPage {
 
   constructor(
     public navCtrl: NavController,
-    private alertCtrl: AlertController,
+    private alertCtrl: BtpAlertController,
     private scanSessionsStorage: ScanSessionsStorage,
     public popoverCtrl: PopoverController,
     private settings: Settings,
@@ -87,18 +88,19 @@ export class ScanSessionsPage {
           message: await this.utils.text('isPDADeviceDialogMessage2', { brand: this.device.manufacturer }),
           buttons: [
             {
-              text: await this.utils.text('isPDADeviceDialogNoButton'), handler: () => {
-                this.settings.setIsPDADeviceDialogShown(true);
-              }
-            },
-            { text: await this.utils.text('isPDADeviceDialogShowLaterButton'), role: 'cancel', handler: () => { } },
-            {
               text: await this.utils.text('isPDADeviceDialogMoreInfoButton'), handler: () => {
                 this.settings.setIsPDADeviceDialogShown(true);
                 this.settings.setIsPDADevice(true);
                 this.iab.create(Config.DOCS_ANDROID_PDA, '_system');
               }
-            }]
+            },
+            {
+              text: await this.utils.text('isPDADeviceDialogNoButton'), handler: () => {
+                this.settings.setIsPDADeviceDialogShown(true);
+              }, role: 'cancel'
+            },
+            { text: await this.utils.text('isPDADeviceDialogShowLaterButton'), role: 'cancel', handler: () => { } },
+          ]
         }).present();
       }
     }
@@ -197,15 +199,17 @@ export class ScanSessionsPage {
                 "appName": await this.utils.text('appName'),
               }),
               buttons: [
-                { text: await this.utils.text('rateBarcodeToPcDialogremindMeLaterButton'), role: 'cancel' },
-                { text: await this.utils.text('rateBarcodeToPcDialogNoButton'), handler: () => { this.settings.setRated(true); } }, {
+                {
                   text: await this.utils.text('rateBarcodeToPcDialogRateButton'),
                   handler: () => {
                     this.launchReview.launch().then(() => {
                       this.settings.setRated(true);
                     })
                   }
-                }]
+                },
+                { text: await this.utils.text('rateBarcodeToPcDialogNoButton'), role: 'cancel', handler: () => { this.settings.setRated(true); } },
+                { text: await this.utils.text('rateBarcodeToPcDialogremindMeLaterButton'), role: 'cancel' },
+              ]
             });
             this.ratingAlert.present();
           }
@@ -244,7 +248,7 @@ export class ScanSessionsPage {
             this.reconnectDialog = this.alertCtrl.create({
               title: await this.utils.text('reconnectDialogTitle'),
               message: await this.utils.text('reconnectDialogMessage', { "defaultServerName": defaultServer.name, "defaultServerAddress": defaultServer.getAddress(), "discoveryServerAddress": discoveryResult.server.getAddress() }),
-              buttons: [{ text: await this.utils.text('reconnectDialogNoButton'), role: 'cancel', handler: () => { this.reconnectDialog = null; } }, {
+              buttons: [{
                 text: await this.utils.text('reconnectDialogReconnectButton'),
                 handler: () => {
                   this.settings.setDefaultServer(discoveryResult.server); // override the defaultServer
@@ -257,7 +261,8 @@ export class ScanSessionsPage {
                   this.serverProvider.connect(discoveryResult.server, true);
                   this.reconnectDialog = null;
                 }
-              }],
+              },
+              { text: await this.utils.text('reconnectDialogNoButton'), role: 'cancel', handler: () => { this.reconnectDialog = null; } }],
               enableBackdropDismiss: false,
             });
             this.reconnectDialog.present();

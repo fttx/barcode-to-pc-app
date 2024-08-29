@@ -285,7 +285,7 @@
   "preventInfiniteLoopDialogMessage": "Quizás olvidó poner el componente BARCODE, o tiene una condición que siempre es falsa. Verifique su plantilla de salida. ¿Desea continuar?",
   "preventInfiniteLoopStopButton": "Detener",
   "isPDADeviceDialogTitle": "¿Su dispositivo es una PDA?",
-  "isPDADeviceDialogMessage": "<img src=\"assets/scan/pda.png\" class=\"dialog-pda-icon\">Si su dispositivo tiene un escáner de código de barras integrado, use el modo ENTRADA MANUAL, y habilite el Sufijo [CR][LF].",
+  "isPDADeviceDialogMessage": "<img src=\"assets/scan/pda.png\" class=\"dialog-pda-icon\"><br>Si su dispositivo tiene un escáner de código de barras integrado, use el modo ENTRADA MANUAL, y habilite el Sufijo [CR][LF].",
   "isPDADeviceDialogNoButton": "No",
   "isPDADeviceDialogShowLaterButton": "Mostrar más tarde",
   "isPDADeviceDialogMoreInfoButton": "Sí - Mostrar instrucciones",

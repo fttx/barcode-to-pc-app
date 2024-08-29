@@ -10,7 +10,7 @@ import { duration } from 'moment';
   and Angular DI.
 */
 @Injectable()
-export class BtpAlertControllerProvider extends AlertController {
+export class BtpAlertController extends AlertController {
   create(options: AlertOptions): BTPAlert {
     options.enableBackdropDismiss = options.enableBackdropDismiss !== undefined ? options.enableBackdropDismiss : false;
     options.cssClass = options.cssClass ? `btpv2-alert ${options.cssClass}` : 'btpv2-alert';
@@ -25,6 +25,7 @@ export class BtpAlertControllerProvider extends AlertController {
         }
       });
     }
+    console.log('options', options);
     return super.create(options);
   }
 }

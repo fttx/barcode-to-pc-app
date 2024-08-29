@@ -3,7 +3,7 @@ import { BarcodeScanner, BarcodeScannerOptions, BarcodeScanResult } from '@fttx/
 import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 import { NativeAudio } from '@ionic-native/native-audio';
 import { Ndef, NFC } from '@ionic-native/nfc';
-import { Alert, AlertController, Events, Platform } from 'ionic-angular';
+import { Events, Platform } from 'ionic-angular';
 import { AlertInputOptions } from 'ionic-angular/components/alert/alert-options';
 import moment from 'moment';
 import { Observable, Subscriber, Subscription } from 'rxjs';
@@ -24,6 +24,7 @@ import { Settings } from './settings';
 import { AlertButtonType, BarcodeScanResultExtended, BarcodeScannerOptionsExtended, Utils } from './utils';
 import { Camera, CameraOptions } from '@ionic-native/camera';
 import { Geolocation } from '@ionic-native/geolocation';
+import { BTPAlert, BtpAlertController } from './btp-alert-controller/btp-alert-controller';
 
 /**
  * The job of this class is to generate a ScanModel by talking with the native
@@ -52,18 +53,18 @@ export class ScanProvider {
   private outputProfile: OutputProfileModel;
   private outputProfileIndex: number;
   private deviceName: string;
-  private settingsUpdatedDialog: Alert = null;
+  private settingsUpdatedDialog: BTPAlert = null;
   /**
    * @deprecated see src/pages/settings/settings.ts/ionViewDidLoad()/getQuantityType()
    */
   private quantityType: 'number' | 'text';
   private keyboardInput: KeyboardInputComponent;
 
-  private remoteComponentErrorDialog: Alert = null;
+  private remoteComponentErrorDialog: BTPAlert = null;
 
   // Used to detect duplicated barcodes scanned one after another
-  private acceptOrDiscardDialog: Alert = null;
-  private rememberDuplicatedBarcodeChoiceDialog: Alert = null;
+  private acceptOrDiscardDialog: BTPAlert = null;
+  private rememberDuplicatedBarcodeChoiceDialog: BTPAlert = null;
   private scanSession: ScanSessionModel;
 
   public static INFINITE_LOOP_DETECT_THRESHOLD = 30;
@@ -73,7 +74,7 @@ export class ScanProvider {
   private disableKeyboarAutofocus: boolean = false;
 
   constructor(
-    private alertCtrl: AlertController,
+    private alertCtrl: BtpAlertController,
     private barcodeScanner: BarcodeScanner,
     private platform: Platform,
     private ngZone: NgZone,
@@ -94,7 +95,7 @@ export class ScanProvider {
       this.settingsUpdatedDialog = this.alertCtrl.create({
         title: await this.utils.text('settingsUpdatedDialogTitle'),
         message: await this.utils.text('settingsUpdatedDialogMessage'),
-        buttons: [await this.utils.text('settingsUpdatedDialogOkButton')],
+        buttons: [{ text: await this.utils.text('settingsUpdatedDialogOkButton') }],
       });
       this.settingsUpdatedDialog.present();
     });
@@ -1075,9 +1076,9 @@ export class ScanProvider {
       let buttons = [];
       let pressedButton: AlertButtonType = 'ok';
 
-      if (outputBlock.alertDiscardScanButton) buttons.push({ text: outputBlock.alertDiscardScanButton, cssClass: this.platform.is('android') ? 'button-outline-md button-alert' : null, handler: () => { pressedButton = 'discard_scan'; } })
-      if (outputBlock.alertScanAgainButton) buttons.push({ text: outputBlock.alertScanAgainButton, cssClass: this.platform.is('android') ? 'button-outline-md button-alert' : null, handler: () => { pressedButton = 'scan_again'; } })
-      if (outputBlock.alertOkButton) buttons.push({ text: outputBlock.alertOkButton, cssClass: this.platform.is('android') ? 'button-outline-md button-alert button-ok' : null, handler: () => { pressedButton = 'ok'; } })
+      if (outputBlock.alertOkButton) buttons.push({ text: outputBlock.alertOkButton, handler: () => { pressedButton = 'ok'; } })
+      if (outputBlock.alertScanAgainButton) buttons.push({ text: outputBlock.alertScanAgainButton, role: 'cancel', handler: () => { pressedButton = 'scan_again'; } })
+      if (outputBlock.alertDiscardScanButton) buttons.push({ text: outputBlock.alertDiscardScanButton, role: 'cancel', handler: () => { pressedButton = 'discard_scan'; } })
 
       let alert = this.alertCtrl.create({ title: outputBlock.alertTitle, message: outputBlock.value, buttons: buttons, enableBackdropDismiss: false, cssClass: this.platform.is('android') ? 'alert-big-buttons' : null, });
       alert.onDidDismiss(() => { resolve(pressedButton); });
@@ -1113,18 +1114,19 @@ export class ScanProvider {
       let alert = this.alertCtrl.create({
         title: await this.utils.text('addMoreDialogTitle'),
         message: await this.utils.text('addMoreDialogMessage'),
-        buttons: [{
-          text: await this.utils.text('addMoreDialogStopButton'), role: 'cancel',
-          handler: () => {
-            if (interval) clearInterval(interval);
-            resolve(false);
-          }
-        }, {
-          text: await this.utils.text('addMoreDialogContinueButton'), handler: () => {
-            if (interval) clearInterval(interval);
-            resolve(true);
-          }
-        }]
+        buttons: [
+          {
+            text: await this.utils.text('addMoreDialogContinueButton'), handler: () => {
+              if (interval) clearInterval(interval);
+              resolve(true);
+            }
+          }, {
+            text: await this.utils.text('addMoreDialogStopButton'), role: 'cancel',
+            handler: () => {
+              if (interval) clearInterval(interval);
+              resolve(false);
+            }
+          }]
       });
       alert.present();
       window.cordova.plugins.firebase.analytics.logEvent('custom_timeout', {});
@@ -1148,15 +1150,15 @@ export class ScanProvider {
         title: await this.utils.text('preventInfiniteLoopDialogTitle'),
         message: await this.utils.text('preventInfiniteLoopDialogMessage'),
         buttons: [{
+          text: 'Continue', handler: () => {
+            resolve(true);
+          }
+        }, {
           text: await this.utils.text('preventInfiniteLoopStopButton'), role: 'cancel',
           handler: () => {
             let wsRequest = new requestModelUndoInfiniteLoop().fromObject({ count: ScanProvider.INFINITE_LOOP_DETECT_THRESHOLD });
             this.serverProvider.send(wsRequest);
             resolve(false);
-          }
-        }, {
-          text: 'Continue', handler: () => {
-            resolve(true);
           }
         }]
       }).present();
@@ -1173,20 +1175,21 @@ export class ScanProvider {
           message: await this.utils.text('isPDADeviceDialogMessage'),
           buttons: [
             {
-              text: await this.utils.text('isPDADeviceDialogNoButton'), handler: () => {
-                this.settings.setIsPDADeviceDialogShown(true);
-                resolve();
-              }
-            },
-            { text: await this.utils.text('isPDADeviceDialogShowLaterButton'), role: 'cancel', handler: () => { resolve() } },
-            {
               text: await this.utils.text('isPDADeviceDialogMoreInfoButton'), handler: () => {
                 this.settings.setIsPDADeviceDialogShown(true);
                 this.settings.setIsPDADevice(true);
                 this.iab.create(Config.DOCS_ANDROID_PDA, '_system');
                 resolve();
-              }
-            }]
+              }, role: 'primary'
+            },
+            {
+              text: await this.utils.text('isPDADeviceDialogNoButton'), handler: () => {
+                this.settings.setIsPDADeviceDialogShown(true);
+                resolve();
+              }, role: 'cancel'
+            },
+            { text: await this.utils.text('isPDADeviceDialogShowLaterButton'), handler: () => { resolve() }, role: 'cancel', },
+          ]
         }).present();
       } else {
         resolve();
@@ -1211,19 +1214,17 @@ export class ScanProvider {
         message: await this.utils.text('saveAsDefaultChoiceDialogMessage'),
         buttons: [
           {
-            text: await this.utils.text('saveAsDefaultChoiceDialogAlwaysAskButton'),
-            role: 'cancel', handler: () => {
-              resolve(false);
-            },
-            cssClass: this.platform.is('android') ? 'button-outline-md button-alert' : null
-          },
-          {
             text: await this.utils.text('saveAsDefaultChoiceDialogSaveButton'),
             handler: () => {
               this.settings.setDuplicateBarcodeChoice(acceptDuplicated ? 'always_accept' : 'discard_scan_session');
               resolve(true)
             },
             cssClass: this.platform.is('android') ? 'button-outline-md button-alert button-ok' : null
+          },
+          {
+            text: await this.utils.text('saveAsDefaultChoiceDialogAlwaysAskButton'),
+            role: 'cancel', handler: () => { resolve(false); },
+            cssClass: this.platform.is('android') ? 'button-outline-md button-alert' : null
           },
         ]
       })
@@ -1339,18 +1340,18 @@ export class ScanProvider {
         title: await this.utils.text('qrBillDialogTitle'),
         message: await this.utils.text('qrBillDialogMessage'),
         buttons: [{
-          text: await this.utils.text('qrBillDialogCancelButton'),
-          handler: () => {
-            resolve();
-          },
-          role: 'cancel',
-        }, {
           text: await this.utils.text('qrBillDialogOkButton'),
           handler: () => {
             this.iab.create(Config.DOCS_QRBILL, '_system');
             this.settings.setQRBillDialogShown(true);
             resolve();
           }
+        }, {
+          text: await this.utils.text('qrBillDialogCancelButton'),
+          handler: () => {
+            resolve();
+          },
+          role: 'cancel',
         }]
       }).present();
     });

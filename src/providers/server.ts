@@ -19,6 +19,7 @@ import { LastToastProvider } from './last-toast/last-toast';
 import { ScanSessionsStorage } from './scan-sessions-storage';
 import { Utils } from './utils';
 import { BtpToastService } from '../components/btp-toast/btp-toast.service';
+import { BTPAlert, BtpAlertController } from './btp-alert-controller/btp-alert-controller';
 // Warning: do not import ScanProvider to prevent circular dependency
 // To communicate with ScanProvider use global events.
 
@@ -53,7 +54,7 @@ export class ServerProvider {
   private pongTimeout = null;
 
   private fallBackTimeout = null;
-  private popup: Alert = null;
+  private popup: BTPAlert = null;
   private kickedOut = false;
 
   private lastOnResumeSubscription = null;
@@ -67,7 +68,7 @@ export class ServerProvider {
     // private.btpToastCtrl:.btpToastCtrlProvider,
     private btpToastCtrl: BtpToastService,
     private zeroconf: Zeroconf,
-    private alertCtrl: AlertController,
+    private alertCtrl: BtpAlertController,
     public platform: Platform,
     public device: Device,
     private networkInterface: NetworkInterface,
@@ -441,12 +442,13 @@ export class ServerProvider {
           title: await this.utils.text('connectionProblemDialogTitle'),
           message: await this.utils.text('connectionProblemDialogMessage'),
           buttons: [
-            { text: await this.utils.text('connectionProblemDialogCloseButton'), role: 'cancel' },
             {
               text: await this.utils.text('connectionProblemDialogHelpPageButton'), handler: () => {
                 this.events.publish('setPage', HelpPage);
               }
-            }]
+            },
+            { text: await this.utils.text('connectionProblemDialogCloseButton'), role: 'cancel' },
+          ]
         });
         this.connectionProblemAlert.present();
       }

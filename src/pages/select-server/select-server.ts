@@ -11,6 +11,7 @@ import { ServerProvider } from '../../providers/server';
 import { Settings } from '../../providers/settings';
 import { Utils } from '../../providers/utils';
 import { ServerModel } from './../../models/server.model';
+import { BtpAlertController } from '../../providers/btp-alert-controller/btp-alert-controller';
 
 @Component({
   selector: 'page-select-server',
@@ -29,7 +30,7 @@ export class SelectServerPage {
   constructor(
     public navCtrl: NavController,
     public viewCtrl: ViewController,
-    private alertCtrl: AlertController,
+    private alertCtrl: BtpAlertController,
     private serverProvider: ServerProvider,
     private settings: Settings,
     private barcodeScanner: BarcodeScanner,
@@ -258,13 +259,9 @@ export class SelectServerPage {
   async rename(server: ServerModel) {
     this.alertCtrl.create({
       title: await this.utils.text('renameDialogTitle'),
-      // message: 'Inse',
       enableBackdropDismiss: false,
       inputs: [{ name: 'name', type: 'text', placeholder: await this.utils.text('renameDialogNameInputPlaceholder'), value: server.name }],
       buttons: [{
-        role: 'cancel', text: await this.utils.text('renameDialogCancelButton'),
-        handler: () => { }
-      }, {
         text: await this.utils.text('renameDialogOkButton'),
         handler: data => {
           if (data.name != "") {
@@ -272,6 +269,10 @@ export class SelectServerPage {
             this.settings.setSavedServers(this.servers);
           }
         }
+      },
+      {
+        role: 'cancel', text: await this.utils.text('renameDialogCancelButton'),
+        handler: () => { }
       }]
     }).present();
   }
@@ -286,8 +287,7 @@ export class SelectServerPage {
     this.alertCtrl.create({
       title: await this.utils.text('serverInfoDialogTitle'),
       message: await this.utils.text('serverInfoDialogMessage', { "server": (server.name || server.getAddress()), "status": status }),
-
-      buttons: [await this.utils.text('serverInfoDialogOkButton')],
+      buttons: [{ text: await this.utils.text('serverInfoDialogOkButton') }],
     }).present();
   }
 

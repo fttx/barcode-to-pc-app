@@ -286,7 +286,7 @@
   "preventInfiniteLoopDialogMessage": "Forse hai dimenticato di inserire il componente BARCODE, o hai una condizione che è sempre falsa. Controlla il tuo template di output. Vuoi continuare?",
   "preventInfiniteLoopStopButton": "Ferma",
   "isPDADeviceDialogTitle": "Il tuo dispositivo è un PDA?",
-  "isPDADeviceDialogMessage": "<img src=\"assets/scan/pda.png\" class=\"dialog-pda-icon\">Se il tuo dispositivo ha uno scanner di codici a barre integrato, utilizza la modalità di INPUT MANUALE e abilita il suffisso [CR][LF].",
+  "isPDADeviceDialogMessage": "<img src=\"assets/scan/pda.png\" class=\"dialog-pda-icon\"><br>Se il tuo dispositivo ha uno scanner di codici a barre integrato, utilizza la modalità di INPUT MANUALE e abilita il suffisso [CR][LF].",
   "isPDADeviceDialogNoButton": "No",
   "isPDADeviceDialogShowLaterButton": "Mostra più tardi",
   "isPDADeviceDialogMoreInfoButton": "Si - Mostra istruzioni",
