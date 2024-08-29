@@ -55,6 +55,8 @@ export class MyApp {
     private btpToastCtrl: BtpToastService,
   ) {
     platform.ready().then(async () => {
+      this.nav.viewWillEnter.subscribe((view) => { document.body.classList.add('btp-ionic-transitioning'); });
+      this.nav.viewDidLeave.subscribe((view) => { document.body.classList.remove('btp-ionic-transitioning'); });
 
       window.cordova.plugins.firebase.analytics.setEnabled(!Config.DEBUG);
 

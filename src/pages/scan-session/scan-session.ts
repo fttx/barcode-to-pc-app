@@ -27,6 +27,7 @@ import { SelectScanningModePage } from './select-scanning-mode/select-scanning-m
 import { PhotoViewer } from '@ionic-native/photo-viewer';
 import { WebIntent } from '@ionic-native/web-intent';
 import { debounce } from 'helpful-decorators';
+import { BtpAlertControllerProvider } from '../../providers/btp-alert-controller/btp-alert-controller';
 
 /**
  * This page is used to display the list of the barcodes of a specific
@@ -68,7 +69,7 @@ export class ScanSessionPage {
   constructor(
     public navParams: NavParams,
     public actionSheetCtrl: ActionSheetController,
-    public alertCtrl: AlertController,
+    public alertCtrl: BtpAlertControllerProvider,
     public serverProvider: ServerProvider,
     public navCtrl: NavController,
     public scanSessionsStorage: ScanSessionsStorage,
@@ -120,7 +121,7 @@ export class ScanSessionPage {
 
   async ionViewDidEnter() {
     this.isVisible = true;
-     window.cordova.plugins.firebase.analytics.setCurrentScreen("ScanSessionPage");
+    window.cordova.plugins.firebase.analytics.setCurrentScreen("ScanSessionPage");
     this.responseSubscription = this.serverProvider.onMessage().subscribe(message => {
       if (message.action == responseModel.ACTION_PUT_SCAN_ACK) {
         let response: responseModelPutScanAck = message;
@@ -363,7 +364,7 @@ export class ScanSessionPage {
     )
   }
 
-  saveAndSendScan(scan: ScanModel) {
+  async saveAndSendScan(scan: ScanModel) {
     window.cordova.plugins.firebase.analytics.logEvent('scan', {});
     this.scanSession.scannings.unshift(scan);
     this.save();
@@ -372,7 +373,6 @@ export class ScanSessionPage {
 
   private async showGiftAlert() {
     this.alertCtrl.create({
-      cssClass: 'btp-free-100-scans-alert',
       title: await this.utils.text('Get More Scans'),
       message: `
         You've just scanned your first 10 barcodes! 🚀<br><br>
@@ -380,14 +380,10 @@ export class ScanSessionPage {
         Need more scans to keep testing it?<br><br>
         Click the button below to increase the limit from 200 to 300 scans per month.`,
       buttons: [
-        { text: await this.utils.text('Increase Limit'), handler: () => { }, cssClass: 'btp-free-100-scans-btn btp-free-100-scans-claim' },
-        { text: await this.utils.text('I want less scans'), role: 'cancel', handler: () => { }, cssClass: 'btp-free-100-scans-btn btp-free-100-scans-cancel' },
+        { text: await this.utils.text('Increase Limit for FREE'), handler: () => { }, },
+        { text: await this.utils.text('I want less scans'), role: 'text-cancel', handler: () => { }, },
       ]
-    }).present({
-      animate: true,
-      duration: 600,
-      easing: 'ease-in-out',
-    });
+    }).present();
   }
 
 
@@ -623,7 +619,7 @@ export class ScanSessionPage {
         }, {
           text: await this.utils.text('sendBarcodeAgainDialogSendButton'),
           handler: data => {
-             window.cordova.plugins.firebase.analytics.logEvent('repeatAll', {});
+            window.cordova.plugins.firebase.analytics.logEvent('repeatAll', {});
             this.skipAlreadySent = (data == 'skipAlreadySent');
             doRepeat();
           }

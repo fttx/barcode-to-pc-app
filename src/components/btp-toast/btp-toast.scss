@@ -7,6 +7,20 @@ btp-toast {
   vertical-align: middle;
 }
 
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.btp-ionic-transitioning btp-toast {
+  display: none;
+}
+
 .btp-toast-text {
   height: 20px;
   padding-top: 5px;

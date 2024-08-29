@@ -223,7 +223,7 @@ $colors: (
   }
 }
 
-
+// Cookie consent
 #qc-cmp2-main>div {
   width: 90vw;
   max-width: 300px;
@@ -268,9 +268,8 @@ $colors: (
   font-weight: normal;
 }
 
-#qc-cmp2-container {}
-
-.btp-free-100-scans-alert {
+// BTPv2 alert
+.btpv2-alert {
   .alert-wrapper {
     border-radius: 20px !important;
     width: 85vw !important;
@@ -281,7 +280,7 @@ $colors: (
     color: #4f4f4f !important;
   }
 
-  .btp-free-100-scans-btn {
+  .btpv2-btn {
     justify-content: center !important;
     margin: 8px 8px 0 0 !important;
     width: 100% !important;
@@ -296,16 +295,17 @@ $colors: (
     flex-direction: column;
   }
 
-  .btp-free-100-scans-claim {
+  .btpv2-btn-primary {
     background-color: map-get($colors, primary) !important;
     color: map-get($colors, text) !important;
     border-radius: 100px !important;
   }
 
-  .btp-free-100-scans-cancel {
+  .btpv2-btn-text-cancel {
     color: #878787 !important;
     padding: 2px 0 7px 0 !important;
     text-transform: none !important;
+    text-decoration: underline !important;
     font-weight: normal !important;
   }
 
