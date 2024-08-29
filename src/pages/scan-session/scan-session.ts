@@ -370,6 +370,27 @@ export class ScanSessionPage {
     if (this.realtimeSend) this.sendPutScan(scan);
   }
 
+  private async showGiftAlert() {
+    this.alertCtrl.create({
+      cssClass: 'btp-free-100-scans-alert',
+      title: await this.utils.text('Get More Scans'),
+      message: `
+        You've just scanned your first 10 barcodes! 🚀<br><br>
+        Barcode to PC allows up to 200 scans per month for free.<br><br>
+        Need more scans to keep testing it?<br><br>
+        Click the button below to increase the limit from 200 to 300 scans per month.`,
+      buttons: [
+        { text: await this.utils.text('Increase Limit'), handler: () => { }, cssClass: 'btp-free-100-scans-btn btp-free-100-scans-claim' },
+        { text: await this.utils.text('I want less scans'), role: 'cancel', handler: () => { }, cssClass: 'btp-free-100-scans-btn btp-free-100-scans-cancel' },
+      ]
+    }).present({
+      animate: true,
+      duration: 600,
+      easing: 'ease-in-out',
+    });
+  }
+
+
   private showImage(scan) {
     const imageBlock = scan.outputBlocks.find(x => x.type == 'image');
     if (this.platform.is('ios')) {

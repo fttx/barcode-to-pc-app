@@ -269,3 +269,44 @@ $colors: (
 }
 
 #qc-cmp2-container {}
+
+.btp-free-100-scans-alert {
+  .alert-wrapper {
+    border-radius: 20px !important;
+    width: 85vw !important;
+    max-width: 350px !important;
+  }
+
+  .alert-message {
+    color: #4f4f4f !important;
+  }
+
+  .btp-free-100-scans-btn {
+    justify-content: center !important;
+    margin: 8px 8px 0 0 !important;
+    width: 100% !important;
+    text-align: center !important;
+
+    .button-inner {
+      justify-content: center !important;
+    }
+  }
+
+  .alert-button-group {
+    flex-direction: column;
+  }
+
+  .btp-free-100-scans-claim {
+    background-color: map-get($colors, primary) !important;
+    color: map-get($colors, text) !important;
+    border-radius: 100px !important;
+  }
+
+  .btp-free-100-scans-cancel {
+    color: #878787 !important;
+    padding: 2px 0 7px 0 !important;
+    text-transform: none !important;
+    font-weight: normal !important;
+  }
+
+}
