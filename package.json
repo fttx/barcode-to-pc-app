@@ -90,6 +90,7 @@
     "zone.js": "0.8.26"
   },
   "devDependencies": {
+    "@fttx/cordova-plugin-firebase-analytics": "^8.2.1",
     "@ionic/app-scripts": "3.2.4",
     "@types/bluebird": "3.5.21",
     "@types/papaparse": "^5.0.1",
@@ -98,7 +99,6 @@
     "cordova-android": "^12.0.1",
     "cordova-plugin-camera": "^7.0.0",
     "cordova-plugin-file": "^8.0.0",
-    "cordova-plugin-firebase-analytics": "^7.0.5",
     "cordova-plugin-geolocation": "^5.0.0",
     "cordova-plugin-ionic-webview": "^5.0.1",
     "cordova-support-android-plugin": "~2.0.4",
@@ -165,6 +165,10 @@
       "cordova-plugin-firebase-analytics": {
         "ANALYTICS_COLLECTION_ENABLED": "true",
         "AUTOMATIC_SCREEN_REPORTING_ENABLED": "true",
+        "GOOGLE_ANALYTICS_DEFAULT_ALLOW_ANALYTICS_STORAGE": "false",
+        "GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_STORAGE": "false",
+        "GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_USER_DATA": "false",
+        "GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_PERSONALIZATION_SIGNALS": "false",
         "ANDROID_FIREBASE_BOM_VERSION": "30.3.1",
         "IOS_FIREBASE_POD_VERSION": "9.3.0"
       }

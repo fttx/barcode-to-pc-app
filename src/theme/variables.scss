@@ -222,3 +222,50 @@ $colors: (
     margin-top: 10px
   }
 }
+
+
+#qc-cmp2-main>div {
+  width: 90vw;
+  max-width: 300px;
+  height: 70vh;
+  min-height: 300px;
+  border: 1px solid #d6d6d6;
+  margin: auto;
+  display: block;
+  position: relative;
+  top: 78px;
+  box-shadow: 0 0 0 900px rgba(0, 0, 0, 0.2);
+
+  h2 {
+    padding: 10px 0;
+
+  }
+}
+
+#qc-cmp2-ui button {
+  border-radius: 5px !important;
+  box-shadow: none !important;
+  // set ionic classes: button-outline-md btp-btn-solid
+  font-weight: bold;
+}
+
+#qc-cmp2-ui button[mode="primary"] {
+  background-color: map-get($colors, primary);
+  color: white;
+  border-color: map-get($colors, primary);
+  border-radius: 3px !important;
+}
+
+#qc-cmp2-ui button[mode="secondary"] {
+  background-color: map-get($colors, text);
+  border-color: map-get($colors, primary);
+  color: map-get($colors, primary);
+  border-radius: 3px !important;
+}
+
+#qc-cmp2-ui button[mode="link"] {
+  text-decoration: underline;
+  font-weight: normal;
+}
+
+#qc-cmp2-container {}

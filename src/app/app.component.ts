@@ -337,11 +337,38 @@ export class MyApp {
           text: 'Agree',
           handler: () => {
             this.settings.setHasAcceptedTerms(true);
+            this.showInMobiConsentScreen();
           },
           cssClass: this.platform.is('android') ? 'button-outline-md btp-btn-solid button-ok' : null,
         }
       ],
       enableBackdropDismiss: false,
     }).present();
+  }
+
+
+  showInMobiConsentScreen() {
+    // Set an interval that checks every 100ms if the InMobi consent screen has beeb loaded and overrides the text of the .qc-cmp2-publisher-logo-container h2 element to "asd"
+    const overrideH2 = setInterval(() => {
+      if (document.querySelector('.qc-cmp2-publisher-logo-container h2')) {
+        document.querySelector('.qc-cmp2-publisher-logo-container h2').textContent = 'Cookie Policy';
+      }
+    }, 100);
+    setTimeout(() => { clearInterval(overrideH2); }, 5000);
+    window.ShowInMobiConsentScreen();
+    window.__tcfapi('addEventListener', 2, function (tcData, success) {
+      // console.log('tcData', tcData); // tcData doesn't contain anything useful
+
+      // Read the consent from the localStorage (see index.html)
+      const gaFlags = {
+        GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_STORAGE: localStorage.getItem('GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_STORAGE') || false,
+        GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_USER_DATA: localStorage.getItem('GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_USER_DATA') || false,
+        GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_PERSONALIZATION_SIGNALS: localStorage.getItem('GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_PERSONALIZATION_SIGNALS') || false,
+        GOOGLE_ANALYTICS_DEFAULT_ALLOW_ANALYTICS_STORAGE: localStorage.getItem('GOOGLE_ANALYTICS_DEFAULT_ALLOW_ANALYTICS_STORAGE') || false,
+      }
+
+      // Pass through the consent to the Firebase Analytics plugin
+      window.cordova.plugins.firebase.analytics.setAnalyticsConsent(gaFlags);
+    });
   }
 }
