@@ -6,6 +6,7 @@ import { AlertController } from 'ionic-angular';
 import 'rxjs/add/operator/map';
 import { barcodeFormatModel } from '../models/barcode-format.model';
 import { BarcodeScanResult, BarcodeScannerOptions } from '@fttx/barcode-scanner';
+import { BtpAlertController } from './btp-alert-controller/btp-alert-controller';
 
 /*
   Generated class for the Utils provider.
@@ -19,7 +20,7 @@ export class Utils {
 
   constructor(
     private network: Network,
-    private alertCtrl: AlertController,
+    private alertCtrl: BtpAlertController,
     private device: Device,
     private translateService: TranslateService,
   ) { }
@@ -368,7 +369,7 @@ export class Utils {
     for (const bracket of brackets) {
       const content = bracket.slice(2, bracket.length - 2)
       // eval the content
-      try{
+      try {
         codeResults.push(await this.evalCode(content, variables));
       } catch (e) {
         codeResults.push('error');

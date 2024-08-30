@@ -9,6 +9,7 @@ import { Settings } from '../../providers/settings';
 import { Utils } from '../../providers/utils';
 import { Subscription } from 'rxjs';
 import { responseModel, responseModelPutScanAck } from '../../models/response.model';
+import { BtpAlertController } from '../../providers/btp-alert-controller/btp-alert-controller';
 
 /**
  * Generated class for the ArchivedPage page.
@@ -32,7 +33,7 @@ export class ArchivedPage {
     private scanSessionsStorage: ScanSessionsStorage,
     private serverProvider: ServerProvider,
     private settings: Settings,
-    private alertCtrl: AlertController,
+    private alertCtrl: BtpAlertController,
     private utils: Utils,
     public device: Device,
   ) {
@@ -118,14 +119,14 @@ export class ArchivedPage {
       title: await this.utils.text('scanSessionDeleteDialogTitle'),
       message: await this.utils.text('scanSessionDeleteDialogMessage'),
       buttons: [{
-        text: await this.utils.text('scanSessionDeleteDialogCancelButton'),
-        role: 'cancel'
-      }, {
         text: await this.utils.text('scanSessionDeleteDialogDeleteButton'),
         handler: () => {
           this.archivedScanSessions = [];
           this.scanSessionsStorage.setArchivedScanSessions(this.archivedScanSessions);
         }
+      }, {
+        text: await this.utils.text('scanSessionDeleteDialogCancelButton'),
+        role: 'cancel'
       }]
     }).present();
   }
