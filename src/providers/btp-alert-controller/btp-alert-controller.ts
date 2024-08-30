@@ -25,7 +25,6 @@ export class BtpAlertController extends AlertController {
         }
       });
     }
-    console.log('options', options);
     return super.create(options);
   }
 }
