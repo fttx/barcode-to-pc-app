@@ -957,7 +957,6 @@ export class ScanProvider {
           title: label,
           message: showError ? errorMessage : null,
           enableBackdropDismiss: false,
-          cssClass: this.platform.is('android') ? 'alert-get-field alert-big-buttons' : null,
           inputs: [{ name: 'value', type: fieldType, placeholder: placeholder }],
           buttons: [{
             role: 'cancel', text: await this.utils.text('getFieldDialogCancelButton'),
@@ -1080,7 +1079,7 @@ export class ScanProvider {
       if (outputBlock.alertScanAgainButton) buttons.push({ text: outputBlock.alertScanAgainButton, role: 'cancel', handler: () => { pressedButton = 'scan_again'; } })
       if (outputBlock.alertDiscardScanButton) buttons.push({ text: outputBlock.alertDiscardScanButton, role: 'cancel', handler: () => { pressedButton = 'discard_scan'; } })
 
-      let alert = this.alertCtrl.create({ title: outputBlock.alertTitle, message: outputBlock.value, buttons: buttons, enableBackdropDismiss: false, cssClass: this.platform.is('android') ? 'alert-big-buttons' : null, });
+      let alert = this.alertCtrl.create({ title: outputBlock.alertTitle, message: outputBlock.value, buttons: buttons, enableBackdropDismiss: false, });
       alert.onDidDismiss(() => { resolve(pressedButton); });
 
       // Optional timeout logic

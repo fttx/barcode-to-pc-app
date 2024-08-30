@@ -95,26 +95,7 @@ $colors: (
 
 
 .md {
-  .button-md {
-    border-radius: 100px !important;
-    box-shadow: none !important;
-  }
 
-  ion-item-options .button-md {
-    border-radius: 0 !important;
-  }
-
-  .alert-input-group {
-    padding-bottom: 8px !important;
-  }
-
-  .button-generic .button-inner {
-    justify-content: center !important;
-  }
-
-  .button-generic {
-    margin-bottom: 20px !important;
-  }
 
   .button-ok {
     color: white !important;
@@ -137,10 +118,6 @@ $colors: (
 
   .alert-get-field .alert-message {
     color: map-get($colors, dager) !important;
-  }
-
-  .alert-big-buttons .alert-button-group {
-    padding-bottom: 24px !important;
   }
 
   .alert-button.btp-btn-solid {
@@ -217,8 +194,6 @@ $colors: (
   padding: 12px !important;
 }
 
-
-
 // btp-toast
 .md {
   .scroll-content {
@@ -282,20 +257,44 @@ $colors: (
 
 // BTPv2 alert
 .btpv2-alert {
+  @media screen and (max-height: 400px) {
+    padding-top: 8px !important;
+  }
+
+  .button-md {
+    border-radius: 100px !important;
+    box-shadow: none !important;
+  }
+
+  ion-item-options .button-md {
+    border-radius: 0 !important;
+  }
+
+  .alert-input-group {
+    padding-bottom: 8px !important;
+  }
+
+  .alert-head {
+    padding-bottom: 0 !important;
+  }
+
   .alert-wrapper {
     border-radius: 20px !important;
     width: 85vw !important;
     max-width: 350px !important;
+    justify-content: space-between !important;
+    min-height: 250px;
   }
 
   .alert-message {
     color: #4f4f4f !important;
+    margin-top: 10px;
+    padding-bottom: 0 !important;
   }
 
   .btpv2-btn {
     justify-content: center !important;
-    margin: 8px 8px 0 0 !important;
-    width: 100% !important;
+    margin: 8px 0 0 0 !important;
     text-align: center !important;
 
     .button-inner {
@@ -305,7 +304,8 @@ $colors: (
 
   .alert-button-group {
     flex-direction: column !important;
-    padding-bottom: 23px !important;
+    padding: 0px 23px 23px 23px !important;
+    margin: 6px 0 0 0 !important;
   }
 
   .btpv2-btn-primary {
@@ -328,4 +328,21 @@ $colors: (
     font-weight: normal !important;
   }
 
+  .alert-input {
+    border: 1px solid map-get($colors, info) !important;
+    border-radius: 4px !important;
+    padding: 10px !important;
+  }
+
+  .alert-input:focus {
+    border: 1px solid map-get($colors, primary) !important;
+  }
+}
+
+.btp-get-more-scans-alert {
+  img {
+    opacity: .6;
+    width: 16px;
+    margin: 8px 1px -3px 0;
+  }
 }
