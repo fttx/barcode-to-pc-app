@@ -8,7 +8,7 @@ import * as ipUtils from 'ip-utils';
 import { Observable, Subject } from 'rxjs';
 import { SemVer } from 'semver';
 import { discoveryResultModel } from '../models/discovery-result';
-import { requestModel, requestModelDeleteScanSessions, requestModelGetVersion, requestModelHelo, requestModelPing, requestModelPutScanSessions } from '../models/request.model';
+import { requestModel, requestModelDeleteScanSessions, requestModelEmailIncentiveCompleted, requestModelGetVersion, requestModelHelo, requestModelPing, requestModelPutScanSessions } from '../models/request.model';
 import { responseModel, responseModelEnableQuantity, responseModelHelo, responseModelKick, responseModelPopup, responseModelUpdateSettings } from '../models/response.model';
 import { wsEvent } from '../models/ws-event.model';
 import { HelpPage } from '../pages/help/help';
@@ -270,6 +270,8 @@ export class ServerProvider {
           buttons: [await this.utils.text('responseModalDialogOkButton')]
         });
         this.popup.present();
+      } else if (messageData.action == responseModel.ACTION_SHOW_EMAIL_INCENTIVE_ALERT) {
+        this.showEmailIncentiveAlert();
       } else if (messageData.action == responseModel.ACTION_UPDATE_SETTINGS) {
         let responseModelUpdateSettings: responseModelUpdateSettings = messageData;
         await this.settings.setOutputProfiles(responseModelUpdateSettings.outputProfiles);
@@ -592,5 +594,70 @@ export class ServerProvider {
       this.isVersionMismatchDialogVisible = true;
       dialog.present();
     }
+  }
+
+  private emailIncentiveAlert: BTPAlert = null;
+  private inputEmailAlert: BTPAlert = null;
+  private invalidEmailAlert: BTPAlert = null;
+  private async showEmailIncentiveAlert() {
+    if (this.emailIncentiveAlert) this.emailIncentiveAlert.dismiss();
+    if (this.inputEmailAlert) this.inputEmailAlert.dismiss();
+    if (this.invalidEmailAlert) this.invalidEmailAlert.dismiss();
+    this.emailIncentiveAlert = this.alertCtrl.create({
+      title: await this.utils.text('Get More Scans'),
+      message: `
+        You've just scanned your first 10 barcodes! 🚀<br><br>
+        Barcode to PC allows up to 200 scans per month for free.<br><br>
+        Click the button below to increase the limit from 200 to 300 scans per month, so that you can keep testing:`,
+      buttons: [
+        {
+          text: await this.utils.text('Increase Limit for FREE'), handler: () => {
+            this.inputEmailAlert = this.alertCtrl.create({
+              cssClass: 'btp-get-more-scans-alert',
+              inputs: [{ name: 'email', type: 'email', placeholder: 'Business Email', value: localStorage.getItem('email') || '' },],
+              title: 'Get More Scans',
+              message: `
+                <img src="assets/scan/rocket.png"> Increased 300 scans per month<br>
+                <img src="assets/scan/lock.png"> Barcode data stays local to your computer
+              `,
+              buttons: [{
+                text: 'Increase Limit for FREE', handler: (data) => {
+                  localStorage.setItem('email', data.email);
+
+                  if (!this.isConnected()) {
+                    this.alertCtrl.create({
+                      title: 'App not connected',
+                      message: 'Please connect to the app to the server program to increase your scan limit.',
+                      buttons: [{ text: 'Try again', handler: () => { this.showEmailIncentiveAlert(); } }],
+                    }).present();
+                    return false;
+                  }
+                  const isValidEmail = data.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email);
+                  if (!isValidEmail) {
+                    this.invalidEmailAlert = this.alertCtrl.create({
+                      title: 'Invalid Email',
+                      message: 'Please enter a valid email address',
+                      buttons: [{ text: 'Try again', handler: () => { this.showEmailIncentiveAlert(); } }],
+                    });
+                    this.invalidEmailAlert.present();
+                    return false;
+                  }
+                  this.send(new requestModelEmailIncentiveCompleted().fromObject({ email: data.email }));
+                  this.alertCtrl.create({
+                    title: 'Success 🎉',
+                    message: 'You have successfully increased your limit to 300 scans per month. Enjoy!',
+                    buttons: [{ text: 'Close' }],
+                  }).present();
+                },
+              }, { text: 'Cancel', role: 'text-cancel', handler: () => { }, },
+              ]
+            });
+            this.inputEmailAlert.present();
+          },
+        },
+        { text: await this.utils.text('I want less scans'), role: 'text-cancel', handler: () => { }, },
+      ]
+    });
+    this.emailIncentiveAlert.present();
   }
 }

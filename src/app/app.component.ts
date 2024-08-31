@@ -24,6 +24,9 @@ import { TranslateService } from '@ngx-translate/core';
 import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 import { BtpToastService } from '../components/btp-toast/btp-toast.service';
 import { BtpAlertController } from '../providers/btp-alert-controller/btp-alert-controller';
+import { requestModelEmailIncentiveCompleted } from '../models/request.model';
+import { ServerProvider } from '../providers/server';
+import { responseModel } from '../models/response.model';
 
 @Component({
   templateUrl: 'app.html',
@@ -350,7 +353,7 @@ export class MyApp {
 
 
   showInMobiConsentScreen() {
-    // Set an interval that checks every 100ms if the InMobi consent screen has beeb loaded and overrides the text of the .qc-cmp2-publisher-logo-container h2 element to "asd"
+    // Set an interval that checks every 100ms if the InMobi consent screen has been loaded and overrides the text of the .qc-cmp2-publisher-logo-container h2 element to "Cookie Policy"
     const overrideH2 = setInterval(() => {
       if (document.querySelector('.qc-cmp2-publisher-logo-container h2')) {
         document.querySelector('.qc-cmp2-publisher-logo-container h2').textContent = 'Cookie Policy';
@@ -369,7 +372,7 @@ export class MyApp {
         GOOGLE_ANALYTICS_DEFAULT_ALLOW_ANALYTICS_STORAGE: localStorage.getItem('GOOGLE_ANALYTICS_DEFAULT_ALLOW_ANALYTICS_STORAGE') || false,
       }
 
-      // Pass through the consent to the Firebase Analytics plugin
+      // Pass the consent flags to the Firebase Analytics native plugin
       window.cordova.plugins.firebase.analytics.setAnalyticsConsent(gaFlags);
     });
   }

@@ -20,6 +20,7 @@ export abstract class responseModel {
     public static readonly ACTION_KICK = 'kick';
     public static readonly ACTION_REMOTE_COMPONENT_RESPONSE = 'remoteComponentResponse';
     public static readonly EVENT_ON_SMARTPHONE_CHARGE = 'on_smartphone_charge';
+    public static readonly ACTION_SHOW_EMAIL_INCENTIVE_ALERT = 'action_show_email_incentive_alert';
 }
 
 /**
@@ -48,7 +49,7 @@ export class responseModelHelo extends responseModel {
      */
     quantityEnabled: boolean;
 
-    public fromObject(obj: ({ version: string, outputProfiles: OutputProfileModel[], quantityEnabled: boolean, events: string[], serverUUID:string, savedGeoLocations: { name: string, latitude: number, longitude: number }[] })) {
+    public fromObject(obj: ({ version: string, outputProfiles: OutputProfileModel[], quantityEnabled: boolean, events: string[], serverUUID: string, savedGeoLocations: { name: string, latitude: number, longitude: number }[] })) {
         this.outputProfiles = obj.outputProfiles;
         if (obj.events) {
             this.events = obj.events;
@@ -96,6 +97,14 @@ export class responseModelPopup extends responseModel {
     public fromObject(obj: ({ title: string, message: string })) {
         this.title = obj.title;
         this.message = obj.message;
+        return this;
+    }
+}
+
+export class responseModelShowEmailIncentiveAlert extends responseModel {
+    action = responseModel.ACTION_SHOW_EMAIL_INCENTIVE_ALERT;
+
+    public fromObject(obj: ({})) {
         return this;
     }
 }

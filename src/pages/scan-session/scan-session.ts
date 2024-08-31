@@ -120,7 +120,6 @@ export class ScanSessionPage {
   }
 
   async ionViewDidEnter() {
-    this.showGiftAlert();
     this.isVisible = true;
     window.cordova.plugins.firebase.analytics.setCurrentScreen("ScanSessionPage");
     this.responseSubscription = this.serverProvider.onMessage().subscribe(message => {
@@ -371,21 +370,6 @@ export class ScanSessionPage {
     if (this.realtimeSend) this.sendPutScan(scan);
   }
 
-  private async showGiftAlert() {
-    this.alertCtrl.create({
-      title: await this.utils.text('Get More Scans'),
-      message: `
-        You've just scanned your first 10 barcodes! 🚀<br><br>
-        Barcode to PC allows up to 200 scans per month for free.<br><br>
-        Click the button below to increase the limit from 200 to 300 scans per month, so that you can keep testing:`,
-      buttons: [
-        { text: await this.utils.text('Increase Limit for FREE'), handler: () => { }, },
-        { text: await this.utils.text('I want less scans'), role: 'text-cancel', handler: () => { }, },
-      ]
-    }).present();
-  }
-
-
   private showImage(scan) {
     const imageBlock = scan.outputBlocks.find(x => x.type == 'image');
     if (this.platform.is('ios')) {
@@ -419,18 +403,15 @@ export class ScanSessionPage {
           text: await this.utils.text('alreadyReceivedScanDialogViewImageButton'), handler: () => {
             this.showImage(scan);
           },
-          cssClass: this.platform.is('android') ? 'button-outline-md button-generic' : null,
           role: 'cancel',
         });
       }
       buttons.push({
         text: await this.utils.text('alreadyReceivedScanCancelButton'), role: 'cancel', handler: () => { },
-        cssClass: this.platform.is('android') ? 'button-outline-md ' + (scan.hasImage ? 'button-generic' : '') : null,
       });
       this.alertCtrl.create({
         title: await this.utils.text('alreadyReceivedScanDialogTitle'),
         message: await this.utils.text('alreadyReceivedScanDialogMessage'),
-        // cssClass: this.platform.is('android') ? 'alert-get-field alert-big-buttons' : null,
         buttons: buttons,
       }).present();
     } else {
