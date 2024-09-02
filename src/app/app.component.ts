@@ -373,18 +373,9 @@ export class MyApp {
     }, 100);
     setTimeout(() => { clearInterval(overrideH2); }, 5000);
     window.ShowInMobiConsentScreen();
-    window.__tcfapi('addEventListener', 2, function (tcData, success) {
+    window.__tcfapi('addEventListener', 2, (tcData, success) => {
       // console.log('tcData', tcData); // tcData doesn't contain anything useful
-
-      // We use this hack to intercept the consent data from the InMobi consent screen that is pushed to the datalayer (see index.html)
-      const gaFlags = {
-        GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_STORAGE: localStorage.getItem('GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_STORAGE') || false,
-        GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_USER_DATA: localStorage.getItem('GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_USER_DATA') || false,
-        GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_PERSONALIZATION_SIGNALS: localStorage.getItem('GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_PERSONALIZATION_SIGNALS') || false,
-        GOOGLE_ANALYTICS_DEFAULT_ALLOW_ANALYTICS_STORAGE: localStorage.getItem('GOOGLE_ANALYTICS_DEFAULT_ALLOW_ANALYTICS_STORAGE') || false,
-      }
-      // Pass the consent flags to the Firebase Analytics native plugin
-      window.cordova.plugins.firebase.analytics.setAnalyticsConsent(gaFlags);
+      this.enableGoogleAnalyticsConsent();
     });
   }
 
@@ -408,12 +399,24 @@ export class MyApp {
   }
 
   enableGoogleAnalyticsConsent() {
-    const gaFlags = {
-      GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_STORAGE: true,
-      GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_USER_DATA: true,
-      GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_PERSONALIZATION_SIGNALS: true,
-      GOOGLE_ANALYTICS_DEFAULT_ALLOW_ANALYTICS_STORAGE: true,
+    if (this.platform.is('ios')) {
+      const gaFlags = {
+        GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_STORAGE: true,
+        GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_USER_DATA: true,
+        GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_PERSONALIZATION_SIGNALS: true,
+        GOOGLE_ANALYTICS_DEFAULT_ALLOW_ANALYTICS_STORAGE: true,
+      }
+      window.cordova.plugins.firebase.analytics.setAnalyticsConsent(gaFlags);
+    } else {
+      // We use this hack to intercept the consent data from the InMobi consent screen that is pushed to the datalayer (see index.html)
+      const gaFlags = {
+        GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_STORAGE: localStorage.getItem('GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_STORAGE') || false,
+        GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_USER_DATA: localStorage.getItem('GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_USER_DATA') || false,
+        GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_PERSONALIZATION_SIGNALS: localStorage.getItem('GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_PERSONALIZATION_SIGNALS') || false,
+        GOOGLE_ANALYTICS_DEFAULT_ALLOW_ANALYTICS_STORAGE: localStorage.getItem('GOOGLE_ANALYTICS_DEFAULT_ALLOW_ANALYTICS_STORAGE') || false,
+      }
+      // Pass the consent flags to the Firebase Analytics native plugin
+      window.cordova.plugins.firebase.analytics.setAnalyticsConsent(gaFlags);
     }
-    window.cordova.plugins.firebase.analytics.setAnalyticsConsent(gaFlags);
   }
 }
