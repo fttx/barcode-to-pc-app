@@ -268,7 +268,7 @@
   "alreadyReceivedScanDialogViewImageButton": "Visualizza immagine",
   "================================SCAN_PROVIDER================================": "",
   "settingsUpdatedDialogTitle": "Impostazioni aggiornate",
-  "settingsUpdatedDialogMessage": "Le impostazioni del server sono state aggiornate. Per applicare le modifiche anche sul lato app, tocca il pulsante della fotocamera.",
+  "settingsUpdatedDialogMessage": "Le impostazioni del server sono state aggiornate. Per applicare le modifiche fai tap sul bottone rosso a forma di fotocamera.",
   "settingsUpdatedDialogOkButton": "Ok",
   "showSelectOptionDialogOkButton": "Ok",
   "getFieldDialogCancelButton": "Annulla",

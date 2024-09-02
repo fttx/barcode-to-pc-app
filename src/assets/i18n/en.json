@@ -268,7 +268,7 @@
   "alreadyReceivedScanDialogViewImageButton": "View image",
   "================================SCAN_PROVIDER================================": "",
   "settingsUpdatedDialogTitle": "Settings updated",
-  "settingsUpdatedDialogMessage": "The server settings have been updated. To apply the changes also to the app side tap on the camera button.",
+  "settingsUpdatedDialogMessage": "The server settings have been updated.<br><br>To apply the changes tap on the camera button.",
   "settingsUpdatedDialogOkButton": "Ok",
   "showSelectOptionDialogOkButton": "Ok",
   "getFieldDialogCancelButton": "Cancel",
