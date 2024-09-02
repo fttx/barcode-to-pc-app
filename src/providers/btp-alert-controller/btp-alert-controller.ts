@@ -1,7 +1,5 @@
-import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { AlertController, AlertOptions, Alert, NavOptions } from 'ionic-angular';
-import { duration } from 'moment';
+import { Alert, AlertController, AlertOptions, App, Config, Events, NavOptions } from 'ionic-angular';
 
 /*
   Generated class for the BtpAlertControllerProvider provider.
@@ -11,6 +9,9 @@ import { duration } from 'moment';
 */
 @Injectable()
 export class BtpAlertController extends AlertController {
+  constructor(private app: App, config: Config, private events: Events) {
+    super(app, config);
+  }
   create(options: AlertOptions): BTPAlert {
     options.enableBackdropDismiss = options.enableBackdropDismiss !== undefined ? options.enableBackdropDismiss : false;
     options.cssClass = options.cssClass ? `btpv2-alert ${options.cssClass}` : 'btpv2-alert';
@@ -25,15 +26,27 @@ export class BtpAlertController extends AlertController {
         }
       });
     }
-    return super.create(options);
+    const alert = new BTPAlert(this.app, options, this.config, this.events);
+    alert.onWillDismiss(() => { this.events.publish('btp-alert:dismiss', alert.id); });
+    return alert;
   }
 }
 
 export class BTPAlert extends Alert {
+  constructor(app: App, opts: AlertOptions, config: Config, private events: Events) {
+    super(app, opts, config);
+  }
   present(navOptions?: NavOptions): Promise<any> {
-    navOptions.animate = navOptions.animate !== undefined ? navOptions.animate : true;
-    navOptions.duration = navOptions.duration !== undefined ? navOptions.duration : 600;
-    navOptions.easing = navOptions.easing !== undefined ? navOptions.easing : 'ease-in-out';
-    return super.present(navOptions);
+    navOptions = {
+      ...{
+        animate: true,
+        duration: 600,
+        easing: 'ease-in-out',
+      },
+      ...navOptions
+    };
+    const result = super.present(navOptions);
+    this.events.publish('btp-alert:present', navOptions.id);
+    return result;
   }
 }

@@ -17,7 +17,8 @@ btp-toast {
   }
 }
 
-.btp-ionic-transitioning btp-toast {
+.btp-ionic-transitioning btp-toast,
+.btp-ionic-menu-open btp-toast {
   display: none;
 }
 

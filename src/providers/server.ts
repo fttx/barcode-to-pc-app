@@ -3,7 +3,7 @@ import { AppVersion } from '@ionic-native/app-version';
 import { Device } from '@ionic-native/device';
 import { NetworkInterface } from '@ionic-native/network-interface';
 import { Zeroconf } from '@ionic-native/zeroconf';
-import { Alert, AlertController, Events, Platform } from 'ionic-angular';
+import { Events, Platform } from 'ionic-angular';
 import * as ipUtils from 'ip-utils';
 import { Observable, Subject } from 'rxjs';
 import { SemVer } from 'semver';
@@ -15,7 +15,6 @@ import { HelpPage } from '../pages/help/help';
 import { Settings } from '../providers/settings';
 import { ServerModel } from './../models/server.model';
 import { Config } from './config';
-import { LastToastProvider } from './last-toast/last-toast';
 import { ScanSessionsStorage } from './scan-sessions-storage';
 import { Utils } from './utils';
 import { BtpToastService } from '../components/btp-toast/btp-toast.service';
@@ -604,32 +603,32 @@ export class ServerProvider {
     if (this.inputEmailAlert) this.inputEmailAlert.dismiss();
     if (this.invalidEmailAlert) this.invalidEmailAlert.dismiss();
     this.emailIncentiveAlert = this.alertCtrl.create({
-      title: await this.utils.text('Get More Scans'),
+      title: await this.utils.text('Continue for Free!'),
       message: `
-        You've just scanned your first 10 barcodes! 🚀<br><br>
-        Barcode to PC allows up to 200 scans per month for free.<br><br>
-        Click the button below to increase the limit from 200 to 300 scans per month, so that you can keep testing:`,
+        Congrats! You've just scanned your first 10 barcodes 🚀<br><br>
+        Barcode to PC allows up to 300 scans per month for free.`,
       buttons: [
         {
-          text: await this.utils.text('Increase Limit for FREE'), handler: () => {
+          text: await this.utils.text('Continue with Free'), handler: () => {
             this.inputEmailAlert = this.alertCtrl.create({
               cssClass: 'btp-get-more-scans-alert',
               inputs: [{ name: 'email', type: 'email', placeholder: 'Business Email', value: localStorage.getItem('email') || '' },],
-              title: 'Get More Scans',
+              title: "You're doing great!",
               message: `
-                <img src="assets/scan/rocket.png"> Increased 300 scans per month<br>
-                <img src="assets/scan/lock.png"> Barcode data stays local to your computer
+                <img src="assets/scan/rocket.png"> 300 scans per month<br>
+                <img src="assets/scan/lock.png"> Data stays local to your computer
               `,
               buttons: [{
-                text: 'Increase Limit for FREE', handler: (data) => {
+                text: 'Continue with Free', handler: (data) => {
                   localStorage.setItem('email', data.email);
+
 
                   if (!this.isConnected()) {
                     this.alertCtrl.create({
                       title: 'App not connected',
                       message: 'Please connect to the app to the server program to increase your scan limit.',
                       buttons: [{ text: 'Try again', handler: () => { this.showEmailIncentiveAlert(); } }],
-                    }).present();
+                    }).present({ id: 'incentive_email' });
                     return false;
                   }
                   const isValidEmail = data.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email);
@@ -639,25 +638,29 @@ export class ServerProvider {
                       message: 'Please enter a valid email address',
                       buttons: [{ text: 'Try again', handler: () => { this.showEmailIncentiveAlert(); } }],
                     });
-                    this.invalidEmailAlert.present();
+                    this.invalidEmailAlert.present({ id: 'incentive_email' });
                     return false;
                   }
                   this.send(new requestModelEmailIncentiveCompleted().fromObject({ email: data.email }));
                   this.alertCtrl.create({
                     title: 'Success 🎉',
                     message: 'You have successfully increased your limit to 300 scans per month. Enjoy!',
-                    buttons: [{ text: 'Close' }],
-                  }).present();
+                    buttons: [{
+                      text: 'Close', handler: () => { }
+                    }],
+                  }).present({ id: 'incentive_email' });
                 },
               }, { text: 'Cancel', role: 'text-cancel', handler: () => { }, },
               ]
             });
-            this.inputEmailAlert.present();
+            this.inputEmailAlert.present({ id: 'incentive_email' });
           },
         },
-        { text: await this.utils.text('I want less scans'), role: 'text-cancel', handler: () => { }, },
+        {
+          text: await this.utils.text('Cancel'), role: 'text-cancel', handler: () => { },
+        },
       ]
     });
-    this.emailIncentiveAlert.present();
+    this.emailIncentiveAlert.present({ id: 'incentive_email' });
   }
 }

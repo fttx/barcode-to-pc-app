@@ -98,7 +98,7 @@ export class ScanSessionPage {
 
   @HostListener('window:keyup', ['$event'])
   keyEvent(event: KeyboardEvent) {
-    if (!this.isVisible || EditScanSessionPage.IsVisible || SelectScanningModePage.IsVisible) return;
+    if (!this.isVisible || EditScanSessionPage.IsVisible || SelectScanningModePage.IsVisible || this.keyboardInput.isDisabled() || document.querySelector('ion-alert') != null) return;
 
     this.ngZone.run(() => {
       if (event.keyCode == 13 && this.keyboardInput.value.length > 0) {
@@ -228,6 +228,10 @@ export class ScanSessionPage {
 
     this.events.subscribe('settings:save', async () => {
       this.realtimeSend = await this.settings.getRealtimeSendEnabled();
+    });
+
+    this.events.subscribe('btp-alert:present', async (id) => {
+      if (id == 'incentive_email') { this.keyboardInput.blur(); }
     });
 
     if (this.onConnectSubscription != null) this.onConnectSubscription.unsubscribe();

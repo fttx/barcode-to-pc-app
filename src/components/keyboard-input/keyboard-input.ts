@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, ViewChild } from '@angular/core';
 import { Platform } from 'ionic-angular';
 import { Subject } from 'rxjs';
 
@@ -16,10 +16,12 @@ export class KeyboardInputComponent {
   public placeholder = 'Keyboard input';
   public hasError = false;
 
-  private locked = false;
+  public disabled = false;
+  public locked = false;
 
   constructor(
     public platform: Platform,
+    public cdr: ChangeDetectorRef
   ) {
   }
 
@@ -32,6 +34,17 @@ export class KeyboardInputComponent {
     // rightaway so we skip the first setFocus and only do the second immediatelly
     let ms = this.platform.is('ios') ? 100 : 900;
     setTimeout(() => this.ionInput.setFocus(), delay ? ms : 0);
+  }
+
+  public blur() {
+    this.ionInput.getNativeElement().querySelector('input').blur();
+    let blurcount = 0;
+    const blurrer = setInterval(() => {
+      this.ionInput.getNativeElement().querySelector('input').blur();
+      if (blurcount++ > 10) {
+        clearInterval(blurrer);
+      }
+    }, 100);
   }
 
   public submit() {
@@ -75,5 +88,23 @@ export class KeyboardInputComponent {
   public unlock() {
     this.locked = false;
     this.setPlaceholder(null);
+  }
+
+  public disable(disabled: boolean) {
+    this.disabled = disabled;
+  }
+
+  public isDisabled() {
+    return this.disabled;
+  }
+
+  public onFocus() {
+    this._focussed = true;
+    this.cdr.detectChanges();
+  }
+
+  public onBlur() {
+    this._focussed = false;
+    this.cdr.detectChanges();
   }
 }
