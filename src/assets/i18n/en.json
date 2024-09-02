@@ -329,6 +329,7 @@
   "barcodeToPcServer": "Barcode to PC server",
   "appName": "Barcode to PC",
   "dontShowUntilNextUpdateLabel": "Don't show until next update",
+  "incentiveEmailMessage": "<img src=\"assets/scan/rocket.png\"> 300 scans per month<br><img src=\"assets/scan/lock.png\"> Data stays local to your computer",
   "================================MENU=========================================": "",
   "mainHeader": "Main",
   "scanSessions": "Scan sessions",
