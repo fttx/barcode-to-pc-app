@@ -126,7 +126,7 @@ export class MyApp {
 
         if (!hasAcceptedTerms) {
           if (platform.is('ios')) {
-            this.enableGoogleAnalyticsConsent();
+            this.enableGoogleAnalyticsConsent(true);
             this.showIOSIDFATrackingDialog();
             this.settings.setHasAcceptedTerms(true); // Enable GA4 consent -> Request optional IDFA -> (Save to avoid showing the dialog again)
           } else {
@@ -313,7 +313,7 @@ export class MyApp {
           // If had 4.0.0+ installed
           if (lastVersion.compare('4.0.0') >= 0) {
             this.settings.setHasAcceptedTerms(true);
-            this.enableGoogleAnalyticsConsent();
+            this.enableGoogleAnalyticsConsent(true);
           }
         }
         await this.settings.setLastVersion(currentVersion.version);
@@ -375,7 +375,11 @@ export class MyApp {
     window.ShowInMobiConsentScreen();
     window.__tcfapi('addEventListener', 2, (tcData, success) => {
       // console.log('tcData', tcData); // tcData doesn't contain anything useful
-      this.enableGoogleAnalyticsConsent();
+      if ((tcData && tcData.gdprApplies == false) || this.platform.is('ios')) {
+        this.enableGoogleAnalyticsConsent(true);
+      } else {
+        this.enableGoogleAnalyticsConsent();
+      }
     });
   }
 
@@ -398,8 +402,8 @@ export class MyApp {
       .then(idfaOrAaid => { if (idfaOrAaid) { console.log(idfaOrAaid); } });
   }
 
-  enableGoogleAnalyticsConsent() {
-    if (this.platform.is('ios')) {
+  enableGoogleAnalyticsConsent(forceToTrue = false) {
+    if (forceToTrue) {
       const gaFlags = {
         GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_STORAGE: true,
         GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_USER_DATA: true,
