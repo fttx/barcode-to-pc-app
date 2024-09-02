@@ -601,6 +601,7 @@ export class ServerProvider {
   private inputEmailAlert: BTPAlert = null;
   private invalidEmailAlert: BTPAlert = null;
   private async showEmailIncentiveAlert() {
+    window.cordova.plugins.firebase.analytics.logEvent('email_incentive_alert_show', {});
     if (this.emailIncentiveAlert) this.emailIncentiveAlert.dismiss();
     if (this.inputEmailAlert) this.inputEmailAlert.dismiss();
     if (this.invalidEmailAlert) this.invalidEmailAlert.dismiss();
@@ -643,7 +644,9 @@ export class ServerProvider {
                     title: this.translateService.instant('Success 🎉'),
                     message: this.translateService.instant('You have successfully unlocked the Free scans! Enjoy!'),
                     buttons: [{
-                      text: this.translateService.instant('Close'), handler: () => { }
+                      text: this.translateService.instant('Close'), handler: () => {
+                        window.cordova.plugins.firebase.analytics.logEvent('email_incentive_alert_success', {});
+                      }
                     }],
                   }).present({ id: 'incentive_email' });
                 },
