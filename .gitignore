@@ -37,3 +37,4 @@ UserInterfaceState.xcuserstate
 google-services.json
 GoogleService-Info.plist
 .env
+./src/assets/i18n/partials
