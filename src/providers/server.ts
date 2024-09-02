@@ -19,6 +19,7 @@ import { ScanSessionsStorage } from './scan-sessions-storage';
 import { Utils } from './utils';
 import { BtpToastService } from '../components/btp-toast/btp-toast.service';
 import { BTPAlert, BtpAlertController } from './btp-alert-controller/btp-alert-controller';
+import { TranslateService } from '@ngx-translate/core';
 // Warning: do not import ScanProvider to prevent circular dependency
 // To communicate with ScanProvider use global events.
 
@@ -75,6 +76,7 @@ export class ServerProvider {
     private appVersion: AppVersion,
     private scanSessionsStorage: ScanSessionsStorage,
     private utils: Utils,
+    private translateService: TranslateService,
   ) {
     window['server'] = { connected: false };
   }
@@ -603,30 +605,25 @@ export class ServerProvider {
     if (this.inputEmailAlert) this.inputEmailAlert.dismiss();
     if (this.invalidEmailAlert) this.invalidEmailAlert.dismiss();
     this.emailIncentiveAlert = this.alertCtrl.create({
-      title: await this.utils.text('Continue for Free!'),
-      message: `
+      title: this.translateService.instant('Continue for Free!'),
+      message: this.translateService.instant(`
         Congrats! You've just scanned your first 10 barcodes 🚀<br><br>
-        Barcode to PC allows up to 300 scans per month for free.`,
+        Barcode to PC allows up to 300 scans per month for free.`),
       buttons: [
         {
           text: await this.utils.text('Continue with Free'), handler: () => {
             this.inputEmailAlert = this.alertCtrl.create({
               cssClass: 'btp-get-more-scans-alert',
-              inputs: [{ name: 'email', type: 'email', placeholder: 'Business Email', value: localStorage.getItem('email') || '' },],
-              title: "You're doing great!",
-              message: `
-                <img src="assets/scan/rocket.png"> 300 scans per month<br>
-                <img src="assets/scan/lock.png"> Data stays local to your computer
-              `,
+              inputs: [{ name: 'email', type: 'email', placeholder: this.translateService.instant('Business Email'), value: localStorage.getItem('email') || '' },],
+              title: this.translateService.instant('Continue with Free'),
+              message: this.translateService.instant('incentiveEmailMessage'),
               buttons: [{
                 text: 'Continue with Free', handler: (data) => {
                   localStorage.setItem('email', data.email);
-
-
                   if (!this.isConnected()) {
                     this.alertCtrl.create({
-                      title: 'App not connected',
-                      message: 'Please connect to the app to the server program to increase your scan limit.',
+                      title: this.translateService.instant('App not connected'),
+                      message: this.translateService.instant('Please connect to the app to the server program to continue.'),
                       buttons: [{ text: 'Try again', handler: () => { this.showEmailIncentiveAlert(); } }],
                     }).present({ id: 'incentive_email' });
                     return false;
@@ -634,23 +631,23 @@ export class ServerProvider {
                   const isValidEmail = data.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email);
                   if (!isValidEmail) {
                     this.invalidEmailAlert = this.alertCtrl.create({
-                      title: 'Invalid Email',
-                      message: 'Please enter a valid email address',
-                      buttons: [{ text: 'Try again', handler: () => { this.showEmailIncentiveAlert(); } }],
+                      title: this.translateService.instant('Invalid Email'),
+                      message: this.translateService.instant('Please enter a valid email address'),
+                      buttons: [{ text: this.translateService.instant('Try again'), handler: () => { this.showEmailIncentiveAlert(); } }],
                     });
                     this.invalidEmailAlert.present({ id: 'incentive_email' });
                     return false;
                   }
                   this.send(new requestModelEmailIncentiveCompleted().fromObject({ email: data.email }));
                   this.alertCtrl.create({
-                    title: 'Success 🎉',
-                    message: 'You have successfully increased your limit to 300 scans per month. Enjoy!',
+                    title: this.translateService.instant('Success 🎉'),
+                    message: this.translateService.instant('You have successfully unlocked the Free scans! Enjoy!'),
                     buttons: [{
-                      text: 'Close', handler: () => { }
+                      text: this.translateService.instant('Close'), handler: () => { }
                     }],
                   }).present({ id: 'incentive_email' });
                 },
-              }, { text: 'Cancel', role: 'text-cancel', handler: () => { }, },
+              }, { text: this.translateService.instant('Cancel'), role: 'text-cancel', handler: () => { }, },
               ]
             });
             this.inputEmailAlert.present({ id: 'incentive_email' });
