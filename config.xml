@@ -140,6 +140,10 @@
         <edit-config file="*-Info.plist" mode="merge" target="NSLocationAlwaysUsageDescription">
             <string>need location access to save the barcode location</string>
         </edit-config>
+        <edit-config file="*-Info.plist" mode="merge" target="NSUserTrackingUsageDescription">
+            <string>We use your data to collect statistics and improve our services. Your barcode data
+        remains secure and is not shared.</string>
+        </edit-config>
     </platform>
     <allow-navigation href="http://localhost:8100" sessionid="7f783d98" />
     <allow-navigation href="http://192.168.43.57:8100" sessionid="bcc13cbd" />

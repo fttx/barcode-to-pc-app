@@ -99,7 +99,7 @@ export class MyApp {
         });
       }
 
-      Promise.all([this.settings.getNoRunnings(), this.settings.getEverConnected(), this.settings.getAlwaysSkipWelcomePage(), this.upgrade(), this.settings.getKeepDisplayOn(), this.settings.getHasAcceptedTerms()]).then((results: any[]) => {
+      Promise.all([this.settings.getNoRunnings(), this.settings.getEverConnected(), this.settings.getAlwaysSkipWelcomePage(), this.upgrade(), this.settings.getKeepDisplayOn(), this.settings.getHasAcceptedTerms()]).then(async (results: any[]) => {
         let runnings = results[0];
         let everConnected = results[1];
         let alwaysSkipWelcomePage = results[2];
@@ -124,8 +124,14 @@ export class MyApp {
           statusBar.overlaysWebView(true);
         }
 
-        if (platform.is('android') && !hasAcceptedTerms && runnings < Config.NO_RUNNINGS_BEFORE_SHOW_RATING) {
-          this.showProminentDisclosureDialog();
+        if (!hasAcceptedTerms) {
+          if (platform.is('ios')) {
+            this.enableGoogleAnalyticsConsent();
+            this.showIOSIDFATrackingDialog();
+            this.settings.setHasAcceptedTerms(true); // Enable GA4 consent -> Request optional IDFA -> (Save to avoid showing the dialog again)
+          } else {
+            this.showProminentDisclosureDialog(); // prominent disclosure -> inmobi consent -> enable GA4 consent -> (Show this until everything is accepted)
+          }
         }
 
         this.eventsReporterProvider.init();
@@ -303,6 +309,12 @@ export class MyApp {
             }
             await this.settings.upgradeV4SavedServers();
           }
+
+          // If had 4.0.0+ installed
+          if (lastVersion.compare('4.0.0') >= 0) {
+            this.settings.setHasAcceptedTerms(true);
+            this.enableGoogleAnalyticsConsent();
+          }
         }
         await this.settings.setLastVersion(currentVersion.version);
         resolve(); // always resolve at the end (note the awaits!)
@@ -364,16 +376,44 @@ export class MyApp {
     window.__tcfapi('addEventListener', 2, function (tcData, success) {
       // console.log('tcData', tcData); // tcData doesn't contain anything useful
 
-      // Read the consent from the localStorage (see index.html)
+      // We use this hack to intercept the consent data from the InMobi consent screen that is pushed to the datalayer (see index.html)
       const gaFlags = {
         GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_STORAGE: localStorage.getItem('GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_STORAGE') || false,
         GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_USER_DATA: localStorage.getItem('GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_USER_DATA') || false,
         GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_PERSONALIZATION_SIGNALS: localStorage.getItem('GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_PERSONALIZATION_SIGNALS') || false,
         GOOGLE_ANALYTICS_DEFAULT_ALLOW_ANALYTICS_STORAGE: localStorage.getItem('GOOGLE_ANALYTICS_DEFAULT_ALLOW_ANALYTICS_STORAGE') || false,
       }
-
       // Pass the consent flags to the Firebase Analytics native plugin
       window.cordova.plugins.firebase.analytics.setAnalyticsConsent(gaFlags);
     });
+  }
+
+  async showIOSIDFATrackingDialog() {
+    const idfaPlugin = window.cordova.plugins.idfa;
+    let id = await idfaPlugin.getInfo()
+      .then(info => {
+        if (!info.trackingLimited) {
+          return info.idfa || info.aaid;
+        } else if (info.trackingPermission === idfaPlugin.TRACKING_PERMISSION_NOT_DETERMINED) {
+          return idfaPlugin.requestPermission().then(result => {
+            if (result === idfaPlugin.TRACKING_PERMISSION_AUTHORIZED) {
+              return idfaPlugin.getInfo().then(info => {
+                return info.idfa || info.aaid;
+              });
+            }
+          });
+        }
+      })
+      .then(idfaOrAaid => { if (idfaOrAaid) { console.log(idfaOrAaid); } });
+  }
+
+  enableGoogleAnalyticsConsent() {
+    const gaFlags = {
+      GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_STORAGE: true,
+      GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_USER_DATA: true,
+      GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_PERSONALIZATION_SIGNALS: true,
+      GOOGLE_ANALYTICS_DEFAULT_ALLOW_ANALYTICS_STORAGE: true,
+    }
+    window.cordova.plugins.firebase.analytics.setAnalyticsConsent(gaFlags);
   }
 }

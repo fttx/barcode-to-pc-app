@@ -100,6 +100,7 @@
     "cordova-plugin-camera": "^7.0.0",
     "cordova-plugin-file": "^8.0.0",
     "cordova-plugin-geolocation": "^5.0.0",
+    "cordova-plugin-idfa": "^3.0.0",
     "cordova-plugin-ionic-webview": "^5.0.1",
     "cordova-support-android-plugin": "~2.0.4",
     "dotenv": "^16.0.3",
@@ -171,6 +172,9 @@
         "GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_PERSONALIZATION_SIGNALS": "false",
         "ANDROID_FIREBASE_BOM_VERSION": "30.3.1",
         "IOS_FIREBASE_POD_VERSION": "9.3.0"
+      },
+      "cordova-plugin-idfa": {
+        "ANDROID_PLAY_ADID_VERSION": "17.0.+"
       }
     },
     "platforms": [
