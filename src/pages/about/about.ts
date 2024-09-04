@@ -4,6 +4,7 @@ import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 import { Config } from '../../providers/config';
 import { ZebraProvider } from '../../providers/zebra/zebra';
 import { Events } from 'ionic-angular';
+import { LastToastProvider } from '../../providers/last-toast/last-toast';
 
 @Component({
   selector: 'page-about',
@@ -14,16 +15,20 @@ export class AboutPage {
   public barcodebyteName = Config.BARCODEBYTE_NAME;
   public dataWedgeVersion = null;
   public version = "";
+  public debug = null;
+  public zebraDebug = '';
 
   constructor(
     private appVersion: AppVersion,
     private iab: InAppBrowser,
     private events: Events,
     private zebra: ZebraProvider,
+    private lastToast: LastToastProvider,
   ) { }
 
   ionViewDidEnter() {
     window.cordova.plugins.firebase.analytics.setCurrentScreen("AboutPage");
+    this.loadDebug();
   }
 
   ionViewWillEnter() {
@@ -31,6 +36,7 @@ export class AboutPage {
     this.zebra.init();
     this.events.subscribe('status:version', (version) => {
       this.dataWedgeVersion = version.DATAWEDGE;
+      this.zebraDebug = Object.keys(version).map(key => `${key}: ${version[key]}`).join('<br>');
     });
     this.zebra.requestVersion();
   }
@@ -57,5 +63,32 @@ export class AboutPage {
 
   onPrivacyPolicyClick() {
     this.iab.create(Config.URL_PRIVACY_POLICY, '_system');
+  }
+
+  private appVersionClickCount = 0;
+  appVersionClick() {
+    this.appVersionClickCount++;
+    setTimeout(() => { this.appVersionClickCount = 0; }, 5000);
+    if (this.appVersionClickCount >= 5) {
+      this.lastToast.present("Debug enabled");
+      localStorage.setItem("debug", "true");
+      this.loadDebug();
+    }
+  }
+
+  private loadDebug() {
+    if (localStorage.getItem("debug") === "true") {
+      this.debug = `
+      <b>Google Analytics</b>:<br>
+        ALLOW_AD_STORAGE: ${localStorage.getItem('GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_STORAGE')} <br>
+        ALLOW_AD_USER_DATA: ${localStorage.getItem('GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_USER_DATA')} <br>
+        ALLOW_AD_PERSONALIZATION_SIGNALS: ${localStorage.getItem('GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_PERSONALIZATION_SIGNALS')} <br>
+        ALLOW_ANALYTICS_STORAGE: ${localStorage.getItem('GOOGLE_ANALYTICS_DEFAULT_ALLOW_ANALYTICS_STORAGE')} <br>
+      <br>
+      <b>Zebra</b>:<br>
+          ${this.zebraDebug} <br>
+      <br>
+`;
+    }
   }
 }

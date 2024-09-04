@@ -19,7 +19,7 @@
   <br>
 
   <ion-list>
-    <ion-item>
+    <ion-item (click)="appVersionClick()">
       <ion-label text-wrap>{{ 'appVersionLabel' | translate }}</ion-label>
       <div item-content>v{{ version }}</div>
     </ion-item>
@@ -28,6 +28,13 @@
       <ion-label text-wrap>{{ 'Zebra DataWedge Detected' | translate }}</ion-label>
       <div item-content>{{ dataWedgeVersion }}</div>
     </ion-item>
+
+    <div *ngIf="debug">
+      <ion-item no-lines>
+        <ion-label text-wrap>Debug</ion-label>
+      </ion-item>
+      <div style="margin-left: 25px;" item-content [innerHTML]="debug"></div>
+    </div>
 
     <ion-item>
       <ion-label text-wrap>{{ 'websiteLabel' | translate }}</ion-label>

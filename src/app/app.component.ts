@@ -99,13 +99,13 @@ export class MyApp {
         });
       }
 
-      Promise.all([this.settings.getNoRunnings(), this.settings.getEverConnected(), this.settings.getAlwaysSkipWelcomePage(), this.upgrade(), this.settings.getKeepDisplayOn(), this.settings.getHasAcceptedTerms()]).then(async (results: any[]) => {
+      Promise.all([this.settings.getNoRunnings(), this.settings.getEverConnected(), this.settings.getAlwaysSkipWelcomePage(), this.upgrade(), this.settings.getKeepDisplayOn(), this.settings.getHasAcceptedDisclosure()]).then(async (results: any[]) => {
         let runnings = results[0];
         let everConnected = results[1];
         let alwaysSkipWelcomePage = results[2];
         // results[3] => upgrade
         let keepDisplayOn = results[4];
-        let hasAcceptedTerms = results[5];
+        let hasAcceptedDisclosure = results[5];
 
         if ((!runnings || !everConnected) && !alwaysSkipWelcomePage) {
           this.rootPage = WelcomePage;
@@ -124,16 +124,22 @@ export class MyApp {
           statusBar.overlaysWebView(true);
         }
 
-        if (!hasAcceptedTerms) {
-          if (platform.is('ios')) {
-            this.enableGoogleAnalyticsConsent(true);
-            this.showIOSIDFATrackingDialog();
-            this.settings.setHasAcceptedTerms(true); // Enable GA4 consent -> Request optional IDFA -> (Save to avoid showing the dialog again)
-          } else {
-            this.showProminentDisclosureDialog(); // prominent disclosure -> inmobi consent -> enable GA4 consent -> (Show this until everything is accepted)
-          }
+
+        if (platform.is('ios')) {
+          this.settings.setHasAcceptedDisclosure(true); // Enable GA4 consent -> Request optional IDFA -> (Save to avoid showing the dialog again)
+          this.readAndSetGoogleAnalyticsConsent(true);
+          this.showIOSIDFATrackingDialog();
         }
 
+        if (platform.is('android')) {
+          if (hasAcceptedDisclosure) {
+            this.readAndSetGoogleAnalyticsConsent();
+          } else {
+            const hasAcceptedDisclosure = await this.showProminentDisclosureDialog(); // prominent disclosure -> inmobi consent -> enable GA4 consent -> (Show this until everything is accepted)
+            this.settings.setHasAcceptedDisclosure(hasAcceptedDisclosure);
+            this.showInMobiConsentScreen();
+          }
+        }
         this.eventsReporterProvider.init();
       });
     });
@@ -312,8 +318,8 @@ export class MyApp {
 
           // If had 4.0.0+ installed
           if (lastVersion.compare('4.0.0') >= 0) {
-            this.settings.setHasAcceptedTerms(true);
-            this.enableGoogleAnalyticsConsent(true);
+            this.settings.setHasAcceptedDisclosure(true);
+            this.readAndSetGoogleAnalyticsConsent(true);
           }
         }
         await this.settings.setLastVersion(currentVersion.version);
@@ -323,44 +329,46 @@ export class MyApp {
   }
 
   showProminentDisclosureDialog() {
-    this.alertCtrl.create({
-      message: `
-      Barcode to PC collects images and location data to enable the real-time LAN synchronization with the selected Barcode to PC server.
+    return new Promise<boolean>((resolve, reject) => {
+      this.alertCtrl.create({
+        message: `
+        Barcode to PC collects images and location data to enable the real-time LAN synchronization with the selected Barcode to PC server.
 
-      <div class="permission-header">
-        <img src="assets/prominent-disclosure/image.png"> <h2>Images</h2>
-      </div>
-      Barcode to PC collects images to enable real-time synchronization of pictures associated to scanned barcodes, only when the app is in use.
+        <div class="permission-header">
+          <img src="assets/prominent-disclosure/image.png"> <h2>Images</h2>
+        </div>
+        Barcode to PC collects images to enable real-time synchronization of pictures associated to scanned barcodes, only when the app is in use.
 
-      <div class="permission-header">
-        <img src="assets/prominent-disclosure/location.png"> <h2>Location</h2>
-      </div>
-      Barcode to PC collects location data to enable real-time synchronization of barcodes metadata, even when the app is not in use.
+        <div class="permission-header">
+          <img src="assets/prominent-disclosure/location.png"> <h2>Location</h2>
+        </div>
+        Barcode to PC collects location data to enable real-time synchronization of barcodes metadata, even when the app is not in use.
 
-      <br><br>
+        <br><br>
 
-      Anonymized app usage statistics are shared with third parties to improve the app experience.
-    `,
-      cssClass: 'btp-prominet-disclosure',
-      buttons: [
-        {
-          text: 'Learn more',
-          handler: () => {
-            this.iab.create(Config.URL_PRIVACY_POLICY, '_system');
-            this.showProminentDisclosureDialog();
+        Anonymized app usage statistics are shared with third parties to improve the app experience.
+      `,
+        cssClass: 'btp-prominet-disclosure',
+        buttons: [
+          {
+            text: 'Learn more',
+            handler: () => {
+              this.iab.create(Config.URL_PRIVACY_POLICY, '_system');
+              this.showProminentDisclosureDialog();
+              resolve(false);
+            },
+            role: 'cancel',
           },
-          role: 'cancel',
-        },
-        {
-          text: 'Agree',
-          handler: () => {
-            this.settings.setHasAcceptedTerms(true);
-            this.showInMobiConsentScreen();
-          },
-        }
-      ],
-      enableBackdropDismiss: false,
-    }).present();
+          {
+            text: 'Agree',
+            handler: () => {
+              resolve(true);
+            },
+          }
+        ],
+        enableBackdropDismiss: false,
+      }).present();
+    });
   }
 
 
@@ -376,9 +384,9 @@ export class MyApp {
     window.__tcfapi('addEventListener', 2, (tcData, success) => {
       // console.log('tcData', tcData); // tcData doesn't contain anything useful
       if ((tcData && tcData.gdprApplies == false) || this.platform.is('ios')) {
-        this.enableGoogleAnalyticsConsent(true);
+        this.readAndSetGoogleAnalyticsConsent(true);
       } else {
-        this.enableGoogleAnalyticsConsent();
+        this.readAndSetGoogleAnalyticsConsent();
       }
     });
   }
@@ -402,7 +410,7 @@ export class MyApp {
       .then(idfaOrAaid => { if (idfaOrAaid) { console.log(idfaOrAaid); } });
   }
 
-  enableGoogleAnalyticsConsent(forceToTrue = false) {
+  readAndSetGoogleAnalyticsConsent(forceToTrue = false) {
     if (forceToTrue) {
       const gaFlags = {
         GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_STORAGE: true,

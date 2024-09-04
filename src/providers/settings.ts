@@ -696,13 +696,13 @@ export class Settings {
     });
   }
 
-  getHasAcceptedTerms(): Promise<boolean> {
+  getHasAcceptedDisclosure(): Promise<boolean> {
     return this.storage.get(Settings.HAS_ACCEPTED_TERMS).then((result) => {
       return result === true;
     });
   }
 
-  setHasAcceptedTerms(accepted: boolean) {
+  setHasAcceptedDisclosure(accepted: boolean) {
     return this.storage.set(Settings.HAS_ACCEPTED_TERMS, accepted);
   }
 }
