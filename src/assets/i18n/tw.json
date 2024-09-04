@@ -83,6 +83,7 @@
   "scanSessionFilterError": "錯誤：無效的掃描會話名稱",
   "allowOutputTemplateSelection": "顯示輸出模板選擇頁面",
   "================================SCAN_SESSIONS_PAGE===========================": "",
+  "Syncing...": "正在同步...",
   "scanSessionsTitle": "掃描會話",
   "selectAllButton": "全選",
   "deleteButton": "刪除",

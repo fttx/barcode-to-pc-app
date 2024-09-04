@@ -83,6 +83,7 @@
   "scanSessionFilterError": "Fehler: Ungültiger Name der Scan-Sitzung",
   "allowOutputTemplateSelection": "Die Seite zur Auswahl der Ausgabevorlage anzeigen",
   "================================SCAN_SESSIONS_PAGE===========================": "",
+  "Syncing...": "Synchronisierung...",
   "scanSessionsTitle": "Scan-Sitzungen",
   "selectAllButton": "Alle auswählen",
   "deleteButton": "Löschen",

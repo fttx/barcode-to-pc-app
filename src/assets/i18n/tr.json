@@ -83,6 +83,7 @@
   "scanSessionFilterError": "Hata: Geçersiz tarama oturumu adı",
   "allowOutputTemplateSelection": "Çıktı Şablonu seçim sayfasını göster",
   "================================SCAN_SESSIONS_PAGE===========================": "",
+  "Syncing...": "Senkronizasyon...",
   "scanSessionsTitle": "Tarama oturumları",
   "selectAllButton": "Hepsini seç",
   "deleteButton": "Sil",

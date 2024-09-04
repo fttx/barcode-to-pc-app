@@ -83,6 +83,7 @@
   "scanSessionFilterError": "Error: nombre de sesión de escaneo no válido",
   "allowOutputTemplateSelection": "Mostrar selección de plantilla de salida",
   "================================SCAN_SESSIONS_PAGE===========================": "",
+  "Syncing...": "Sincronizando...",
   "scanSessionsTitle": "Sesiones de escaneo",
   "selectAllButton": "Seleccionar todo",
   "deleteButton": "Borrar",

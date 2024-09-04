@@ -83,6 +83,7 @@
   "scanSessionFilterError": "Erro: Nome de sessão de leitura inválido",
   "allowOutputTemplateSelection": "Mostrar a página de seleção do Modelo de Saída",
   "================================SCAN_SESSIONS_PAGE===========================": "",
+  "Syncing...": "Sincronizando...",
   "scanSessionsTitle": "Sessões de leitura",
   "selectAllButton": "Selecionar tudo",
   "deleteButton": "Excluir",

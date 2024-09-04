@@ -83,6 +83,7 @@
   "scanSessionFilterError": "Errore: Nome raccolta scansioni non valido",
   "allowOutputTemplateSelection": "Mostra la pagina di selezione del template di output",
   "================================SCAN_SESSIONS_PAGE===========================": "",
+  "Syncing...": "Sincronizzazione...",
   "scanSessionsTitle": "Raccolte di scansione",
   "selectAllButton": "Seleziona tutto",
   "deleteButton": "Elimina",

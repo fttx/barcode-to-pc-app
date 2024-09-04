@@ -83,6 +83,7 @@
   "scanSessionFilterError": "خطأ: اسم جلسة المسح الضوئي غير صالح",
   "allowOutputTemplateSelection": "عرض صفحة تحديد قالب الإخراج",
   "================================SCAN_SESSIONS_PAGE===========================": "",
+  "Syncing...": "جاري المزامنة...",
   "scanSessionsTitle": "جلسات المسح الضوئي",
   "selectAllButton": "تحديد الكل",
   "deleteButton": "حذف",

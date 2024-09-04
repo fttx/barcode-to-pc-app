@@ -28,6 +28,7 @@ import { PhotoViewer } from '@ionic-native/photo-viewer';
 import { WebIntent } from '@ionic-native/web-intent';
 import { debounce } from 'helpful-decorators';
 import { BtpAlertController } from '../../providers/btp-alert-controller/btp-alert-controller';
+import { TranslateService } from '@ngx-translate/core';
 
 /**
  * This page is used to display the list of the barcodes of a specific
@@ -88,6 +89,7 @@ export class ScanSessionPage {
     private nfc: NFC,
     private photoViewer: PhotoViewer,
     private webIntent: WebIntent,
+    private translateService: TranslateService,
   ) {
     this.scanSession = navParams.get('scanSession');
     if (!this.scanSession) {
@@ -735,7 +737,7 @@ export class ScanSessionPage {
   }
 
   getTitle() {
-    if (this.repeatingStatus == 'repeating' || this.catchUpIOSLag) return 'Syncing...'
+    if (this.repeatingStatus == 'repeating' || this.catchUpIOSLag) return this.translateService.instant('Syncing...');
     return this.scanSession && this.scanSession.name;
   }
 
