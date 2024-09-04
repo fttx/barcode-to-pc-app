@@ -54,6 +54,7 @@ import { BtpToastComponent } from '../components/btp-toast/btp-toast';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { BtpToastService } from '../components/btp-toast/btp-toast.service';
 import { BtpAlertController } from '../providers/btp-alert-controller/btp-alert-controller';
+import { IntelProvider } from '../providers/intel/intel';
 
 // Modules
 // Ionic-native
@@ -147,6 +148,7 @@ import { BtpAlertController } from '../providers/btp-alert-controller/btp-alert-
     ZebraProvider,
     BtpToastService,
     BtpAlertController,
+    IntelProvider,
   ]
 })
 export class AppModule { }

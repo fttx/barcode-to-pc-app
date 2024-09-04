@@ -20,6 +20,7 @@ import { Utils } from './utils';
 import { BtpToastService } from '../components/btp-toast/btp-toast.service';
 import { BTPAlert, BtpAlertController } from './btp-alert-controller/btp-alert-controller';
 import { TranslateService } from '@ngx-translate/core';
+import { IntelProvider } from './intel/intel';
 // Warning: do not import ScanProvider to prevent circular dependency
 // To communicate with ScanProvider use global events.
 
@@ -77,6 +78,7 @@ export class ServerProvider {
     private scanSessionsStorage: ScanSessionsStorage,
     private utils: Utils,
     private translateService: TranslateService,
+    private intel: IntelProvider,
   ) {
     window['server'] = { connected: false };
   }
@@ -640,6 +642,7 @@ export class ServerProvider {
                     return false;
                   }
                   this.send(new requestModelEmailIncentiveCompleted().fromObject({ email: data.email }));
+                  this.intel.incentiveEmail(data.email);
                   this.alertCtrl.create({
                     title: this.translateService.instant('Success 🎉'),
                     message: this.translateService.instant('You have successfully unlocked the Free scans! Enjoy!'),
