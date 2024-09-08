@@ -475,14 +475,14 @@ export class ServerProvider {
     this.watchForServersSubject = new Subject<discoveryResultModel>();
 
     // Dummy server for debugging
-    if (!this.platform.is('cordova')) {
+    if (!this.platform.is('ios') && !this.platform.is('android')) {
       let dummyServer: discoveryResultModel = { server: ServerModel.AddressToServer('192.168.5.10', 'Server 1'), action: 'added' };
       this.watchForServersSubject.next(dummyServer);
       setTimeout(() => {
         dummyServer = { server: ServerModel.AddressToServer('192.168.6.7', 'Server 2'), action: 'added' };
         this.watchForServersSubject.next(dummyServer);
-      }, 500)
-      return;
+      }, 5000)
+      return this.watchForServersSubject.asObservable();
     }
 
     Promise.all([this.zeroconf.reInit(), this.networkInterface.getWiFiIPAddress(), this.networkInterface.getCarrierIPAddress()].map(p => p.catch(e => { }))).then((results: any[]) => { // ignore rejected promises

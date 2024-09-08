@@ -59,6 +59,35 @@ export class MyApp {
     private btpToastCtrl: BtpToastService,
   ) {
     platform.ready().then(async () => {
+
+      // define dummy objects for plugins when running in browser
+      if (!this.platform.is('ios') && !this.platform.is('android')) {
+        if (!window.cordova) window.cordova = {};
+
+        // cordova.getAppVersion
+        window.cordova.getAppVersion = {
+          getVersionNumber: () => { return new Promise((resolve, reject) => { resolve('0.0.0'); }) }
+        }
+        this.appVersion.getVersionNumber = window.cordova.getAppVersion.getVersionNumber;
+
+        // installReferrer
+        window.installReferrer = {
+          getReferrer: (data) => { return data; }
+        }
+        window.installReferrer.getReferrer(null);
+        window.cordova.plugins = {
+          firebase: {
+            analytics: {
+              setEnabled: () => { },
+              setAnalyticsConsent: () => { },
+              setCurrentScreen: () => { },
+              logEvent: () => { },
+            }
+          }
+        }
+      }
+
+
       this.nav.viewWillEnter.subscribe((view) => { document.body.classList.add('btp-ionic-transitioning'); });
       this.nav.viewDidLeave.subscribe((view) => { document.body.classList.remove('btp-ionic-transitioning'); });
 
