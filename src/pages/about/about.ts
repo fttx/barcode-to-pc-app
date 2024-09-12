@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
 import { AppVersion } from '@ionic-native/app-version';
-import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 import { Config } from '../../providers/config';
 import { ZebraProvider } from '../../providers/zebra/zebra';
 import { Events } from 'ionic-angular';
 import { LastToastProvider } from '../../providers/last-toast/last-toast';
+import { BtpaInAppBrowser } from '../../providers/btpa-in-app-browser/btpa-in-app-browser';
 
 @Component({
   selector: 'page-about',
@@ -20,7 +20,7 @@ export class AboutPage {
 
   constructor(
     private appVersion: AppVersion,
-    private iab: InAppBrowser,
+    private iab: BtpaInAppBrowser,
     private events: Events,
     private zebra: ZebraProvider,
     private lastToast: LastToastProvider,

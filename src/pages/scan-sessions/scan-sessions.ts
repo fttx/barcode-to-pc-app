@@ -1,7 +1,7 @@
 import { Component, NgZone, ViewChild } from '@angular/core';
 import { LaunchReview } from '@ionic-native/launch-review';
 import * as BluebirdPromise from 'bluebird';
-import { AlertController, Events, ItemSliding, NavController, Platform, PopoverController } from 'ionic-angular';
+import { Events, ItemSliding, NavController, Platform, PopoverController } from 'ionic-angular';
 import { Subscription } from 'rxjs';
 import { discoveryResultModel } from '../../models/discovery-result';
 import { requestModelDeleteScanSessions } from '../../models/request.model';
@@ -15,10 +15,10 @@ import { ScanSessionPage } from '../scan-session/scan-session';
 import { SelectServerPage } from '../select-server/select-server';
 import { Settings } from './../../providers/settings';
 import { Device } from '@ionic-native/device';
-import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 import { LastToastProvider } from '../../providers/last-toast/last-toast';
 import { BtpToastService } from '../../components/btp-toast/btp-toast.service';
-import { BTPAlert, BtpAlertController } from '../../providers/btp-alert-controller/btp-alert-controller';
+import { BtpAlertController } from '../../providers/btp-alert-controller/btp-alert-controller';
+import { BtpaInAppBrowser } from '../../providers/btpa-in-app-browser/btpa-in-app-browser';
 
 @Component({
   selector: 'page-scannings',
@@ -52,12 +52,13 @@ export class ScanSessionsPage {
     private utils: Utils,
     public platform: Platform,
     private device: Device,
-    private iab: InAppBrowser,
+    private iab: BtpaInAppBrowser,
     public events: Events,
     public lastToast: LastToastProvider,
     private ngZone: NgZone,
     private btpToastCtrl: BtpToastService,
-  ) { }
+  ) {
+  }
 
   async ionViewDidEnter() {
     this.isWatching = false;
@@ -78,7 +79,7 @@ export class ScanSessionsPage {
     });
 
     // PDA Dialog
-    const manufacturer = this.device.manufacturer.toLowerCase();
+    const manufacturer = (this.device.manufacturer || '').toLowerCase();
     const pdaManufacturers = ['zebra', 'chainway', 'honeywell', 'datalogic', 'intermec', 'point', 'bluebird', 'm3', 'newland'];
     if (pdaManufacturers.filter(x => manufacturer.indexOf(x) != -1).length > 0) {
       let isPDADevicedialogShown = await this.settings.getIsPDADeviceDialogShown();

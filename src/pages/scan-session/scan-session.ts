@@ -1,7 +1,6 @@
 import { Component, HostListener, NgZone, ViewChild } from '@angular/core';
 import { Device } from '@ionic-native/device';
 import { File } from '@ionic-native/file';
-import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 import { NativeAudio } from '@ionic-native/native-audio';
 import { NFC } from '@ionic-native/nfc';
 import { SocialSharing } from '@ionic-native/social-sharing';
@@ -29,6 +28,7 @@ import { WebIntent } from '@ionic-native/web-intent';
 import { debounce } from 'helpful-decorators';
 import { BtpAlertController } from '../../providers/btp-alert-controller/btp-alert-controller';
 import { TranslateService } from '@ngx-translate/core';
+import { BtpaInAppBrowser } from '../../providers/btpa-in-app-browser/btpa-in-app-browser';
 
 /**
  * This page is used to display the list of the barcodes of a specific
@@ -83,7 +83,7 @@ export class ScanSessionPage {
     private utils: Utils,
     public scanProvider: ScanProvider,
     public platform: Platform, // required from the templates
-    private iab: InAppBrowser,
+    private iab: BtpaInAppBrowser,
     private file: File,
     public events: Events,
     private nfc: NFC,

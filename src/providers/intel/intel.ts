@@ -25,6 +25,9 @@ export class IntelProvider {
   async incentiveEmail(email: string = null): Promise<any> {
     return this.send('incentive-email', { email: email });
   }
+  async incentiveEmailDownload(email: string = null): Promise<any> {
+    return this.send('incentive-email-download', { email: email });
+  }
 
   // Private method to send HTTP requests and handle failures
   private async send(endPoint: string, data: any, retryWhenOnline: boolean = true): Promise<any> {

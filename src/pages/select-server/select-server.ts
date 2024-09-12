@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
 import { BarcodeScanner } from '@fttx/barcode-scanner';
-import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 import { Promise as BluebirdPromise } from 'bluebird';
 import { ActionSheetController, AlertController, NavController, Platform, ViewController } from 'ionic-angular';
 import { MyApp } from '../../app/app.component';
@@ -12,6 +11,7 @@ import { Settings } from '../../providers/settings';
 import { Utils } from '../../providers/utils';
 import { ServerModel } from './../../models/server.model';
 import { BtpAlertController } from '../../providers/btp-alert-controller/btp-alert-controller';
+import { BtpaInAppBrowser } from '../../providers/btpa-in-app-browser/btpa-in-app-browser';
 
 @Component({
   selector: 'page-select-server',
@@ -37,7 +37,7 @@ export class SelectServerPage {
     private utils: Utils,
     public actionSheetCtrl: ActionSheetController,
     public platform: Platform,
-    private iab: InAppBrowser,
+    private iab: BtpaInAppBrowser,
   ) { }
 
   public isVisible = false;

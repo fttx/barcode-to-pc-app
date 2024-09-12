@@ -6,86 +6,98 @@
 -->
 <ion-header>
 
-	<ion-navbar color="primary">
-		<ion-title>{{ 'welcomeTitle' | translate }}</ion-title>
-
-		<ion-buttons end>
-			<button ion-button (click)="onSkipClicked()">
-				{{ 'skipButton' | translate }}
-			</button>
-		</ion-buttons>
-	</ion-navbar>
+  <ion-navbar color="primary">
+    <ion-title>{{ 'welcomeTitle' | translate }}</ion-title>
+  </ion-navbar>
 
 </ion-header>
 
 
 <ion-content>
-	<ion-slides #slider (ionSlideDidChange)="onSlideChanged()" pager>
+  <ion-slides #slider (ionSlideDidChange)="onSlideChanged()" [pager]="showPager()">
 
-		<ion-slide>
-			<img src="assets/welcome/a5fsa.jpg" class="slide-image" />
-			<h2 class="slide-title">
-				{{ 'barcodeToPcRemoteDescription1' | translate }}<br> {{ 'appName' | translate }} {{ 'barcodeToPcRemoteDescription2' | translate }}
-			</h2>
-			<p>
-				{{ 'barcodeToPcRemoteDescription3' | translate }}
-			</p>
-		</ion-slide>
+    <ion-slide>
+      <img src="assets/welcome/a5fsa.jpg" class="slide-image" />
+      <div class="slide-content">
+        <h2 class="slide-title">
+          {{ 'barcodeToPcRemoteDescription1' | translate }}<br> {{ 'appName' | translate }}: {{ 'barcodeToPcRemoteDescription2' | translate }}
+        </h2>
+        <p>
+          {{ 'The easiest way to instantly send barcodes to computer programs and automate tasks' | translate }}
+        </p>
+      </div>
+    </ion-slide>
 
-		<ion-slide>
-			<div class="connection-steps">
-				<h4 class="slide-title">
-					{{ 'downloadServerTitle' | translate }}
-				</h4>
-				<p>
-					{{ 'downloadServerDescription1' | translate }}
-					{{ 'barcodeToPcServer' | translate }}
-					{{ 'downloadServerDescription2' | translate }}
-					<span class="link">{{ getWebSiteName() }}</span>
-				</p>
-				<img src="assets/welcome/downloadserver.png" class="slide-image" style="max-width: 40vw; margin: 0 auto 20px auto" />
+    <ion-slide>
+      <img src="assets/welcome/downloadserver.png" class="slide-image" />
+      <div class="slide-content">
+        <h2 class="slide-title">
+          {{ 'downloadServerTitle' | translate }}
+        </h2>
+        <p>
+          {{ 'downloadServerDescription1' | translate }}
+          {{ 'barcodeToPcServer' | translate }}, {{ 'downloadServerDescription2' | translate }}
+          <span class="link">{{ getWebSiteName() }}/download</span>
+        </p>
+        <div class="btpv2-alert" style="width: 100%; margin-top: 7%">
+          <button class="btpv2-btn-cancel btp-btn-skip" ion-button (click)="sendLinkToEmailClick()">
+            {{ 'Send Link to Your Email' | translate }}
+          </button>
+        </div>
+      </div>
+    </ion-slide>
 
-				<h4 class="slide-title">
-					{{ 'connectToServerTitle' | translate }}
-				</h4>
-				<p>
-					{{ 'connectToServerDescription' | translate }}
-				</p>
-			</div>
-			<button ion-button icon-left (click)="onScanQRCodeClicked()">
-				<ion-icon name="qr-scanner"></ion-icon>
-				{{ 'scanQrCodeButton' | translate }}
-			</button>
-		</ion-slide>
+    <ion-slide>
+      <img src="assets/welcome/scanqrserver.png" class="slide-image" />
+      <div class="slide-content">
+        <h2 class="slide-title">
+          {{ 'connectToServerTitle' | translate }}
+        </h2>
+        <p>
+          {{ 'connectToServerDescription' | translate }}
+        </p>
+      </div>
+    </ion-slide>
 
-		<ion-slide>
-			<div [hidden]="!connecting">
-				<ion-spinner color="primary" class="slide-image spinner"></ion-spinner>
-				<h2 class="slide-title">{{ 'connectToPcTitle' | translate }}</h2>
-				<p>{{ 'barcodeToPcIsRunning1' | translate }} <b>{{ 'barcodeToPcServer' | translate }}</b> {{ 'barcodeToPcIsRunning3' | translate }}</p>
-				<p [hidden]="!currentAttemptingServer">{{ 'connectingToTitle' | translate }} {{ currentAttemptingServer?.name }}...</p>
-			</div>
-			<div [hidden]="connecting">
-				<br>
-				<ion-icon name="checkmark-circle-outline" class="done"></ion-icon>
-				<h2 class="slide-title">{{ 'connectionEstablishedTitle' | translate }}</h2>
-				<button ion-button large clear icon-right (click)="startScanningClicked()">
-					{{ 'startScanningButton' | translate }}
-					<ion-icon name="arrow-forward"></ion-icon>
-				</button>
-			</div>
-		</ion-slide>
+    <ion-slide>
+      <div [hidden]="!connecting">
+        <div style="max-height: 40vh">
+          <ion-spinner color="primary" class="slide-image spinner"></ion-spinner>
+        </div>
+        <div class="slide-content">
+          <h2 class="slide-title">{{ 'connectToPcTitle' | translate }}...</h2>
+          <p>{{ 'barcodeToPcIsRunning1' | translate }} <b>{{ 'barcodeToPcServer' | translate }}</b> {{ 'barcodeToPcIsRunning3' | translate }}</p>
+          <p [hidden]="!currentAttemptingServer">{{ 'connectingToTitle' | translate }} {{ currentAttemptingServer?.name }}...</p>
+        </div>
+      </div>
+      <div [hidden]="connecting" class="slide-content">
+        <br>
+        <div class="checkmark-container">
+          <svg width="100" height="100" viewBox="0 0 100 100">
+            <circle class="circle" cx="50" cy="50" r="45"></circle>
+            <path class="checkmark" d="M30 50 L45 65 L70 35" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+        </div>
+        <h2 class="slide-title message">{{ 'connectionEstablishedTitle' | translate }}</h2>
+      </div>
+    </ion-slide>
 
-	</ion-slides>
+  </ion-slides>
 </ion-content>
 
 <ion-footer no-border>
-	<ion-toolbar no-border>
-		<ion-buttons right>
-			<button ion-button [hidden]="!showNext" (click)="onNextClicked()">
-				{{ 'nextButton' | translate }}
-				<ion-icon name="arrow-forward"></ion-icon>
-			</button>
-		</ion-buttons>
-	</ion-toolbar>
+  <ion-toolbar no-border class="btpv2-alert">
+    <button class="btpv2-btn-primary" ion-button full large icon-right [hidden]="getStartScanningButtonHidden()" (click)="onNextClicked()" [disabled]="!this.connected">
+      {{ getStartScanningButtonText() }}
+      <ion-icon name="arrow-forward"></ion-icon>
+    </button>
+    <button class="btpv2-btn-primary" ion-button full large [hidden]="getNextHidden()" (click)="onNextClicked()" [innerHTML]="getNextButtonText()"> </button>
+    <button class="btpv2-btn-primary" ion-button full large icon-left [hidden]="!getShowScan()" (click)="onScanClicked()">
+      <ion-icon name="camera"></ion-icon>
+      {{ 'scanQrCodeButton' | translate }}
+    </button>
+    <button [disabled]="showCancelText() == null" [ngClass]="{'hidden': showCancelText() == null}" class="btpv2-btn-text-cancel btp-btn-skip" full ion-button (click)="onSkipClicked()">
+      {{ showCancelText() }}
+    </button>
+  </ion-toolbar>
 </ion-footer>

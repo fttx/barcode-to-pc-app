@@ -4,7 +4,7 @@ import { AppVersion } from '@ionic-native/app-version';
 import { Insomnia } from '@ionic-native/insomnia';
 import { NativeAudio } from '@ionic-native/native-audio';
 import { StatusBar } from '@ionic-native/status-bar';
-import { AlertController, Events, MenuController, ModalController, NavController, Platform } from 'ionic-angular';
+import { Events, MenuController, ModalController, NavController, Platform } from 'ionic-angular';
 import { MarkdownService } from 'ngx-markdown';
 import { gt, SemVer } from 'semver';
 import { ScanModel } from '../models/scan.model';
@@ -21,12 +21,12 @@ import { Settings } from '../providers/settings';
 import { Utils } from '../providers/utils';
 import { SelectServerPage } from './../pages/select-server/select-server';
 import { TranslateService } from '@ngx-translate/core';
-import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 import { BtpToastService } from '../components/btp-toast/btp-toast.service';
 import { BtpAlertController } from '../providers/btp-alert-controller/btp-alert-controller';
 import { requestModelEmailIncentiveCompleted } from '../models/request.model';
 import { ServerProvider } from '../providers/server';
 import { responseModel } from '../models/response.model';
+import { BtpaInAppBrowser } from '../providers/btpa-in-app-browser/btpa-in-app-browser';
 
 @Component({
   templateUrl: 'app.html',
@@ -55,13 +55,13 @@ export class MyApp {
     public nativeAudio: NativeAudio,
     private eventsReporterProvider: EventsReporterProvider,
     private translate: TranslateService,
-    private iab: InAppBrowser,
+    private iab: BtpaInAppBrowser,
     private btpToastCtrl: BtpToastService,
   ) {
     platform.ready().then(async () => {
 
       // define dummy objects for plugins when running in browser
-      if (!this.platform.is('ios') && !this.platform.is('android')) {
+      if (!this.platform.is('cordova')) {
         if (!window.cordova) window.cordova = {};
 
         // cordova.getAppVersion
@@ -83,6 +83,9 @@ export class MyApp {
               setCurrentScreen: () => { },
               logEvent: () => { },
             }
+          },
+          idfa: {
+            getInfo: () => { return new Promise((resolve, reject) => { resolve({ trackingLimited: false, idfa: '00000000-0000-0000-0000-000000000000' }); }) },
           }
         }
       }

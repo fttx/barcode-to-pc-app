@@ -1,6 +1,5 @@
 import { Injectable, NgZone, Output } from '@angular/core';
 import { BarcodeScanner, BarcodeScannerOptions, BarcodeScanResult } from '@fttx/barcode-scanner';
-import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 import { NativeAudio } from '@ionic-native/native-audio';
 import { Ndef, NFC } from '@ionic-native/nfc';
 import { Events, Platform } from 'ionic-angular';
@@ -25,6 +24,7 @@ import { AlertButtonType, BarcodeScanResultExtended, BarcodeScannerOptionsExtend
 import { Camera, CameraOptions } from '@ionic-native/camera';
 import { Geolocation } from '@ionic-native/geolocation';
 import { BTPAlert, BtpAlertController } from './btp-alert-controller/btp-alert-controller';
+import { BtpaInAppBrowser } from './btpa-in-app-browser/btpa-in-app-browser';
 
 /**
  * The job of this class is to generate a ScanModel by talking with the native
@@ -82,7 +82,7 @@ export class ScanProvider {
     private settings: Settings,
     public serverProvider: ServerProvider,
     public events: Events,
-    private iab: InAppBrowser,
+    private iab: BtpaInAppBrowser,
     private utils: Utils,
     private lastToast: LastToastProvider,
     private nfc: NFC, private ndef: Ndef,

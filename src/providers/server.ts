@@ -470,16 +470,17 @@ export class ServerProvider {
    * called.
    */
   watchForServers(): Observable<discoveryResultModel> {
-    this.stopWatchForServers();
     console.log("[S] watchForServers()")
+
+    this.stopWatchForServers();
     this.watchForServersSubject = new Subject<discoveryResultModel>();
 
     // Dummy server for debugging
-    if (!this.platform.is('ios') && !this.platform.is('android')) {
-      let dummyServer: discoveryResultModel = { server: ServerModel.AddressToServer('192.168.5.10', 'Server 1'), action: 'added' };
+    if (!this.platform.is('cordova')) {
+      let dummyServer: discoveryResultModel = { server: ServerModel.AddressToServer('localhost', 'Server 1'), action: 'added' };
       this.watchForServersSubject.next(dummyServer);
       setTimeout(() => {
-        dummyServer = { server: ServerModel.AddressToServer('192.168.6.7', 'Server 2'), action: 'added' };
+        dummyServer = { server: ServerModel.AddressToServer('localhost', 'Server 2'), action: 'added' };
         this.watchForServersSubject.next(dummyServer);
       }, 5000)
       return this.watchForServersSubject.asObservable();
@@ -531,7 +532,9 @@ export class ServerProvider {
       this.watchForServersSubject.complete();
       this.watchForServersSubject = null;
     }
-    this.zeroconf.close();
+    if (this.platform.is('cordova')) {
+      this.zeroconf.close();
+    }
   }
 
   // isConnectedWith(server: ServerModel) {
@@ -609,9 +612,7 @@ export class ServerProvider {
     if (this.invalidEmailAlert) this.invalidEmailAlert.dismiss();
     this.emailIncentiveAlert = this.alertCtrl.create({
       title: this.translateService.instant('Continue for Free!'),
-      message: this.translateService.instant(`
-        Congrats! You've just scanned your first 10 barcodes 🚀<br><br>
-        Barcode to PC allows up to 300 scans per month for free.`),
+      message: this.translateService.instant('continueForFreeMessage'),
       buttons: [
         {
           text: await this.utils.text('Continue with Free'), handler: () => {
@@ -621,7 +622,7 @@ export class ServerProvider {
               title: this.translateService.instant('Continue with Free'),
               message: this.translateService.instant('incentiveEmailMessage'),
               buttons: [{
-                text: 'Continue with Free', handler: (data) => {
+                text: this.translateService.instant('Continue with Free'), handler: (data) => {
                   localStorage.setItem('email', data.email);
                   if (!this.isConnected()) {
                     this.alertCtrl.create({

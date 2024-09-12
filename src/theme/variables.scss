@@ -334,6 +334,10 @@ $colors: (
     padding: 5px 0 0px 0 !important;
   }
 
+  .btpv2-btn-text-cancel.activated {
+    background-color: transparent !important;
+  }
+
   .alert-input {
     border: 1px solid map-get($colors, info) !important;
     border-radius: 4px !important;

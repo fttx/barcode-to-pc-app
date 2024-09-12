@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
-import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 import { NavController, NavParams } from 'ionic-angular';
 import { Config } from '../../providers/config';
+import { BtpaInAppBrowser } from '../../providers/btpa-in-app-browser/btpa-in-app-browser';
 
 /**
  * Generated class for the HelpPage page.
@@ -20,7 +20,7 @@ export class HelpPage {
   constructor(
     public navCtrl: NavController,
     public navParams: NavParams,
-    private iab: InAppBrowser,
+    private iab: BtpaInAppBrowser,
   ) {
   }
 
