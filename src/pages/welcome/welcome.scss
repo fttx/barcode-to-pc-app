@@ -27,6 +27,11 @@ page-welcome {
     opacity: 0;
     transform: translateY(-30px);
     transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+    padding: 0 20px;
+  }
+
+  .toolbar-content {
+    padding: 0 20px !important;
   }
 
   .swiper-slide-active {
@@ -52,9 +57,9 @@ page-welcome {
   }
 
   p {
-    font-size: 1.9rem !important;
+    font-size: 1.6rem !important;
     padding: 0 10px;
-    line-height: 2.6rem !important;
+    line-height: 2rem !important;
     color: #60646B;
     margin: 10px 0;
 
@@ -153,8 +158,13 @@ page-welcome {
   .message {
     margin-top: 20px;
     opacity: 0;
-    animation: fadeIn 1s 2s forwards;
+    animation: fadeIn 1s 1s forwards;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+
+  .success-server-name {
+    opacity: 0;
+    animation: fadeIn 1s 1s forwards;
   }
 
   @keyframes fadeIn {

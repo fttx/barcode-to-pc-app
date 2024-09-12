@@ -79,6 +79,10 @@
           </svg>
         </div>
         <h2 class="slide-title message">{{ 'connectionEstablishedTitle' | translate }}</h2>
+        <p class="success-server-name" [hidden]="!currentAttemptingServer">
+          <ion-icon name="wifi" style="font-size: 1.6rem;"></ion-icon>
+          {{ currentAttemptingServer?.name }}
+        </p>
       </div>
     </ion-slide>
 
