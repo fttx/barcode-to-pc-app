@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget android-versionCode="165" id="com.barcodetopc" version="4.7.2" xmlns="http://www.w3.org/ns/widgets" xmlns:android="http://schemas.android.com/apk/res/android" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+<widget android-versionCode="166" id="com.barcodetopc" version="4.7.3" xmlns="http://www.w3.org/ns/widgets" xmlns:android="http://schemas.android.com/apk/res/android" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <name>Barcode to PC</name>
     <description>Turn your smartphone in a real barcode scanner</description>
     <author email="filippo.tortomasi@gmail.com" href="https://github.com/fttx">Filippo Tortomasi</author>
@@ -142,8 +142,7 @@
             <string>need location access to save the barcode location</string>
         </edit-config>
         <edit-config file="*-Info.plist" mode="merge" target="NSUserTrackingUsageDescription">
-            <string>We use your data to collect statistics and improve our services. Your barcode data
-        remains secure and is not shared.</string>
+            <string>We use your data to improve our services and collect statistics. Your barcodes remain secure and are never shared.</string>
         </edit-config>
     </platform>
     <allow-navigation href="http://localhost:8100" sessionid="7f783d98" />
