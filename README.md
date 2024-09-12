@@ -44,6 +44,7 @@
 ```bash
 ionic cordova run ios --device
 ionic cordova run android
+ionic start
 ```
 
 ## Publish updates
