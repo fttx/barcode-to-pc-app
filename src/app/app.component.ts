@@ -245,7 +245,7 @@ export class MyApp {
           this.alertCtrl.create({
             title: 'The app has been updated',
             message: changelog,
-            buttons: ['Ok'],
+            buttons: [{ text: 'Ok' }],
             cssClass: 'changelog'
           }).present();
 
