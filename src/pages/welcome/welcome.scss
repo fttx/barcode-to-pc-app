@@ -94,10 +94,14 @@ page-welcome {
   }
 
   .btp-btn-skip {
-    margin-top: 20px;
     background-color: transparent;
+    margin: 5px 0 10px 0 !important;
+  }
+
+  .ios .btp-btn-skip {
     margin: 5px 0 30px 0 !important;
   }
+
 
   .swiper-pagination {
     margin-bottom: 4%;

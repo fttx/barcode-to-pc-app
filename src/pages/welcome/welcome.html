@@ -96,7 +96,7 @@
       <ion-icon name="arrow-forward"></ion-icon>
     </button>
     <button class="btpv2-btn-primary" ion-button full large [hidden]="getNextHidden()" (click)="onNextClicked()" [innerHTML]="getNextButtonText()"> </button>
-    <button class="btpv2-btn-primary" ion-button full large icon-left [hidden]="!getShowScan()" (click)="onScanClicked()">
+    <button class="btpv2-btn-primary" ion-button full large icon-left [hidden]="!getShowScan()" (click)="onScanQRCodeClicked()">
       <ion-icon name="camera"></ion-icon>
       {{ 'scanQrCodeButton' | translate }}
     </button>
