@@ -89,6 +89,13 @@ page-welcome {
     align-items: center;
   }
 
+  // for low-height devices
+  @media (max-height: 615px) {
+    ion-slide .slide-zoom {
+      justify-content: flex-start !important;
+    }
+  }
+
   .button-inner {
     text-transform: none !important;
   }
