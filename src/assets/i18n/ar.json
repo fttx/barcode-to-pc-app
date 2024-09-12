@@ -101,6 +101,7 @@
   "scanSessionDialogDeleteButton": "حذف",
   "dontShowAnymoreDialogLabel": "لا تظهر مرة أخرى",
   "dontShowAnymoreSkipButton": "تخطى",
+  "To send barcodes to your computer the connection is necessary. If you want to this later, skip it for now.": "لإرسال الباركود إلى جهاز الكمبيوتر الخاص بك، الاتصال ضروري. إذا كنت ترغب في القيام بذلك لاحقًا، فتجاوز هذه الخطوة الآن.",
   "scanSessionPermanentDeleteDialogTitle": "هل أنت متأكد؟",
   "scanSessionPermanentDeleteDialogMessage": "سيتم حذف جلسة المسح بشكل دائم.\n\nإذا كنت تريد الاحتفاظ بها على الهاتف الذكي بدلاً من ذلك، استخدم زر الأرشيف.",
   "scanSessionPermanentDeleteCancelButton": "إلغاء",
@@ -210,9 +211,16 @@
   "skipWifiCheck": "تخطي فحص الواي فاي",
   "skipWifiCheckDescription": "مفيد عندما يتم توصيل التطبيق باستخدام بيانات الجوال 4G / 5G بدلاً من الواي فاي",
   "================================WELCOME_PAGE=================================": "",
+  "The easiest way to instantly send barcodes to computer programs and automate tasks": "أسهل طريقة لإرسال الباركود إلى برامج الكمبيوتر تلقائيًا وأتمتة المهام",
+  "Send Link to Your Email": "إرسال الرابط إلى بريدك الإلكتروني",
+  "Server Download Link": "رابط تنزيل الخادم",
+  "Get Link": "احصل على الرابط",
+  "Done": "تم",
+  "Check your email inbox and spam folder": "تحقق من صندوق الوارد الخاص بك ومجلد البريد العشوائي",
   "barcodeToPcRemoteDescription1": "مرحبًا بك في",
   "barcodeToPcRemoteDescription2": "التحكم عن بُعد بواسطة Wi-Fi!",
-  "barcodeToPcRemoteDescription3": "دعنا نتصل بالكمبيوتر ونحول هاتفك الذكي إلى ماسح باركود حقيقي.",
+  "Skip": "تخطي",
+  "Get Started": "ابدأ",
   "downloadServerTitle": "الخطوة 1 - تثبيت الخادم",
   "downloadServerDescription1": "قم بتثبيت ",
   "downloadServerDescription2": " على جهاز الكمبيوتر الخاص بك. التحميل: ",
@@ -288,6 +296,8 @@
   "preventInfiniteLoopStopButton": "إيقاف",
   "isPDADeviceDialogTitle": "هل جهازك جهاز PDA؟",
   "isPDADeviceDialogMessage": "<img src=\"assets/scan/pda.png\" class=\"dialog-pda-icon\"><br>إذا كان جهازك يحتوي على ماسح ضوئي مدمج، فيرجى استخدام وضع \"الإدخال اليدوي\" وتمكين اللاحقة [CR][LF].",
+  "isPDADeviceDialogTitle2": "تفعيل وضع PDA؟",
+  "isPDADeviceDialogMessage2": "<img src=\"assets/scan/pda.png\" class=\"dialog-pda-icon\"><br>يبدو أن جهاز {{ brand }} الخاص بك مزود بماسح ليزر مدمج. هل ترغب في تحسين التطبيق لاستخدامه؟",
   "isPDADeviceDialogNoButton": "لا",
   "isPDADeviceDialogShowLaterButton": "عرض لاحقًا",
   "isPDADeviceDialogMoreInfoButton": "نعم - عرض التعليمات",
@@ -328,18 +338,20 @@
   "barcodeToPcServer": "خادم باركود إلى الكمبيوتر",
   "appName": "باركود إلى الكمبيوتر",
   "dontShowUntilNextUpdateLabel": "لا تظهر حتى التحديث القادم",
-  "continueForFree": "استمر مجانًا!",
+  "Continue for Free!": "تابع مجانًا!",
+  "continueForFreeMessage": "تهانينا! لقد قمت بمسح أول 10 باركود 🚀<br><br>Barcode to PC يسمح بما يصل إلى 300 عملية مسح شهريًا مجانًا.",
   "incentiveEmailMessage": "<img src=\"assets/scan/rocket.png\"> 300 عملية مسح شهريًا<br><img src=\"assets/scan/lock.png\"> تبقى البيانات محلية على جهاز الكمبيوتر الخاص بك",
-  "continueWithFree": "استمر مجانًا",
-  "businessEmail": "البريد الإلكتروني للأعمال",
-  "appNotConnected": "التطبيق غير متصل",
-  "connectToAppMessage": "يرجى توصيل التطبيق ببرنامج الخادم للاستمرار.",
-  "invalidEmail": "بريد إلكتروني غير صالح",
-  "enterValidEmail": "يرجى إدخال عنوان بريد إلكتروني صالح",
-  "tryAgain": "حاول مرة أخرى",
-  "success": "نجاح 🎉",
-  "unlockedFreeScansMessage": "لقد قمت بإلغاء قفل عمليات المسح المجانية بنجاح! استمتع!",
-  "cancel": "إلغاء",
+  "Continue with Free": "تابع مع النسخة المجانية",
+  "Business Email": "البريد الإلكتروني للشركة",
+  "App not connected": "التطبيق غير متصل",
+  "Please connect to the app to the server program to continue.": "يرجى توصيل التطبيق ببرنامج الخادم للمتابعة.",
+  "Try again": "حاول مرة أخرى",
+  "Invalid Email": "بريد إلكتروني غير صالح",
+  "Please enter a valid email address": "يرجى إدخال عنوان بريد إلكتروني صالح",
+  "Success 🎉": "تم بنجاح 🎉",
+  "You have successfully unlocked the Free scans! Enjoy!": "لقد قمت بفتح عمليات المسح المجانية بنجاح! استمتع!",
+  "Close": "إغلاق",
+  "Cancel": "إلغاء",
   "================================MENU=========================================": "",
   "mainHeader": "الرئيسية",
   "scanSessions": "جلسات المسح الضوئي",
