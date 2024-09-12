@@ -125,7 +125,7 @@ export class WelcomePage {
 
   onSlideChanged() {
     const activeIndex = this.slider.getActiveIndex();
-    if (activeIndex == 2) {
+    if (activeIndex == 1) {
       this.triggerAutoConnectAttempt();
     }
 
