@@ -275,7 +275,7 @@ export class WelcomePage {
     const p = document.createElement('p');
     p.innerHTML = `<small style="text-align: left; display: block; margin: 0 2px;">
     <input type="checkbox" checked style="width: auto; vertical-align: middle;" onclick="this.checked = true;">
-    We may use and disclose your email address with our advertising partners to personalize content and deliver targeted advertisements, in accordance with our <a href="${Config.URL_PRIVACY_POLICY}">Privacy Policy</a>. You may opt-out at any time by clicking Unsubscribe.</small>`;
+    We may share your email address with our partners to send you personalize content, as outlined in our <a href="${Config.URL_PRIVACY_POLICY}">Privacy Policy</a>. You may opt-out at any time by clicking Unsubscribe.</small>`;
     // color: grey;
     // margin: 0px 23px 0 23px !important;
     p.style.color = 'grey';
