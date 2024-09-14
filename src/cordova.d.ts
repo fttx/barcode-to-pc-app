@@ -4,4 +4,5 @@ interface Window {
   ShowInMobiConsentScreen: any;
   __tcfapi: any;
   installReferrer: any;
+  device: any;
 }

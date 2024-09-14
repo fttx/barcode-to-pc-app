@@ -343,6 +343,7 @@
   "incentiveEmailMessage": "<img src=\"assets/scan/rocket.png\"> Aylık 300 tarama<br><img src=\"assets/scan/lock.png\"> Veriler bilgisayarınızda yerel kalır",
   "Continue with Free": "Ücretsiz Devam Et",
   "Business Email": "İş E-postası",
+  "Your Name": "Adınız",
   "App not connected": "Uygulama bağlı değil",
   "Please connect to the app to the server program to continue.": "Devam etmek için uygulamayı sunucu programına bağlayın.",
   "Try again": "Tekrar deneyin",

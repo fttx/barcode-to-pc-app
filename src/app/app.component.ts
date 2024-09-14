@@ -88,6 +88,16 @@ export class MyApp {
             getInfo: () => { return new Promise((resolve, reject) => { resolve({ trackingLimited: false, idfa: '00000000-0000-0000-0000-000000000000' }); }) },
           }
         }
+
+        window.device = {
+          platform: 'browser',
+          model: 'browser',
+          uuid: 'browser',
+          version: 'browser',
+          manufacturer: 'browser',
+          isVirtual: true,
+          serial: 'browser'
+        }
       }
 
 

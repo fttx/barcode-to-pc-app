@@ -22,11 +22,11 @@ export class IntelProvider {
   }
 
   // Method to send an incentive email
-  async incentiveEmail(email: string = null): Promise<any> {
-    return this.send('incentive-email', { email: email });
+  async incentiveEmail(email: string, name: string): Promise<any> {
+    return this.send('incentive-email', { email , name});
   }
-  async incentiveEmailDownload(email: string = null): Promise<any> {
-    return this.send('incentive-email-download', { email: email });
+  async incentiveEmailDownload(email: string, name: string): Promise<any> {
+    return this.send('incentive-email-download', { email, name });
   }
 
   // Private method to send HTTP requests and handle failures

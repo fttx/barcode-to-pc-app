@@ -343,6 +343,7 @@
   "incentiveEmailMessage": "<img src=\"assets/scan/rocket.png\"> 300 عملية مسح شهريًا<br><img src=\"assets/scan/lock.png\"> تبقى البيانات محلية على جهاز الكمبيوتر الخاص بك",
   "Continue with Free": "تابع مع النسخة المجانية",
   "Business Email": "البريد الإلكتروني للشركة",
+  "Your Name": "اسمك",
   "App not connected": "التطبيق غير متصل",
   "Please connect to the app to the server program to continue.": "يرجى توصيل التطبيق ببرنامج الخادم للمتابعة.",
   "Try again": "حاول مرة أخرى",

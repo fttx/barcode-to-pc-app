@@ -238,12 +238,14 @@ export class WelcomePage {
     this.inputEmailAlert = this.alertCtrl.create({
       cssClass: 'btp-get-more-scans-alert',
       inputs: [
+        { name: 'name', type: 'text', placeholder: this.translateService.instant('Your Name'), value: localStorage.getItem('name') || '' },
         { name: 'email', type: 'email', placeholder: this.translateService.instant('Business Email'), value: localStorage.getItem('email') || '' },
       ],
       title: this.translateService.instant('Server Download Link'),
       buttons: [{
         text: this.translateService.instant('Get Link'), handler: (data) => {
           localStorage.setItem('email', data.email);
+          localStorage.setItem('name', data.name);
           const isValidEmail = data.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email);
           if (!isValidEmail) {
             this.invalidEmailAlert = this.alertCtrl.create({
@@ -254,7 +256,7 @@ export class WelcomePage {
             this.invalidEmailAlert.present();
             return false;
           }
-          this.intel.incentiveEmailDownload(data.email);
+          this.intel.incentiveEmailDownload(data.email, data.name);
           this.alertCtrl.create({
             title: this.translateService.instant('Done'),
             message: this.translateService.instant('Check your email inbox and spam folder'),

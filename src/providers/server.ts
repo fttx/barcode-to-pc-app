@@ -618,12 +618,16 @@ export class ServerProvider {
           text: await this.utils.text('Continue with Free'), handler: () => {
             this.inputEmailAlert = this.alertCtrl.create({
               cssClass: 'btp-get-more-scans-alert',
-              inputs: [{ name: 'email', type: 'email', placeholder: this.translateService.instant('Business Email'), value: localStorage.getItem('email') || '' },],
+              inputs: [
+                { name: 'name', type: 'text', placeholder: this.translateService.instant('Your Name'), value: localStorage.getItem('name') || '' },
+                { name: 'email', type: 'email', placeholder: this.translateService.instant('Business Email'), value: localStorage.getItem('email') || '' },
+              ],
               title: this.translateService.instant('Continue with Free'),
-              message: this.translateService.instant('incentiveEmailMessage'),
+              message: this.translateService.instant('incentiveEmailMessage') + '<br><br>',
               buttons: [{
                 text: this.translateService.instant('Continue with Free'), handler: (data) => {
                   localStorage.setItem('email', data.email);
+                  localStorage.setItem('name', data.name);
                   if (!this.isConnected()) {
                     this.alertCtrl.create({
                       title: this.translateService.instant('App not connected'),
@@ -642,8 +646,8 @@ export class ServerProvider {
                     this.invalidEmailAlert.present({ id: 'incentive_email' });
                     return false;
                   }
-                  this.send(new requestModelEmailIncentiveCompleted().fromObject({ email: data.email }));
-                  this.intel.incentiveEmail(data.email);
+                  this.send(new requestModelEmailIncentiveCompleted().fromObject({ email: data.email, name: data.name }));
+                  this.intel.incentiveEmail(data.email, data.name);
                   this.alertCtrl.create({
                     title: this.translateService.instant('Success 🎉'),
                     message: this.translateService.instant('You have successfully unlocked the Free scans! Enjoy!'),
