@@ -255,7 +255,7 @@ export class Settings {
       return this.storage.get(Settings.MANUALLY_ADDED).then(data => {
         if (data) {
           let servers = JSON.parse(data);
-          servers = servers.map(x => new ServerModel(x.ip, x.port, x.name));
+          servers = servers.filter(x => !!x.ip).map(x => new ServerModel(x.ip, x.port, x.name));
           resolve(servers)
         } else {
           reject();

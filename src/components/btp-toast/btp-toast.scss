@@ -82,6 +82,13 @@ btp-toast {
     height: 20px;
   }
 
+  // iphone se
+  @media (max-width: 375px) {
+    btp-toast {
+      top: 62px;
+    }
+  }
+
   // landscape
   @media (orientation: landscape) {
     btp-toast {

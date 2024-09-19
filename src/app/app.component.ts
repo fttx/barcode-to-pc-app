@@ -131,11 +131,13 @@ export class MyApp {
         // Listen for when the keyboard will be shown
         window.addEventListener('keyboardWillShow', () => {
           const iosToolbar = document.querySelector('.ios-toolbar');
+          if (!iosToolbar) return;
           iosToolbar.classList.add('keyboard-opened');
           iosToolbar.classList.remove('keyboard-hidden');
         });
         window.addEventListener('keyboardWillHide', () => {
           const iosToolbar = document.querySelector('.ios-toolbar');
+          if (!iosToolbar) return;
           iosToolbar.classList.add('keyboard-hidden');
           iosToolbar.classList.remove('keyboard-open');
         });

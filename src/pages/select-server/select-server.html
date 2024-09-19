@@ -16,10 +16,10 @@
   <br>
   <ion-spinner class="main-spinner" color="primary" [hidden]="servers.length != 0 || offlineMode"></ion-spinner>
 
-  <div [hidden]="!offlineMode" text-center class="offline-mode">
+  <div [hidden]="!offlineMode" text-center class="offline-mode btpv2-alert">
     <h1>{{ 'switchOnlineModeTitle' | translate }}</h1>
     <p>{{ 'switchOnlineMode' | translate }}</p>
-    <button ion-button color="primary" (click)="init(false)">{{ 'onlineModeTitle' | translate }}</button>
+    <button class="btpv2-btn-primary" ion-button color="primary" (click)="init(false)">{{ 'onlineModeTitle' | translate }}</button>
   </div>
 
   <ion-list [hidden]="servers.length == 0 || offlineMode" radio-group [(ngModel)]="selectedServer" class="server-list">
@@ -65,14 +65,17 @@
   <!-- Empty divider -->
   <ion-item-divider color="light"></ion-item-divider>
 
-  <button class="action-button" ion-button icon-start text-center (click)="onScanQRCodeClicked()">
-    <ion-icon name="qr-scanner"></ion-icon> {{ 'qrPairingButton' | translate }}
-  </button>
-  <button class="action-button" ion-button icon-start text-center (click)="onAddManuallyClicked()">
-    <ion-icon name="add"></ion-icon> {{ 'addServerButton' | translate }}
-  </button>
-  <button class="action-button" ion-button outline icon-start text-center (click)="init(true)" [disabled]="offlineMode">
-    <ion-icon name="remove-circle-outline"></ion-icon> {{ 'offlineModeButton' | translate }}
-  </button>
+  <div class="btpv2-alert">
+    <button class="action-button btpv2-btn-primary" ion-button icon-start text-center (click)="onScanQRCodeClicked()">
+      <ion-icon name="qr-scanner"></ion-icon> {{ 'qrPairingButton' | translate }}
+    </button>
+    <button class="action-button btpv2-btn-primary" ion-button icon-start text-center (click)="onAddManuallyClicked()">
+      <ion-icon name="add"></ion-icon> {{ 'addServerButton' | translate }}
+    </button>
+    <button class="action-button btpv2-btn-cancel" ion-button outline icon-start text-center (click)="init(true)" [disabled]="offlineMode">
+      <ion-icon name="remove-circle-outline"></ion-icon> {{ 'offlineModeButton' | translate }}
+    </button>
+  </div>
+
 
 </ion-content>
