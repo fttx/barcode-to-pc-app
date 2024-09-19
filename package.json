@@ -90,7 +90,7 @@
     "zone.js": "0.8.26"
   },
   "devDependencies": {
-    "@fttx/cordova-plugin-firebase-analytics": "^8.2.1",
+    "@fttx/cordova-plugin-firebase-analytics": "^8.2.2",
     "@ionic/app-scripts": "3.2.4",
     "@types/bluebird": "3.5.21",
     "@types/papaparse": "^5.0.1",
@@ -163,7 +163,7 @@
         "GPS_REQUIRED": "false"
       },
       "com-darryncampbell-cordova-plugin-intent": {},
-      "cordova-plugin-firebase-analytics": {
+      "@fttx/cordova-plugin-firebase-analytics": {
         "ANALYTICS_COLLECTION_ENABLED": "true",
         "AUTOMATIC_SCREEN_REPORTING_ENABLED": "true",
         "GOOGLE_ANALYTICS_DEFAULT_ALLOW_ANALYTICS_STORAGE": "false",
@@ -171,7 +171,7 @@
         "GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_USER_DATA": "false",
         "GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_PERSONALIZATION_SIGNALS": "false",
         "ANDROID_FIREBASE_BOM_VERSION": "30.3.1",
-        "IOS_FIREBASE_POD_VERSION": "9.3.0"
+        "IOS_FIREBASE_POD_VERSION": "10.24.0"
       },
       "cordova-plugin-idfa": {
         "ANDROID_PLAY_ADID_VERSION": "17.0.+"
