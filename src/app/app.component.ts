@@ -86,7 +86,7 @@ export class MyApp {
           },
           idfa: {
             getInfo: () => { return new Promise((resolve, reject) => { resolve({ trackingLimited: false, idfa: '00000000-0000-0000-0000-000000000000' }); }) },
-          }
+          },
         }
 
         window.device = {
@@ -97,6 +97,51 @@ export class MyApp {
           manufacturer: 'browser',
           isVirtual: true,
           serial: 'browser'
+        }
+
+        window.plugins = {
+          NativeAudio: {
+            preloadComplex: (id, assetPath, volume, voices, delay, successCallback, errorCallback) => {
+              console.log(`Dummy NativeAudio.preloadComplex called with id: ${id}, assetPath: ${assetPath}`);
+              successCallback();
+            },
+            preloadSimple: (id, assetPath, successCallback, errorCallback) => {
+              console.log(`Dummy NativeAudio.preloadSimple called with id: ${id}, assetPath: ${assetPath}`);
+              successCallback();
+            },
+            play: (id) => {
+              console.log(`Dummy NativeAudio.play called with id: ${id}`);
+            },
+            loop: (id) => {
+              console.log(`Dummy NativeAudio.loop called with id: ${id}`);
+            },
+            stop: (id) => {
+              console.log(`Dummy NativeAudio.stop called with id: ${id}`);
+            },
+            unload: (id) => {
+              console.log(`Dummy NativeAudio.unload called with id: ${id}`);
+            }
+          },
+          intentShim: {
+            registerBroadcastReceiver: (filters, callback) => {
+              console.log('Dummy registerBroadcastReceiver called with filters:', filters);
+              callback();
+            }
+          },
+        }
+
+        window['LaunchReview'] = {
+          launch: (appId) => {
+            console.log('Dummy LaunchReview.launch called with appId:', appId);
+          },
+          isRatingSupported: () => {
+            console.log('Dummy LaunchReview.isRatingSupported called');
+            return Promise.resolve(true);
+          },
+          rating: () => {
+            console.log('Dummy LaunchReview.rating called');
+            return Promise.resolve();
+          }
         }
       }
 

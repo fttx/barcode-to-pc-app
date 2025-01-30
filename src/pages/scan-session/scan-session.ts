@@ -155,6 +155,10 @@ export class ScanSessionPage {
       filterActions: (await this.settings.getPDAIntents()).split(','),
     }).subscribe(intent => {
       let data = null;
+      if (!intent || !intent.extras) {
+        console.log('No extras in the intent (probably in debug mode)');
+        return;
+      }
       if (intent.extras.hasOwnProperty('com.symbol.datawedge.data_string')) {
         // The Zebra devices use the DataWedge API to send the barcode, and they
         // write the result into the intent.extras["com.symbol.datawedge.data_string"]
