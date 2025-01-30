@@ -1,0 +1,14 @@
+image-viewer {
+  .image-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100% !important;
+    background-color: black !important;
+  }
+
+  img {
+    max-width: 100%;
+    max-height: 100%;
+  }
+}

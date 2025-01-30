@@ -1,0 +1,16 @@
+<ion-header>
+  <ion-navbar color="primary">
+    <ion-buttons end>
+      <button ion-button icon-only (click)="closeModal()">
+        {{ 'close' | translate }}
+        <ion-icon name="close"></ion-icon>
+      </button>
+    </ion-buttons>
+  </ion-navbar>
+</ion-header>
+
+<ion-content no-padding>
+  <div class="image-container">
+    <img [src]="imageBase64">
+  </div>
+</ion-content>

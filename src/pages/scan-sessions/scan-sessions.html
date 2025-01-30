@@ -8,9 +8,10 @@
 
 		<ion-buttons end *ngIf="selectedScanSessions.length == 0">
 			<button ion-button icon-only (click)="onSelectServerClick()">
-				<img src="assets/select-server/offline.png?v=9" class="btp-server-status-icon" [hidden]="connectionStatus !== 'offline'">
-				<img src="assets/select-server/online.png?v=9" class="btp-server-status-icon" [hidden]="connectionStatus !== 'online'">
-				<img src="assets/select-server/connecting.png?v=9" class="btp-server-status-icon" [hidden]="connectionStatus !== 'connecting'">
+				<img src="assets/select-server/offline.png?v=9" class="btp-server-status-icon" [hidden]="connectionStatus !== 'offline' || isKicked()">
+				<img src="assets/select-server/online.png?v=9" class="btp-server-status-icon" [hidden]="connectionStatus !== 'online' || isKicked()">
+				<img src="assets/select-server/connecting.png?v=9" class="btp-server-status-icon" [hidden]="connectionStatus !== 'connecting' || isKicked()">
+				<img src="assets/select-server/offline.png?v=9" class="btp-server-status-icon" [hidden]="!isKicked()">
 			</button>
 		</ion-buttons>
 

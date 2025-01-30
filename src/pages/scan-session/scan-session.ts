@@ -23,12 +23,12 @@ import { Settings } from './../../providers/settings';
 import { CSVExportOptionsPage } from './csv-export-options/csv-export-options';
 import { EditScanSessionPage } from './edit-scan-session/edit-scan-session';
 import { SelectScanningModePage } from './select-scanning-mode/select-scanning-mode';
-import { PhotoViewer } from '@ionic-native/photo-viewer';
 import { WebIntent } from '@ionic-native/web-intent';
 import { debounce } from 'helpful-decorators';
 import { BtpAlertController } from '../../providers/btp-alert-controller/btp-alert-controller';
 import { TranslateService } from '@ngx-translate/core';
 import { BtpaInAppBrowser } from '../../providers/btpa-in-app-browser/btpa-in-app-browser';
+import { ImageViewerPage } from '../image-viewer/image-viewer';
 
 /**
  * This page is used to display the list of the barcodes of a specific
@@ -87,7 +87,6 @@ export class ScanSessionPage {
     private file: File,
     public events: Events,
     private nfc: NFC,
-    private photoViewer: PhotoViewer,
     private webIntent: WebIntent,
     private translateService: TranslateService,
   ) {
@@ -378,18 +377,7 @@ export class ScanSessionPage {
 
   private showImage(scan) {
     const imageBlock = scan.outputBlocks.find(x => x.type == 'image');
-    if (this.platform.is('ios')) {
-      this.iab.create(imageBlock.image, '_blank', 'enableViewportScale=yes,location=no,closebuttoncaption=Close,closebuttoncolor=#ffffff');
-    } else {
-      const options = {
-        share: true, // default is false
-        closeButton: true, // default is true
-        copyToReference: false, // default is false
-        headers: '',  // If this is not provided, an exception will be triggered
-        piccasoOptions: {} // If this is not provided, an exception will be triggered
-      };
-      this.photoViewer.show(imageBlock.image, scan.displayValue, options);
-    }
+    this.modalCtrl.create(ImageViewerPage, { imageBase64: imageBlock.image }).present()
   }
 
   async onItemClicked(scan: ScanModel, scanIndex: number) {

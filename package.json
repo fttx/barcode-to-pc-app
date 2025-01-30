@@ -48,7 +48,6 @@
     "@ngx-translate/http-loader": "^2.0.1",
     "angular2-moment": "^1.7.0",
     "bluebird": "^3.5.1",
-    "com-sarriaroman-photoviewer": "^1.3.0",
     "cordova": "^11.1.0",
     "cordova-ios": "^6.3.0",
     "cordova-launch-review": "^3.1.1",
@@ -150,7 +149,6 @@
       "fttx-phonegap-nfc": {
         "NFC_USAGE_DESCRIPTION": "Read NFC Tags"
       },
-      "com-sarriaroman-photoviewer": {},
       "cordova-plugin-file": {
         "ANDROIDX_WEBKIT_VERSION": "1.4.0"
       },

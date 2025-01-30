@@ -45,7 +45,6 @@ import { Settings } from '../providers/settings';
 import { Utils } from '../providers/utils';
 import { MyApp } from './app.component';
 import { Ndef, NFC } from '@ionic-native/nfc';
-import { PhotoViewer } from '@ionic-native/photo-viewer';
 import { Geolocation } from '@ionic-native/geolocation';
 import { WebIntent } from '@ionic-native/web-intent';
 import { Keyboard } from '@ionic-native/keyboard';
@@ -56,6 +55,7 @@ import { BtpToastService } from '../components/btp-toast/btp-toast.service';
 import { BtpAlertController } from '../providers/btp-alert-controller/btp-alert-controller';
 import { IntelProvider } from '../providers/intel/intel';
 import { BtpaInAppBrowser } from '../providers/btpa-in-app-browser/btpa-in-app-browser';
+import { ImageViewerPage } from '../pages/image-viewer/image-viewer';
 
 // Modules
 // Ionic-native
@@ -69,6 +69,7 @@ import { BtpaInAppBrowser } from '../providers/btpa-in-app-browser/btpa-in-app-b
     MyApp,
     AboutPage,
     ArchivedPage,
+    ImageViewerPage,
     ScanSessionsPage,
     EditScanSessionPage,
     CSVExportOptionsPage,
@@ -106,6 +107,7 @@ import { BtpaInAppBrowser } from '../providers/btpa-in-app-browser/btpa-in-app-b
     MyApp,
     AboutPage,
     ArchivedPage,
+    ImageViewerPage,
     ScanSessionsPage,
     SelectServerPage,
     EditScanSessionPage,
@@ -135,7 +137,6 @@ import { BtpaInAppBrowser } from '../providers/btpa-in-app-browser/btpa-in-app-b
     File,
     NetworkInterface,
     NFC,
-    PhotoViewer,
     Geolocation,
     Ndef,
     Network,
