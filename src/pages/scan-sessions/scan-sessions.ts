@@ -483,4 +483,8 @@ export class ScanSessionsPage {
       this.scanSessions.splice(index, 1);
     }
   }
+
+  private isKicked() {
+    return this.serverProvider.kickedOut;
+  }
 }

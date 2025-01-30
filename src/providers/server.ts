@@ -9,7 +9,7 @@ import { Observable, Subject } from 'rxjs';
 import { SemVer } from 'semver';
 import { discoveryResultModel } from '../models/discovery-result';
 import { requestModel, requestModelDeleteScanSessions, requestModelEmailIncentiveCompleted, requestModelGetVersion, requestModelHelo, requestModelPing, requestModelPutScanSessions } from '../models/request.model';
-import { responseModel, responseModelEnableQuantity, responseModelHelo, responseModelKick, responseModelPopup, responseModelUpdateSettings } from '../models/response.model';
+import { responseModel, responseModelEnableQuantity, responseModelHelo, responseModelKick, responseModelPopup, responseModelUnkick, responseModelUpdateSettings } from '../models/response.model';
 import { wsEvent } from '../models/ws-event.model';
 import { HelpPage } from '../pages/help/help';
 import { Settings } from '../providers/settings';
@@ -56,7 +56,7 @@ export class ServerProvider {
 
   private fallBackTimeout = null;
   private popup: BTPAlert = null;
-  private kickedOut = false;
+  public kickedOut = false;
 
   private lastOnResumeSubscription = null;
   private lastOnPauseSubscription = null;
@@ -293,14 +293,11 @@ export class ServerProvider {
       } else if (messageData.action == responseModel.ACTION_KICK) {
         let responseModelKick: responseModelKick = messageData;
         this.kickedOut = true;
-
-        if (responseModelKick.message != '') {
-          this.alertCtrl.create({
-            title: await this.utils.text('responseModelKickDialogTitle'),
-            message: responseModelKick.message,
-            buttons: [{ text: await this.utils.text('responseModelKickDialogCloseButton'), role: 'cancel' }]
-          }).present();
-        }
+        this.showKickAlert(responseModelKick.message);
+      } else if (messageData.action == responseModel.ACTION_UNKICK) {
+        let responseModelUnkick: responseModelUnkick = messageData;
+        this.kickedOut = false;
+        this.kickAlert.dismiss();
       }
       this.ngZone.run(() => {
         this._onMessage.next(messageData);
@@ -314,6 +311,7 @@ export class ServerProvider {
       this.everConnected = true; // for current instance
       this.settings.setEverConnected(true); // for statistics usage
       this.serverQueue = [];
+      this.kickedOut = false;
 
       if (this.pongTimeout) clearTimeout(this.pongTimeout);
       console.log("[S-wc]: WS: reconnected successfully with " + server.getAddress())
@@ -435,6 +433,7 @@ export class ServerProvider {
 
   async send(request: requestModel) {
     if (this.kickedOut) {
+      this.showKickAlert();
       return;
     }
 
@@ -498,7 +497,7 @@ export class ServerProvider {
       this.zeroconf.watch('_http._tcp.', 'local.').subscribe(zeroconfResult => {
         var action = zeroconfResult.action;
         var service = zeroconfResult.service;
-        if (service.port == Config.SERVER_PORT && service.ipv4Addresses && service.ipv4Addresses.length) {
+        if ((service.port == Config.SERVER_PORT || service.name == Config.ZEROCONF_SERVER_NAME_OLD || service.name.includes(Config.ZEROCONF_SERVER_NAME)) && service.ipv4Addresses && service.ipv4Addresses.length) {
           console.log("[S-wfs] zeroconf ->", zeroconfResult);
 
           this.ngZone.run(() => {
@@ -670,5 +669,24 @@ export class ServerProvider {
       ]
     });
     this.emailIncentiveAlert.present({ id: 'incentive_email' });
+  }
+
+  private lastKickMessage = null;
+  private kickAlert: BTPAlert = null;
+
+  private async showKickAlert(message: string | null = null) {
+    const text = message || this.lastKickMessage || '';
+    this.lastKickMessage = text;
+    if (!this.kickAlert && text != '') {
+      this.kickAlert = this.alertCtrl.create({
+        title: await this.utils.text('responseModelKickDialogTitle'),
+        message: text,
+        buttons: [{ text: await this.utils.text('responseModelKickDialogCloseButton'), role: 'cancel' }]
+      });
+      this.kickAlert.didLeave.subscribe(() => {
+        this.kickAlert = null;
+      });
+      this.kickAlert.present();
+    }
   }
 }

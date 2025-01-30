@@ -10,6 +10,9 @@ import { Injectable } from '@angular/core';
 export class Config {
   public static DEBUG = false;
 
+  public static ZEROCONF_SERVER_NAME_OLD = 'Barcode to PC server';
+  public static ZEROCONF_SERVER_NAME = 'barcode-to-pc-server-';
+
   public static URL_WEBSITE = 'https://barcodetopc.com/';
   public static URL_BARCODEBYTE = 'https://barcodebyte.com/';
   public static URL_INSTRUCTIONS = 'https://barcodetopc.com/frequently-asked-questions/#app-doesnt-find-computer';
