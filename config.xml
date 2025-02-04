@@ -127,9 +127,7 @@
             </array>
         </edit-config>
         <edit-config file="*-Info.plist" mode="merge" target="NSLocalNetworkUsageDescription">
-            <string>${PRODUCT_NAME} uses the local network to discover the Barcode to PC server
-        program
-        installed on your computer</string>
+            <string>To send barcodes to the "Barcode to PC server" program installed on your computer</string>
         </edit-config>
         <edit-config file="*-Info.plist" mode="merge" target="NSLocationWhenInUseUsageDescription">
             <string>need location access to save the barcode location</string>
