@@ -246,6 +246,7 @@ export class WelcomePage {
         text: this.translateService.instant('Get Link'), handler: (data) => {
           localStorage.setItem('email', data.email);
           localStorage.setItem('name', data.name);
+
           const isValidEmail = data.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email);
           if (!isValidEmail) {
             this.invalidEmailAlert = this.alertCtrl.create({
@@ -256,6 +257,18 @@ export class WelcomePage {
             this.invalidEmailAlert.present();
             return false;
           }
+
+          const checkBox: any = document.getElementById('btp-welcome-consent');
+          if (checkBox && !checkBox.checked) {
+            this.invalidEmailAlert = this.alertCtrl.create({
+              title: this.translateService.instant('Consent required'),
+              message: this.translateService.instant('Please accept the privacy policy to continue'),
+              buttons: [{ text: this.translateService.instant('Try again'), handler: () => { this.showEmailIncentiveAlert(); } }],
+            });
+            this.invalidEmailAlert.present();
+            return false;
+          }
+
           this.intel.incentiveEmailDownload(data.email, data.name);
           this.alertCtrl.create({
             title: this.translateService.instant('Done'),
@@ -276,7 +289,7 @@ export class WelcomePage {
     const buttonGroup = document.querySelector('.alert-button-group');
     const p = document.createElement('p');
     p.innerHTML = `<small style="text-align: left; display: block; margin: 0 2px;">
-    <input type="checkbox" checked style="width: auto; vertical-align: middle;" onclick="this.checked = true;">
+    <input type="checkbox" checked style="width: auto; vertical-align: middle;" id="btp-welcome-consent">
     We may share your email address with our partners to send you personalize content, as outlined in our <a href="${Config.URL_PRIVACY_POLICY}">Privacy Policy</a>. You may opt-out at any time by clicking Unsubscribe.</small>`;
     // color: grey;
     // margin: 0px 23px 0 23px !important;
