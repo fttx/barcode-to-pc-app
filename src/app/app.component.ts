@@ -421,6 +421,7 @@ export class MyApp {
     return new Promise<boolean>((resolve, reject) => {
       this.alertCtrl.create({
         message: `
+        <h1>Why do we require permissions?</h1>
         Barcode to PC collects images and location data to enable the real-time LAN synchronization with the selected Barcode to PC server.
 
         <div class="permission-header">
@@ -432,6 +433,10 @@ export class MyApp {
           <img src="assets/prominent-disclosure/location.png"> <h2>Location</h2>
         </div>
         Barcode to PC collects location data to enable real-time synchronization of barcodes metadata, even when the app is not in use.
+
+        <br><br>
+
+        Note that the app uses such permissions <u>only when you configure to do so</u> in your Output template settings.
 
         <br><br>
 
@@ -464,8 +469,9 @@ export class MyApp {
   showInMobiConsentScreen() {
     // Set an interval that checks every 100ms if the InMobi consent screen has been loaded and overrides the text of the .qc-cmp2-publisher-logo-container h2 element to "Cookie Policy"
     const overrideH2 = setInterval(() => {
-      if (document.querySelector('.qc-cmp2-publisher-logo-container h2')) {
-        document.querySelector('.qc-cmp2-publisher-logo-container h2').textContent = 'Cookie Policy';
+      let targetSpan = document.querySelector("#qc-cmp2-ui span");
+      if (targetSpan) {
+        targetSpan.textContent = "Cookie Policy";
       }
     }, 100);
     setTimeout(() => { clearInterval(overrideH2); }, 5000);
