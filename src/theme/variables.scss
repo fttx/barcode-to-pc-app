@@ -134,6 +134,13 @@ $colors: (
       margin: 6px 2px 0 -4px;
     }
 
+    h1 {
+      font-size: 1.7rem !important;
+      font-weight: 700;
+      margin-top: 0px;
+      margin-bottom: 15px;
+    }
+
     h2 {
       color: #000 !important;
       font-size: 18px;
@@ -355,4 +362,8 @@ $colors: (
     width: 16px;
     margin: 8px 1px -3px 0;
   }
+}
+
+.fb-text-signature  {
+  display: none;
 }
