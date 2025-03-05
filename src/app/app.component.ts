@@ -241,7 +241,7 @@ export class MyApp {
     });
 
     this.events.subscribe('incentive_email_alert_show', () => {
-      this.setPage(ScanSessionsPage);
+      this.nav.setRoot(ScanSessionsPage);
     });
   }
 

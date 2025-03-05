@@ -607,6 +607,7 @@ export class ServerProvider {
       // When formbricks survey is completed, send the email to the server program
       if (event.data === "formbricksSurveyCompleted") {
         console.log("## formbricks completed");
+        localStorage.setItem('incentive_email_survey_completed', 'true');
         this.sendIncentiveEmailSuccessResponse();
       }
     });
@@ -615,20 +616,20 @@ export class ServerProvider {
   private formBricksAttempt: boolean = false;
   private async showEmailIncentiveAlert() {
     // Check if the user already submitted the survey
-    const email = localStorage.getItem('email');
-    const successSent = localStorage.getItem('email_incentive_alert_success_sent');
-    if (email && !successSent) {
-      console.log('## formbricks success failed, trying to sending it again...');
+    const done = localStorage.getItem('incentive_email_survey_completed');
+    const sent = localStorage.getItem('incentive_email_survey_sent');
+    if (done && !sent) {
+      console.log('## formbricks failed to send to server program, trying to sending it again...');
       this.sendIncentiveEmailSuccessResponse();
       return;
     }
 
     // Show the survey
     if (window.formbricks && !this.formBricksAttempt) {
-      this.events.publish('incentive_email_alert_show');
-      window.cordova.plugins.firebase.analytics.logEvent('email_incentive_alert_show', {});
       console.log("## formbricks show survey");
+      window.cordova.plugins.firebase.analytics.logEvent('email_incentive_alert_show', {});
       window.formbricks.track("incentive_email");
+      this.events.publish('incentive_email_alert_show');
       this.formBricksAttempt = true;
     }
   }
@@ -636,10 +637,10 @@ export class ServerProvider {
   private async sendIncentiveEmailSuccessResponse() {
     const email = localStorage.getItem('email');
     const name = localStorage.getItem('name');
-    const successSent = localStorage.getItem('email_incentive_alert_success_sent');
+    const sent = localStorage.getItem('incentive_email_survey_sent');
 
-    if (successSent) {
-      console.log("## formbricks send success already sent", email, name);
+    if (sent) {
+      console.log("## formbricks already sent", email, name);
       return;
     }
 
@@ -647,7 +648,7 @@ export class ServerProvider {
       console.log("## formbricks send success", email, name);
       await this.send(new requestModelEmailIncentiveCompleted().fromObject({ email: email, name: name }));
       window.cordova.plugins.firebase.analytics.logEvent('email_incentive_alert_success', {});
-      localStorage.setItem('email_incentive_alert_success_sent', 'true');
+      localStorage.setItem('incentive_email_survey_sent', 'true');
     } else {
       console.log("## formbricks send success failed (not connected)", email, name);
     }
