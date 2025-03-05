@@ -364,6 +364,16 @@ $colors: (
   }
 }
 
-.fb-text-signature  {
-  display: none;
+// formbricks
+a[href="https://formbricks.com?utm_source=survey_branding"] {
+  display: none !important;
+}
+.fb-formbricks-form > div {
+  background: #0000008f;
+}
+#fbjs {
+  div {
+    border-bottom-right-radius: 0 !important;
+    border-bottom-left-radius: 0 !important
+  }
 }

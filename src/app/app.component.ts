@@ -232,6 +232,8 @@ export class MyApp {
         }
         this.eventsReporterProvider.init();
       });
+
+      window.InitFormbricks();
     });
 
     this.events.subscribe('setPage', (page, isRoot = false) => {

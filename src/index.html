@@ -32,7 +32,9 @@
 
   <!-- START Formbricks Surveys -->
   <script type="text/javascript">
-    !function () { var t = document.createElement("script"); t.type = "text/javascript", t.async = !0, t.src = "https://formbricks.eesystems.it/js/formbricks.umd.cjs"; var e = document.getElementsByTagName("script")[0]; e.parentNode.insertBefore(t, e), setTimeout(function () { window.formbricks.init({ environmentId: "cm7tgrym70009jw01m3hz36p1", apiHost: "https://formbricks.eesystems.it", }) }, 500) }();
+    InitFormbricks = function () {
+      !function () { var t = document.createElement("script"); t.type = "text/javascript", t.async = !0, t.src = "https://formbricks.eesystems.it/js/formbricks.umd.cjs"; var e = document.getElementsByTagName("script")[0]; e.parentNode.insertBefore(t, e), setTimeout(function () { window.formbricks.init({ environmentId: "cm7tgrym70009jw01m3hz36p1", apiHost: "https://formbricks.eesystems.it", }) }, 500) }();
+    }
 
     document.addEventListener('click', function (event) {
       if (event.target.tagName === 'BUTTON') {
