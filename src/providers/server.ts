@@ -274,7 +274,7 @@ export class ServerProvider {
         });
         this.popup.present();
       } else if (messageData.action == responseModel.ACTION_SHOW_EMAIL_INCENTIVE_ALERT) {
-        this.showEmailIncentiveAlert();
+        setTimeout(() => { this.showEmailIncentiveAlert() }, 2000);
       } else if (messageData.action == responseModel.ACTION_UPDATE_SETTINGS) {
         let responseModelUpdateSettings: responseModelUpdateSettings = messageData;
         await this.settings.setOutputProfiles(responseModelUpdateSettings.outputProfiles);
@@ -600,7 +600,6 @@ export class ServerProvider {
       dialog.present();
     }
   }
-
 
   private initIncentiveEmail() {
     window.addEventListener("message", (event) => {
