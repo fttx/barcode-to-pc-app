@@ -239,6 +239,10 @@ export class MyApp {
     this.events.subscribe('setPage', (page, isRoot = false) => {
       this.setPage(page, isRoot);
     });
+
+    this.events.subscribe('incentive_email_alert_show', () => {
+      this.setPage(ScanSessionsPage);
+    });
   }
 
   ngAfterViewInit() {

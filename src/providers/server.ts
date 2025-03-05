@@ -3,7 +3,7 @@ import { AppVersion } from '@ionic-native/app-version';
 import { Device } from '@ionic-native/device';
 import { NetworkInterface } from '@ionic-native/network-interface';
 import { Zeroconf } from '@ionic-native/zeroconf';
-import { Events, Platform } from 'ionic-angular';
+import { Events, NavController, Platform } from 'ionic-angular';
 import * as ipUtils from 'ip-utils';
 import { Observable, Subject } from 'rxjs';
 import { SemVer } from 'semver';
@@ -623,9 +623,12 @@ export class ServerProvider {
     }
 
     // Show the survey
-    window.cordova.plugins.firebase.analytics.logEvent('email_incentive_alert_show', {});
-    console.log("## formbricks show survey");
-    window.formbricks.track("incentive_email");
+    if (window.formbricks) {
+      this.events.publish('incentive_email_alert_show');
+      window.cordova.plugins.firebase.analytics.logEvent('email_incentive_alert_show', {});
+      console.log("## formbricks show survey");
+      window.formbricks.track("incentive_email");
+    }
   }
 
   private async sendIncentiveEmailSuccessResponse() {
