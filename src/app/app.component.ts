@@ -124,8 +124,9 @@ export class MyApp {
           },
           intentShim: {
             registerBroadcastReceiver: (filters, callback) => {
-              console.log('Dummy registerBroadcastReceiver called with filters:', filters);
-              callback();
+              console.log('Dummy registerBroadcastReceiver listening for:', filters);
+              // console.log('Dummy registerBroadcastReceiver called for:', filters);
+              // callback();
             }
           },
         }
