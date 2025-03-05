@@ -53,7 +53,6 @@ import { BtpToastComponent } from '../components/btp-toast/btp-toast';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { BtpToastService } from '../components/btp-toast/btp-toast.service';
 import { BtpAlertController } from '../providers/btp-alert-controller/btp-alert-controller';
-import { IntelProvider } from '../providers/intel/intel';
 import { BtpaInAppBrowser } from '../providers/btpa-in-app-browser/btpa-in-app-browser';
 import { ImageViewerPage } from '../pages/image-viewer/image-viewer';
 
@@ -150,7 +149,6 @@ import { ImageViewerPage } from '../pages/image-viewer/image-viewer';
     ZebraProvider,
     BtpToastService,
     BtpAlertController,
-    IntelProvider,
     BtpaInAppBrowser,
   ]
 })
