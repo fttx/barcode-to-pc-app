@@ -12,6 +12,7 @@ import { ServerModel } from './../../models/server.model';
 import { debounce } from 'helpful-decorators';
 import { BTPAlert, BtpAlertController } from '../../providers/btp-alert-controller/btp-alert-controller';
 import { BtpaInAppBrowser } from '../../providers/btpa-in-app-browser/btpa-in-app-browser';
+import { HttpClient } from '@angular/common/http';
 declare var window: any;
 
 /*
@@ -44,6 +45,7 @@ export class WelcomePage {
     private utils: Utils,
     private iab: BtpaInAppBrowser,
     private translateService: TranslateService,
+    public http: HttpClient
   ) {
 
   }
@@ -272,6 +274,7 @@ export class WelcomePage {
             message: this.translateService.instant('Check your email inbox and spam folder'),
             buttons: [{
               text: this.translateService.instant('Close'), handler: () => {
+                this.http.post(Config.URL_INTEL + '/incentive-email-download', { email: data.email, name: data.name }, { headers: { 'Content-Type': 'application/json' } }).toPromise();
                 window.cordova.plugins.firebase.analytics.logEvent('email_incentive_send_download_success', {});
                 this.slider.slideNext();
               }
