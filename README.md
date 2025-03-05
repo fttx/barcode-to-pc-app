@@ -33,7 +33,7 @@
 
     ```bash
     npm install
-    ionic cordova platform add android@8.1.0
+    ionic cordova platform add android@12.0.1
     ionic cordova platform add ios
     ionic cordova resources # rename icon.ios.png to icon.png to generate the iOS icons
     ```
