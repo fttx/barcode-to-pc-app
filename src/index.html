@@ -30,6 +30,37 @@
 
   <link href="build/main.css" rel="stylesheet">
 
+  <!-- START Formbricks Surveys -->
+  <script type="text/javascript">
+    !function () { var t = document.createElement("script"); t.type = "text/javascript", t.async = !0, t.src = "https://formbricks.eesystems.it/js/formbricks.umd.cjs"; var e = document.getElementsByTagName("script")[0]; e.parentNode.insertBefore(t, e), setTimeout(function () { window.formbricks.init({ environmentId: "cm7tgrym70009jw01m3hz36p1", apiHost: "https://formbricks.eesystems.it", }) }, 500) }();
+
+    document.addEventListener('click', function (event) {
+      if (event.target.tagName === 'BUTTON') {
+        // Autosave typed email and name
+        let inputEmail = (document.querySelector('input[type=email]'))?.value;
+        let inputName = (document.querySelector('input[placeholder="First Name"]'))?.value;
+        if (inputEmail && inputName) {
+          console.log('## formbricks: Saving email and name');
+          localStorage.setItem('email', inputEmail);
+          localStorage.setItem('name', inputName);
+        }
+      }
+    });
+
+    // Register keyup listener and if the focussed input is not of type email, but an email input is present in the document write to the email
+    document.addEventListener('keyup', function (event) {
+      if (event.target.tagName === 'INPUT' && event.target.type !== 'email') {
+        const input = document.querySelector('input[type="email"]');
+        const email = localStorage.getItem('email');
+        if (email && input && input.value === '') {
+          console.log('## formbricks: Restored email', email);
+          input.value = email;
+        }
+      }
+    });
+  </script>
+  <!-- END Formbricks Surveys -->
+
 </head>
 
 <body>

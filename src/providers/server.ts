@@ -1,4 +1,4 @@
-import { Injectable, NgZone } from '@angular/core';
+import { Injectable, NgZone, OnInit } from '@angular/core';
 import { AppVersion } from '@ionic-native/app-version';
 import { Device } from '@ionic-native/device';
 import { NetworkInterface } from '@ionic-native/network-interface';
@@ -20,7 +20,7 @@ import { Utils } from './utils';
 import { BtpToastService } from '../components/btp-toast/btp-toast.service';
 import { BTPAlert, BtpAlertController } from './btp-alert-controller/btp-alert-controller';
 import { TranslateService } from '@ngx-translate/core';
-import { IntelProvider } from './intel/intel';
+
 // Warning: do not import ScanProvider to prevent circular dependency
 // To communicate with ScanProvider use global events.
 
@@ -78,9 +78,9 @@ export class ServerProvider {
     private scanSessionsStorage: ScanSessionsStorage,
     private utils: Utils,
     private translateService: TranslateService,
-    private intel: IntelProvider,
   ) {
     window['server'] = { connected: false };
+    this.initIncentiveEmail();
   }
 
   onMessage(): Observable<any> {
@@ -480,7 +480,7 @@ export class ServerProvider {
       this.watchForServersSubject.next(dummyServer);
       setTimeout(() => {
         dummyServer = { server: ServerModel.AddressToServer('localhost', 'Server 2'), action: 'added' };
-        this.watchForServersSubject.next(dummyServer);
+        if (this.watchForServersSubject) this.watchForServersSubject.next(dummyServer);
       }, 5000)
       return this.watchForServersSubject.asObservable();
     }
@@ -601,74 +601,51 @@ export class ServerProvider {
     }
   }
 
-  private emailIncentiveAlert: BTPAlert = null;
-  private inputEmailAlert: BTPAlert = null;
-  private invalidEmailAlert: BTPAlert = null;
-  private async showEmailIncentiveAlert() {
-    window.cordova.plugins.firebase.analytics.logEvent('email_incentive_alert_show', {});
-    if (this.emailIncentiveAlert) this.emailIncentiveAlert.dismiss();
-    if (this.inputEmailAlert) this.inputEmailAlert.dismiss();
-    if (this.invalidEmailAlert) this.invalidEmailAlert.dismiss();
-    this.emailIncentiveAlert = this.alertCtrl.create({
-      title: this.translateService.instant('Continue for Free!'),
-      message: this.translateService.instant('continueForFreeMessage'),
-      buttons: [
-        {
-          text: await this.utils.text('Continue with Free'), handler: () => {
-            this.inputEmailAlert = this.alertCtrl.create({
-              cssClass: 'btp-get-more-scans-alert',
-              inputs: [
-                { name: 'name', type: 'text', placeholder: this.translateService.instant('Your Name'), value: localStorage.getItem('name') || '' },
-                { name: 'email', type: 'email', placeholder: this.translateService.instant('Business Email'), value: localStorage.getItem('email') || '' },
-              ],
-              title: this.translateService.instant('Continue with Free'),
-              message: this.translateService.instant('incentiveEmailMessage') + '<br><br>',
-              buttons: [{
-                text: this.translateService.instant('Continue with Free'), handler: (data) => {
-                  localStorage.setItem('email', data.email);
-                  localStorage.setItem('name', data.name);
-                  if (!this.isConnected()) {
-                    this.alertCtrl.create({
-                      title: this.translateService.instant('App not connected'),
-                      message: this.translateService.instant('Please connect to the app to the server program to continue.'),
-                      buttons: [{ text: 'Try again', handler: () => { this.showEmailIncentiveAlert(); } }],
-                    }).present({ id: 'incentive_email' });
-                    return false;
-                  }
-                  const isValidEmail = data.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email);
-                  if (!isValidEmail) {
-                    this.invalidEmailAlert = this.alertCtrl.create({
-                      title: this.translateService.instant('Invalid Email'),
-                      message: this.translateService.instant('Please enter a valid email address'),
-                      buttons: [{ text: this.translateService.instant('Try again'), handler: () => { this.showEmailIncentiveAlert(); } }],
-                    });
-                    this.invalidEmailAlert.present({ id: 'incentive_email' });
-                    return false;
-                  }
-                  this.send(new requestModelEmailIncentiveCompleted().fromObject({ email: data.email, name: data.name }));
-                  this.intel.incentiveEmail(data.email, data.name);
-                  this.alertCtrl.create({
-                    title: this.translateService.instant('Success 🎉'),
-                    message: this.translateService.instant('You have successfully unlocked the Free scans! Enjoy!'),
-                    buttons: [{
-                      text: this.translateService.instant('Close'), handler: () => {
-                        window.cordova.plugins.firebase.analytics.logEvent('email_incentive_alert_success', {});
-                      }
-                    }],
-                  }).present({ id: 'incentive_email' });
-                },
-              }, { text: this.translateService.instant('Cancel'), role: 'text-cancel', handler: () => { }, },
-              ]
-            });
-            this.inputEmailAlert.present({ id: 'incentive_email' });
-          },
-        },
-        {
-          text: await this.utils.text('Cancel'), role: 'text-cancel', handler: () => { },
-        },
-      ]
+
+  private initIncentiveEmail() {
+    window.addEventListener("message", (event) => {
+      // When formbricks survey is completed, send the email to the server program
+      if (event.data === "formbricksSurveyCompleted") {
+        console.log("## formbricks completed");
+        this.sendIncentiveEmailSuccessResponse();
+      }
     });
-    this.emailIncentiveAlert.present({ id: 'incentive_email' });
+  }
+
+  private async showEmailIncentiveAlert() {
+    // Check if the user already submitted the survey
+    const email = localStorage.getItem('email');
+    const successSent = localStorage.getItem('email_incentive_alert_success_sent');
+    if (email && !successSent) {
+      console.log('## formbricks success failed, trying to sending it again...');
+      this.sendIncentiveEmailSuccessResponse();
+      return;
+    }
+
+    // Show the survey
+    window.cordova.plugins.firebase.analytics.logEvent('email_incentive_alert_show', {});
+    console.log("## formbricks show survey");
+    window.formbricks.track("incentive_email");
+  }
+
+  private async sendIncentiveEmailSuccessResponse() {
+    const email = localStorage.getItem('email');
+    const name = localStorage.getItem('name');
+    const successSent = localStorage.getItem('email_incentive_alert_success_sent');
+
+    if (successSent) {
+      console.log("## formbricks send success already sent", email, name);
+      return;
+    }
+
+    if (this.isConnected()) {
+      console.log("## formbricks send success", email, name);
+      await this.send(new requestModelEmailIncentiveCompleted().fromObject({ email: email, name: name }));
+      window.cordova.plugins.firebase.analytics.logEvent('email_incentive_alert_success', {});
+      localStorage.setItem('email_incentive_alert_success_sent', 'true');
+    } else {
+      console.log("## formbricks send success failed (not connected)", email, name);
+    }
   }
 
   private lastKickMessage = null;

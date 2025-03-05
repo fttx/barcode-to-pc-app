@@ -12,7 +12,6 @@ import { ServerModel } from './../../models/server.model';
 import { debounce } from 'helpful-decorators';
 import { BTPAlert, BtpAlertController } from '../../providers/btp-alert-controller/btp-alert-controller';
 import { BtpaInAppBrowser } from '../../providers/btpa-in-app-browser/btpa-in-app-browser';
-import { IntelProvider } from '../../providers/intel/intel';
 declare var window: any;
 
 /*
@@ -45,7 +44,6 @@ export class WelcomePage {
     private utils: Utils,
     private iab: BtpaInAppBrowser,
     private translateService: TranslateService,
-    private intel: IntelProvider
   ) {
 
   }
@@ -269,7 +267,6 @@ export class WelcomePage {
             return false;
           }
 
-          this.intel.incentiveEmailDownload(data.email, data.name);
           this.alertCtrl.create({
             title: this.translateService.instant('Done'),
             message: this.translateService.instant('Check your email inbox and spam folder'),
