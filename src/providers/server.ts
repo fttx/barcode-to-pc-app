@@ -612,6 +612,7 @@ export class ServerProvider {
     });
   }
 
+  private formBricksAttempt: boolean = false;
   private async showEmailIncentiveAlert() {
     // Check if the user already submitted the survey
     const email = localStorage.getItem('email');
@@ -623,11 +624,12 @@ export class ServerProvider {
     }
 
     // Show the survey
-    if (window.formbricks) {
+    if (window.formbricks && !this.formBricksAttempt) {
       this.events.publish('incentive_email_alert_show');
       window.cordova.plugins.firebase.analytics.logEvent('email_incentive_alert_show', {});
       console.log("## formbricks show survey");
       window.formbricks.track("incentive_email");
+      this.formBricksAttempt = true;
     }
   }
 
