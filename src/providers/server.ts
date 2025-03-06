@@ -80,7 +80,7 @@ export class ServerProvider {
     private translateService: TranslateService,
   ) {
     window['server'] = { connected: false };
-    this.initIncentiveEmail();
+    this.registerFormbrickSuccess();
   }
 
   onMessage(): Observable<any> {
@@ -274,6 +274,7 @@ export class ServerProvider {
         });
         this.popup.present();
       } else if (messageData.action == responseModel.ACTION_SHOW_EMAIL_INCENTIVE_ALERT) {
+        window.InitFormbricks();
         setTimeout(() => { this.showEmailIncentiveAlert() }, 2000);
       } else if (messageData.action == responseModel.ACTION_UPDATE_SETTINGS) {
         let responseModelUpdateSettings: responseModelUpdateSettings = messageData;
@@ -601,7 +602,7 @@ export class ServerProvider {
     }
   }
 
-  private initIncentiveEmail() {
+  private registerFormbrickSuccess() {
     window.addEventListener("message", (event) => {
       // When formbricks survey is completed, send the email to the server program
       if (event.data === "formbricksSurveyCompleted") {
