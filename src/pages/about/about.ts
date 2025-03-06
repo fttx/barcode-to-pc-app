@@ -12,7 +12,7 @@ import { BtpaInAppBrowser } from '../../providers/btpa-in-app-browser/btpa-in-ap
 })
 export class AboutPage {
   public websiteName = Config.WEBSITE_NAME;
-  public barcodebyteName = Config.BARCODEBYTE_NAME;
+  public companyWebsiteName = Config.COMPANY_WEBSITE_NAME;
   public dataWedgeVersion = null;
   public version = "";
   public debug = null;
@@ -57,8 +57,8 @@ export class AboutPage {
     return Config.EMAIL_SUPPORT;
   }
 
-  onBarcodeByteClick() {
-    this.iab.create(Config.URL_BARCODEBYTE, '_system');
+  onCompanyWebsiteClick() {
+    this.iab.create(Config.URL_COMPANY_WEBSITE, '_system');
   }
 
   onPrivacyPolicyClick() {

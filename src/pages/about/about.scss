@@ -12,19 +12,24 @@ page-about {
 
     ion-footer,
     ion-footer * {
-        background-color: #1d2135 !important;
+        background-color: #2b2b2b !important;
         padding: 0 !important;
         margin: 0 !important;
     }
 
     ion-footer {
         height: 60px;
+        .toolbar-title {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
     }
 
     ion-footer img {
-        height: 20px;
-        margin: 20px auto !important;
+        height: 100%;
         display: block;
+        max-height: 30px;
     }
 
     .footer-ios {

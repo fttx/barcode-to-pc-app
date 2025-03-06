@@ -236,7 +236,7 @@ export class MyApp {
       window.InitFormbricks();
       setTimeout(() => {
         window.InitFormbricks();
-      }, 10000 * 10);
+      }, 1000 * 60); // minute
     });
 
     this.events.subscribe('setPage', (page, isRoot = false) => {

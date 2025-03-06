@@ -14,7 +14,7 @@ export class Config {
   public static ZEROCONF_SERVER_NAME = 'barcode-to-pc-server-';
 
   public static URL_WEBSITE = 'https://barcodetopc.com/';
-  public static URL_BARCODEBYTE = 'https://barcodebyte.com/';
+  public static URL_COMPANY_WEBSITE = 'https://eesystems.it/';
   public static URL_INSTRUCTIONS = 'https://barcodetopc.com/frequently-asked-questions/#app-doesnt-find-computer';
   public static URL_PRIVACY_POLICY = 'https://barcodetopc.com/app-privacy-policy/'
   public static URL_FAQ = 'https://barcodetopc.com/frequently-asked-questions/';
@@ -27,7 +27,7 @@ export class Config {
 
   public static SERVER_PORT = 57891;
   public static WEBSITE_NAME = 'barcodetopc.com';
-  public static BARCODEBYTE_NAME = 'barcodebyte.com';
+  public static COMPANY_WEBSITE_NAME = 'eesystems.it';
   public static EMAIL_SUPPORT = 'support@barcodetopc.com';
   public static DEFAULT_CONTINUE_MODE_TIMEOUT = 0;
   public static NO_RUNNINGS_BEFORE_SHOW_RATING = 5;
