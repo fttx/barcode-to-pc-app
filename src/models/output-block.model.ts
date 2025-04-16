@@ -9,6 +9,7 @@ export class OutputBlockModel {
      * Name of the block shown in the UI
      */
     name: string;
+    icon?: string;
     /**
      * The run-time value of the block.
      * Its meaning changes based on the @type attribute
@@ -181,7 +182,7 @@ export class OutputBlockModel {
     alertScanAgainButton?: string;
     alertOkButton?: string;
     alertTimeout?: number;
-    alertDefaultAction?:  'ok' | 'scan_again';
+    alertDefaultAction?: 'ok' | 'scan_again';
 
     /**
      * Parameters for RUN and HTTP component
