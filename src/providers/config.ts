@@ -20,7 +20,7 @@ export class Config {
   public static URL_FAQ = 'https://barcodetopc.com/frequently-asked-questions/';
   public static URL_GITHUB_CHANGELOG = 'https://raw.githubusercontent.com/fttx/barcode-to-pc-server/master/CHANGELOG.md';
 
-  public static URL_INTEL = 'https://intel.barcodetopc.com/api/v1'
+  public static URL_INCENTIVE_EMAIL_WEBHOOK = 'https://n8n.eesystems.it/webhook/incentive-email-download'
 
   public static DOCS_ANDROID_PDA = 'https://docs.barcodetopc.com/examples/android-pda-devices/';
   public static DOCS_QRBILL = 'https://docs.barcodetopc.com/special-barcodes/swiss-qr-codes/qr-bill/';

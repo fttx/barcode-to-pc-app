@@ -274,7 +274,7 @@ export class WelcomePage {
             message: this.translateService.instant('Check your email inbox and spam folder'),
             buttons: [{
               text: this.translateService.instant('Close'), handler: () => {
-                this.http.post(Config.URL_INTEL + '/incentive-email-download', { email: data.email, name: data.name }, { headers: { 'Content-Type': 'application/json' } }).toPromise();
+                this.http.post(Config.URL_INCENTIVE_EMAIL_WEBHOOK, { email: data.email, name: data.name }, { headers: { 'Content-Type': 'application/json' } }).toPromise();
                 window.cordova.plugins.firebase.analytics.logEvent('email_incentive_send_download_success', {});
                 this.slider.slideNext();
               }
