@@ -497,6 +497,9 @@ export class ScanProvider {
                 if (outputBlock.executeOnSmartphone) {
                   this.keyboardInput.lock('Executing ' + outputBlock.name.toUpperCase() + ', please wait...');
                   try {
+                    if (outputBlock.httpData) outputBlock.httpData = await this.utils.supplant(outputBlock.httpData, variables);
+                    if (outputBlock.httpHeaders) outputBlock.httpHeaders = await this.utils.supplant(outputBlock.httpHeaders, variables);
+                    if (outputBlock.httpParams) outputBlock.httpParams = await this.utils.supplant(outputBlock.httpParams, variables);
                     outputBlock.value = await this.httpRequest(outputBlock);
                     this.keyboardInput.unlock();
                     // For some reason the assigment isn't working (UI doesn't update)
