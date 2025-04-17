@@ -1,4 +1,3 @@
-import { AlertButtonType } from "../providers/utils";
 import { NutjsKey } from "./nutjs-key.model";
 /**
  * It's an element of the Output template field.
@@ -69,6 +68,8 @@ export class OutputBlockModel {
      * can be executed later when syninc the scan.
      */
     allowOOBExecution?: boolean;
+
+    executeOnSmartphone?: boolean;
 
     /**
      * NutjsKey identifier (See utils.ts)

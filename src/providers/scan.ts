@@ -493,6 +493,24 @@ export class ScanProvider {
                 }
                 break;
               }
+              case 'http': {
+                if (outputBlock.executeOnSmartphone) {
+                  this.keyboardInput.lock('Executing ' + outputBlock.name.toUpperCase() + ', please wait...');
+                  try {
+                    outputBlock.value = await this.httpRequest(outputBlock);
+                    this.keyboardInput.unlock();
+                    // For some reason the assigment isn't working (UI doesn't update)
+                    variables[outputBlock.type] = outputBlock.value;
+                  } catch (e) {
+                    await this.showAlert({ name: 'ALERT', icon: 'browser', value: e, type: 'alert', alertTitle: 'HTTP_REQUEST Error', alertOkButton: 'Ok' });
+                    this.keyboardInput.unlock();
+                    // Quirk: the manual mode never stops
+                    if (this.acqusitionMode == 'manual') again();
+                    return;
+                  }
+                  break; // <-- Note the break is inside the if, so that the http can be also run below when is on server mode.
+                }
+              }
               // start::remote_components:
               case 'woocommerce':
               case 'http':
@@ -1355,4 +1373,79 @@ export class ScanProvider {
       }).present();
     });
   }
+
+  async httpRequest(outputBlock: OutputBlockModel): Promise<string> {
+    const {
+      value: url,
+      httpMethod = 'get',
+      httpData,
+      httpParams,
+      httpHeaders,
+      httpOAuthMethod = 'disabled',
+      httpOAuthConsumerKey,
+      httpOAuthConsumerSecret
+    } = outputBlock;
+
+    let finalUrl = url;
+
+    // Add query params
+    if (httpParams) {
+      try {
+        const params = JSON.parse(httpParams);
+        const queryString = new URLSearchParams(params).toString();
+        finalUrl += (url.includes('?') ? '&' : '?') + queryString;
+      } catch (e) {
+        throw new Error(`Invalid JSON in httpParams: ${httpParams}`);
+      }
+    }
+
+    // Prepare headers
+    const headers: Record<string, string> = {};
+
+    if (httpHeaders) {
+      try {
+        const parsedHeaders = JSON.parse(httpHeaders);
+        Object.assign(headers, parsedHeaders);
+      } catch (e) {
+        throw new Error(`Invalid JSON in httpHeaders: ${httpHeaders}`);
+      }
+    }
+
+    // Simulate OAuth (simple example, **not production safe**)
+    if (httpOAuthMethod !== 'disabled' && httpOAuthConsumerKey && httpOAuthConsumerSecret) {
+      const token = btoa(`${httpOAuthConsumerKey}:${httpOAuthConsumerSecret}`);
+      headers['Authorization'] = `${httpOAuthMethod} ${token}`;
+    }
+
+    // Create fetch options
+    const fetchOptions: RequestInit = {
+      method: httpMethod.toUpperCase(),
+      headers,
+    };
+
+    // Attach body for methods that allow a body
+    if (['post', 'put', 'patch'].includes(httpMethod) && httpData) {
+      fetchOptions.body = httpData;
+      headers['Content-Type'] = headers['Content-Type'] || 'application/json';
+    }
+
+    // Perform fetch
+    try {
+      const response = await fetch(finalUrl, fetchOptions);
+
+      if (!response.ok) {
+        throw new Error(`Request failed with status ${response.status}`);
+      }
+
+      const contentType = response.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        return JSON.stringify(await response.json());
+      } else {
+        return await response.text();
+      }
+    } catch (error: any) {
+      throw new Error(`Fetch error: ${error.message}`);
+    }
+  }
+
 }
