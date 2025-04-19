@@ -6,6 +6,8 @@ import { NutjsKey } from '../models/nutjs-key.model';
 import { OutputProfileModel } from '../models/output-profile.model';
 import { ServerModel } from '../models/server.model';
 import { Utils } from './utils';
+import { AlertController } from 'ionic-angular';
+import { BtpAlertController } from './btp-alert-controller/btp-alert-controller';
 
 
 /*
@@ -74,6 +76,7 @@ export class Settings {
     public device: Device,
     public ngZone: NgZone,
     public utils: Utils,
+    private alertCtrl: BtpAlertController,
   ) {
   }
 
@@ -767,6 +770,15 @@ export class Settings {
         console.warn(`Unknown setting key: ${key}`);
       }
     }
+
+    setTimeout(() => {
+      // reload message
+      this.alertCtrl.create({
+        title: 'Enterprise settings ',
+        message: 'A restart is required to apply the new settings',
+        buttons: [{ text: 'Restart', handler: () => { window.location.reload(); } }]
+      }).present();
+    }, 3000);
   }
 
 }

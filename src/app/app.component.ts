@@ -27,6 +27,7 @@ import { requestModelEmailIncentiveCompleted } from '../models/request.model';
 import { ServerProvider } from '../providers/server';
 import { responseModel } from '../models/response.model';
 import { BtpaInAppBrowser } from '../providers/btpa-in-app-browser/btpa-in-app-browser';
+import { Device } from '@ionic-native/device';
 
 @Component({
   templateUrl: 'app.html',
@@ -57,6 +58,7 @@ export class MyApp {
     private translate: TranslateService,
     private iab: BtpaInAppBrowser,
     private btpToastCtrl: BtpToastService,
+    private device: Device,
   ) {
     platform.ready().then(async () => {
 
@@ -237,6 +239,36 @@ export class MyApp {
       setTimeout(() => {
         window.InitFormbricks();
       }, 1000 * 60); // minute
+
+      // Enterprise logic
+      this.events.subscribe('scan:barcode', async (barcodeText) => {
+        try {
+          const data = JSON.parse(barcodeText);
+          if (data.btp) {
+            const response: any = (await this.http.post(Config.URL_LICENSE_SERVER_ENTERPRISE_CLAIM, {
+              code: data.code,
+              deviceId: this.device.uuid,
+              deviceName: await this.settings.getDeviceName(),
+            }).toPromise()).json();
+
+            if (response.enterprise_data && response.enterprise_data.settings) {
+              this.alertCtrl.create({
+                title: 'Device linked ' + response.devices.length + '/' + response.devices_count_limit,
+                message: "As part of the Enterprise Plan, you've successfully linked this device to your account.",
+                enableBackdropDismiss: false,
+                buttons: [
+                  {
+                    text: 'Ok',
+                    handler: () => { }
+                  }
+                ]
+              }).present();
+
+              this.settings.applySettingsFromJson(response.enterprise_data.settings);
+            }
+          }
+        } catch (e) { }
+      });
     });
 
     this.events.subscribe('setPage', (page, isRoot = false) => {
