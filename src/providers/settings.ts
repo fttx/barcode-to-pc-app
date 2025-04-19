@@ -6,7 +6,6 @@ import { NutjsKey } from '../models/nutjs-key.model';
 import { OutputProfileModel } from '../models/output-profile.model';
 import { ServerModel } from '../models/server.model';
 import { Utils } from './utils';
-import { AlertController } from 'ionic-angular';
 import { BtpAlertController } from './btp-alert-controller/btp-alert-controller';
 
 
@@ -716,8 +715,8 @@ export class Settings {
 
   getEnableServerlessMode(): Promise<boolean> {
     return this.storage.get(Settings.ENABLE_SERVERLESS_MODE).then(result => {
-      if (result === false) return false;
-      return true;
+      if (result === true) return true;
+      return false;
     });
   }
 

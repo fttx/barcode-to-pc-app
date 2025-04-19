@@ -5,7 +5,7 @@
 /**
  * The {@link Key} enum represents keys of a standard 105 key US layout keyboard
  */
-export declare enum NutjsKey {
+export enum NutjsKey {
   Escape = 0,
   F1 = 1,
   F2 = 2,
@@ -140,4 +140,4 @@ export declare enum NutjsKey {
   AudioForward = 131,
   AudioRepeat = 132,
   AudioRandom = 133
-}
+};

@@ -14,7 +14,6 @@
 				<img src="assets/select-server/offline.png?v=9" class="btp-server-status-icon" [hidden]="!isKicked()">
 			</button>
 			<button *ngIf="serverLessMode" ion-button>
-
 				<div [innerHTML]="iconCloudOnline" class="btp-header-icon" *ngIf="cloudReachable"></div>
 				<div [innerHTML]="iconCheck" class="btp-header-icon btp-icon-check" *ngIf="cloudReachable"></div>
 				<div [innerHTML]="iconCloudOffline" class="btp-header-icon" *ngIf="!cloudReachable"></div>
