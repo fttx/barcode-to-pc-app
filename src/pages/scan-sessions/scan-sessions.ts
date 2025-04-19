@@ -19,16 +19,24 @@ import { LastToastProvider } from '../../providers/last-toast/last-toast';
 import { BtpToastService } from '../../components/btp-toast/btp-toast.service';
 import { BtpAlertController } from '../../providers/btp-alert-controller/btp-alert-controller';
 import { BtpaInAppBrowser } from '../../providers/btpa-in-app-browser/btpa-in-app-browser';
+import * as oc from '@primer/octicons';
+import { DomSanitizer } from '@angular/platform-browser';
 
 @Component({
   selector: 'page-scannings',
   templateUrl: 'scan-sessions.html',
 })
 export class ScanSessionsPage {
+  octicons = oc;
+  iconCloudOnline = this.sanitizer.bypassSecurityTrustHtml(oc['cloud'].toSVG());
+  iconCloudOffline = this.sanitizer.bypassSecurityTrustHtml(oc['cloud-offline'].toSVG());
+  iconCheck = this.sanitizer.bypassSecurityTrustHtml(oc['check'].toSVG());
+
   private onConnectSubscription: Subscription;
   private onDisconnectSubscription: Subscription;
   public scanSessions: ScanSessionModel[] = [];
   public selectedScanSessions: ScanSessionModel[] = [];
+  public serverLessMode = false;
 
   private everConnected = false;
   private isWatching = false;
@@ -38,6 +46,9 @@ export class ScanSessionsPage {
   private unregisterBackButton = null;
   private ratingDialogShown = false;
   private ratingAlert = null;
+
+  private cloudReachable = false;
+
 
   public connectionStatus: 'offline' | 'online' | 'connecting' = 'connecting';
 
@@ -57,7 +68,25 @@ export class ScanSessionsPage {
     public lastToast: LastToastProvider,
     private ngZone: NgZone,
     private btpToastCtrl: BtpToastService,
+    public sanitizer: DomSanitizer
   ) {
+  }
+
+  private async isCloudReachable(): Promise<boolean> {
+    try {
+      const response = await fetch(Config.URL_CLOUD_PING, { method: 'GET', cache: 'no-store' });
+      this.cloudReachable = response.ok;
+    } catch (error) {
+      this.cloudReachable = false;
+    }
+    return this.cloudReachable;
+  }
+
+  private async startCloudReachabilityCheck() {
+    if (await this.settings.getEnableServerlessMode()) {
+      this.isCloudReachable();
+      setInterval(() => this.isCloudReachable(), 30000);
+    }
   }
 
   async ionViewDidEnter() {
@@ -126,6 +155,8 @@ export class ScanSessionsPage {
     // if (!this.serverProvider.isConnected()) {
     //   this.utils.askWiFiEnableIfDisabled();
     // }
+
+    this.serverLessMode = await this.settings.getEnableServerlessMode();
 
     this.onDisconnectSubscription = this.serverProvider.onDisconnect().subscribe(() => {
       // onDisconnect can be called also when there is an 'error'
@@ -219,6 +250,7 @@ export class ScanSessionsPage {
     });
 
     this.reconnect();
+    this.startCloudReachabilityCheck();
   }
 
   ionViewWillUnload() {

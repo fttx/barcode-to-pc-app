@@ -500,16 +500,24 @@ export class ScanProvider {
                     if (outputBlock.httpData) outputBlock.httpData = await this.utils.supplant(outputBlock.httpData, variables);
                     if (outputBlock.httpHeaders) outputBlock.httpHeaders = await this.utils.supplant(outputBlock.httpHeaders, variables);
                     if (outputBlock.httpParams) outputBlock.httpParams = await this.utils.supplant(outputBlock.httpParams, variables);
-                    outputBlock.value = await this.httpRequest(outputBlock);
+                    const newValue = await this.httpRequest(outputBlock);
+                    // Split the assignment in two instructions so that if the httpRequests throws an exeception
+                    // the value is maintained untouched.
+                    outputBlock.value = newValue;
+                    outputBlock.markAsACKValue = true;
                     this.keyboardInput.unlock();
                     // For some reason the assigment isn't working (UI doesn't update)
                     variables[outputBlock.type] = outputBlock.value;
                   } catch (e) {
-                    await this.showAlert({ name: 'ALERT', icon: 'browser', value: e, type: 'alert', alertTitle: 'HTTP_REQUEST Error', alertOkButton: 'Ok' });
+                    outputBlock.markAsACKValue = false;
                     this.keyboardInput.unlock();
-                    // Quirk: the manual mode never stops
-                    if (this.acqusitionMode == 'manual') again();
-                    return;
+                    // Show error message
+                    if (!outputBlock.skipOutput) {
+                      await this.showAlert({ name: 'ALERT', icon: 'browser', value: e, type: 'alert', alertTitle: 'HTTP_REQUEST Error', alertOkButton: 'Ok' });
+                      // Quirk: the manual mode never stops
+                      if (this.acqusitionMode == 'manual') again();
+                      return;
+                    }
                   }
                   break; // <-- Note the break is inside the if, so that the http can be also run below when is on server mode.
                 }
@@ -696,6 +704,14 @@ export class ScanProvider {
           if (resetAgainCountTimer) clearTimeout(resetAgainCountTimer);
           resetAgainCountTimer = setTimeout(() => againCount = 0, 500);
 
+          // Serverless mode
+          if (await this.settings.getEnableServerlessMode()) {
+            const resultBlock = scan.outputBlocks.find(x => x.httpUseResultAsACK === true);
+            if (resultBlock) {
+              scan.ack = resultBlock.markAsACKValue;
+            }
+          }
+
           observer.next(scan);
 
           // decide how and if repeat the outputBlock
@@ -766,6 +782,7 @@ export class ScanProvider {
               return;
             }
 
+            this.events.publish('scan:barcode', barcodeScanResult.text);
             // START Remove special characters (duplicated coede for the CONTINUE mode)
             if (this.getDisableSpecialCharacters) {
               barcodeScanResult.text = barcodeScanResult.text.replace(/[^a-zA-Z0-9]/g, '');
@@ -828,6 +845,7 @@ export class ScanProvider {
                   return; // returns the promise executor function
                 }
 
+                this.events.publish('scan:barcode', barcodeScanResult.text);
                 // START Remove special characters (duplicated coede for the mixed mode)
                 if (this.getDisableSpecialCharacters) {
                   barcodeScanResult.text = barcodeScanResult.text.replace(/[^a-zA-Z0-9]/g, '');
@@ -871,6 +889,7 @@ export class ScanProvider {
             // here we don't wrap the promise inside a try/catch statement because there
             // isn't a way to cancel a manual barcode acquisition
             let barcode = await this.keyboardInput.onSubmit.first().toPromise();
+            this.events.publish('scan:barcode', barcode);
 
             // Check for duplicated barcodes (duplciate on mixed)
             let acceptBarcode = await this.showAcceptDuplicateDetectedDialog(barcode);
@@ -1427,7 +1446,7 @@ export class ScanProvider {
     };
 
     // Attach body for methods that allow a body
-    if (['post', 'put', 'patch'].includes(httpMethod) && httpData) {
+    if (['post', 'put', 'patch'].indexOf(httpMethod) !== -1 && httpData) {
       fetchOptions.body = httpData;
       headers['Content-Type'] = headers['Content-Type'] || 'application/json';
     }
@@ -1446,8 +1465,8 @@ export class ScanProvider {
       } else {
         return await response.text();
       }
-    } catch (error: any) {
-      throw new Error(`Fetch error: ${error.message}`);
+    } catch (error) {
+      throw new Error(error.message);
     }
   }
 

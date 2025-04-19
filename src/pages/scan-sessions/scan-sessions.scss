@@ -1,3 +1,15 @@
+@keyframes pulse {
+  0% {
+    transform: scale(0.9);
+  }
+  50% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(0.9);
+  }
+}
+
 page-scannings {
   .empty {
     padding: 0 20px;
@@ -5,5 +17,20 @@ page-scannings {
 
   .btp-server-status-icon {
     height: 32px;
+  }
+
+  .btp-header-icon {
+    color: #fff;
+    scale: 1.6;
+    animation: pulse 1.5s infinite;
+  }
+
+  .btp-icon-check {
+    color: #fff;
+    position: absolute;
+    scale: .8;
+    top: 9px;
+    right: 5px;
+    animation: pulse 1.5s infinite;
   }
 }

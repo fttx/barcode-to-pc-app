@@ -67,6 +67,7 @@ export class Settings {
   private static SKIP_WIFI_CHECCK = 'skip_wifi_checck';
   private static SAVED_GEOLOCATIONS = 'saved_geolocations';
   private static HAS_ACCEPTED_TERMS = 'has_accepted_terms';
+  private static ENABLE_SERVERLESS_MODE = 'enable_serverless_mode';
 
   constructor(
     public storage: Storage,
@@ -705,4 +706,67 @@ export class Settings {
   setHasAcceptedDisclosure(accepted: boolean) {
     return this.storage.set(Settings.HAS_ACCEPTED_TERMS, accepted);
   }
+
+  setEnableServerlessMode(enableServerlessMode: boolean) {
+    return this.storage.set(Settings.ENABLE_SERVERLESS_MODE, enableServerlessMode);
+  }
+
+  getEnableServerlessMode(): Promise<boolean> {
+    return this.storage.get(Settings.ENABLE_SERVERLESS_MODE).then(result => {
+      if (result === false) return false;
+      return true;
+    });
+  }
+
+  async applySettingsFromJson(json: any): Promise<void> {
+    const settingsMap = {
+      'always_skip_welcome_page': this.setAlwaysSkipWelcomePage.bind(this),
+      'scan_mode': this.setDefaultMode.bind(this),
+      'device_name': this.setDeviceName.bind(this),
+      'repeat_interval': this.setRepeatInterval.bind(this),
+      'always_use_default_scan_session_name': this.setAlwaysUseDefaultScanSessionName.bind(this),
+      'prefer_front_camera': this.setPreferFrontCamera.bind(this),
+      'prefer_wide_lens': this.setPreferWideLens.bind(this),
+      'torch_on': this.setTorchOn.bind(this),
+      'keep_display_on': this.setKeepDisplayOn.bind(this),
+      'enable_beep': this.setEnableBeep.bind(this),
+      'also_inverted': this.setAlsoInverted.bind(this),
+      'enable_vibration_feedback': this.setEnableVibrationFeedback.bind(this),
+      'disable_special_characters': this.setDisableSpecialCharacters.bind(this),
+      'disable_keyboard_autofocus': this.setDisableKeyboarAutofocus.bind(this),
+      'enable_limit_barcode_formats': this.setEnableLimitBarcodeFormats.bind(this),
+      'barcode_formats': this.setBarcodeFormats.bind(this),
+      'output_profiles': this.setOutputProfiles.bind(this),
+      'selected_output_profile': this.setSelectedOutputProfile.bind(this),
+      'quantity_enabled': this.setQuantityEnabled.bind(this),
+      'offline_mode_enabled': this.setOfflineModeEnabled.bind(this),
+      'event_on_smartphone_charge_enabled': this.setEventsOnSmartphoneChargeEnabled.bind(this),
+      'enable_realtime_send': this.setRealtimeSendEnabled.bind(this),
+      'has_accepted_terms': this.setHasAcceptedDisclosure.bind(this),
+      'enable_nfc': this.setEnableNFC.bind(this),
+      'skip_wifi_check': this.setSkipWiFiCheck.bind(this),
+      'scan_session_name': this.setScanSessionName.bind(this),
+      'scan_session_filter': this.setScanSessionFilter.bind(this),
+      'duplicate_barcode_choice': this.setDuplicateBarcodeChoice.bind(this),
+      'allow_output_template_selection': this.setAllowOutputTemplateSelection.bind(this),
+      'always_use_camera_for_scan_session_name': this.setAlwaysUseCameraForScanSessionName.bind(this),
+      'pda_intents': this.setPDAIntents.bind(this),
+      'saved_geolocations': this.setSavedGeoLocations.bind(this),
+      'enable_serverless_mode': this.setEnableServerlessMode.bind(this),
+      // Add more keys and bindings as needed
+    };
+
+    for (const key of Object.keys(json)) {
+      if (settingsMap[key]) {
+        try {
+          await settingsMap[key](json[key]);
+        } catch (err) {
+          console.warn(`Failed to apply setting ${key}:`, err);
+        }
+      } else {
+        console.warn(`Unknown setting key: ${key}`);
+      }
+    }
+  }
+
 }

@@ -385,8 +385,8 @@ export class ScanSessionPage {
   }
 
   async onItemClicked(scan: ScanModel, scanIndex: number) {
-    if (!this.serverProvider.isConnected()) {
-      this.showImage(scan);
+    if (!this.serverProvider.isConnected() && !await this.settings.getEnableServerlessMode()) {
+      if (scan.hasImage) this.showImage(scan);
       return;
     }
 
@@ -514,15 +514,31 @@ export class ScanSessionPage {
     scanSession.scannings = [scan];
 
     if (this.repeatingStatus === 'repeating') {
-      // Remote components OOB Execution
       for (let i = 0; i < scan.outputBlocks.length; i++) {
+        // Remote components OOB Execution
         const block = scan.outputBlocks[i];
-        if (block.allowOOBExecution) {
+        if (block.allowOOBExecution && !block.executeOnSmartphone) {
           const newOutputBlock = await this.scanProvider.remoteComponent(block);
           Object.assign(scan.outputBlocks[i], newOutputBlock);
           scan.displayValue = ScanModel.ToString(scan);
           this.save();
         }
+
+        // Smartphone OOB Execution
+        if (block.allowOOBExecution && block.executeOnSmartphone) {
+          const newOutputBlock = { ...block };
+          try {
+            const newValue = await this.scanProvider.httpRequest(newOutputBlock);
+            newOutputBlock.value = newValue;
+            block.markAsACKValue = true;
+            scan.ack = true;
+            scan.repeated = true;
+            Object.assign(scan.outputBlocks[i], newOutputBlock);
+            scan.displayValue = ScanModel.ToString(scan);
+            this.save();
+          } catch { }
+        }
+
       }
     }
 

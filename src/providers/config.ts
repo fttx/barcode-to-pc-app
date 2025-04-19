@@ -21,6 +21,8 @@ export class Config {
   public static URL_GITHUB_CHANGELOG = 'https://raw.githubusercontent.com/fttx/barcode-to-pc-server/master/CHANGELOG.md';
 
   public static URL_INCENTIVE_EMAIL_WEBHOOK = 'https://n8n.eesystems.it/webhook/incentive-email-download'
+  public static URL_CLOUD_PING = 'https://n8n.eesystems.it/webhook/ping';
+
 
   public static DOCS_ANDROID_PDA = 'https://docs.barcodetopc.com/examples/android-pda-devices/';
   public static DOCS_QRBILL = 'https://docs.barcodetopc.com/special-barcodes/swiss-qr-codes/qr-bill/';

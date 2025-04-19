@@ -1,7 +1,7 @@
 import { Component, NgZone, ViewChild } from '@angular/core';
 import { BarcodeScanner, BarcodeScanResult } from '@fttx/barcode-scanner';
 import { TranslateService } from '@ngx-translate/core';
-import { NavController, Slides, ViewController } from 'ionic-angular';
+import { Events, NavController, Slides, ViewController } from 'ionic-angular';
 import { Observable, Subscription } from 'rxjs';
 import { Config } from '../../providers/config';
 import { ServerProvider } from '../../providers/server';
@@ -45,7 +45,8 @@ export class WelcomePage {
     private utils: Utils,
     private iab: BtpaInAppBrowser,
     private translateService: TranslateService,
-    public http: HttpClient
+    public http: HttpClient,
+    private events: Events,
   ) {
 
   }
@@ -118,7 +119,9 @@ export class WelcomePage {
         let servers = ServerModel.serversFromJSON(scan.text);
         servers.forEach(server => {
           this.attempConnection(server);
-        })
+        });
+
+        this.events.publish('scan:barcode', scan.text);
       }
     }, err => { });
   }
