@@ -46,6 +46,7 @@
     "@ionic/storage": "^2.2.0",
     "@ngx-translate/core": "^9.1.1",
     "@ngx-translate/http-loader": "^2.0.1",
+    "@primer/octicons": "^19.15.1",
     "angular2-moment": "^1.7.0",
     "bluebird": "^3.5.1",
     "cordova": "^11.1.0",
