@@ -312,6 +312,7 @@
   "================================SERVER_PROVIDER==============================": "",
   "responseModalDialogOkButton": "Ok",
   "responseModelKickDialogTitle": "Limit reached",
+  "Get Free Scans": "Get Free Scans",
   "responseModelKickDialogCloseButton": "Close",
   "connectionProblemDialogTitle": "Connection problem",
   "connectionProblemDialogMessage": "To determine the cause check the help page",

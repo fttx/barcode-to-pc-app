@@ -312,6 +312,7 @@
   "================================SERVER_PROVIDER==============================": "",
   "responseModalDialogOkButton": "Ok",
   "responseModelKickDialogTitle": "Límite alcanzado",
+  "Get Free Scans": "Obtener Escaneos Gratis",
   "responseModelKickDialogCloseButton": "Cerrar",
   "connectionProblemDialogTitle": "Problema de conexión",
   "connectionProblemDialogMessage": "Para determinar la causa, consulte la página de ayuda",
