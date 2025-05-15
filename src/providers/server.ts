@@ -20,6 +20,7 @@ import { Utils } from './utils';
 import { BtpToastService } from '../components/btp-toast/btp-toast.service';
 import { BTPAlert, BtpAlertController } from './btp-alert-controller/btp-alert-controller';
 import { TranslateService } from '@ngx-translate/core';
+import { BtpaInAppBrowser } from './btpa-in-app-browser/btpa-in-app-browser';
 
 // Warning: do not import ScanProvider to prevent circular dependency
 // To communicate with ScanProvider use global events.
@@ -78,6 +79,7 @@ export class ServerProvider {
     private scanSessionsStorage: ScanSessionsStorage,
     private utils: Utils,
     private translateService: TranslateService,
+    private iab: BtpaInAppBrowser,
   ) {
     window['server'] = { connected: false };
     this.registerFormbrickSuccess();
@@ -661,10 +663,21 @@ export class ServerProvider {
     const text = message || this.lastKickMessage || '';
     this.lastKickMessage = text;
     if (!this.kickAlert && text != '') {
+      const buttons: any[] = [];
+      // const url_bonus_scans_clicked = localStorage.getItem('url_bonus_scans_clicked');
+      // if (url_bonus_scans_clicked !== 'true') {
+      buttons.push({
+        text: await this.utils.text('Get Free Scans'), handler: () => {
+          this.iab.create(Config.URL_BONUS_SCANS, '_system');
+          // localStorage.setItem('url_bonus_scans_clicked', 'true');
+        }
+      });
+      // }
+      buttons.push({ text: await this.utils.text('responseModelKickDialogCloseButton'), role: 'cancel' })
       this.kickAlert = this.alertCtrl.create({
         title: await this.utils.text('responseModelKickDialogTitle'),
         message: text,
-        buttons: [{ text: await this.utils.text('responseModelKickDialogCloseButton'), role: 'cancel' }]
+        buttons,
       });
       this.kickAlert.didLeave.subscribe(() => {
         this.kickAlert = null;

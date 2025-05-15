@@ -25,7 +25,8 @@ export class Config {
 
   public static URL_LICENSE_SERVER = 'https://license.barcodetopc.com/v5';
   public static URL_LICENSE_SERVER_ENTERPRISE_CLAIM = 'https://license.barcodetopc.com/v5/enterprise/claim';
-  public static URL_LICENSE_SERVER_ENTERPRISE_CLAIM = 'https://license.barcodetopc.com/v5/enterprise-claim';
+
+  public static URL_BONUS_SCANS = 'https://formbricks.eesystems.it/s/cm9gbku9e00j7qu01a42qwzb2';
 
   public static DOCS_ANDROID_PDA = 'https://docs.barcodetopc.com/examples/android-pda-devices/';
   public static DOCS_QRBILL = 'https://docs.barcodetopc.com/special-barcodes/swiss-qr-codes/qr-bill/';
