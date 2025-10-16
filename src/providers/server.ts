@@ -664,15 +664,6 @@ export class ServerProvider {
     this.lastKickMessage = text;
     if (!this.kickAlert && text != '') {
       const buttons: any[] = [];
-      // const url_bonus_scans_clicked = localStorage.getItem('url_bonus_scans_clicked');
-      // if (url_bonus_scans_clicked !== 'true') {
-      buttons.push({
-        text: await this.utils.text('Get Free Scans'), handler: () => {
-          this.iab.create(Config.URL_BONUS_SCANS, '_system');
-          // localStorage.setItem('url_bonus_scans_clicked', 'true');
-        }
-      });
-      // }
       buttons.push({ text: await this.utils.text('responseModelKickDialogCloseButton'), role: 'cancel' })
       this.kickAlert = this.alertCtrl.create({
         title: await this.utils.text('responseModelKickDialogTitle'),
