@@ -49,7 +49,33 @@ export class SelectScanningModePage {
 
   async ionViewWillEnter() {
     // Get the output profile
-    this.outputProfiles = await this.settings.getOutputProfiles();
+    let allOutputProfiles = await this.settings.getOutputProfiles();
+
+    // Filter by allowedOnDeviceNames
+    const deviceName = await this.settings.getDeviceName();
+    const filteredProfiles = allOutputProfiles.filter(profile => {
+      // If allowedOnDeviceNames is not set or empty, allow this profile
+      if (!profile.allowedOnDeviceNames || profile.allowedOnDeviceNames.trim().length === 0) {
+        return true;
+      }
+      // Parse the CSV string and check if current device name matches any pattern
+      const allowedNames = profile.allowedOnDeviceNames.split(',').map(name => name.trim());
+      return allowedNames.some(pattern => {
+        if (pattern.indexOf('%') !== -1) {
+          // Handle wildcard pattern (% is wildcard)
+          const regexPattern = pattern.replace(/%/g, '.*');
+          const regex = new RegExp('^' + regexPattern + '$', 'i');
+          return regex.test(deviceName);
+        } else {
+          // Exact match (case insensitive)
+          return pattern.toLowerCase() === deviceName.toLowerCase();
+        }
+      });
+    });
+
+    // If no profiles match the filter, fall back to all profiles
+    this.outputProfiles = filteredProfiles.length > 0 ? filteredProfiles : allOutputProfiles;
+
     this.selectedOutputProfileIndex = await this.settings.getSelectedOutputProfile();
     // Prevent OutOfBounds.
     // The same logic is duplicated in the ScanProvider/getOutputProfile() method
