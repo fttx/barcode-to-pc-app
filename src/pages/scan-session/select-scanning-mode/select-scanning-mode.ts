@@ -73,8 +73,13 @@ export class SelectScanningModePage {
       });
     });
 
-    // If no profiles match the filter, fall back to all profiles
-    this.outputProfiles = filteredProfiles.length > 0 ? filteredProfiles : allOutputProfiles;
+    // If no profiles match the filter, fall back to default profile
+    if (filteredProfiles.length > 0) {
+      this.outputProfiles = filteredProfiles;
+    } else {
+      // Generate and use only the default profile
+      this.outputProfiles = await this.settings.generateDefaultOutputProfiles();
+    }
 
     this.selectedOutputProfileIndex = await this.settings.getSelectedOutputProfile();
     // Prevent OutOfBounds.

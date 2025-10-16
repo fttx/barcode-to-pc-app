@@ -616,7 +616,7 @@ export class Settings {
    *
    * It should be keep in sync with the server SettingsModel class.
    */
-  private generateDefaultOutputProfiles(): Promise<OutputProfileModel[]> {
+  public generateDefaultOutputProfiles(): Promise<OutputProfileModel[]> {
     return new Promise((resolve, reject) => {
       /**
        * @deprecated
