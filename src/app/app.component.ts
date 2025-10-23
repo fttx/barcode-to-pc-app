@@ -162,7 +162,7 @@ export class MyApp {
           document.documentElement.setAttribute('dir', 'ltr');
         }
       });
-      this.translate.addLangs(['ar', 'de', 'es', 'it', 'pt', 'tr', 'tw']);
+      this.translate.addLangs(['ar', 'de', 'es', 'it', 'pt', 'tr', 'tw', 'ru']);
       const lang = this.translate.getBrowserLang();
       if (lang !== undefined && this.translate.getLangs().indexOf(lang) != -1) {
         this.translate.use(lang);
