@@ -527,8 +527,7 @@ export class ScanProvider {
               case 'http':
               case 'run':
               case 'csv_lookup':
-              case 'csv_update':
-              case 'google_sheets': {
+              case 'csv_update': {
                 if (outputBlock.notFoundValue) outputBlock.notFoundValue = await this.utils.supplant(outputBlock.notFoundValue, variables);
                 if (outputBlock.newValue) outputBlock.newValue = await this.utils.supplant(outputBlock.newValue, variables);
                 if (outputBlock.httpData) outputBlock.httpData = await this.utils.supplant(outputBlock.httpData, variables);
@@ -540,12 +539,6 @@ export class ScanProvider {
                     outputBlock.fields[i].value = await this.utils.supplant(outputBlock.fields[i].value, variables);
                   }
                 }
-                if (outputBlock.columnsToAppend) {
-                  for (let i = 0; i < outputBlock.columnsToAppend.length; i++) {
-                    outputBlock.columnsToAppend[i] = await this.utils.supplant(outputBlock.columnsToAppend[i], variables);
-                  }
-                }
-
 
                 // For older versions of the server we break here.
                 // The RUN value will be adjusted later with the PUT_SCAN_ACK response
@@ -567,6 +560,129 @@ export class ScanProvider {
                 break;
               }
               // end::remote_components
+              case 'google_sheets': {
+                // Interpolate variables
+                if (outputBlock.googleSheetsUrl) {
+                  outputBlock.googleSheetsUrl = await this.utils.supplant(outputBlock.googleSheetsUrl, variables);
+                }
+                if (outputBlock.googleSheetsValues) {
+                  for (let i = 0; i < outputBlock.googleSheetsValues.length; i++) {
+                    outputBlock.googleSheetsValues[i].value = await this.utils.supplant(outputBlock.googleSheetsValues[i].value, variables);
+                  }
+                }
+                if (outputBlock.googleSheetsCellColumn) {
+                  outputBlock.googleSheetsCellColumn = await this.utils.supplant(outputBlock.googleSheetsCellColumn, variables);
+                }
+
+                this.keyboardInput.lock('Executing ' + outputBlock.name.toUpperCase() + ', please wait...');
+                try {
+                  // Build the data payload
+                  const data: any = {};
+
+                  // Add values from googleSheetsValues
+                  if (outputBlock.googleSheetsValues) {
+                    for (const item of outputBlock.googleSheetsValues) {
+                      if (item.column && item.value !== undefined) {
+                        data[item.column] = item.value;
+                      }
+                    }
+                  }
+
+                  // Determine the action to use
+                  const action = outputBlock.googleSheetsAction || 'append_or_update';
+
+                  // For get_cell, we use the 'get' endpoint but will extract a specific cell later
+                  const apiAction = action === 'get_cell' ? 'get' : action;
+
+                  // Build the request body according to the new API spec
+                  const requestBody: any = {
+                    data: data,
+                    sheetUrl: outputBlock.googleSheetsUrl,
+                    googleSheetKeyColumn: outputBlock.googleSheetKeyColumn || 'barcode',
+                    action: apiAction,
+                  };
+
+                  // Make the HTTP request to the Google Sheets webhook
+                  const response = await fetch(Config.URL_GOOGLE_SHEETS_WEBHOOK, {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                      'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(requestBody)
+                  });
+
+                  if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+                  }
+
+                  const responseData = await response.json();
+
+                  // Handle different action responses
+                  let resultValue = '';
+
+                  if (action === 'append_or_update') {
+                    // Response: { ok: true, action: 'appended' | 'updated' }
+                    resultValue = responseData.action || 'completed';
+                  } else if (action === 'get') {
+                    // Response: { ok: true, row: [...], headers: [...] }
+                    if (responseData.row && responseData.headers) {
+                      // Build an object from headers and row values
+                      const rowObject: any = {};
+                      responseData.headers.forEach((header: string, index: number) => {
+                        rowObject[header] = responseData.row[index] || '';
+                      });
+                      resultValue = JSON.stringify(rowObject);
+                      // Also store individual values in variables for easy access
+                      Object.keys(rowObject).forEach(key => {
+                        variables[`google_sheets_${key}`] = rowObject[key];
+                      });
+                    } else {
+                      resultValue = 'Row not found';
+                    }
+                  } else if (action === 'get_cell') {
+                    // Response: { ok: true, row: [...], headers: [...] }
+                    // Extract only the specific cell value
+                    if (responseData.row && responseData.headers && outputBlock.googleSheetsCellColumn) {
+                      const columnIndex = responseData.headers.indexOf(outputBlock.googleSheetsCellColumn);
+                      if (columnIndex !== -1) {
+                        resultValue = responseData.row[columnIndex] || '';
+                        // Also store the cell value in a specific variable
+                        variables[`google_sheets_${outputBlock.googleSheetsCellColumn}`] = resultValue;
+                      } else {
+                        resultValue = 'Column not found';
+                      }
+                    } else if (!outputBlock.googleSheetsCellColumn) {
+                      resultValue = 'Cell column not specified';
+                    } else {
+                      resultValue = 'Row not found';
+                    }
+                  } else if (action === 'delete') {
+                    // Response: { ok: true, action: 'delete' }
+                    resultValue = 'deleted';
+                  }
+
+                  // Split the assignment in two instructions so that if the fetch throws an exception
+                  // the value is maintained untouched.
+                  outputBlock.value = resultValue;
+                  outputBlock.markAsACKValue = true;
+                  this.keyboardInput.unlock();
+                  // For some reason the assigment isn't working (UI doesn't update)
+                  variables[outputBlock.type] = outputBlock.value;
+                } catch (e) {
+                  outputBlock.markAsACKValue = false;
+                  this.keyboardInput.unlock();
+                  // Show error message
+                  if (!outputBlock.skipOutput) {
+                    await this.showAlert({ name: 'ALERT', icon: 'table', value: e.message || e, type: 'alert', alertTitle: 'GOOGLE_SHEETS Error', alertOkButton: 'Ok' });
+                    // Quirk: the manual mode never stops
+                    if (this.acqusitionMode == 'manual') again();
+                    return;
+                  }
+                }
+                break;
+              }
               case 'beep': {
                 // this code is duplicated on the server side for the TEST AUDIO button (settings.html)
                 let beepSpeed;
@@ -705,11 +821,9 @@ export class ScanProvider {
           resetAgainCountTimer = setTimeout(() => againCount = 0, 500);
 
           // Serverless mode
-          if (await this.settings.getEnableServerlessMode()) {
-            const resultBlock = scan.outputBlocks.find(x => x.httpUseResultAsACK === true);
-            if (resultBlock) {
-              scan.ack = resultBlock.markAsACKValue;
-            }
+          const resultBlock = scan.outputBlocks.find(x => x.httpUseResultAsACK === true);
+          if (resultBlock) {
+            scan.ack = resultBlock.markAsACKValue;
           }
 
           observer.next(scan);

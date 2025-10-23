@@ -22,6 +22,7 @@ export class Config {
 
   public static URL_INCENTIVE_EMAIL_WEBHOOK = 'https://n8n.eesystems.it/webhook/incentive-email-download'
   public static URL_CLOUD_PING = 'https://n8n.eesystems.it/webhook/ping';
+  public static URL_GOOGLE_SHEETS_WEBHOOK = 'https://gsheets.eesystems.it/webhook/v4.8.10-gsheet';
 
   public static URL_LICENSE_SERVER = 'https://license.barcodetopc.com/v5';
   public static URL_LICENSE_SERVER_ENTERPRISE_CLAIM = 'https://license.barcodetopc.com/v5/enterprise/claim';
