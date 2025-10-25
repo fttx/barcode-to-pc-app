@@ -508,6 +508,12 @@ export class ScanProvider {
                     this.keyboardInput.unlock();
                     // For some reason the assigment isn't working (UI doesn't update)
                     variables[outputBlock.type] = outputBlock.value;
+                    try {
+                      const parsedValue = JSON.parse(outputBlock.value);
+                      if (this.outputProfile.version && new SemVer(this.outputProfile.version).compare('4.8.10') >= 0) {
+                        variables[outputBlock.type] = parsedValue;
+                      }
+                    } catch { }
                   } catch (e) {
                     outputBlock.markAsACKValue = false;
                     this.keyboardInput.unlock();
@@ -551,6 +557,16 @@ export class ScanProvider {
                   // For some reason the assigment isn't working (UI doesn't update)
                   Object.assign(outputBlock, newOutputBlock);
                   variables[outputBlock.type] = outputBlock.value;
+
+                  // For http components, try to parse the value as JSON
+                  if (outputBlock.type == 'http') {
+                    try {
+                      const parsedValue = JSON.parse(outputBlock.value);
+                      if (this.outputProfile.version && new SemVer(this.outputProfile.version).compare('4.8.10') >= 0) {
+                        variables[outputBlock.type] = parsedValue;
+                      }
+                    } catch { }
+                  }
                 } catch {
                   this.keyboardInput.unlock();
                   // Quirk: the manual mode never stops
