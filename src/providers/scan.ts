@@ -669,7 +669,12 @@ export class ScanProvider {
                   outputBlock.markAsACKValue = true;
                   this.keyboardInput.unlock();
                   // For some reason the assigment isn't working (UI doesn't update)
+                  // If the returned value is a valid JSON, we parse it first
                   variables[outputBlock.type] = outputBlock.value;
+                  try {
+                    const parsedValue = JSON.parse(outputBlock.value);
+                    variables[outputBlock.type] = parsedValue;
+                  } catch { }
                 } catch (e) {
                   outputBlock.markAsACKValue = false;
                   this.keyboardInput.unlock();
