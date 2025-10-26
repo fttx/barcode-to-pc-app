@@ -24,5 +24,5 @@
    NodeJS            : [2mv14.17.6[22m [2m(/Users/filippo/.nvm/versions/node/v14.17.6/bin/node)[22m
    npm               : [2m8.5.5[22m
    OS                : [2mmacOS[22m
-   Xcode             : [2mXcode 16.2 Build version 16C5032a[22m
+   Xcode             : [2mXcode 16.4 Build version 16F6[22m
 

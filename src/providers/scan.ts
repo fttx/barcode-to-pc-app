@@ -1182,7 +1182,7 @@ export class ScanProvider {
       }
 
       this.camera.getPicture(options).then((imageDataBase64) => {
-        const base64Img = 'data:image/jpeg;base64,' + imageDataBase64;
+        const base64Img = imageDataBase64.startsWith('data:') ? imageDataBase64 : 'data:image/jpeg;base64,' + imageDataBase64;
         resolve(base64Img);
       }, (err) => {
         reject(err);
