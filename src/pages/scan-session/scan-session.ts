@@ -151,18 +151,8 @@ export class ScanSessionPage {
     }, 0);
 
     // PDA::start
-    // Listen for barcode scans from PDA devices using the intent actions registered in config.xml
     this.webIntent.registerBroadcastReceiver({
-      filterActions: [
-        'com.scanner.broadcast',
-        'com.dwexample.ACTION',
-        'com.dwexample.action',
-        'com.android.server.scannerservice.broadcast',
-        'android.intent.action.SCANRESULT',
-        'scan.rcv.message',
-        'com.zkc.scancode',
-        'nlscan.action.SCANNER_RESULT'
-      ],
+      filterActions: (await this.settings.getPDAIntents()).split(','),
     }).subscribe(intent => {
       let data = null;
       if (!intent || !intent.extras) {

@@ -54,6 +54,7 @@ export class Settings {
   private static OFFLINE_MODE_ENABLED = 'offline_mode_enabled';
   private static IS_PDA_DEVICE_DIALOG_SHOWN = 'is_pda_device_dialog_shown';
   private static IS_PDA_DEVICE = 'is_pda_device';
+  private static PDA_INTENTS = 'pda_intents';
   private static ALWAYS_USE_CAMERA_FOR_SCAN_SESSION_NAME = 'always_use_camera_for_scan_session_name';
   private static UNSYNCED_DELETED_SCAN_SESIONS = 'unsynced_deleted_scan_sesions';
   private static UNSYNCED_RESTORED_SCAN_SESIONS = 'unsynced_restored_scan_sesions';
@@ -521,6 +522,19 @@ export class Settings {
     return this.storage.get(Settings.DISABLE_KEYBOARD_AUTOFOCUS).then(result => { return result === true });
   }
 
+  setPDAIntents(pdaIntents: string) {
+    return this.storage.set(Settings.PDA_INTENTS, pdaIntents);
+  }
+
+  getPDAIntents() {
+    return this.storage.get(Settings.PDA_INTENTS).then(result => {
+      if (result == null || typeof result != 'string') {
+        return 'com.scanner.broadcast,com.dwexample.ACTION,com.dwexample.action';
+      }
+      return result;
+    });
+  }
+
   setEnableLimitBarcodeFormats(enableLimitBarcodeFormats: boolean) {
     return this.storage.set(Settings.ENABLE_LIMIT_BARCODE_FORMATS, enableLimitBarcodeFormats);
   }
@@ -738,6 +752,7 @@ export class Settings {
       'duplicate_barcode_choice': this.setDuplicateBarcodeChoice.bind(this),
       'allow_output_template_selection': this.setAllowOutputTemplateSelection.bind(this),
       'always_use_camera_for_scan_session_name': this.setAlwaysUseCameraForScanSessionName.bind(this),
+      'pda_intents': this.setPDAIntents.bind(this),
       'saved_geolocations': this.setSavedGeoLocations.bind(this),
       'enable_serverless_mode': this.setEnableServerlessMode.bind(this),
       // Add more keys and bindings as needed
