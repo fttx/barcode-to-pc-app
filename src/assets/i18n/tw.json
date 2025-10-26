@@ -155,6 +155,7 @@
   "scanSessionNameDivider": "掃描會話名稱",
   "cameraDivider": "相機",
   "pdaSettings": "PDA 設置",
+  "pdaSettingsDescription": "在您設備的系統掃描器設置中，將 Broadcast Intent Action 設置為 \"com.barcodetopc.scan\" 並將類別留空",
   "disableKeyboarAutofocus": "隱藏虛擬鍵盤",
   "disableKeyboarAutofocusDescription": "系統鍵盤不會自動打開。需要手動點擊輸入框",
   "pdaIntents": "意圖操作",

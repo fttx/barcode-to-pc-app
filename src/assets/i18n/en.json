@@ -155,6 +155,7 @@
   "scanSessionNameDivider": "Scan session name",
   "cameraDivider": "Camera",
   "pdaSettings": "PDA Settings",
+  "pdaSettingsDescription": "In your device's system scanner settings, set the Broadcast Intent Action to \"com.barcodetopc.scan\" and leave the Category empty",
   "disableKeyboarAutofocus": "Hide virtual keyboard",
   "disableKeyboarAutofocusDescription": "The system keyboard won't open automatically. A manual tap on the input field will be required",
   "pdaIntents": "Intent actions",

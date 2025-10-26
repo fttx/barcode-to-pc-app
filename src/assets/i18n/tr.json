@@ -155,6 +155,7 @@
   "scanSessionNameDivider": "Tarama oturumu adı",
   "cameraDivider": "Kamera",
   "pdaSettings": "PDA Ayarları",
+  "pdaSettingsDescription": "Cihazınızın sistem tarayıcı ayarlarında, Broadcast Intent Action değerini \"com.barcodetopc.scan\" olarak ayarlayın ve kategoriyi boş bırakın",
   "disableKeyboarAutofocus": "Sanal klavyeyi gizle",
   "disableKeyboarAutofocusDescription": "Sistem klavyesi otomatik olarak açılmayacaktır. Giriş alanına manuel dokunma gerekecektir",
   "pdaIntents": "Niyet eylemleri",

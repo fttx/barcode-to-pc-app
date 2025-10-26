@@ -155,6 +155,7 @@
   "scanSessionNameDivider": "اسم جلسة المسح",
   "cameraDivider": "الكاميرا",
   "pdaSettings": "إعدادات PDA",
+  "pdaSettingsDescription": "في إعدادات الماسح الضوئي بالنظام لجهازك، اضبط Broadcast Intent Action على \"com.barcodetopc.scan\" واترك الفئة فارغة",
   "disableKeyboarAutofocus": "إخفاء لوحة المفاتيح الافتراضية",
   "disableKeyboarAutofocusDescription": "لوحة المفاتيح النظام لن تظهر تلقائياً. سيتطلب الأمر النقر يدوياً على حقل الإدخال",
   "pdaIntents": "أفعال النوايا",
