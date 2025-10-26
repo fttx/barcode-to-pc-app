@@ -526,12 +526,46 @@ export class Settings {
     return this.storage.set(Settings.PDA_INTENTS, pdaIntents);
   }
 
+  /**
+   * @deprecated Legacy method for backward compatibility.
+   * Android no longer allows runtime registration of broadcast receivers.
+   * All intent actions are now statically registered in config.xml.
+   * This method returns the hardcoded list from config.xml plus any user-configured
+   * intents for backward compatibility.
+   */
   getPDAIntents() {
+    // These are the intent actions statically registered in config.xml
+    const configXmlIntents = [
+      'com.symbol.datawedge.api.RESULT_ACTION',
+      'com.symbol.datawedge.api.NOTIFICATION_ACTION',
+      'com.symbol.datawedge.api.ACTION',
+      'com.dwexample.ACTION',
+      'com.dwexample.action',
+      'com.scanner.broadcast',
+      'com.android.server.scannerservice.broadcast',
+      'android.intent.action.SCANRESULT',
+      'scan.rcv.message',
+      'com.zkc.scancode',
+      'nlscan.action.SCANNER_RESULT',
+      'com.barcodetopc.scan',
+      'com.barcodetopc.sync'
+    ];
+
     return this.storage.get(Settings.PDA_INTENTS).then(result => {
-      if (result == null || typeof result != 'string') {
-        return 'com.scanner.broadcast,com.dwexample.ACTION,com.dwexample.action';
+      // Combine config.xml intents with any user-configured intents for backward compatibility
+      let allIntents = configXmlIntents.slice(); // Use slice() for ES5 compatibility instead of spread operator
+
+      if (result && typeof result === 'string') {
+        // Parse user-configured intents and add any that aren't already in the list
+        const userIntents = result.split(',').map(function (intent) { return intent.trim(); }).filter(function (intent) { return intent.length > 0; });
+        userIntents.forEach(function (intent) {
+          if (allIntents.indexOf(intent) === -1) { // Use indexOf for ES5 compatibility
+            allIntents.push(intent);
+          }
+        });
       }
-      return result;
+
+      return allIntents.join(',');
     });
   }
 
