@@ -26,7 +26,6 @@ import { TranslateService } from '@ngx-translate/core';
 export class SettingsPage {
   public deviceName: string;
   public scanSessionName: string;
-  public pdaIntents: string;
   public scanSessionFilter: string;
   public continueModeTimeout = Config.DEFAULT_CONTINUE_MODE_TIMEOUT;
   public repeatInterval = Config.DEFAULT_REPEAT_INVERVAL;
@@ -123,10 +122,6 @@ export class SettingsPage {
 
     this.settings.getScanSessionName().then(scanSessionName => {
       this.scanSessionName = scanSessionName;
-    })
-
-    this.settings.getPDAIntents().then(pdaIntents => {
-      this.pdaIntents = pdaIntents;
     })
 
     this.settings.getScanSessionFilter().then(scanSessionFilter => {
@@ -244,7 +239,6 @@ export class SettingsPage {
     this.settings.setDuplicateBarcodeChoice(this.duplicateBarcodeChoice);
     this.settings.setDeviceName(this.deviceName);
     this.settings.setScanSessionName(this.scanSessionName);
-    this.settings.setPDAIntents(this.pdaIntents);
     this.settings.setScanSessionFilter(this.scanSessionFilter);
     this.settings.setAlwaysUseDefaultScanSessionName(this.alwaysUseDefaultScanSessionName);
     this.settings.setAlwaysUseCameraForScanSessionName(this.alwaysUseCameraForScanSessionName);
