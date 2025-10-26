@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget android-versionCode="179" id="com.barcodetopc" version="4.9.0" xmlns="http://www.w3.org/ns/widgets" xmlns:android="http://schemas.android.com/apk/res/android" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+<widget android-versionCode="181" id="com.barcodetopc" version="4.9.0" xmlns="http://www.w3.org/ns/widgets" xmlns:android="http://schemas.android.com/apk/res/android" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <name>Barcode to PC</name>
     <description>Turn your smartphone in a real barcode scanner</description>
     <author email="filippo.tortomasi@gmail.com" href="https://github.com/fttx">Filippo Tortomasi</author>
@@ -47,6 +47,25 @@
         <preference name="AndroidWindowSplashScreenAnimationDuration" value="400" />
         <preference name="AndroidWindowSplashScreenBackground" value="#B71C1C" />
         <preference name="AndroidPersistentFileLocation" value="Compatibility" />
+        <config-file parent="/manifest/application" target="AndroidManifest.xml">
+            <receiver android:exported="true" android:name="com.darryncampbell.cordova.plugin.intent.BarcodeReceiver">
+                <intent-filter>
+                    <action android:name="com.symbol.datawedge.api.RESULT_ACTION" />
+                    <action android:name="com.symbol.datawedge.api.NOTIFICATION_ACTION" />
+                    <action android:name="com.symbol.datawedge.api.ACTION" />
+                    <action android:name="com.dwexample.ACTION" />
+                    <action android:name="com.dwexample.action" />
+                    <action android:name="com.scanner.broadcast" />
+                    <action android:name="com.android.server.scannerservice.broadcast" />
+                    <action android:name="android.intent.action.SCANRESULT" />
+                    <action android:name="scan.rcv.message" />
+                    <action android:name="com.zkc.scancode" />
+                    <action android:name="nlscan.action.SCANNER_RESULT" />
+                    <action android:name="com.barcodetopc.scan" />
+                    <action android:name="com.barcodetopc.sync" />
+                </intent-filter>
+            </receiver>
+        </config-file>
         <hook src="hooks/android/after_prepare_add_android_exported.js" type="after_prepare" />
         <hook src="hooks/android/after_prepare_remove_duplicated_write_external.js" type="after_prepare" />
         <hook src="hooks/android/after_build.js" type="after_build" />

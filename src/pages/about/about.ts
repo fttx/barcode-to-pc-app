@@ -37,6 +37,8 @@ export class AboutPage {
     this.events.subscribe('status:version', (version) => {
       this.dataWedgeVersion = version.DATAWEDGE;
       this.zebraDebug = Object.keys(version).map(key => `${key}: ${version[key]}`).join('<br>');
+      // Reload debug info after receiving zebra version
+      this.loadDebug();
     });
     this.zebra.requestVersion();
   }

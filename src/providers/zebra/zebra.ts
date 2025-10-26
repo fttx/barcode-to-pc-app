@@ -34,8 +34,10 @@ export class ZebraProvider {
       //  Set up a broadcast receiver to listen for incoming scans
       this.webIntent.registerBroadcastReceiver({
         filterActions: [
-          ...actions,                             //  Response from scan (needs to match value in output plugin)
-          'com.symbol.datawedge.api.RESULT_ACTION'//  Response from DataWedge service (as defined by API)
+          ...actions,                                       //  Response from scan (needs to match value in output plugin)
+          'com.symbol.datawedge.api.RESULT_ACTION',        //  Response from DataWedge service (as defined by API)
+          'com.symbol.datawedge.api.NOTIFICATION_ACTION',  //  Notification from DataWedge service
+          'com.symbol.datawedge.api.ACTION'                //  General DataWedge API action
         ],
         filterCategories: [
           'android.intent.category.DEFAULT'
@@ -43,7 +45,9 @@ export class ZebraProvider {
       },
       ).subscribe(intent => {
         //  Broadcast received
-        console.log('[Zebra] Received Intent: ', intent.extras);
+        console.log('[Zebra] Received Intent: ' + JSON.stringify(intent));
+        console.log('[Zebra] Intent Action: ' + (intent ? intent.action : 'no action'));
+        console.log('[Zebra] Intent Extras: ', intent.extras);
 
         //  Emit a separate event for the result associated with this scan.  This will only be present in response to
         //  API calls which included a SEND_RESULT extra
@@ -83,7 +87,10 @@ export class ZebraProvider {
           //  A barcode has been scanned
           constructorInstance.events.publish('data:scan', intent, new Date().toLocaleTimeString());
         }
-      }
+      },
+        error => {
+          console.error('[Zebra] Error in broadcast receiver subscription: ', error);
+        }
       );
 
     });
@@ -100,7 +107,7 @@ export class ZebraProvider {
   //  was introduced.
   //  extraValue may be a String or a Bundle
   sendCommand(extraName: string, extraValue) {
-    console.log("[Zebra] Sending Command: " + extraName + ", ",  extraValue);
+    console.log("[Zebra] Sending Command: " + extraName + ", ", extraValue);
     this.webIntent.sendBroadcast({
       action: 'com.symbol.datawedge.api.ACTION',
       extras: {
@@ -111,7 +118,7 @@ export class ZebraProvider {
       //  Success in sending the intent, not success of DW to process the intent.
     }).catch((error) => {
       //  Failure in sending the intent, not failure of DW to process the intent.
-      console.log("[Zebra] Error sending broadcast: ",error);
+      console.log("[Zebra] Error sending broadcast: ", error);
     });
   }
 
@@ -120,4 +127,3 @@ export class ZebraProvider {
   }
 
 }
-
