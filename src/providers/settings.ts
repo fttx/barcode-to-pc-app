@@ -527,14 +527,35 @@ export class Settings {
   }
 
   /**
-   * @deprecated Legacy method for backward compatibility.
-   * Android no longer allows runtime registration of broadcast receivers.
-   * All intent actions are now statically registered in config.xml.
-   * This method returns the hardcoded list from config.xml plus any user-configured
-   * intents for backward compatibility.
+   * Gets user-configurable PDA intents for display in the UI.
+   * Only returns intents that users can add/remove, excluding hardcoded config.xml intents
+   * (except for 'com.barcodetopc.scan' which is user-configurable).
+   *
+   * @returns Promise<string> Comma-separated list of user-configurable intent actions
    */
   getPDAIntents() {
+    return this.storage.get(Settings.PDA_INTENTS).then(result => {
+      if (!result || typeof result !== 'string') {
+        // Default to only com.barcodetopc.scan as the visible/configurable intent
+        return 'com.barcodetopc.scan';
+      }
+      return result;
+    });
+  }
+
+  /**
+   * Gets all PDA intents (both hardcoded config.xml intents and user-configured intents).
+   * This method is used for actual intent filtering/listening.
+   *
+   * Android no longer allows runtime registration of broadcast receivers.
+   * All intent actions are statically registered in config.xml and always active.
+   * User-configured intents are added on top of these hardcoded ones.
+   *
+   * @returns Promise<string> Comma-separated list of all intent actions
+   */
+  getAllPDAIntents() {
     // These are the intent actions statically registered in config.xml
+    // They are always active regardless of user settings
     const configXmlIntents = [
       'com.symbol.datawedge.api.RESULT_ACTION',
       'com.symbol.datawedge.api.NOTIFICATION_ACTION',
@@ -547,12 +568,11 @@ export class Settings {
       'scan.rcv.message',
       'com.zkc.scancode',
       'nlscan.action.SCANNER_RESULT',
-      'com.barcodetopc.scan',
       'com.barcodetopc.sync'
     ];
 
     return this.storage.get(Settings.PDA_INTENTS).then(result => {
-      // Combine config.xml intents with any user-configured intents for backward compatibility
+      // Start with config.xml intents
       let allIntents = configXmlIntents.slice(); // Use slice() for ES5 compatibility instead of spread operator
 
       if (result && typeof result === 'string') {

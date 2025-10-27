@@ -152,7 +152,7 @@ export class ScanSessionPage {
 
     // PDA::start
     this.webIntent.registerBroadcastReceiver({
-      filterActions: (await this.settings.getPDAIntents()).split(','),
+      filterActions: (await this.settings.getAllPDAIntents()).split(','),
     }).subscribe(intent => {
       let data = null;
       if (!intent || !intent.extras) {
