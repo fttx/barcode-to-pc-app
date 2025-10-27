@@ -81,9 +81,27 @@ export class SelectScanningModePage {
       this.outputProfiles = await this.settings.generateDefaultOutputProfiles();
     }
 
-    this.selectedOutputProfileIndex = await this.settings.getSelectedOutputProfile();
-    // Prevent OutOfBounds.
-    // The same logic is duplicated in the ScanProvider/getOutputProfile() method
+    // Get the previously selected profile index from the FULL list
+    const savedIndexInFullList = await this.settings.getSelectedOutputProfile();
+
+    // Find the actual profile from the full list using the saved index
+    let previouslySelectedProfile = null;
+    if (savedIndexInFullList >= 0 && savedIndexInFullList < allOutputProfiles.length) {
+      previouslySelectedProfile = allOutputProfiles[savedIndexInFullList];
+    }
+
+    // Find the index of this profile in the filtered list
+    if (previouslySelectedProfile) {
+      this.selectedOutputProfileIndex = this.outputProfiles.findIndex(p => p.name === previouslySelectedProfile.name);
+      // If the previously selected profile is not in the filtered list, default to first
+      if (this.selectedOutputProfileIndex === -1) {
+        this.selectedOutputProfileIndex = 0;
+      }
+    } else {
+      this.selectedOutputProfileIndex = 0;
+    }
+
+    // Prevent OutOfBounds (safety check)
     if (this.selectedOutputProfileIndex >= this.outputProfiles.length) {
       this.selectedOutputProfileIndex = this.outputProfiles.length - 1;
     }
@@ -96,9 +114,12 @@ export class SelectScanningModePage {
     this.allowOutputTemplateSelection = await this.settings.getAllowOutputTemplateSelection();
     this.defaultMode = await this.settings.getDefaultMode();
     if (this.isDefaultModeSet() && (!this.allowOutputTemplateSelection || this.outputProfiles.length == 1)) {
+      // Find the index in the full list to return
+      const indexInFullList = allOutputProfiles.findIndex(p => p.name === this.selectedOutputProfile.name);
+
       this.viewCtrl.dismiss({
         scanMode: this.defaultMode,
-        selectedOutputProfileIndex: this.selectedOutputProfileIndex,
+        selectedOutputProfileIndex: indexInFullList !== -1 ? indexInFullList : savedIndexInFullList,
         scanSession: await this.getScanSession()
       });
     }
@@ -129,17 +150,31 @@ export class SelectScanningModePage {
       return;
     }
 
-    let selectedOutputProfileIndex = this.outputProfiles.indexOf(this.selectedOutputProfile);
+    let selectedOutputProfileIndexInFilteredList = this.outputProfiles.indexOf(this.selectedOutputProfile);
+
+    // Find the index in the FULL list of profiles
+    // This is critical because ScanProvider expects an index from the full list
+    const allOutputProfiles = await this.settings.getOutputProfiles();
+    const indexInFullList = allOutputProfiles.findIndex(p => p.name === this.selectedOutputProfile.name);
+
     // If the user checked the option to save the mode
     if (this.setAsDefaultMode) {
       this.settings.setDefaultMode(scanMode);
     }
-    this.settings.setSelectedOutputProfile(selectedOutputProfileIndex);
 
-    // Return the data to the caller view
+    // Save the index in the full list
+    if (indexInFullList !== -1) {
+      this.settings.setSelectedOutputProfile(indexInFullList);
+    } else {
+      // Fallback: if not found in full list (shouldn't happen), use the filtered index
+      this.settings.setSelectedOutputProfile(selectedOutputProfileIndexInFilteredList);
+    }
+
+    // Return the index in the FULL list, not the filtered list
+    // because ScanProvider.scan() expects an index from the full list
     this.viewCtrl.dismiss({
       scanMode: scanMode,
-      selectedOutputProfileIndex: selectedOutputProfileIndex,
+      selectedOutputProfileIndex: indexInFullList !== -1 ? indexInFullList : selectedOutputProfileIndexInFilteredList,
       scanSession: await this.getScanSession()
     });
   }
