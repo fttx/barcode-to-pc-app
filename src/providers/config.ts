@@ -30,6 +30,8 @@ export class Config {
   // public static URL_LICENSE_SERVER = 'http://192.168.0.36:3000/v5';
   // public static URL_LICENSE_SERVER_ENTERPRISE_CLAIM = 'http://192.168.0.36:3000/v5/enterprise/claim';
 
+  public static URL_LIVE_FEATURES = 'https://static.barcodetopc.com/app-updates/v1/features.js';
+
   public static DOCS_ANDROID_PDA = 'https://docs.barcodetopc.com/examples/android-pda-devices/';
   public static DOCS_QRBILL = 'https://docs.barcodetopc.com/special-barcodes/swiss-qr-codes/qr-bill/';
 

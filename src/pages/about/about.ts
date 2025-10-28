@@ -2,9 +2,10 @@ import { Component } from '@angular/core';
 import { AppVersion } from '@ionic-native/app-version';
 import { Config } from '../../providers/config';
 import { ZebraProvider } from '../../providers/zebra/zebra';
-import { Events } from 'ionic-angular';
+import { Events, NavController } from 'ionic-angular';
 import { LastToastProvider } from '../../providers/last-toast/last-toast';
 import { BtpaInAppBrowser } from '../../providers/btpa-in-app-browser/btpa-in-app-browser';
+import { AdvancedSettingsPage } from '../advanced-settings/advanced-settings';
 
 @Component({
   selector: 'page-about',
@@ -24,6 +25,7 @@ export class AboutPage {
     private events: Events,
     private zebra: ZebraProvider,
     private lastToast: LastToastProvider,
+    private navCtrl: NavController,
   ) { }
 
   ionViewDidEnter() {
@@ -65,6 +67,10 @@ export class AboutPage {
 
   onPrivacyPolicyClick() {
     this.iab.create(Config.URL_PRIVACY_POLICY, '_system');
+  }
+
+  openAdvancedSettings() {
+    this.navCtrl.push(AdvancedSettingsPage);
   }
 
   private appVersionClickCount = 0;

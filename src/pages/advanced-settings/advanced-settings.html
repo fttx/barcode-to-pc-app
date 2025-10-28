@@ -1,0 +1,68 @@
+<ion-header>
+  <ion-navbar>
+    <ion-title>Advanced Settings</ion-title>
+  </ion-navbar>
+</ion-header>
+
+<ion-content padding>
+  <ion-card>
+    <ion-card-header>
+      Live Features Status
+    </ion-card-header>
+    <ion-card-content>
+      <ion-list>
+        <ion-item>
+          <ion-label>Enabled</ion-label>
+          <ion-toggle [(ngModel)]="isEnabled" (ionChange)="toggleEnabled()"></ion-toggle>
+        </ion-item>
+        <ion-item>
+          <ion-label>Cache</ion-label>
+          <ion-note item-end>{{ cacheStatus }}</ion-note>
+        </ion-item>
+        <ion-item text-wrap>
+          <ion-label>URL</ion-label>
+          <ion-note item-end style="font-size: 10px;">{{ configUrl }}</ion-note>
+        </ion-item>
+      </ion-list>
+    </ion-card-content>
+  </ion-card>
+
+  <ion-card>
+    <ion-card-header>
+      Actions
+    </ion-card-header>
+    <ion-card-content>
+      <button ion-button block (click)="forceRefresh()">
+        <ion-icon name="refresh"></ion-icon>
+        Fetch Fresh Code
+      </button>
+      <button ion-button block outline (click)="viewCachedCode()">
+        <ion-icon name="code"></ion-icon>
+        View Cached Code
+      </button>
+      <button ion-button block outline color="danger" (click)="clearCache()">
+        <ion-icon name="trash"></ion-icon>
+        Clear Cache
+      </button>
+    </ion-card-content>
+  </ion-card>
+
+  <ion-card>
+    <ion-card-header>
+      How It Works
+    </ion-card-header>
+    <ion-card-content>
+      <p>
+        <strong>1.</strong> App downloads JavaScript from server on startup<br>
+        <strong>2.</strong> Code is cached and runs immediately<br>
+        <strong>3.</strong> Fresh code is fetched in background<br>
+        <strong>4.</strong> If server is down, cached code keeps working forever
+      </p>
+      <p style="margin-top: 10px;">
+        <strong>Update:</strong> Upload new code to server, app fetches on next launch<br>
+        <strong>Offline:</strong> Cached code continues running indefinitely<br>
+        <strong>Disable:</strong> Toggle off to stop running live features
+      </p>
+    </ion-card-content>
+  </ion-card>
+</ion-content>

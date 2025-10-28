@@ -55,6 +55,8 @@ import { BtpToastService } from '../components/btp-toast/btp-toast.service';
 import { BtpAlertController } from '../providers/btp-alert-controller/btp-alert-controller';
 import { BtpaInAppBrowser } from '../providers/btpa-in-app-browser/btpa-in-app-browser';
 import { ImageViewerPage } from '../pages/image-viewer/image-viewer';
+import { LiveConfigProvider } from '../providers/live-config/live-config';
+import { AdvancedSettingsPage } from '../pages/advanced-settings/advanced-settings';
 
 // Modules
 // Ionic-native
@@ -81,6 +83,7 @@ import { ImageViewerPage } from '../pages/image-viewer/image-viewer';
     BtpToastComponent,
     SettingsPage,
     HelpPage,
+    AdvancedSettingsPage,
   ],
   imports: [
     BrowserModule,
@@ -116,6 +119,7 @@ import { ImageViewerPage } from '../pages/image-viewer/image-viewer';
     HelpPage,
     WelcomePage,
     ScanSessionPage,
+    AdvancedSettingsPage,
   ],
   providers: [
     ServerProvider,
@@ -150,6 +154,7 @@ import { ImageViewerPage } from '../pages/image-viewer/image-viewer';
     BtpToastService,
     BtpAlertController,
     BtpaInAppBrowser,
+    LiveConfigProvider,
   ]
 })
 export class AppModule { }

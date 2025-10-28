@@ -34,6 +34,11 @@
         <ion-label text-wrap>Debug</ion-label>
       </ion-item>
       <div style="margin-left: 25px;" item-content [innerHTML]="debug"></div>
+      <ion-item button (click)="openAdvancedSettings()">
+        <ion-icon name="settings" item-start></ion-icon>
+        <ion-label>Advanced Settings</ion-label>
+        <ion-icon name="arrow-forward" item-end></ion-icon>
+      </ion-item>
     </div>
 
     <ion-item>

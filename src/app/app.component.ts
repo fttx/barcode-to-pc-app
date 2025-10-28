@@ -28,6 +28,7 @@ import { ServerProvider } from '../providers/server';
 import { responseModel } from '../models/response.model';
 import { BtpaInAppBrowser } from '../providers/btpa-in-app-browser/btpa-in-app-browser';
 import { Device } from '@ionic-native/device';
+import { LiveConfigProvider } from '../providers/live-config/live-config';
 
 @Component({
   templateUrl: 'app.html',
@@ -59,6 +60,7 @@ export class MyApp {
     private iab: BtpaInAppBrowser,
     private btpToastCtrl: BtpToastService,
     private device: Device,
+    private liveConfig: LiveConfigProvider,
   ) {
     platform.ready().then(async () => {
 
@@ -174,6 +176,9 @@ export class MyApp {
       this.nativeAudio.preloadSimple('beep_two_tone', 'assets/audio/beep_two_tone.ogg');
       this.nativeAudio.preloadSimple('beep_double', 'assets/audio/beep_double.ogg');
       this.nativeAudio.preloadSimple('beep', 'assets/audio/beep.ogg');
+
+      // Initialize live feature updates
+      this.liveConfig.init();
 
       if (this.platform.is('ios')) {
         // Listen for when the keyboard will be shown
