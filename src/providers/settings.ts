@@ -556,6 +556,9 @@ export class Settings {
   getAllPDAIntents() {
     // These are the intent actions statically registered in config.xml
     // They are always active regardless of user settings
+    // NOTE: 'com.barcodetopc.sync' is intentionally excluded from this list
+    // because it's handled separately in scan-session.ts for the "repeat all" functionality
+    // and should NOT be used for barcode scanning to avoid triggering both receivers
     const configXmlIntents = [
       'com.symbol.datawedge.api.RESULT_ACTION',
       'com.symbol.datawedge.api.NOTIFICATION_ACTION',
@@ -567,8 +570,8 @@ export class Settings {
       'android.intent.action.SCANRESULT',
       'scan.rcv.message',
       'com.zkc.scancode',
-      'nlscan.action.SCANNER_RESULT',
-      'com.barcodetopc.sync'
+      'nlscan.action.SCANNER_RESULT'
+      // 'com.barcodetopc.sync' - EXCLUDED: reserved for sync/repeat functionality only
     ];
 
     return this.storage.get(Settings.PDA_INTENTS).then(result => {

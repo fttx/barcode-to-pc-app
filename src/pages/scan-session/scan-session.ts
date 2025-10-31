@@ -66,6 +66,8 @@ export class ScanSessionPage {
   private catchUpIOSLag = false;
   private disableKeyboarAutofocus: boolean = false;
   private isVisible = true;
+  private pdaBroadcastReceiverSubscription: Subscription = null;
+  private syncBroadcastReceiverSubscription: Subscription = null;
 
   constructor(
     public navParams: NavParams,
@@ -120,6 +122,55 @@ export class ScanSessionPage {
     })
   }
 
+  /**
+   * Registers the broadcast receivers for PDA scanners.
+   * This method can be called multiple times safely - it will unregister existing receivers first.
+   */
+  private async registerBroadcastReceivers() {
+    // Unregister any existing broadcast receivers first
+    if (this.pdaBroadcastReceiverSubscription) {
+      this.pdaBroadcastReceiverSubscription.unsubscribe();
+      this.pdaBroadcastReceiverSubscription = null;
+    }
+    if (this.syncBroadcastReceiverSubscription) {
+      this.syncBroadcastReceiverSubscription.unsubscribe();
+      this.syncBroadcastReceiverSubscription = null;
+    }
+
+    // Unregister at the plugin level as well
+    this.webIntent.unregisterBroadcastReceiver();
+
+    // Register PDA barcode scanning intents
+    this.pdaBroadcastReceiverSubscription = this.webIntent.registerBroadcastReceiver({
+      filterActions: (await this.settings.getAllPDAIntents()).split(','),
+    }).subscribe(intent => {
+      let data = null;
+      if (!intent || !intent.extras) {
+        console.log('No extras in the intent (probably in debug mode)');
+        return;
+      }
+      if (intent.extras.hasOwnProperty('com.symbol.datawedge.data_string')) {
+        // The Zebra devices use the DataWedge API to send the barcode, and they
+        // write the result into the intent.extras["com.symbol.datawedge.data_string"]
+        data = intent.extras["com.symbol.datawedge.data_string"];
+      } else {
+        data = intent.extras.data;
+      }
+
+      this.keyboardInput.value = data;
+      this.onEnterClick();
+    });
+
+    // Register sync/repeat intent
+    this.syncBroadcastReceiverSubscription = this.webIntent.registerBroadcastReceiver({
+      filterActions: ['com.barcodetopc.sync'],
+    }).subscribe(intent => {
+      // check if the action is actually com.barcodetopc.sync
+      if (intent.action != 'com.barcodetopc.sync') return;
+      this.onRepeatAllClick(true);
+    });
+  }
+
   async ionViewDidEnter() {
     this.isVisible = true;
     window.cordova.plugins.firebase.analytics.setCurrentScreen("ScanSessionPage");
@@ -151,31 +202,8 @@ export class ScanSessionPage {
     }, 0);
 
     // PDA::start
-    this.webIntent.registerBroadcastReceiver({
-      filterActions: (await this.settings.getAllPDAIntents()).split(','),
-    }).subscribe(intent => {
-      let data = null;
-      if (!intent || !intent.extras) {
-        console.log('No extras in the intent (probably in debug mode)');
-        return;
-      }
-      if (intent.extras.hasOwnProperty('com.symbol.datawedge.data_string')) {
-        // The Zebra devices use the DataWedge API to send the barcode, and they
-        // write the result into the intent.extras["com.symbol.datawedge.data_string"]
-        data = intent.extras["com.symbol.datawedge.data_string"];
-      } else {
-        data = intent.extras.data;
-      }
-
-      this.keyboardInput.value = data;
-      this.onEnterClick();
-    });
-
-    this.webIntent.registerBroadcastReceiver({
-      filterActions: ['com.barcodetopc.sync'],
-    }).subscribe(intent => {
-      this.onRepeatAllClick(true);
-    });
+    // Register broadcast receivers for PDA scanners
+    await this.registerBroadcastReceivers();
     // PDA::end
 
     // Init the outputTemplate by triggering the touch
@@ -233,6 +261,8 @@ export class ScanSessionPage {
 
     this.events.subscribe('settings:save', async () => {
       this.realtimeSend = await this.settings.getRealtimeSendEnabled();
+      // Re-register broadcast receivers to pick up any changes to PDA intents
+      await this.registerBroadcastReceivers();
     });
 
     this.events.subscribe('btp-alert:present', async (id) => {
@@ -265,6 +295,16 @@ export class ScanSessionPage {
     if (this.unregisterBackButton != null) {
       this.unregisterBackButton();
       this.unregisterBackButton = null;
+    }
+
+    // Unsubscribe from broadcast receivers
+    if (this.pdaBroadcastReceiverSubscription) {
+      this.pdaBroadcastReceiverSubscription.unsubscribe();
+      this.pdaBroadcastReceiverSubscription = null;
+    }
+    if (this.syncBroadcastReceiverSubscription) {
+      this.syncBroadcastReceiverSubscription.unsubscribe();
+      this.syncBroadcastReceiverSubscription = null;
     }
 
     this.webIntent.unregisterBroadcastReceiver();
